@@ -38,7 +38,7 @@ const TeamModal = () => {
       id: 3,
       name: "Yolanda Orozco López",
       role: "Administradora",
-      bio: "Contadora de profesión y administradora por vocación, Yolanda combina su experiencia y creatividad para hacer posibles los procedimientos que facilitan los proyectos de los clientes de Eskemma.",
+      bio: "Contadora de profesión y administradora por vocación, Yolanda combina su experiencia y creatividad para hacer posibles los proyectos de los clientes de Eskemma.",
       image: "https://i.pravatar.cc/150?img=10 ",
       contact: "yolandaorozcol@eskemma.com",
     },

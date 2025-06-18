@@ -46,7 +46,7 @@ export default function RegistrationSuccessModal({
         </h2>
 
         {/* Mensaje */}
-        <p className="text-[16px] text-black-eske text-center mb-6">
+        <p className="text-[16px] text-black-eske font-semibold text-center mb-6">
           ¡Gracias por completar el Registro!
         </p>
         <p className="text-[16px] text-black-eske text-center mb-6">
