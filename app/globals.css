@@ -1,0 +1,156 @@
+/* app/globals.css */
+@import 'tailwindcss';
+
+:root {
+  --background: #f7fafb;
+  --foreground: #2b2b2b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #865353;
+    --foreground: #ededed;
+  }
+}
+
+@theme {
+  --color-blue-eske: #248cc1;
+  --color-blue-eske-10: #b3e2fb;
+  --color-blue-eske-20: #8fd3f4;
+  --color-blue-eske-30: #6fc3ec;
+  --color-blue-eske-40: #53b2e0;
+  --color-blue-eske-60: #1e7ca6;
+  --color-blue-eske-70: #026988;
+  --color-blue-eske-80: #145670;
+  --color-blue-eske-90: #004062;
+
+  --color-orange-eske: #db6015;
+  --color-orange-eske-10: #ffa366;
+  --color-orange-eske-20: #ff924d;
+  --color-orange-eske-30: #fd8033;
+  --color-orange-eske-40: #ee701d;
+  --color-orange-eske-60: #ce4a0a;
+  --color-orange-eske-70: #bf3601;
+  --color-orange-eske-80: #ae2300;
+  --color-orange-eske-90: #991300;
+
+  --color-white-eske: #f7fafb;
+  --color-white-eske-10: #ffffff;
+  --color-white-eske-20: #fbfbfb;
+  --color-white-eske-30: #f9f8f8;
+  --color-white-eske-40: #f9fafb;
+  --color-white-eske-60: #fbfcfd;
+  --color-white-eske-70: #f7f9fa;
+  --color-white-eske-80: #f8fbfd;
+  --color-white-eske-90: #f4f8fc;
+
+  --color-gray-eske: #cccccc;
+  --color-gray-eske-10: #ededed;
+  --color-gray-eske-20: #e5e5e5;
+  --color-gray-eske-30: #dcdcdc;
+  --color-gray-eske-40: #d4d4d4;
+  --color-gray-eske-60: #b8b8b8;
+  --color-gray-eske-70: #a3a3a3;
+  --color-gray-eske-80: #8f8f8f;
+  --color-gray-eske-90: #7a7a7a;
+
+  --color-black-eske: #2b2b2b;
+  --color-black-eske-10: #5c5c5c;
+  --color-black-eske-20: #525252;
+  --color-black-eske-30: #474747;
+  --color-black-eske-40: #3d3d3d;
+  --color-black-eske-90: #000000;
+
+  --color-bluegreen-eske: #026988;
+  --color-bluegreen-eske-10: #b3cde5;
+  --color-bluegreen-eske-20: #8fb8d6;
+  --color-bluegreen-eske-30: #6ba4c6;
+  --color-bluegreen-eske-40: #4791b3;
+  --color-bluegreen-eske-60: #005378;
+  --color-bluegreen-eske-70: #003e66;
+  --color-bluegreen-eske-80: #002a51;
+  --color-bluegreen-eske-90: #00193b;
+
+  --color-yellow-eske: #ffd14a;
+  --color-yellow-eske-10: #fff2cc;
+  --color-yellow-eske-20: #ffeaa9;
+  --color-yellow-eske-30: #ffe48a;
+  --color-yellow-eske-40: #ffdf70;
+  --color-yellow-eske-60: #f5ca44;
+  --color-yellow-eske-70: #ebc43d;
+  --color-yellow-eske-80: #e0bd38;
+  --color-yellow-eske-90: #d6b632;
+
+  --color-green-eske: #649941;
+  --color-green-eske-10: #cce4b1;
+  --color-green-eske-20: #b3d591;
+  --color-green-eske-30: #99c374;
+  --color-green-eske-40: #7eaf5a;
+  --color-green-eske-60: #518032;
+  --color-green-eske-70: #48742c;
+  --color-green-eske-80: #3f6625;
+  --color-green-eske-90: #36591f;
+
+  --color-red-eske: #d10f3f;
+  --color-red-eske-10: #f87fa8;
+  --color-red-eske-20: #f15f8e;
+  --color-red-eske-30: #de265a;
+  --color-red-eske-40: #c00a37;
+  --color-red-eske-60: #ad062f;
+  --color-red-eske-70: #9a0228;
+  --color-red-eske-80: #870021;
+  --color-red-eske-90: #72001b;
+}
+
+@layer base {
+  html,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  body {
+    color: #2b2b2b;
+    background: #f7fafb;
+    font-family: var(--font-arimo), sans-serif; /* Arimo como fuente primaria */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-arimo), sans-serif; /* Arimo para encabezados */
+  }
+
+  .caption {
+    font-family: var(--font-pt-sans), sans-serif; /* PT Sans para captions */
+    font-size: 0.75rem; /* Tamaño pequeño para captions (12px) */
+  }
+
+  html {
+    box-sizing: border-box;
+  }
+
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+
+  h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, figcaption, blockquote, dl, dd {
+    margin: 0;
+  }
+
+  ul, ol {
+    padding-left: 0;
+    list-style: none;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
