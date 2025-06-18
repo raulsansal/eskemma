@@ -1,1 +1,1 @@
-This is a simple text
+Ahora vamos a realizar una nueva actualización de este archivo comodín para realizar nuevamente la prueba de envío a github.
