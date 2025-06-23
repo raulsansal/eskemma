@@ -1,5 +1,6 @@
+//components/componentsHome/LoginModal.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -25,6 +26,14 @@ export default function LoginModal({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Limpiar el formulario cuando el modal se abre
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({ username: "", password: "" });
+      setError(null);
+    }
+  }, [isOpen]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -33,22 +42,23 @@ export default function LoginModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError(null); // Limpiar cualquier error anterior
 
     try {
       // Usar loginUser del contexto
       await loginUser(formData.username, formData.password);
-      // No cerrar el modal aquí; loginUser ya maneja setIsLoginModalOpen(false)
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error.message);
-      if (
-        error.code === "auth/user-not-found" ||
-        error.code === "auth/wrong-password"
-      ) {
-        setError("Usuario o contraseña incorrectos.");
-      } else {
-        setError("Ocurrió un error al iniciar sesión. Inténtalo de nuevo.");
-      }
+      console.log("Error recibido en LoginModal:", {
+        code: error.code,
+        message: error.message,
+      });
+      // Mostrar mensaje de error basado en el mensaje recibido
+      setError(
+        error.message === "Nombre de usuario o contraseña incorrectos."
+          ? error.message
+          : "Ocurrió un error al iniciar sesión. Inténtalo de nuevo."
+      );
     } finally {
       setLoading(false);
     }
@@ -125,13 +135,17 @@ export default function LoginModal({
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
 
             <button
               type="submit"
               disabled={loading}
               className={`w-full text-[18px] bg-bluegreen-eske text-white-eske py-2 rounded transition-colors duration-300 ${
-                loading ? "opacity-50 cursor-not-allowed" : "hover:bg-bluegreen-eske-60"
+                loading
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-bluegreen-eske-60"
               }`}
             >
               {loading ? "Cargando..." : "INICIAR SESIÓN"}
@@ -178,7 +192,10 @@ export default function LoginModal({
 
             <p className="text-[14px] text-black-eske text-center">
               ¿No recuerdas tu contraseña?{" "}
-              <Link href="/recuperar-contraseña" className="text-bluegreen-eske underline">
+              <Link
+                href="/recuperar-contraseña"
+                className="text-bluegreen-eske underline"
+              >
                 Recuperar contraseña
               </Link>
             </p>
