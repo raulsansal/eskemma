@@ -15,8 +15,13 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   const [password, setPassword] = useState("");
 
   // Obtener funciones y estados del contexto
-  const { registerUser, isVerifyEmailModalOpen, setIsVerifyEmailModalOpen } =
-    useAuth();
+  const {
+    registerUser,
+    signInWithGoogle,
+    signInWithFacebook,
+    isVerifyEmailModalOpen,
+    setIsVerifyEmailModalOpen,
+  } = useAuth();
 
   // Función para verificar si el correo ya está registrado
   const isEmailAlreadyRegistered = async (email: string): Promise<boolean> => {
@@ -123,6 +128,29 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
 
           {/* Contenedor con scroll */}
           <div className="max-h-[calc(80vh-120px)] overflow-y-auto">
+            {/* Botón de Google */}
+            <button
+              onClick={signInWithGoogle}
+              className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300"
+            >
+              REGISTRARME CON GOOGLE
+            </button>
+
+            {/* Botón de Facebook */}
+            <button
+              onClick={signInWithFacebook}
+              className="w-full bg-blue-700 text-white py-2 rounded mb-4 hover:bg-blue-800 transition-colors duration-300"
+            >
+              REGISTRARME CON FACEBOOK
+            </button>
+
+            {/* Separador */}
+            <div className="flex items-center my-4">
+              <hr className="flex-grow border-gray-300" />
+              <span className="mx-4 text-gray-500">O</span>
+              <hr className="flex-grow border-gray-300" />
+            </div>
+
             <form onSubmit={handleRegisterWithEmail} className="space-y-4">
               {/* Correo Electrónico */}
               <div>
