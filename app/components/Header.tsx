@@ -12,6 +12,8 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false); // Estado para el menú desplegable del avatar
 
+  
+
   const {
     isSignInModalOpen,
     setIsSignInModalOpen,
@@ -19,8 +21,8 @@ const Header = () => {
     setIsLoginModalOpen,
     isOnboardingModalOpen,
     setIsOnboardingModalOpen,
-    user,
     closeOnboardingModal,
+    user,
     logout, // Función para cerrar sesión
   } = useAuth();
 
@@ -88,13 +90,11 @@ const Header = () => {
         onOpenRegisterModal={() => setIsSignInModalOpen(true)}
       />
 
-      {/* Modal de Bienvenida */}
-      {isOnboardingModalOpen && user?.profileCompleted && (
+      {/* OnboardingModal de Bienvenida */}
+      {user?.profileCompleted && (
         <OnboardingModal
           isOpen={isOnboardingModalOpen}
-          onClose={(showOnLogin?: boolean) =>
-            closeOnboardingModal(showOnLogin ?? false)
-          }
+          onClose={closeOnboardingModal} 
           userName={user.name || "Usuario"}
         />
       )}
@@ -178,7 +178,7 @@ const Header = () => {
                         Modo Oscuro
                       </li>
                       <li
-                        className="px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold" 
+                        className="px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold"
                         onClick={logout}
                       >
                         Cerrar Sesión

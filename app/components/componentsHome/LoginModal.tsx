@@ -18,8 +18,12 @@ export default function LoginModal({
   onClose: () => void;
   onOpenRegisterModal: () => void;
 }) {
-  const { loginUser, signInWithGoogle, signInWithFacebook, setIsLoginModalOpen } =
-    useAuth();
+  const {
+    loginUser,
+    signInWithGoogle,
+    signInWithFacebook,
+    setIsLoginModalOpen,
+  } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
     username: "",
     password: "",
@@ -46,20 +50,34 @@ export default function LoginModal({
     setError(null); // Limpiar cualquier error anterior
 
     try {
+      // Validar que el nombre de usuario no esté vacío
+      if (!formData.username.trim()) {
+        throw new Error("El nombre de usuario es obligatorio.");
+      }
+
       // Usar loginUser del contexto
       await loginUser(formData.username, formData.password);
+
+      // Cerrar el modal si el inicio de sesión es exitoso
+      onClose();
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error.message);
       console.log("Error recibido en LoginModal:", {
         code: error.code,
         message: error.message,
       });
-      // Mostrar mensaje de error basado en el mensaje recibido
-      setError(
-        error.message === "Nombre de usuario o contraseña incorrectos."
-          ? error.message
-          : "Ocurrió un error al iniciar sesión. Inténtalo de nuevo."
-      );
+
+      // Mostrar mensajes de error específicos basados en los códigos de Firebase
+      if (
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password"
+      ) {
+        setError("Nombre de usuario o contraseña incorrectos.");
+      } else if (error.code === "auth/invalid-email") {
+        setError("El correo electrónico no es válido.");
+      } else {
+        setError("Ocurrió un error al iniciar sesión. Inténtalo de nuevo.");
+      }
     } finally {
       setLoading(false);
     }
@@ -161,9 +179,7 @@ export default function LoginModal({
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <button
             type="submit"
@@ -218,12 +234,15 @@ export default function LoginModal({
 
           <p className="text-[14px] text-black-eske text-center">
             ¿No recuerdas tu contraseña?{" "}
-            <Link
-              href="/recuperar-contraseña"
-              className="text-bluegreen-eske underline"
+            <button
+              onClick={() => {
+                onClose(); // Cierra el modal
+                window.location.href = "/recover-password"; // Redirige a la página de recuperación
+              }}
+              className="text-bluegreen-eske underline cursor-pointer"
             >
               Recuperar contraseña
-            </Link>
+            </button>
           </p>
         </form>
       </div>

@@ -8,6 +8,7 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
   signInWithPopup,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import {
   auth,
@@ -146,12 +147,77 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Función para iniciar sesión con correo electrónico y contraseña
-  const loginUser = async (email: string, password: string) => {
+  const loginUser = async (identifier: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      let email;
+
+      // Determinar si el identificador es un correo electrónico o un nombre de usuario
+      if (identifier.includes("@")) {
+        email = identifier; // Es un correo electrónico
+      } else {
+        // Buscar el correo electrónico asociado al nombre de usuario
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("userName", "==", identifier));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          throw new Error("Nombre de usuario o contraseña incorrectos.", {
+            cause: { code: "auth/user-not-found" },
+          });
+        }
+
+        const userData = querySnapshot.docs[0].data() as { email: string };
+        email = userData.email;
+      }
+
+      // Intentar iniciar sesión con el correo electrónico y la contraseña
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Obtener datos adicionales del usuario desde Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+
+      if (userDocSnapshot.exists()) {
+        const userData = userDocSnapshot.data();
+
+        // Actualizar rol si es necesario
+        setUser({ ...user, ...userData });
+
+        // Determinar qué modal mostrar
+        if (!userData.profileCompleted) {
+          setIsCompleteRegisterModalOpen(true);
+        } else if (userData.showOnboardingModal) {
+          setIsOnboardingModalOpen(true);
+        } else {
+          setIsLoginModalOpen(false);
+        }
+      } else {
+        throw new Error("Datos del usuario no encontrados en Firestore.");
+      }
     } catch (error: any) {
-      console.error("Error al iniciar sesión:", error.message);
-      throw new Error("Nombre de usuario o contraseña incorrectos.");
+      console.error("Error al iniciar sesión:", error.message, {
+        code: error.cause?.code || error.code,
+        message: error.message,
+      });
+
+      // Manejar errores específicos de Firebase
+      if (
+        error.cause?.code === "auth/user-not-found" ||
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/invalid-credential"
+      ) {
+        throw new Error("Nombre de usuario o contraseña incorrectos.");
+      } else {
+        throw new Error(
+          "Ocurrió un error al iniciar sesión. Inténtalo de nuevo."
+        );
+      }
     }
   };
 
@@ -229,14 +295,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Función para cerrar el modal de Onboarding
+  const closeOnboardingModal = async (showOnLogin?: boolean) => {
+    try {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        await updateDoc(userDocRef, {
+          showOnboardingModal: showOnLogin || false, // Actualizar la preferencia del usuario
+        });
+      }
+    } catch (error) {
+      console.error("Error al actualizar la preferencia del modal:", error);
+    } finally {
+      setIsOnboardingModalOpen(false); // Cerrar el modal
+    }
+  };
+
   // Función para cerrar sesión
   const logout = async () => {
     try {
       await signOut(auth);
       setUser(null);
+      setIsOnboardingModalOpen(false);
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
+  // Función para recuperar contraseña
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return "Correo de recuperación enviado correctamente.";
     } catch (error: any) {
-      console.error("Error al cerrar sesión:", error.message);
-      throw new Error("Ocurrió un error al cerrar sesión.");
+      console.error("Error al recuperar la contraseña:", error.message);
+      if (error.code === "auth/user-not-found") {
+        throw new Error(
+          "No se encontró ningún usuario con este correo electrónico."
+        );
+      } else {
+        throw new Error(
+          "Ocurrió un error al intentar recuperar la contraseña."
+        );
+      }
     }
   };
 
@@ -259,11 +360,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoginModalOpen,
         isOnboardingModalOpen,
         setIsOnboardingModalOpen,
+        closeOnboardingModal,
         registerUser,
         loginUser,
         signInWithGoogle,
         signInWithFacebook,
         logout,
+        resetPassword,
       }}
     >
       {!loading && children}
