@@ -67,16 +67,35 @@ export default function LoginModal({
         message: error.message,
       });
 
-      // Mostrar mensajes de error específicos basados en los códigos de Firebase
-      if (
-        error.code === "auth/user-not-found" ||
-        error.code === "auth/wrong-password"
-      ) {
-        setError("Nombre de usuario o contraseña incorrectos.");
-      } else if (error.code === "auth/invalid-email") {
-        setError("El correo electrónico no es válido.");
+      // Priorizar el mensaje del error por encima del código
+      // porque loginUser() ya maneja todos los casos y devuelve mensajes apropiados
+      if (error.message) {
+        // Si tenemos un mensaje específico, usarlo directamente
+        if (
+          error.message.includes("Nombre de usuario o contraseña incorrectos")
+        ) {
+          setError("Nombre de usuario o contraseña incorrectos.");
+        } else if (error.message.includes("Error de configuración")) {
+          setError("Error de configuración. Contacta al administrador.");
+        } else if (error.message.includes("nombre de usuario es obligatorio")) {
+          setError("El nombre de usuario es obligatorio.");
+        } else {
+          // Para cualquier otro mensaje personalizado de loginUser
+          setError(error.message);
+        }
       } else {
-        setError("Ocurrió un error al iniciar sesión. Inténtalo de nuevo.");
+        // Fallback: verificar códigos de Firebase como respaldo
+        if (
+          error.code === "auth/user-not-found" ||
+          error.code === "auth/wrong-password" ||
+          error.code === "auth/invalid-credential"
+        ) {
+          setError("Nombre de usuario o contraseña incorrectos.");
+        } else if (error.code === "auth/invalid-email") {
+          setError("El correo electrónico no es válido.");
+        } else {
+          setError("Ocurrió un error al iniciar sesión. Inténtalo de nuevo.");
+        }
       }
     } finally {
       setLoading(false);

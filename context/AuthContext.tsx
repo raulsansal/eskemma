@@ -25,6 +25,7 @@ import {
   query,
   where,
   getDocs,
+  limit,
 } from "firebase/firestore";
 
 const AuthContext = createContext<any>(null);
@@ -146,31 +147,81 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para iniciar sesión con correo electrónico y contraseña
+  // Función mejorada para iniciar sesión con correo electrónico y contraseña
   const loginUser = async (identifier: string, password: string) => {
     try {
       let email;
 
+      console.log("Identificador recibido:", identifier);
+
       // Determinar si el identificador es un correo electrónico o un nombre de usuario
       if (identifier.includes("@")) {
         email = identifier; // Es un correo electrónico
+        console.log("Identificado como correo electrónico:", email);
       } else {
+        console.log(
+          "Identificado como nombre de usuario. Buscando correo electrónico..."
+        );
+
         // Buscar el correo electrónico asociado al nombre de usuario
         const usersRef = collection(db, "users");
-        const q = query(usersRef, where("userName", "==", identifier));
-        const querySnapshot = await getDocs(q);
+        const q = query(
+          usersRef,
+          where("userName", "==", identifier),
+          limit(1)
+        );
 
-        if (querySnapshot.empty) {
-          throw new Error("Nombre de usuario o contraseña incorrectos.", {
-            cause: { code: "auth/user-not-found" },
-          });
+        try {
+          const querySnapshot = await getDocs(q);
+
+          console.log(
+            "Resultado de la consulta a Firestore:",
+            querySnapshot.docs.length
+          );
+
+          if (querySnapshot.empty) {
+            console.error(
+              "No se encontró ningún usuario con el nombre de usuario proporcionado."
+            );
+            // Usar un error específico que podamos identificar después
+            const userNotFoundError = new Error(
+              "Nombre de usuario o contraseña incorrectos."
+            );
+            userNotFoundError.name = "USER_NOT_FOUND";
+            throw userNotFoundError;
+          }
+
+          const userData = querySnapshot.docs[0].data() as { email: string };
+          email = userData.email;
+          console.log("Correo electrónico encontrado:", email);
+        } catch (firestoreError: any) {
+          console.error("Error al consultar Firestore:", firestoreError);
+
+          // Si es nuestro error personalizado, relanzarlo
+          if (firestoreError.name === "USER_NOT_FOUND") {
+            throw firestoreError;
+          }
+
+          // Si es un error de permisos de Firestore
+          if (firestoreError.code === "permission-denied") {
+            const permissionError = new Error(
+              "Error de configuración. Contacta al administrador."
+            );
+            permissionError.name = "PERMISSION_ERROR";
+            throw permissionError;
+          }
+
+          // Si es otro error de Firestore
+          const firestoreGenericError = new Error(
+            "Nombre de usuario o contraseña incorrectos."
+          );
+          firestoreGenericError.name = "FIRESTORE_ERROR";
+          throw firestoreGenericError;
         }
-
-        const userData = querySnapshot.docs[0].data() as { email: string };
-        email = userData.email;
       }
 
       // Intentar iniciar sesión con el correo electrónico y la contraseña
+      console.log("Intentando iniciar sesión con correo electrónico:", email);
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -178,122 +229,112 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       );
       const user = userCredential.user;
 
-      // Obtener datos adicionales del usuario desde Firestore
+      console.log(
+        "Inicio de sesión exitoso. Verificando datos en Firestore..."
+      );
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
 
-      if (userDocSnapshot.exists()) {
-        const userData = userDocSnapshot.data();
-
-        // Actualizar rol si es necesario
-        setUser({ ...user, ...userData });
-
-        // Determinar qué modal mostrar
-        if (!userData.profileCompleted) {
-          setIsCompleteRegisterModalOpen(true);
-        } else if (userData.showOnboardingModal) {
-          setIsOnboardingModalOpen(true);
-        } else {
-          setIsLoginModalOpen(false);
-        }
-      } else {
-        throw new Error("Datos del usuario no encontrados en Firestore.");
+      if (!userDocSnapshot.exists()) {
+        console.error("Datos de usuario no encontrados en Firestore.");
+        throw new Error("Datos de usuario no encontrados en Firestore.");
       }
-    } catch (error: any) {
-      console.error("Error al iniciar sesión:", error.message, {
-        code: error.cause?.code || error.code,
-        message: error.message,
-      });
 
-      // Manejar errores específicos de Firebase
+      const userData = userDocSnapshot.data();
+
+      // Cerrar el modal de login al completar exitosamente
+      setIsLoginModalOpen(false);
+
+      return { ...user, ...userData };
+    } catch (error: any) {
+      console.error("Error completo:", error);
+      console.error("Código del error:", error.code);
+      console.error("Nombre del error:", error.name);
+      console.error("Mensaje del error:", error.message);
+
+      // Manejar errores personalizados primero
+      if (error.name === "USER_NOT_FOUND" || error.name === "FIRESTORE_ERROR") {
+        throw new Error("Nombre de usuario o contraseña incorrectos.");
+      }
+
+      if (error.name === "PERMISSION_ERROR") {
+        throw new Error("Error de configuración. Contacta al administrador.");
+      }
+
+      // Manejar errores específicos de Firebase Auth
       if (
-        error.cause?.code === "auth/user-not-found" ||
         error.code === "auth/user-not-found" ||
         error.code === "auth/wrong-password" ||
-        error.code === "auth/invalid-credential"
+        error.code === "auth/invalid-credential" ||
+        error.code === "auth/invalid-email"
       ) {
         throw new Error("Nombre de usuario o contraseña incorrectos.");
-      } else {
-        throw new Error(
-          "Ocurrió un error al iniciar sesión. Inténtalo de nuevo."
-        );
       }
+
+      // Error de configuración/permisos
+      if (error.code === "permission-denied") {
+        throw new Error("Error de configuración. Contacta al administrador.");
+      }
+
+      // Error genérico para cualquier otro caso
+      throw new Error(
+        "Ocurrió un error al iniciar sesión. Inténtalo de nuevo."
+      );
+    }
+  };
+
+  // Función para iniciar sesión con Google o Facebook
+  const signInWithProvider = async (provider: any) => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      console.log("Usuario autenticado con proveedor externo:", user);
+
+      // Verificar si el usuario ya existe en Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+
+      if (!userDocSnapshot.exists()) {
+        console.log("Creando nuevo documento en Firestore para el usuario...");
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "Usuario",
+          role: "registered",
+          profileCompleted: false,
+          emailVerified: true, // El correo de Google/Facebook ya está verificado
+          showOnboardingModal: true,
+          createdAt: new Date(),
+        });
+      }
+
+      const userData = (await getDoc(userDocRef)).data();
+      setUser({ ...user, ...userData });
+
+      setIsLoginModalOpen(false);
+
+      if (!userData?.profileCompleted) {
+        setIsCompleteRegisterModalOpen(true);
+      } else if (userData.showOnboardingModal) {
+        setIsOnboardingModalOpen(true);
+      }
+    } catch (error: any) {
+      console.error(
+        "Error al iniciar sesión con proveedor externo:",
+        error.message
+      );
+      throw new Error(
+        "Ocurrió un error al iniciar sesión con proveedor externo."
+      );
     }
   };
 
   // Función para iniciar sesión con Google
-  const signInWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, providerGoogle);
-      const user = result.user;
-
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnapshot = await getDoc(userDocRef);
-
-      if (!userDocSnapshot.exists()) {
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName || "Usuario",
-          role: "registered",
-          profileCompleted: false,
-          emailVerified: true, // El correo de Google ya está verificado
-          showOnboardingModal: true,
-          createdAt: new Date(),
-        });
-      }
-
-      const userData = (await getDoc(userDocRef)).data();
-      setUser({ ...user, ...userData });
-
-      setIsLoginModalOpen(false);
-      if (!userData?.profileCompleted) {
-        setIsCompleteRegisterModalOpen(true);
-      } else if (userData.showOnboardingModal) {
-        setIsOnboardingModalOpen(true);
-      }
-    } catch (error: any) {
-      console.error("Error al iniciar sesión con Google:", error.message);
-      throw new Error("Ocurrió un error al iniciar sesión con Google.");
-    }
-  };
+  const signInWithGoogle = () => signInWithProvider(providerGoogle);
 
   // Función para iniciar sesión con Facebook
-  const signInWithFacebook = async () => {
-    try {
-      const result = await signInWithPopup(auth, providerFacebook);
-      const user = result.user;
-
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnapshot = await getDoc(userDocRef);
-
-      if (!userDocSnapshot.exists()) {
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName || "Usuario",
-          role: "registered",
-          profileCompleted: false,
-          emailVerified: true, // El correo de Facebook ya está verificado
-          showOnboardingModal: true,
-          createdAt: new Date(),
-        });
-      }
-
-      const userData = (await getDoc(userDocRef)).data();
-      setUser({ ...user, ...userData });
-
-      setIsLoginModalOpen(false);
-      if (!userData?.profileCompleted) {
-        setIsCompleteRegisterModalOpen(true);
-      } else if (userData.showOnboardingModal) {
-        setIsOnboardingModalOpen(true);
-      }
-    } catch (error: any) {
-      console.error("Error al iniciar sesión con Facebook:", error.message);
-      throw new Error("Ocurrió un error al iniciar sesión con Facebook.");
-    }
-  };
+  const signInWithFacebook = () => signInWithProvider(providerFacebook);
 
   // Función para cerrar el modal de Onboarding
   const closeOnboardingModal = async (showOnLogin?: boolean) => {
