@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { Bars3Icon } from "@heroicons/react/24/solid";
 import SignInModal from "./componentsHome/SignInModal";
@@ -11,8 +12,7 @@ import OnboardingModal from "./componentsHome/OnboardingModal";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false); // Estado para el menú desplegable del avatar
-
-  
+  const router = useRouter(); // Hook para manejar la navegación
 
   const {
     isSignInModalOpen,
@@ -75,6 +75,12 @@ const Header = () => {
     return `${firstNameInitial}${lastNameInitial}`;
   };
 
+  // Función para manejar la redirección al perfil
+  const handleProfileClick = () => {
+    setIsAvatarMenuOpen(false); // Cierra el menú desplegable
+    router.push("/profile"); // Redirige al usuario a la página de perfil
+  };
+
   return (
     <>
       {/* Modal de Registro */}
@@ -94,7 +100,7 @@ const Header = () => {
       {user?.profileCompleted && (
         <OnboardingModal
           isOpen={isOnboardingModalOpen}
-          onClose={closeOnboardingModal} 
+          onClose={closeOnboardingModal}
           userName={user.name || "Usuario"}
         />
       )}
@@ -167,7 +173,7 @@ const Header = () => {
                     <ul className="text-sm">
                       <li
                         className="px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold"
-                        onClick={() => alert("Perfil")}
+                        onClick={handleProfileClick} // Manejador para redirigir al perfil
                       >
                         Perfil
                       </li>

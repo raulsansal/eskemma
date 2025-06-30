@@ -1,5 +1,4 @@
 import Link from "next/link"; // Para manejar enlaces internos
-import { useState } from "react";
 
 interface SuscriptionGrupalModalProps {
   isOpen: boolean;
