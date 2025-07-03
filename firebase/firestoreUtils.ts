@@ -1,3 +1,4 @@
+// firebase/firestoreUtils.ts
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
@@ -9,17 +10,42 @@ export const saveUserData = async (userData: any) => {
     if (!userData.uid) {
       throw new Error("UID del usuario no proporcionado.");
     }
-    if (!userData.email) {
-      throw new Error("Correo electrónico no proporcionado.");
-    }
 
     const userRef = doc(db, "users", userData.uid);
 
-    // Preparar datos, omitiendo emailVerified para no sobrescribirlo
+    // Limpieza de datos: Eliminar propiedades no serializables
+    const cleanUserData = ((data: any) => {
+      const allowedFields = [
+        "uid",
+        "email",
+        "name",
+        "lastName",
+        "country",
+        "avatarUrl",
+        "userName",
+        "sex",
+        "roles",
+        "interests",
+        "profileCompleted",
+        "createdAt",
+        "updatedAt",
+      ];
+
+      const cleanedData: Record<string, any> = {};
+      for (const key of allowedFields) {
+        if (data[key] !== undefined) {
+          cleanedData[key] = data[key];
+        }
+      }
+
+      return cleanedData;
+    })(userData);
+
+    // Preparar datos finales
     const finalUserData = {
-      ...userData,
-      profileCompleted: userData.profileCompleted ?? false,
-      createdAt: userData.createdAt ?? new Date().toISOString(),
+      ...cleanUserData,
+      profileCompleted: cleanUserData.profileCompleted ?? false,
+      createdAt: cleanUserData.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 

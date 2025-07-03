@@ -1,4 +1,4 @@
-// app/profile/page.tsx 
+// app/profile/page.tsx
 "use client"; // Indica que es un Client Component
 
 import { useState } from "react";
@@ -26,18 +26,38 @@ interface User {
 }
 
 const ProfilePage = () => {
-  const { user, setUser } = useAuth();
+  const { user, setUser, updateAuthEmail } = useAuth();
+
+  // Estado para los datos del formulario
   const [formData, setFormData] = useState({
     name: user?.name || "",
     lastName: user?.lastName || "",
     country: user?.country || "",
     avatarUrl: user?.avatarUrl || "",
+    userName: user?.userName || "",
+    sex: user?.sex || "",
+    roles: user?.roles || [],
+    interests: user?.interests || [],
+    otherRole: "", // Para manejar roles personalizados
+    otherInterest: "", // Para manejar intereses personalizados
+    email: user?.email || "", // Incluye el correo de autenticación
   });
+
+  // Estado para controlar el proceso de guardado
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Manejo especial para roles e intereses (campos múltiples)
+    if (name === "roles" || name === "interests") {
+      const values = value.split(",").map((item) => item.trim());
+      setFormData((prev) => ({ ...prev, [name]: values }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,22 +74,56 @@ const ProfilePage = () => {
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
+    setIsSaving(true); // Activar el estado de guardado
     try {
-      await saveUserData(formData);
-      setUser((prevUser: User | null) => {
-        if (!prevUser) {
-          console.error("Usuario no encontrado al actualizar el estado.");
-          return null;
-        }
-        return { ...prevUser, ...formData };
+      // Combina los datos actuales del usuario con los nuevos datos del formulario
+      const userDataWithUid = {
+        ...user, // Incluye todos los datos existentes del usuario
+        ...formData, // Sobrescribe con los datos editados en el formulario
+        uid: user.uid, // Asegúrate de incluir el UID
+      };
+
+      // Procesar roles e intereses personalizados
+      const processedRoles = formData.roles.includes("Otro")
+        ? [
+            ...formData.roles.filter((role: string) => role !== "Otro"),
+            formData.otherRole,
+          ].filter(Boolean)
+        : formData.roles;
+
+      const processedInterests = formData.interests.includes("Otro")
+        ? [
+            ...new Set([
+              ...formData.interests.filter((interest: string) => interest !== "Otro"),
+              formData.otherInterest,
+            ]),
+          ].filter(Boolean)
+        : formData.interests;
+
+      // Actualizar los roles e intereses procesados en los datos finales
+      userDataWithUid.roles = processedRoles;
+      userDataWithUid.interests = processedInterests;
+
+      // Actualizar el correo de autenticación si ha cambiado
+      if (formData.email !== user.email) {
+        await updateAuthEmail(formData.email); // Actualiza el correo en Firebase Auth
+      }
+
+      // Guarda los datos actualizados en Firestore
+      await saveUserData(userDataWithUid);
+
+      // Actualiza el estado global del usuario
+      setUser((prevUser: any) => {
+        if (!prevUser) return null; // Maneja el caso en que prevUser sea null
+        return { ...prevUser, ...userDataWithUid };
       });
+
       alert("Perfil actualizado correctamente.");
-    } catch (error) {
-      console.error("Error al guardar el perfil:", error);
-      alert("Ocurrió un error al guardar tu perfil.");
+    } catch (error: any) {
+      console.error("Error al guardar el perfil:", error.message);
+      alert(`Ocurrió un error al guardar tu perfil: ${error.message}`);
     } finally {
-      setIsSaving(false);
+      setIsSaving(false); // Desactivar el estado de guardado
     }
   };
 
@@ -126,11 +180,107 @@ const ProfilePage = () => {
         />
       </div>
 
+      {/* Sexo */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Sexo</label>
+        <select
+          name="sex"
+          value={formData.sex}
+          onChange={handleInputChange}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+        >
+          <option value="">Selecciona una opción</option>
+          <option value="male">Masculino</option>
+          <option value="female">Femenino</option>
+          <option value="other">Otro</option>
+        </select>
+      </div>
+
+      {/* Roles */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Roles</label>
+        <input
+          type="text"
+          name="roles"
+          value={formData.roles.join(", ")}
+          onChange={handleInputChange}
+          placeholder="Ej. Diseñador, Desarrollador"
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+        />
+        {formData.roles.includes("Otro") && (
+          <div className="mt-2">
+            <label className="block text-sm font-medium text-gray-700">Otro Rol</label>
+            <input
+              type="text"
+              name="otherRole"
+              value={formData.otherRole}
+              onChange={handleInputChange}
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Intereses */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Intereses</label>
+        <input
+          type="text"
+          name="interests"
+          value={formData.interests.join(", ")}
+          onChange={handleInputChange}
+          placeholder="Ej. Tecnología, Arte"
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+        />
+        {formData.interests.includes("Otro") && (
+          <div className="mt-2">
+            <label className="block text-sm font-medium text-gray-700">Otro Interés</label>
+            <input
+              type="text"
+              name="otherInterest"
+              value={formData.otherInterest}
+              onChange={handleInputChange}
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Nombre de Usuario */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
+        <input
+          type="text"
+          name="userName"
+          value={formData.userName}
+          onChange={handleInputChange}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+        />
+      </div>
+
+      {/* Correo Electrónico */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">
+          Correo Electrónico <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+        />
+        <p className="text-xs text-gray-500">
+          Este es tu correo de autenticación. Cambiarlo afectará tu inicio de sesión y comunicación.
+        </p>
+      </div>
+
       {/* Botón Guardar */}
       <Button
         label={isSaving ? "Guardando..." : "Guardar Cambios"}
         variant="primary"
         onClick={handleSave}
+        disabled={isSaving} // Deshabilitar el botón mientras se guarda
       />
     </div>
   );

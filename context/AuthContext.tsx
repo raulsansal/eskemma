@@ -9,6 +9,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   sendPasswordResetEmail,
+  updateEmail,
 } from "firebase/auth";
 import {
   auth,
@@ -352,6 +353,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const updateAuthEmail = async (newEmail: string) => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("Usuario no autenticado");
+
+      // Actualizar el correo en Firebase Authentication
+      await updateEmail(currentUser, newEmail); // Corregido: updateEmail
+
+      // Enviar correo de verificación al nuevo email
+      await sendEmailVerification(currentUser); // Corregido: sendEmailVerification
+
+      // Actualizar el correo en Firestore
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userDocRef, {
+        email: newEmail,
+        updatedAt: new Date().toISOString(),
+      });
+
+      // Actualizar el estado global del usuario
+      setUser((prevUser: any) => ({ ...prevUser, email: newEmail }));
+
+      alert(
+        "Correo electrónico actualizado. Por favor, verifica tu nueva dirección."
+      );
+    } catch (error: any) {
+      console.error(
+        "Error al actualizar el correo electrónico:",
+        error.message
+      );
+      alert(`Ocurrió un error al actualizar el correo: ${error.message}`);
+    }
+  };
+
   // Función para cerrar sesión
   const logout = async () => {
     try {
@@ -408,6 +442,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signInWithFacebook,
         logout,
         resetPassword,
+        updateAuthEmail,
       }}
     >
       {!loading && children}

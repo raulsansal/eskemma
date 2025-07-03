@@ -6,6 +6,7 @@ interface ButtonProps {
   variant?: "primary" | "secondary";
   className?: string; // Clases personalizadas (opcional)
   onClick?: () => void; // Función personalizada para manejar clics
+  disabled?: boolean;
 }
 
 export default function Button({
