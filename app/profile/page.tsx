@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { uploadAvatar } from "../../firebase/storageUtils";
 import { saveUserData } from "../../firebase/firestoreUtils";
 import Button from "../components/Button";
+import ConfirmEditProfileModal from '../components/componentsHome/ConfirmEditProfileModal';
 
 // Definición de la interfaz User
 interface User {
@@ -18,7 +19,7 @@ interface User {
   profileCompleted?: boolean;
   role?: string;
   roles?: string[];
-  sex?: string;
+  sex?: "hombre" | "mujer" | "no-binario" | string;
   interests?: string[];
   userName?: string;
   createdAt?: string;
@@ -27,6 +28,7 @@ interface User {
 
 const ProfilePage = () => {
   const { user, setUser, updateAuthEmail } = useAuth();
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
   // Estado para los datos del formulario
   const [formData, setFormData] = useState({
@@ -74,13 +76,21 @@ const ProfilePage = () => {
   };
 
   const handleSave = async () => {
-    setIsSaving(true); // Activar el estado de guardado
+    setIsSaving(true);
     try {
-      // Combina los datos actuales del usuario con los nuevos datos del formulario
       const userDataWithUid = {
-        ...user, // Incluye todos los datos existentes del usuario
-        ...formData, // Sobrescribe con los datos editados en el formulario
-        uid: user.uid, // Asegúrate de incluir el UID
+        ...user,
+        ...formData,
+        uid: user.uid,
+        // Asegurar que el sexo esté en el formato correcto
+        sex:
+          formData.sex === "male"
+            ? "hombre"
+            : formData.sex === "female"
+              ? "mujer"
+              : formData.sex === "other"
+                ? "no-binario"
+                : formData.sex,
       };
 
       // Procesar roles e intereses personalizados
@@ -94,7 +104,9 @@ const ProfilePage = () => {
       const processedInterests = formData.interests.includes("Otro")
         ? [
             ...new Set([
-              ...formData.interests.filter((interest: string) => interest !== "Otro"),
+              ...formData.interests.filter(
+                (interest: string) => interest !== "Otro"
+              ),
               formData.otherInterest,
             ]),
           ].filter(Boolean)
@@ -118,7 +130,7 @@ const ProfilePage = () => {
         return { ...prevUser, ...userDataWithUid };
       });
 
-      alert("Perfil actualizado correctamente.");
+      setIsConfirmationModalOpen(true);
     } catch (error: any) {
       console.error("Error al guardar el perfil:", error.message);
       alert(`Ocurrió un error al guardar tu perfil: ${error.message}`);
@@ -129,11 +141,15 @@ const ProfilePage = () => {
 
   return (
     <div className="max-w-md mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Editar Perfil</h1>
+      <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+        Editar Perfil
+      </h2>
 
       {/* Avatar */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Avatar</label>
+        <label className="block text-sm font-medium text-gray-700">
+          Avatar
+        </label>
         <input type="file" onChange={handleAvatarUpload} />
         {formData.avatarUrl && (
           <img
@@ -146,7 +162,9 @@ const ProfilePage = () => {
 
       {/* Nombre */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Nombre</label>
+        <label className="block text-sm font-medium text-gray-700">
+          Nombre
+        </label>
         <input
           type="text"
           name="name"
@@ -158,7 +176,9 @@ const ProfilePage = () => {
 
       {/* Apellido */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Apellido</label>
+        <label className="block text-sm font-medium text-gray-700">
+          Apellidos
+        </label>
         <input
           type="text"
           name="lastName"
@@ -190,9 +210,9 @@ const ProfilePage = () => {
           className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
         >
           <option value="">Selecciona una opción</option>
-          <option value="male">Masculino</option>
-          <option value="female">Femenino</option>
-          <option value="other">Otro</option>
+          <option value="hombre">Hombre</option>
+          <option value="mujer">Mujer</option>
+          <option value="no-binario">No binario</option>
         </select>
       </div>
 
@@ -209,7 +229,9 @@ const ProfilePage = () => {
         />
         {formData.roles.includes("Otro") && (
           <div className="mt-2">
-            <label className="block text-sm font-medium text-gray-700">Otro Rol</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Otro Rol
+            </label>
             <input
               type="text"
               name="otherRole"
@@ -223,7 +245,9 @@ const ProfilePage = () => {
 
       {/* Intereses */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Intereses</label>
+        <label className="block text-sm font-medium text-gray-700">
+          Intereses
+        </label>
         <input
           type="text"
           name="interests"
@@ -234,7 +258,9 @@ const ProfilePage = () => {
         />
         {formData.interests.includes("Otro") && (
           <div className="mt-2">
-            <label className="block text-sm font-medium text-gray-700">Otro Interés</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Otro Interés
+            </label>
             <input
               type="text"
               name="otherInterest"
@@ -248,7 +274,9 @@ const ProfilePage = () => {
 
       {/* Nombre de Usuario */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
+        <label className="block text-sm font-medium text-gray-700">
+          Nombre de Usuario
+        </label>
         <input
           type="text"
           name="userName"
@@ -271,7 +299,8 @@ const ProfilePage = () => {
           className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
         />
         <p className="text-xs text-gray-500">
-          Este es tu correo de autenticación. Cambiarlo afectará tu inicio de sesión y comunicación.
+          Este es tu correo de autenticación. Cambiarlo afectará tu inicio de
+          sesión y comunicación.
         </p>
       </div>
 
@@ -282,6 +311,12 @@ const ProfilePage = () => {
         onClick={handleSave}
         disabled={isSaving} // Deshabilitar el botón mientras se guarda
       />
+
+      {/* Modal de Confirmación */}
+      <ConfirmEditProfileModal
+        isOpen={isConfirmationModalOpen}
+        onClose={() => setIsConfirmationModalOpen(false)}
+      />      
     </div>
   );
 };

@@ -1,6 +1,6 @@
 // context/AuthContext.tsx
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, Dispatch, SetStateAction } from "react";
 import {
   onAuthStateChanged,
   signOut,
@@ -29,9 +29,43 @@ import {
   limit,
 } from "firebase/firestore";
 
-const AuthContext = createContext<any>(null);
+interface AuthContextType {
+  user: any;
+  setUser: Dispatch<SetStateAction<any>>;
+  loading: boolean;
+  isSignInModalOpen: boolean;
+  setIsSignInModalOpen: Dispatch<SetStateAction<boolean>>;
+  isVerifyEmailModalOpen: boolean;
+  setIsVerifyEmailModalOpen: Dispatch<SetStateAction<boolean>>;
+  isCompleteRegisterModalOpen: boolean;
+  setIsCompleteRegisterModalOpen: Dispatch<SetStateAction<boolean>>;
+  isRegisterModalOpen: boolean;
+  setIsRegisterModalOpen: Dispatch<SetStateAction<boolean>>;
+  isRegistrationSuccessModalOpen: boolean;
+  setIsRegistrationSuccessModalOpen: Dispatch<SetStateAction<boolean>>;
+  isLoginModalOpen: boolean;
+  setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>;
+  isOnboardingModalOpen: boolean;
+  setIsOnboardingModalOpen: Dispatch<SetStateAction<boolean>>;
+  closeOnboardingModal: (showOnLogin?: boolean) => Promise<void>;
+  registerUser: (email: string, password: string) => Promise<void>;
+  loginUser: (identifier: string, password: string) => Promise<any>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<string>;
+  updateAuthEmail: (newEmail: string) => Promise<void>;
+}
 
-export const useAuth = () => useContext(AuthContext);
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth debe usarse dentro de un AuthProvider");
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
@@ -420,7 +454,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        setUser,
+        setUser, // Esta es la línea clave que faltaba
         loading,
         isSignInModalOpen,
         setIsSignInModalOpen,

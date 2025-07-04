@@ -81,6 +81,13 @@ const Header = () => {
     router.push("/profile"); // Redirige al usuario a la página de perfil
   };
 
+  const handleAvatarClick = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lastVisitedPage", window.location.pathname);
+    }
+    setIsAvatarMenuOpen((prev) => !prev);
+  };
+
   return (
     <>
       {/* Modal de Registro */}

@@ -1,6 +1,5 @@
-// components/componentsHome/OnboardingModal.tsx
-
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function OnboardingModal({
   isOpen,
@@ -12,6 +11,7 @@ export default function OnboardingModal({
   userName: string; // Nombre del usuario
 }) {
   const [showOnLogin, setShowOnLogin] = useState(true); // Estado para la casilla de verificación
+  const router = useRouter(); // Hook para manejar la navegación
 
   if (!isOpen) return null;
 
@@ -28,6 +28,7 @@ export default function OnboardingModal({
 
   const handleConfigureProfile = () => {
     console.log("Configurando perfil...");
+    router.push("/profile"); // Redirigir al usuario a la página de perfil
     onClose(showOnLogin); // Pasar el valor de showOnLogin al cerrar el modal
   };
 
