@@ -420,6 +420,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         loading,
         isSignInModalOpen,
         setIsSignInModalOpen,
