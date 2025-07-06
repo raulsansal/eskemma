@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { uploadAvatar } from "../../firebase/storageUtils";
 import { saveUserData } from "../../firebase/firestoreUtils";
 import Button from "../components/Button";
-import ConfirmEditProfileModal from '../components/componentsHome/ConfirmEditProfileModal';
+import ConfirmEditProfileModal from "../components/componentsHome/ConfirmEditProfileModal";
 
 // Definición de la interfaz User
 interface User {
@@ -67,8 +67,11 @@ const ProfilePage = () => {
 
     const file = e.target.files[0];
     try {
-      const downloadURL = await uploadAvatar(file, user.uid);
-      setFormData((prev) => ({ ...prev, avatarUrl: downloadURL }));
+      const downloadURL = await uploadAvatar(file, user.uid); // Subir la imagen
+      setFormData((prev) => ({ ...prev, avatarUrl: downloadURL })); // Actualizar el estado local
+
+      // Actualizar el campo avatarUrl en Firestore
+      await saveUserData({ uid: user.uid, avatarUrl: downloadURL });
     } catch (error) {
       console.error("Error al subir el avatar:", error);
       alert("Ocurrió un error al subir tu avatar.");
@@ -316,7 +319,7 @@ const ProfilePage = () => {
       <ConfirmEditProfileModal
         isOpen={isConfirmationModalOpen}
         onClose={() => setIsConfirmationModalOpen(false)}
-      />      
+      />
     </div>
   );
 };
