@@ -43,6 +43,9 @@ yarn-error.log*
 !.env.example
 !.env.template
 
+# Ignorar archivos sensibles
+/lib/firebase-admin-key.json
+
 # Vercel
 .vercel
 

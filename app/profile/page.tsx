@@ -30,6 +30,9 @@ const ProfilePage = () => {
   const { user, setUser, updateAuthEmail } = useAuth();
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
+  // Tamao máximo del avatar
+  const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2 MB en bytes
+
   // Estado para los datos del formulario
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -66,6 +69,15 @@ const ProfilePage = () => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
+
+    // Verificar el tamaño del archivo
+    if (file.size > MAX_AVATAR_SIZE) {
+      alert(
+        `El archivo es demasiado grande. El tamaño máximo permitido es ${MAX_AVATAR_SIZE / (1024 * 1024)} MB.`
+      );
+      return;
+    }
+
     try {
       const downloadURL = await uploadAvatar(file, user.uid); // Subir la imagen
       setFormData((prev) => ({ ...prev, avatarUrl: downloadURL })); // Actualizar el estado local

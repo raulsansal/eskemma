@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
         pathname: "/**", // Permite cualquier ruta dentro del host
       },
     ],
-  },
+  },  
 };
 
 export default nextConfig;

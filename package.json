@@ -10,19 +10,26 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "browser-image-compression": "^2.0.2",
     "firebase": "^11.8.1",
+    "firebase-admin": "^13.4.0",
+    "gaxios": "^7.1.1",
+    "google-auth-library": "^10.1.0",
     "gray-matter": "^4.0.3",
+    "gtoken": "^8.0.0",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "remark": "^15.0.1",
-    "remark-html": "^16.0.1"
+    "remark-html": "^16.0.1",
+    "sharp": "^0.34.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.5",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sharp": "^0.31.1",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
     "tailwindcss": "^4.1.5",

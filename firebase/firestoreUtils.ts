@@ -1,8 +1,9 @@
 // firebase/firestoreUtils.ts
+
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
-export const saveUserData = async (userData: any) => {
+export const saveUserData = async (userData: any, role?: string) => {
   try {
     console.log("Intentando guardar datos en Firestore:", userData);
 
@@ -44,6 +45,7 @@ export const saveUserData = async (userData: any) => {
     // Preparar datos finales
     const finalUserData = {
       ...cleanUserData,
+      role: role || "user", // Asignar rol predeterminado "user" si no se especifica
       profileCompleted: cleanUserData.profileCompleted ?? false,
       createdAt: cleanUserData.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
