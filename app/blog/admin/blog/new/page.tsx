@@ -1,3 +1,5 @@
+//app/blog/admin/blog/new/page.tsx
+
 import { redirect } from 'next/navigation';
 
 export default function NewPostPage() {
