@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 // Importar las funciones del cliente
-import { getPostData, updatePost } from '@/lib/client/posts.client';
+import { getPostData, updatePost, createPost } from '@/lib/client/posts.client';
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState<string>('');
@@ -31,28 +31,30 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const router = useRouter();
 
   useEffect(() => {
-    // Solo ejecutar si tenemos un ID válido
-    if (!id) return;
-    
-    // Obtener los datos actuales del post
-    const fetchPostData = async () => {
-      try {
-        setLoading(true);
-        const postData = await getPostData(id);
-        setFormData({
-          title: postData.title || '',
-          date: postData.date || new Date().toISOString().split('T')[0],
-          content: postData.content || '',
-        });
-      } catch (error) {
-        console.error('Error al obtener los datos del post:', error);
-        alert('Ocurrió un error al cargar los datos del post.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Solo cargar datos si estamos editando un post existente
+    if (id && id !== 'new') {
+      const fetchPostData = async () => {
+        try {
+          setLoading(true);
+          const postData = await getPostData(id);
+          setFormData({
+            title: postData.title || '',
+            date: postData.date || new Date().toISOString().split('T')[0],
+            content: postData.content || '',
+          });
+        } catch (error) {
+          console.error('Error al obtener los datos del post:', error);
+          alert('Ocurrió un error al cargar los datos del post.');
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchPostData();
+      fetchPostData();
+    } else {
+      // Si es un nuevo post, no hay datos que cargar
+      setLoading(false);
+    }
   }, [id]);
 
   // Manejar cambios en el formulario
@@ -63,33 +65,39 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
   // Función para guardar los cambios
   const handleSave = async () => {
-    if (!id) return;
-    
+    if (!formData.title || !formData.content) {
+      alert('Por favor, completa todos los campos obligatorios.');
+      return;
+    }
+
     try {
       setSaving(true);
-      await updatePost(id, {
-        title: formData.title,
-        date: formData.date,
-        content: formData.content,
-      });
 
-      alert('Post actualizado exitosamente.');
+      if (id === 'new') {
+        // Crear un nuevo post
+        await createPost(formData);
+      } else {
+        // Actualizar un post existente
+        await updatePost(id, formData);
+      }
+
+      alert('Post guardado exitosamente.');
       router.push('/blog/admin/blog');
     } catch (error) {
-      console.error('Error al actualizar el post:', error);
-      alert('Ocurrió un error al actualizar el post.');
+      console.error('Error al guardar el post:', error);
+      alert('Ocurrió un error al guardar el post.');
     } finally {
       setSaving(false);
     }
   };
 
-  if (!id || loading) {
+  if (loading) {
     return <div>Cargando...</div>;
   }
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>Editar Post</h1>
+      <h1>{id === 'new' ? 'Crear Nuevo Post' : 'Editar Post'}</h1>
       <form onSubmit={(e) => e.preventDefault()}>
         {/* Título */}
         <div style={{ marginBottom: '15px' }}>
@@ -106,7 +114,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 padding: '8px',
                 marginTop: '5px',
                 border: '1px solid #ddd',
-                borderRadius: '4px'
+                borderRadius: '4px',
               }}
             />
           </label>
@@ -127,7 +135,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 padding: '8px',
                 marginTop: '5px',
                 border: '1px solid #ddd',
-                borderRadius: '4px'
+                borderRadius: '4px',
               }}
             />
           </label>
@@ -149,7 +157,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 marginTop: '5px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontFamily: 'monospace'
+                fontFamily: 'monospace',
               }}
             />
           </label>
@@ -167,12 +175,12 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: saving ? 'not-allowed' : 'pointer'
+              cursor: saving ? 'not-allowed' : 'pointer',
             }}
           >
             {saving ? 'Guardando...' : 'Guardar Cambios'}
           </button>
-          
+
           <button
             type="button"
             onClick={() => router.push('/blog/admin/blog')}
@@ -182,7 +190,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
           >
             Cancelar
