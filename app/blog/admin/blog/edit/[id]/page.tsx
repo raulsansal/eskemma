@@ -1,46 +1,50 @@
 // app/blog/admin/blog/edit/[id]/page.tsx
 'use client';
-
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import * as React from 'react'; // Importar React explícitamente para usar React.use()
+import { useAuth } from '@/context/AuthContext';
 
 // Importar las funciones del cliente
 import { getPostData, updatePost, createPost } from '@/lib/client/posts.client';
+import { uploadMedia } from '@/firebase/storageUtils';
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
-  const [id, setId] = useState<string>('');
-  
-  // Resolver params de forma asíncrona
-  useEffect(() => {
-    const resolveParams = async () => {
-      const resolvedParams = await params;
-      setId(resolvedParams.id);
-    };
-    resolveParams();
-  }, [params]);
-
-  // Estado para manejar los valores del formulario
   const [formData, setFormData] = useState({
     title: '',
     date: new Date().toISOString().split('T')[0],
     content: '',
+    tags: [] as string[],
+    status: 'draft' as 'draft' | 'published',
+    featureImage: '',
+    slug: '', // Agregado para cumplir con las reglas de Firestore
   });
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Desempaquetar params usando React.use()
+  const { id } = React.use(params);
 
   useEffect(() => {
-    // Solo cargar datos si estamos editando un post existente
     if (id && id !== 'new') {
       const fetchPostData = async () => {
         try {
           setLoading(true);
           const postData = await getPostData(id);
+          if (!postData) {
+            console.error('Post no encontrado');
+            return;
+          }
           setFormData({
             title: postData.title || '',
             date: postData.date || new Date().toISOString().split('T')[0],
             content: postData.content || '',
+            tags: postData.tags || [],
+            status: postData.status || 'draft',
+            featureImage: postData.featureImage || '',
+            slug: postData.slug || '', // Asegurar que el slug esté presente
           });
         } catch (error) {
           console.error('Error al obtener los datos del post:', error);
@@ -52,20 +56,48 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
       fetchPostData();
     } else {
-      // Si es un nuevo post, no hay datos que cargar
       setLoading(false);
     }
   }, [id]);
 
-  // Manejar cambios en el formulario
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Generar automáticamente el slug cuando el título cambia
+    if (name === 'title') {
+      setFormData((prev) => ({
+        ...prev,
+        title: value,
+        slug: value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  // Función para guardar los cambios
+  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const tags = e.target.value.split(',').map((tag) => tag.trim());
+    setFormData((prev) => ({ ...prev, tags }));
+  };
+
+  const handleFeatureImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    try {
+      const downloadURL = await uploadMedia(file, `posts/${id}`);
+      setFormData((prev) => ({ ...prev, featureImage: downloadURL }));
+    } catch (error) {
+      console.error('Error al subir la imagen destacada:', error);
+      alert('Ocurrió un error al subir la imagen destacada.');
+    }
+  };
+
   const handleSave = async () => {
-    if (!formData.title || !formData.content) {
+    if (!formData.title || !formData.content || !formData.slug) {
       alert('Por favor, completa todos los campos obligatorios.');
       return;
     }
@@ -73,12 +105,20 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     try {
       setSaving(true);
 
+      const postData = {
+        ...formData,
+        author: {
+          uid: user.uid,
+          displayName: user.displayName || 'Admin',
+          email: user.email,
+        },
+        updatedAt: new Date(),
+      };
+
       if (id === 'new') {
-        // Crear un nuevo post
-        await createPost(formData);
+        await createPost(postData);
       } else {
-        // Actualizar un post existente
-        await updatePost(id, formData);
+        await updatePost(id, postData);
       }
 
       alert('Post guardado exitosamente.');
@@ -101,66 +141,130 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       <form onSubmit={(e) => e.preventDefault()}>
         {/* Título */}
         <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>
-            Título:
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              required
-              style={{
-                width: '100%',
-                padding: '8px',
-                marginTop: '5px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-              }}
-            />
-          </label>
+          <label style={{ display: 'block', marginBottom: '5px' }}>Título:</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            required
+            style={{
+              width: '100%',
+              padding: '8px',
+              marginTop: '5px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+            }}
+          />
         </div>
 
         {/* Fecha */}
         <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>
-            Fecha:
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleInputChange}
-              required
-              style={{
-                width: '100%',
-                padding: '8px',
-                marginTop: '5px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-              }}
-            />
-          </label>
+          <label style={{ display: 'block', marginBottom: '5px' }}>Fecha:</label>
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleInputChange}
+            required
+            style={{
+              width: '100%',
+              padding: '8px',
+              marginTop: '5px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+            }}
+          />
         </div>
 
         {/* Contenido */}
         <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>
-            Contenido (Markdown):
-            <textarea
-              name="content"
-              value={formData.content}
-              onChange={handleInputChange}
-              required
-              rows={15}
+          <label style={{ display: 'block', marginBottom: '5px' }}>Contenido (Markdown):</label>
+          <textarea
+            name="content"
+            value={formData.content}
+            onChange={handleInputChange}
+            required
+            rows={15}
+            style={{
+              width: '100%',
+              padding: '8px',
+              marginTop: '5px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+            }}
+          />
+        </div>
+
+        {/* Etiquetas */}
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px' }}>Etiquetas (separadas por comas):</label>
+          <input
+            type="text"
+            name="tags"
+            value={formData.tags.join(', ')}
+            onChange={handleTagsChange}
+            placeholder="Ej. tecnología, diseño, arte"
+            style={{
+              width: '100%',
+              padding: '8px',
+              marginTop: '5px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+            }}
+          />
+        </div>
+
+        {/* Estado del post */}
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px' }}>Estado:</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, status: e.target.value as 'draft' | 'published' }))
+            }
+            style={{
+              width: '100%',
+              padding: '8px',
+              marginTop: '5px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+            }}
+          >
+            <option value="draft">Borrador</option>
+            <option value="published">Publicado</option>
+          </select>
+        </div>
+
+        {/* Imagen Destacada */}
+        <div style={{ marginBottom: '15px' }}>
+          <label style={{ display: 'block', marginBottom: '5px' }}>Imagen Destacada:</label>
+          <input
+            type="file"
+            onChange={handleFeatureImageUpload}
+            style={{
+              width: '100%',
+              padding: '8px',
+              marginTop: '5px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+            }}
+          />
+          {formData.featureImage && (
+            <img
+              src={formData.featureImage}
+              alt="Imagen Destacada"
               style={{
-                width: '100%',
-                padding: '8px',
-                marginTop: '5px',
-                border: '1px solid #ddd',
+                width: '150px',
+                height: '150px',
+                objectFit: 'cover',
+                marginTop: '10px',
                 borderRadius: '4px',
-                fontFamily: 'monospace',
               }}
             />
-          </label>
+          )}
         </div>
 
         {/* Botones */}

@@ -1,76 +1,134 @@
 // lib/server/posts.server.ts
+import { db } from '@/firebase/firebaseConfig';
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+} from 'firebase/firestore';
 
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-
-const postsDirectory = path.join(process.cwd(), 'content', 'blog');
-
-export function getSortedPostsData() {
-  const fileNames = fs.readdirSync(postsDirectory);
-
-  const allPostsData = fileNames.map((fileName) => {
-    const id = fileName.replace(/\.md$/, '');
-    const fullPath = path.join(postsDirectory, fileName);
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const matterResult = matter(fileContents);
-
-    return {
-      id,
-      title: matterResult.data.title ?? 'Sin título',
-      date: matterResult.data.date ?? 'Fecha desconocida',
-      ...matterResult.data,
-    };
-  });
-
-  return allPostsData.sort((a, b) => (a.date > b.date ? -1 : 1));
+/**
+ * Interfaz para representar un post en Firestore.
+ */
+export interface Post {
+  id?: string; // ID opcional (se genera automáticamente en Firestore)
+  title: string;
+  content: string;
+  featureImage?: string | null;
+  date: string;
+  author: {
+    uid: string;
+    displayName: string;
+    email: string;
+  };
+  tags?: string[]; // Tags opcionales
+  slug: string;
+  status: 'draft' | 'published'; // Estado del post
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export function getAllPostIds() {
-  const fileNames = fs.readdirSync(postsDirectory);
-  return fileNames.map((fileName) => ({
+/**
+ * Obtiene todos los posts ordenados por fecha.
+ * @returns {Promise<Post[]>} - Lista de posts.
+ */
+export async function getSortedPostsData(): Promise<Post[]> {
+  const postsRef = collection(db, 'posts');
+  const q = query(postsRef, where('status', '==', 'published'), orderBy('date', 'desc'));
+  const querySnapshot = await getDocs(q);
+
+  const posts: Post[] = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Post[];
+
+  return posts;
+}
+
+/**
+ * Obtiene los IDs de todos los posts para generar rutas dinámicas.
+ * @returns {Promise<Array>} - Lista de objetos con los parámetros de los posts.
+ */
+export async function getAllPostIds(): Promise<Array<{ params: { slug: string } }>> {
+  const postsRef = collection(db, 'posts');
+  const querySnapshot = await getDocs(postsRef);
+
+  return querySnapshot.docs.map((doc) => ({
     params: {
-      slug: fileName.replace(/\.md$/, ''),
+      slug: doc.data().slug,
     },
   }));
 }
 
-export async function getPostData(slug: string) {
-  const fullPath = path.join(postsDirectory, `${slug}.md`);
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
-  const matterResult = matter(fileContents);
+/**
+ * Obtiene los datos de un post específico.
+ * @param {string} slug - El slug del post.
+ * @returns {Promise<Post | null>} - Datos del post o null si no se encuentra.
+ */
+export async function getPostData(slug: string): Promise<Post | null> {
+  const postsRef = collection(db, 'posts');
+  const q = query(postsRef, where('slug', '==', slug));
+  const querySnapshot = await getDocs(q);
 
-  // Convertir Markdown a HTML usando remark
-  const processedContent = await import('remark').then(async (mod) => {
-    const remark = mod.remark;
-    const remarkHtml = (await import('remark-html')).default; // Importar el valor predeterminado
-    return remark().use(remarkHtml).process(matterResult.content);
-  });
+  if (querySnapshot.empty) {
+    return null;
+  }
 
-  const contentHtml = processedContent.toString();
-
+  const docData = querySnapshot.docs[0].data();
   return {
-    slug,
-    content: matterResult.content, // Agregar el contenido en formato Markdown
-    contentHtml, // Contenido convertido a HTML
-    title: matterResult.data.title ?? 'Sin título',
-    date: matterResult.data.date ?? 'Fecha desconocida',
-    ...matterResult.data,
-  };
+    id: querySnapshot.docs[0].id,
+    ...docData,
+  } as Post;
 }
 
-export function updatePost(
-  slug: string,
-  updatedData: { title: string; date: string; content: string }
-) {
-  const fullPath = path.join(postsDirectory, `${slug}.md`);
-  const newContent = `---
-title: "${updatedData.title}"
-date: "${updatedData.date}"
-author: "Admin"
-tags: []
----
+/**
+ * Actualiza un post existente o crea uno nuevo si no existe.
+ * @param {string} postId - El ID del post.
+ * @param {Partial<Post>} updatedData - Los datos actualizados del post.
+ */
+export async function updatePost(postId: string, updatedData: Partial<Post>) {
+  const postRef = doc(db, 'posts', postId);
+  const postSnapshot = await getDoc(postRef);
 
-${updatedData.content}`;
-  fs.writeFileSync(fullPath, newContent);
+  if (!postSnapshot.exists()) {
+    throw new Error('El post no existe.');
+  }
+
+  // Actualizar solo los campos proporcionados
+  await updateDoc(postRef, {
+    ...updatedData,
+    updatedAt: new Date(),
+  });
+}
+
+/**
+ * Crea un nuevo post en Firestore.
+ * @param {Post} postData - Los datos del nuevo post.
+ * @returns {Promise<string>} - ID del post creado.
+ */
+export async function createPost(postData: Omit<Post, 'id'>): Promise<string> {
+  try {
+    // Generar un ID único para el nuevo post
+    const postsRef = collection(db, 'posts');
+    const newPostRef = doc(postsRef); // Genera un ID automáticamente
+
+    // Crear el documento con el ID generado
+    await setDoc(newPostRef, {
+      ...postData,
+      id: newPostRef.id, // Incluir el ID en los datos del documento
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    // Retornar el ID del nuevo post
+    return newPostRef.id;
+  } catch (error) {
+    console.error('Error al crear el post:', error);
+    throw new Error('Ocurrió un error al crear el post.');
+  }
 }

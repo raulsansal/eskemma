@@ -1,5 +1,4 @@
 // lib/client/posts.client.ts
-
 export async function getPostData(id: string) {
   const response = await fetch(`/api/posts/${id}`);
   if (!response.ok) {
@@ -10,7 +9,16 @@ export async function getPostData(id: string) {
 
 export async function updatePost(
   id: string,
-  updatedData: { title: string; date: string; content: string }
+  updatedData: {
+    title: string;
+    date: string;
+    content: string;
+    slug: string;
+    status: 'draft' | 'published';
+    author: { uid: string; displayName: string; email: string };
+    featureImage?: string;
+    tags?: string[];
+  }
 ) {
   const response = await fetch(`/api/posts/${id}`, {
     method: 'PUT',
@@ -26,7 +34,16 @@ export async function updatePost(
   return response.json();
 }
 
-export async function createPost(newPostData: { title: string; date: string; content: string }) {
+export async function createPost(newPostData: {
+  title: string;
+  date: string;
+  content: string;
+  slug: string;
+  status: 'draft' | 'published';
+  author: { uid: string; displayName: string; email: string };
+  featureImage?: string;
+  tags?: string[];
+}) {
   const response = await fetch('/api/posts', {
     method: 'POST',
     headers: {

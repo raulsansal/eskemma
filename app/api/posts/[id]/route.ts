@@ -1,34 +1,33 @@
 // app/api/posts/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getPostData, updatePost } from '@/lib/server/posts.server';
+import { updatePost } from '@/lib/server/posts.server';
 
-// GET: Obtener un post específico
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params; // Await params en Next.js 15
-    const postData = await getPostData(id);
-    return NextResponse.json(postData);
-  } catch (error) {
-    console.error('Error al obtener el post:', error);
-    return NextResponse.json(
-      { error: 'Error al obtener el post' },
-      { status: 500 }
-    );
-  }
+// Interfaz Post
+export interface Post {
+  title: string;
+  content: string;
+  date: string;
+  slug: string;
+  author: {
+    uid: string;
+    displayName: string;
+    email: string;
+  };
+  status: 'draft' | 'published'; // Estado del post
+  featureImage?: string | null; // Campo opcional para la imagen destacada
+  tags?: string[]; // Tags opcionales
+  comments?: any[]; // Ajusta según tu estructura
+  media?: any[]; // Ajusta según tu estructura
+  translations?: Record<string, any>; // Ajusta según tu estructura
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// PUT: Actualizar un post
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params; // Await params en Next.js 15
-    const body = await request.json();
-    const { title, date, content } = body;
+    const { id } = params;
+    const body: Partial<Post> = await request.json(); // Usar Partial para permitir campos opcionales
+    const { title, date, content, featureImage, tags, status } = body;
 
     // Validar datos
     if (!title || !date || !content) {
@@ -38,7 +37,17 @@ export async function PUT(
       );
     }
 
-    updatePost(id, { title, date, content });
+    // Actualizar el post
+    await updatePost(id, {
+      title,
+      date,
+      content,
+      featureImage: featureImage ?? null, // Asignar null si featureImage no está definido
+      tags: tags || [],
+      status: status || 'draft',
+      updatedAt: new Date(),
+    });
+
     return NextResponse.json({ message: 'Post actualizado exitosamente' });
   } catch (error) {
     console.error('Error al actualizar el post:', error);
