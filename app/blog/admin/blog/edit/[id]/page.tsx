@@ -1,50 +1,89 @@
 // app/blog/admin/blog/edit/[id]/page.tsx
+
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import * as React from 'react'; // Importar React explícitamente para usar React.use()
+import { useEffect, useState, use } from 'react';
 import { useAuth } from '@/context/AuthContext';
-
-// Importar las funciones del cliente
 import { getPostData, updatePost, createPost } from '@/lib/client/posts.client';
 import { uploadMedia } from '@/firebase/storageUtils';
 
+// Interfaces para los datos
+interface BasePostData {
+  title: string;
+  date: string;
+  content: string;
+  tags: string[];
+  status: 'draft' | 'published';
+  featureImage: string;
+  slug: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+}
+
+interface FormData extends BasePostData {
+  // Propiedades específicas del formulario si son necesarias
+}
+
+interface PostData extends BasePostData {
+  id: string;
+  author: {
+    uid: string;
+    displayName: string;
+    email: string;
+  };
+  likes: number;
+  views: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
-  const [formData, setFormData] = useState({
+  // Resolvemos los parámetros usando React.use()
+  const { id } = use(params);
+  
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     date: new Date().toISOString().split('T')[0],
     content: '',
-    tags: [] as string[],
-    status: 'draft' as 'draft' | 'published',
+    tags: [],
+    status: 'draft',
     featureImage: '',
-    slug: '', // Agregado para cumplir con las reglas de Firestore
+    slug: '',
+    metaTitle: '',
+    metaDescription: '',
+    keywords: [],
   });
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const router = useRouter();
   const { user } = useAuth();
 
-  // Desempaquetar params usando React.use()
-  const { id } = React.use(params);
-
+  // Cargar datos del post
   useEffect(() => {
     if (id && id !== 'new') {
       const fetchPostData = async () => {
         try {
           setLoading(true);
           const postData = await getPostData(id);
+          
           if (!postData) {
             console.error('Post no encontrado');
             return;
           }
+          
           setFormData({
             title: postData.title || '',
-            date: postData.date || new Date().toISOString().split('T')[0],
+            date: postData.date?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0],
             content: postData.content || '',
             tags: postData.tags || [],
             status: postData.status || 'draft',
             featureImage: postData.featureImage || '',
-            slug: postData.slug || '', // Asegurar que el slug esté presente
+            slug: postData.slug || '',
+            metaTitle: postData.metaTitle || postData.title || '',
+            metaDescription: postData.metaDescription || postData.content?.substring(0, 160) || '',
+            keywords: postData.keywords || postData.tags || [],
           });
         } catch (error) {
           console.error('Error al obtener los datos del post:', error);
@@ -53,7 +92,6 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           setLoading(false);
         }
       };
-
       fetchPostData();
     } else {
       setLoading(false);
@@ -64,13 +102,18 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-
-    // Generar automáticamente el slug cuando el título cambia
     if (name === 'title') {
       setFormData((prev) => ({
         ...prev,
         title: value,
         slug: value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+        metaTitle: prev.metaTitle || value,
+      }));
+    } else if (name === 'content') {
+      setFormData((prev) => ({
+        ...prev,
+        content: value,
+        metaDescription: prev.metaDescription || value.substring(0, 160),
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -79,7 +122,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const tags = e.target.value.split(',').map((tag) => tag.trim());
-    setFormData((prev) => ({ ...prev, tags }));
+    setFormData((prev) => ({ 
+      ...prev, 
+      tags,
+      keywords: tags // Actualizar keywords automáticamente
+    }));
   };
 
   const handleFeatureImageUpload = async (
@@ -97,30 +144,49 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   };
 
   const handleSave = async () => {
+    if (!user) {
+      alert('Debes iniciar sesión para guardar posts');
+      return;
+    }
+
     if (!formData.title || !formData.content || !formData.slug) {
       alert('Por favor, completa todos los campos obligatorios.');
       return;
     }
-
+    
     try {
       setSaving(true);
-
-      const postData = {
-        ...formData,
+      
+      const postBaseData = {
+        title: formData.title,
+        content: formData.content,
+        slug: formData.slug,
+        status: formData.status,
         author: {
           uid: user.uid,
           displayName: user.displayName || 'Admin',
-          email: user.email,
+          email: user.email || '',
         },
-        updatedAt: new Date(),
+        featureImage: formData.featureImage,
+        tags: formData.tags,
+        date: formData.date,
+        metaTitle: formData.metaTitle,
+        metaDescription: formData.metaDescription,
+        keywords: formData.keywords,
       };
 
       if (id === 'new') {
-        await createPost(postData);
+        await createPost(postBaseData);
+        router.push('/blog/admin/blog'); // Redirige a la página de gestión de posts
       } else {
-        await updatePost(id, postData);
+        await updatePost(id, {
+          ...postBaseData,
+          likes: 0, // Valor por defecto
+          views: 0, // Valor por defecto
+        });
+        router.push('/blog/admin/blog'); // Redirige a la página de gestión de posts
       }
-
+      
       alert('Post guardado exitosamente.');
       router.push('/blog/admin/blog');
     } catch (error) {
@@ -132,106 +198,71 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   };
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return <div className="loading">Cargando...</div>;
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="editor-container">
       <h1>{id === 'new' ? 'Crear Nuevo Post' : 'Editar Post'}</h1>
       <form onSubmit={(e) => e.preventDefault()}>
         {/* Título */}
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Título:</label>
+        <div className="form-group">
+          <label>Título:</label>
           <input
             type="text"
             name="title"
             value={formData.title}
             onChange={handleInputChange}
             required
-            style={{
-              width: '100%',
-              padding: '8px',
-              marginTop: '5px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-            }}
           />
         </div>
 
         {/* Fecha */}
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Fecha:</label>
+        <div className="form-group">
+          <label>Fecha:</label>
           <input
             type="date"
             name="date"
             value={formData.date}
             onChange={handleInputChange}
             required
-            style={{
-              width: '100%',
-              padding: '8px',
-              marginTop: '5px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-            }}
           />
         </div>
 
         {/* Contenido */}
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Contenido (Markdown):</label>
+        <div className="form-group">
+          <label>Contenido (Markdown):</label>
           <textarea
             name="content"
             value={formData.content}
             onChange={handleInputChange}
             required
             rows={15}
-            style={{
-              width: '100%',
-              padding: '8px',
-              marginTop: '5px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontFamily: 'monospace',
-            }}
+            className="markdown-editor"
           />
         </div>
 
         {/* Etiquetas */}
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Etiquetas (separadas por comas):</label>
+        <div className="form-group">
+          <label>Etiquetas (separadas por comas):</label>
           <input
             type="text"
             name="tags"
             value={formData.tags.join(', ')}
             onChange={handleTagsChange}
             placeholder="Ej. tecnología, diseño, arte"
-            style={{
-              width: '100%',
-              padding: '8px',
-              marginTop: '5px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-            }}
           />
         </div>
 
         {/* Estado del post */}
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Estado:</label>
+        <div className="form-group">
+          <label>Estado:</label>
           <select
             name="status"
             value={formData.status}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, status: e.target.value as 'draft' | 'published' }))
             }
-            style={{
-              width: '100%',
-              padding: '8px',
-              marginTop: '5px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-            }}
           >
             <option value="draft">Borrador</option>
             <option value="published">Publicado</option>
@@ -239,68 +270,133 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         </div>
 
         {/* Imagen Destacada */}
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Imagen Destacada:</label>
+        <div className="form-group">
+          <label>Imagen Destacada:</label>
           <input
             type="file"
             onChange={handleFeatureImageUpload}
-            style={{
-              width: '100%',
-              padding: '8px',
-              marginTop: '5px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-            }}
+            accept="image/*"
           />
           {formData.featureImage && (
             <img
               src={formData.featureImage}
               alt="Imagen Destacada"
-              style={{
-                width: '150px',
-                height: '150px',
-                objectFit: 'cover',
-                marginTop: '10px',
-                borderRadius: '4px',
-              }}
+              className="featured-image-preview"
             />
           )}
         </div>
 
+        {/* Meta Título */}
+        <div className="form-group">
+          <label>Meta Título (SEO):</label>
+          <input
+            type="text"
+            name="metaTitle"
+            value={formData.metaTitle}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        {/* Meta Descripción */}
+        <div className="form-group">
+          <label>Meta Descripción (SEO):</label>
+          <textarea
+            name="metaDescription"
+            value={formData.metaDescription}
+            onChange={handleInputChange}
+            rows={3}
+          />
+        </div>
+
         {/* Botones */}
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="form-actions">
           <button
             type="button"
             onClick={handleSave}
             disabled={saving}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: saving ? '#ccc' : '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: saving ? 'not-allowed' : 'pointer',
-            }}
+            className="save-button"
           >
             {saving ? 'Guardando...' : 'Guardar Cambios'}
           </button>
-
           <button
             type="button"
             onClick={() => router.push('/blog/admin/blog')}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="cancel-button"
           >
             Cancelar
           </button>
         </div>
       </form>
+
+      <style jsx>{`
+        .editor-container {
+          padding: 20px;
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        .form-group {
+          margin-bottom: 15px;
+        }
+        label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: 500;
+        }
+        input[type="text"],
+        input[type="date"],
+        textarea,
+        select {
+          width: 100%;
+          padding: 8px;
+          margin-top: 5px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-family: inherit;
+        }
+        textarea {
+          min-height: 200px;
+        }
+        .markdown-editor {
+          font-family: monospace;
+        }
+        .featured-image-preview {
+          width: 150px;
+          height: 150px;
+          object-fit: cover;
+          margin-top: 10px;
+          border-radius: 4px;
+          border: 1px solid #ddd;
+        }
+        .form-actions {
+          display: flex;
+          gap: 10px;
+          margin-top: 20px;
+        }
+        .save-button {
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .save-button:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
+        .cancel-button {
+          padding: 10px 20px;
+          background-color: #6c757d;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .loading {
+          padding: 20px;
+          text-align: center;
+        }
+      `}</style>
     </div>
   );
 }
