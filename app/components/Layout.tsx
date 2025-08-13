@@ -1,4 +1,4 @@
-// app/layout.tsx
+// app/components/layout.tsx
 "use client"; // Indica que es un Client Component
 
 import { AuthProvider } from "../../context/AuthContext"; // Importa el contexto de autenticación
