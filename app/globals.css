@@ -1,5 +1,6 @@
 /* app/globals.css */
 @import 'tailwindcss';
+@import './markdown-content.css';
 
 :root {
   --background: #f7fafb;

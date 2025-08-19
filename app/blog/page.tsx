@@ -1,72 +1,92 @@
 // app/blog/page.tsx
 import Link from 'next/link';
-
-// Importar la función del servidor
+import { remark } from 'remark';
+import remarkHtml from 'remark-html';
+import DOMPurify from 'isomorphic-dompurify'; 
 import { getSortedPostsData } from '@/lib/posts';
 
-// Definir la interfaz PostData
-interface PostData {
-  id: string;
-  title: string;
-  date: Date;
-  content: string;
-  featureImage?: string;
-  status: 'draft' | 'published';
-  slug: string; // AÑADIDO: slug necesario para las URLs
-  metaTitle?: string;
-  metaDescription?: string;
-  keywords?: string[];
+// Función auxiliar para validar fechas
+function isValidDate(date: any): date is Date {
+  return date instanceof Date && !isNaN(date.getTime());
 }
 
-// Componente principal (Server Component)
 export default async function BlogPage() {
   try {
-    // Obtener los datos de los posts
     const sortedPosts = await getSortedPostsData();
 
-    // Filtrar solo los posts publicados y asegurar que coincidan con la interfaz
     const publishedPosts = sortedPosts
       .filter((post) => post.status === 'published')
-      .map((post) => ({
-        id: post.id || '',
-        title: post.title || 'Sin título',
-        date: post.date ? new Date(post.date) : new Date(),
-        content: post.content || '',
-        featureImage: post.featureImage || undefined,
-        status: post.status || 'draft',
-        slug: post.slug || '', // AÑADIDO: incluir el slug
-        metaTitle: post.metaTitle || post.title || 'Sin título',
-        metaDescription: post.metaDescription || post.content?.substring(0, 160) || '',
-        keywords: post.keywords || [],
-      }));
+      .map(async (post) => {
+        // Convertir Markdown a HTML para el resumen
+        const excerptHtml = await remark()
+          .use(remarkHtml)
+          .process(post.content.substring(0, 120) + '...');
+        
+        // Sanitizar el HTML generado
+        const sanitizedExcerpt = DOMPurify.sanitize(excerptHtml.toString());
+
+        // Validar y formatear la fecha
+        const validatedDate = post.updatedAt instanceof Date && !isNaN(post.updatedAt.getTime())
+          ? post.updatedAt
+          : new Date(); // Usar la fecha actual como predeterminada
+
+        return {
+          id: post.id || '',
+          title: post.title || 'Sin título',
+          date: validatedDate, // Usar la fecha validada
+          excerpt: sanitizedExcerpt,
+          slug: post.slug || '',
+        };
+      });
+
+    const resolvedPosts = await Promise.all(publishedPosts);
 
     return (
-      <div>
-        <h1>El Baúl de Fouché</h1>
-        <ul>
-          {publishedPosts.map(({ id, title, date, featureImage, slug }) => (
-            <li key={id} style={{ marginBottom: '20px' }}>
-              {featureImage && (
-                <img
-                  src={featureImage}
-                  alt={`Imagen destacada para ${title}`}
-                  style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px' }}
+      <section className="bg-gray-eske-10 min-h-[580px] py-12 px-4 sm:px-6 md:px-8">
+        <div className="w-[90%] mx-auto max-w-screen-xl">
+          {/* Título de la Sección */}
+          <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-12">
+            El Baúl de Fouché
+          </h2>
+
+          {/* Contenedor de Artículos */}
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {resolvedPosts.map(({ id, title, date, excerpt, slug }) => (
+              <div key={id} className="flex flex-col items-center text-center">
+                {/* Título del Artículo */}
+                <h3 className="text-xl text-bluegreen-eske-60 font-light mb-2">
+                  <Link href={`/blog/${slug}`} className="hover:text-blue-eske-70 transition-colors duration-300">
+                    {title}
+                  </Link>
+                </h3>
+
+                {/* Resumen del Artículo */}
+                <div
+                  className="text-[16px] font-light text-gray mb-4 line-clamp-3"
+                  dangerouslySetInnerHTML={{ __html: excerpt }}
                 />
-              )}
-              {/* CORRECCIÓN: Usar slug en lugar de id */}
-              <Link href={`/blog/${slug}`}>
-                <h2>{title}</h2>
-              </Link>
-              <small>{new Date(date).toLocaleDateString()}</small>
-              
-              {/* Debug temporal: mostrar tanto el ID como el slug */}
-              <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-                Debug - ID: {id} | Slug: {slug}
+
+                {/* Fecha del Artículo */}
+                <small className="text-sm text-gray-500 mb-2">
+                  {date.toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </small>
+
+                {/* Enlace "Leer completo" */}
+                <Link
+                  href={`/blog/${slug}`}
+                  className="text-blue-eske hover:text-blue-eske-70 font-medium text-[14px] transition-colors duration-300"
+                >
+                  Leer completo
+                </Link>
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+            ))}
+          </div>
+        </div>
+      </section>
     );
   } catch (error) {
     console.error('Error al obtener los posts:', error);

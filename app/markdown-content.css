@@ -1,0 +1,107 @@
+/* markdown-content.css */
+
+.markdown-content {
+  @apply text-base leading-7;
+}
+
+/* Estilos MUY específicos para listas no ordenadas */
+.markdown-content ul {
+  list-style-type: disc !important;
+  margin-left: 1.5rem !important;
+  padding-left: 1rem !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Estilos para elementos de lista */
+.markdown-content ul li {
+  display: list-item !important;
+  list-style-type: disc !important;
+  margin-bottom: 0.5rem !important;
+  padding-left: 0.25rem !important;
+  line-height: 1.7 !important;
+}
+
+/* Estilos para listas ordenadas */
+.markdown-content ol {
+  list-style-type: decimal !important;
+  margin-left: 1.5rem !important;
+  padding-left: 1rem !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.markdown-content ol li {
+  display: list-item !important;
+  list-style-type: decimal !important;
+  margin-bottom: 0.5rem !important;
+  padding-left: 0.25rem !important;
+  line-height: 1.7 !important;
+}
+
+/* Listas anidadas */
+.markdown-content li ul,
+.markdown-content li ol {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Estilos para encabezados */
+.markdown-content h1 {
+  @apply text-3xl font-bold mt-8 mb-4;
+}
+
+.markdown-content h2 {
+  @apply text-2xl font-bold mt-6 mb-3;
+}
+
+.markdown-content h3 {
+  @apply text-xl font-bold mt-6 mb-3;
+}
+
+.markdown-content h4 {
+  @apply text-lg font-bold mt-4 mb-2;
+}
+
+/* Estilos para párrafos */
+.markdown-content p {
+  @apply mb-4 leading-7;
+}
+
+/* Estilos para texto en negrita */
+.markdown-content strong,
+.markdown-content b {
+  @apply font-bold;
+}
+
+/* Estilos para texto en cursiva */
+.markdown-content em,
+.markdown-content i {
+  @apply italic;
+}
+
+/* Estilos para enlaces */
+.markdown-content a {
+  @apply text-blue-600 hover:text-blue-800 underline;
+}
+
+/* Asegurarse de que los elementos p dentro de li no rompan el formato */
+.markdown-content li p {
+  margin-bottom: 0 !important;
+  display: inline !important;
+}
+
+/* Reset de Tailwind que puede estar interfiriendo */
+.markdown-content ul,
+.markdown-content ol {
+  list-style: revert !important;
+}
+
+/* Fallback para navegadores que no soporten revert */
+.markdown-content ul {
+  list-style: disc outside !important;
+}
+
+.markdown-content ol {
+  list-style: decimal outside !important;
+}

@@ -97,6 +97,10 @@ export async function getPostData(postId: string): Promise<PostData | null> {
 
     const data = postSnapshot.data();
 
+    // Debug: Imprimir fechas originales y convertidas
+    console.log('Fecha original (date):', data.date);
+    console.log('Fecha convertida (Date):', data.date?.toDate());
+
     // Transformar los datos para que coincidan con la interfaz PostData
     return {
       id: postSnapshot.id,
@@ -111,9 +115,9 @@ export async function getPostData(postId: string): Promise<PostData | null> {
       },
       featureImage: data.featureImage || undefined,
       tags: data.tags || [],
-      date: data.date ? new Date(data.date.toDate()) : new Date(),
-      createdAt: data.createdAt ? new Date(data.createdAt.toDate()) : new Date(),
-      updatedAt: data.updatedAt ? new Date(data.updatedAt.toDate()) : new Date(),
+      date: data.date ? data.date.toDate() : new Date(), // Convertir Timestamp a Date
+      createdAt: data.createdAt ? data.createdAt.toDate() : new Date(), // Convertir Timestamp a Date
+      updatedAt: data.updatedAt ? data.updatedAt.toDate() : new Date(), // Convertir Timestamp a Date
       likes: data.likes || 0,
       views: data.views || 0,
       metaTitle: data.metaTitle || data.title || "Sin título",
@@ -149,9 +153,9 @@ export async function getPosts(): Promise<PostData[]> {
         },
         featureImage: data.featureImage || undefined,
         tags: data.tags || [],
-        date: data.date ? new Date(data.date.toDate()) : new Date(),
-        createdAt: data.createdAt ? new Date(data.createdAt.toDate()) : new Date(),
-        updatedAt: data.updatedAt ? new Date(data.updatedAt.toDate()) : new Date(),
+        date: data.date ? data.date.toDate() : new Date(), // Convertir Timestamp a Date
+        createdAt: data.createdAt ? data.createdAt.toDate() : new Date(), // Convertir Timestamp a Date
+        updatedAt: data.updatedAt ? data.updatedAt.toDate() : new Date(), // Convertir Timestamp a Date
         likes: data.likes || 0,
         views: data.views || 0,
         metaTitle: data.metaTitle || data.title || "Sin título",
@@ -164,16 +168,5 @@ export async function getPosts(): Promise<PostData[]> {
   } catch (error) {
     console.error("Error al obtener los posts:", error);
     throw new Error("Ocurrió un error al cargar los posts.");
-  }
-}
-
-// Función para eliminar un post
-export async function deletePost(postId: string) {
-  try {
-    const postRef = doc(db, "posts", postId);
-    await deleteDoc(postRef);
-  } catch (error) {
-    console.error("Error al eliminar el post:", error);
-    throw new Error("Ocurrió un error al eliminar el post.");
   }
 }
