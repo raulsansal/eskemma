@@ -10,6 +10,10 @@ interface PostData {
   content: string;
   featureImage?: string;
   status: 'draft' | 'published';
+  author?: {
+    displayName: string;
+    email: string;
+  };
   metaTitle?: string;
   metaDescription?: string;
   keywords?: string[];
@@ -47,6 +51,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     content: postData.content || '',
     featureImage: postData.featureImage || undefined,
     status: postData.status || 'draft',
+    author: postData.author || {
+      displayName: 'Desconocido',
+      email: 'correo@desconocido.com',
+    },
     metaTitle: postData.metaTitle || postData.title || 'Sin título',
     metaDescription: postData.metaDescription || postData.content?.substring(0, 160) || '',
     keywords: postData.keywords || [],
@@ -57,7 +65,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     ? validatedPostData.date.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       })
     : 'Fecha no disponible';
 
@@ -69,10 +77,23 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           {validatedPostData.title}
         </h1>
 
-        {/* Fecha */}
-        <small className="block text-sm text-gray-500 mb-6">
-          {formattedDate}
-        </small>
+        {/* Fecha, Autor y Correo Electrónico */}
+        <div className="mb-8">
+          {/* Fecha */}
+          <small className="text-base text-gray-500 leading-relaxed">
+            {formattedDate}
+          </small>
+
+          {/* Nombre del Autor */}
+          <p className="text-sm text-gray-600 font-bold leading-relaxed">
+            Por {validatedPostData.author?.displayName || 'Desconocido'}
+          </p>
+
+          {/* Correo Electrónico */}
+          <p className="text-sm text-blue-eske-60">
+            {validatedPostData.author?.email || 'correo@desconocido.com'}
+          </p>
+        </div>
 
         {/* Imagen Destacada */}
         {validatedPostData.featureImage && (
