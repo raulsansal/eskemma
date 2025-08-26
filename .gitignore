@@ -74,3 +74,7 @@ next-env.d.ts
 
 # Development Tools
 .husky/
+
+# Secrets
+/secrets/
+

@@ -10,7 +10,7 @@ interface CreatePostData {
   slug: string;
   status: 'draft' | 'published';
   author: { uid: string; displayName: string; email: string };
-  featureImage?: string;
+  featureImage?: string; // Campo opcional para la imagen destacada
   tags?: string[];
   date?: string;
   metaTitle?: string;
@@ -36,7 +36,7 @@ interface PostData {
     displayName: string;
     email: string;
   };
-  featureImage?: string;
+  featureImage?: string; // Campo opcional para la imagen destacada
   tags: string[];
   date: Date;
   createdAt: Date;
@@ -61,6 +61,7 @@ export async function createPost(newPostData: CreatePostData) {
       createdAt: new Date(),
       updatedAt: new Date(),
       date: newPostData.date ? new Date(newPostData.date) : new Date(),
+      featureImage: newPostData.featureImage || null, // Incluir featureImage si está presente
     });
 
     return { id: newPostRef.id };
@@ -78,10 +79,23 @@ export async function updatePost(postId: string, updatedPostData: UpdatePostData
       ...updatedPostData,
       updatedAt: new Date(),
       date: updatedPostData.date ? new Date(updatedPostData.date) : new Date(),
+      featureImage: updatedPostData.featureImage || null, // Incluir featureImage si está presente
     });
   } catch (error) {
     console.error('Error al actualizar el post:', error);
     throw new Error('Error al actualizar el post');
+  }
+}
+
+// Función para eliminar un post
+export async function deletePost(postId: string) {
+  try {
+    const postRef = doc(db, "posts", postId);
+    await deleteDoc(postRef);
+    console.log(`Post con ID ${postId} eliminado correctamente.`);
+  } catch (error) {
+    console.error('Error al eliminar el post:', error);
+    throw new Error('Error al eliminar el post');
   }
 }
 
@@ -113,7 +127,7 @@ export async function getPostData(postId: string): Promise<PostData | null> {
         displayName: "Desconocido",
         email: "",
       },
-      featureImage: data.featureImage || undefined,
+      featureImage: data.featureImage || undefined, // Incluir featureImage si está presente
       tags: data.tags || [],
       date: data.date ? data.date.toDate() : new Date(), // Convertir Timestamp a Date
       createdAt: data.createdAt ? data.createdAt.toDate() : new Date(), // Convertir Timestamp a Date
@@ -151,7 +165,7 @@ export async function getPosts(): Promise<PostData[]> {
           displayName: "Desconocido",
           email: "",
         },
-        featureImage: data.featureImage || undefined,
+        featureImage: data.featureImage || undefined, // Incluir featureImage si está presente
         tags: data.tags || [],
         date: data.date ? data.date.toDate() : new Date(), // Convertir Timestamp a Date
         createdAt: data.createdAt ? data.createdAt.toDate() : new Date(), // Convertir Timestamp a Date
