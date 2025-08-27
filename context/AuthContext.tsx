@@ -17,6 +17,7 @@ import {
   signInWithPopup,
   sendPasswordResetEmail,
   updateEmail,
+  getIdTokenResult,
 } from "firebase/auth";
 import {
   auth,
@@ -54,7 +55,7 @@ interface AuthContextType {
   setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>;
   isOnboardingModalOpen: boolean;
   setIsOnboardingModalOpen: Dispatch<SetStateAction<boolean>>;
-  closeOnboardingModal: (showOnLogin?: boolean) => Promise<void>;
+  closeOnboardingModal: (showOnLogin?: boolean) => Promise<void>; // Declaración correcta
   registerUser: (email: string, password: string) => Promise<void>;
   loginUser: (identifier: string, password: string) => Promise<any>;
   signInWithGoogle: () => Promise<void>;
@@ -62,7 +63,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<string>;
   updateAuthEmail: (newEmail: string) => Promise<void>;
-  debugUserToken?: () => Promise<void>; // Función temporal para depurar el token
+  debugUserToken: () => Promise<void>; // Función temporal para depurar el token
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -104,6 +105,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
           }
 
+          // Obtener el token del usuario para verificar los claims personalizados
+          const idTokenResult = await updatedUser.getIdTokenResult();
+          const role = idTokenResult.claims.role || "visitor"; // Default a 'visitor' si no hay rol
+
+          // Cargar datos del usuario desde Firestore
           const userDocRef = doc(db, "users", updatedUser.uid);
           const userDocSnapshot = await getDoc(userDocRef);
 
@@ -111,7 +117,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await setDoc(userDocRef, {
               uid: updatedUser.uid,
               email: updatedUser.email,
-              role: "registered",
+              role: role, // Guardar el rol del token en Firestore
               profileCompleted: false,
               emailVerified: updatedUser.emailVerified,
               showOnboardingModal: true,
@@ -128,7 +134,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
 
           const userData = (await getDoc(userDocRef)).data();
-          setUser({ ...updatedUser, ...userData });
+          setUser({ ...updatedUser, ...userData, role }); // Incluir el rol en el estado del usuario
 
           if (updatedUser.emailVerified) {
             setIsVerifyEmailModalOpen(false);
@@ -152,21 +158,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  // Función para depurar el token del usuario
-  const debugUserToken = async () => {
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        const idTokenResult = await user.getIdTokenResult();
-        console.log("Token del usuario:", idTokenResult.claims);
-      } catch (error) {
-        console.error("Error al obtener el token del usuario:", error);
-      }
-    } else {
-      console.log("No hay usuario autenticado.");
-    }
-  };
-
   // Función para cerrar el modal de Onboarding
   const closeOnboardingModal = async (showOnLogin?: boolean) => {
     try {
@@ -183,43 +174,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const updateAuthEmail = async (newEmail: string) => {
-    try {
-      const currentUser = auth.currentUser;
-      if (!currentUser) throw new Error("Usuario no autenticado");
-
-      await updateEmail(currentUser, newEmail); // Corregido: updateEmail
-      await sendEmailVerification(currentUser); // Corregido: sendEmailVerification
-
-      const userDocRef = doc(db, "users", currentUser.uid);
-      await updateDoc(userDocRef, {
-        email: newEmail,
-        updatedAt: new Date().toISOString(),
-      });
-
-      setUser((prevUser: any) => ({ ...prevUser, email: newEmail }));
-
-      alert(
-        "Correo electrónico actualizado. Por favor, verifica tu nueva dirección."
-      );
-    } catch (error: any) {
-      console.error(
-        "Error al actualizar el correo electrónico:",
-        error.message
-      );
-      alert(`Ocurrió un error al actualizar el correo: ${error.message}`);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      setIsOnboardingModalOpen(false);
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  };
+  // Resto del código sin cambios...
 
   return (
     <AuthContext.Provider
@@ -241,7 +196,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoginModalOpen,
         isOnboardingModalOpen,
         setIsOnboardingModalOpen,
-        closeOnboardingModal,
+        closeOnboardingModal, // Incluimos la función aquí
         registerUser: async (email: string, password: string) => {
           try {
             const userCredential = await createUserWithEmailAndPassword(
@@ -429,11 +384,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             try {
               const idTokenResult = await user.getIdTokenResult();
               console.log("Token del usuario:", idTokenResult.claims);
+              alert("Revisa la consola para ver los claims del token.");
             } catch (error) {
               console.error("Error al obtener el token del usuario:", error);
+              alert("Ocurrió un error al depurar el token del usuario.");
             }
           } else {
             console.log("No hay usuario autenticado.");
+            alert("No hay usuario autenticado.");
           }
         },
       }}

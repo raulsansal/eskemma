@@ -1,7 +1,8 @@
 // components/VerifyEmailModal.tsx
 "use client";
 import { useState } from "react";
-import { useAuth } from "../../../context/AuthContext"; // Importar el contexto de autenticación
+import { useAuth } from "../../../context/AuthContext";
+import { sendEmailVerification } from "firebase/auth";
 
 export default function VerifyEmailModal({
   isOpen,
@@ -16,22 +17,31 @@ export default function VerifyEmailModal({
   // Función para reenviar el correo de verificación
   const handleResendVerificationEmail = async () => {
     if (!user || !user.email) {
-      alert("No se pudo encontrar tu cuenta. Intenta iniciar sesión nuevamente.");
+      alert(
+        "No se pudo encontrar tu cuenta. Intenta iniciar sesión nuevamente."
+      );
       onClose();
       return;
     }
 
     try {
       setIsResendingEmail(true);
-      await user.sendEmailVerification();
-      alert("Correo de verificación reenviado. Por favor, revisa tu bandeja de entrada.");
+      await sendEmailVerification(user); // Cambio aquí: usamos sendEmailVerification(user)
+      alert(
+        "Correo de verificación reenviado. Por favor, revisa tu bandeja de entrada."
+      );
     } catch (error: any) {
-      console.error("Error al reenviar el correo de verificación:", error.message);
+      console.error(
+        "Error al reenviar el correo de verificación:",
+        error.message
+      );
 
       if (error.code === "auth/too-many-requests") {
         alert("Demasiados intentos recientes. Inténtalo de nuevo más tarde.");
       } else {
-        alert("Error al reenviar el correo de verificación. Inténtalo de nuevo.");
+        alert(
+          "Error al reenviar el correo de verificación. Inténtalo de nuevo."
+        );
       }
     } finally {
       setIsResendingEmail(false);
@@ -74,10 +84,15 @@ export default function VerifyEmailModal({
 
         {/* Mensaje */}
         <p className="text-[18px] text-black-eske text-center mb-6">
-          Hemos enviado un correo de verificación a tu dirección de email.          
+          Hemos enviado un correo de verificación a tu dirección de email.
         </p>
-        <p className="text-[16px] text-black-eske text-center mb-6"> Por favor, revisa tu bandeja de entrada (o en tu carpeta de correos no deseados) y haz clic en el enlace que te hemos enviado para continuar con tu registro.</p>
-        
+        <p className="text-[16px] text-black-eske text-center mb-6">
+          {" "}
+          Por favor, revisa tu bandeja de entrada (o en tu carpeta de correos no
+          deseados) y haz clic en el enlace que te hemos enviado para continuar
+          con tu registro.
+        </p>
+
         {/* Botón para Reenviar Correo */}
         <button
           onClick={handleResendVerificationEmail}
@@ -86,7 +101,9 @@ export default function VerifyEmailModal({
             isResendingEmail ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          {isResendingEmail ? "Reenviando correo..." : "REENVIAR CORREO DE VERIFICACIÓN"}
+          {isResendingEmail
+            ? "Reenviando correo..."
+            : "REENVIAR CORREO DE VERIFICACIÓN"}
         </button>
 
         {/* Botón Cerrar */}

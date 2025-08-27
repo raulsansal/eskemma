@@ -1,11 +1,12 @@
-// app/blog/admin/blog/edit/[id]/page.tsx
+//app//blog/edit/[id]/page.tsx
+
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import * as React from "react"; // Importar React explícitamente para usar React.use()
 import { useAuth } from "@/context/AuthContext";
 import { getPostData, updatePost, createPost } from "@/lib/client/posts.client";
-import { uploadMedia } from "@/firebase/storageUtils";
+import { uploadFeaturedImage } from "@/firebase/storageUtils";
 
 // Interfaces para los datos
 interface BasePostData {
@@ -54,7 +55,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [saving, setSaving] = useState(false);
 
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, debugUserToken } = useAuth(); // Importamos debugUserToken desde el contexto
 
   // Cargar datos del post
   useEffect(() => {
@@ -112,7 +113,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     try {
-      const downloadURL = await uploadMedia(file, `posts/${id}`);
+      const downloadURL = await uploadFeaturedImage(file, id);
       setFormData((prev) => ({ ...prev, featureImage: downloadURL }));
     } catch (error) {
       console.error("Error al subir la imagen destacada:", error);
@@ -165,6 +166,21 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     }
   };
 
+  // Función para manejar el clic en el botón de depuración
+  const handleDebugToken = async () => {
+    if (!debugUserToken) {
+      console.warn("La función debugUserToken no está disponible.");
+      return;
+    }
+    try {
+      await debugUserToken();
+      alert("Revisa la consola para ver los claims del token.");
+    } catch (error) {
+      console.error("Error al depurar el token:", error);
+      alert("Ocurrió un error al depurar el token.");
+    }
+  };
+
   // Mostrar loading mientras se resuelven los params o se cargan los datos
   if (loading) {
     return <div>Cargando...</div>;
@@ -172,6 +188,24 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+      {/* Botón de Depuración */}
+      <div style={{ marginBottom: "20px" }}>
+        <button
+          type="button"
+          onClick={handleDebugToken}
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#28a745",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Depurar Token del Usuario
+        </button>
+      </div>
+
       {/* Formulario de edición */}
       <form onSubmit={(e) => e.preventDefault()}>
         {/* Título */}

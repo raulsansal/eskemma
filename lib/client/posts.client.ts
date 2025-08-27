@@ -61,7 +61,7 @@ export async function createPost(newPostData: CreatePostData) {
       createdAt: new Date(),
       updatedAt: new Date(),
       date: newPostData.date ? new Date(newPostData.date) : new Date(),
-      featureImage: newPostData.featureImage || null, // Incluir featureImage si está presente
+      featureImage: newPostData.featureImage || null, 
     });
 
     return { id: newPostRef.id };

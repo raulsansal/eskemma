@@ -100,8 +100,13 @@ export const uploadFeaturedImage = async (file: File, postId: string) => {
     // Obtener la URL descargable
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
-  } catch (error) {
-    console.error("Error al subir la imagen destacada:", error);
+  } catch (error: any) {
+    console.error("Error al subir la imagen destacada:", error.message);
+    if (error.code === "storage/unauthorized") {
+      throw new Error(
+        "No tienes permisos para subir la imagen. Verifica las reglas de Firebase Storage."
+      );
+    }
     throw new Error("Ocurrió un error al subir la imagen destacada.");
   }
 };
