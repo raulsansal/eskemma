@@ -18,13 +18,8 @@ import {
   sendPasswordResetEmail,
   updateEmail,
   getIdTokenResult,
+  User,
 } from "firebase/auth";
-import {
-  auth,
-  db,
-  providerGoogle,
-  providerFacebook,
-} from "../firebase/firebaseConfig";
 import {
   doc,
   setDoc,
@@ -36,10 +31,28 @@ import {
   getDocs,
   limit,
 } from "firebase/firestore";
+import { auth, db, providerGoogle, providerFacebook } from "../firebase/firebaseConfig";
+
+// Tipo extendido que incluye la propiedad 'role'
+interface ExtendedUser extends User {
+  role?: string; // Agregar la propiedad 'role' como opcional
+}
+
+// Interfaz para los datos de Firestore
+interface FirestoreUserData {
+  uid: string;
+  email: string;
+  role?: string;
+  profileCompleted: boolean;
+  emailVerified: boolean;
+  showOnboardingModal: boolean;
+  createdAt: Date;
+  updatedAt?: Date;
+}
 
 interface AuthContextType {
-  user: any;
-  setUser: Dispatch<SetStateAction<any>>;
+  user: ExtendedUser | null;
+  setUser: Dispatch<SetStateAction<ExtendedUser | null>>;
   loading: boolean;
   isSignInModalOpen: boolean;
   setIsSignInModalOpen: Dispatch<SetStateAction<boolean>>;
@@ -55,7 +68,7 @@ interface AuthContextType {
   setIsLoginModalOpen: Dispatch<SetStateAction<boolean>>;
   isOnboardingModalOpen: boolean;
   setIsOnboardingModalOpen: Dispatch<SetStateAction<boolean>>;
-  closeOnboardingModal: (showOnLogin?: boolean) => Promise<void>; // Declaración correcta
+  closeOnboardingModal: (showOnLogin?: boolean) => Promise<void>;
   registerUser: (email: string, password: string) => Promise<void>;
   loginUser: (identifier: string, password: string) => Promise<any>;
   signInWithGoogle: () => Promise<void>;
@@ -63,7 +76,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<string>;
   updateAuthEmail: (newEmail: string) => Promise<void>;
-  debugUserToken: () => Promise<void>; // Función temporal para depurar el token
+  debugUserToken: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -77,7 +90,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Estados para controlar los modales
@@ -105,9 +118,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
           }
 
-          // Obtener el token del usuario para verificar los claims personalizados
-          const idTokenResult = await updatedUser.getIdTokenResult();
-          const role = idTokenResult.claims.role || "visitor"; // Default a 'visitor' si no hay rol
+          // Forzar la renovación del token
+          const idTokenResult = await updatedUser.getIdTokenResult(true);
+
+          // Validar que el campo 'role' en el token sea un string
+          const tokenRole = idTokenResult.claims.role;
+          const role = typeof tokenRole === "string" ? tokenRole : "visitor"; // Default a 'visitor' si no hay rol
 
           // Cargar datos del usuario desde Firestore
           const userDocRef = doc(db, "users", updatedUser.uid);
@@ -124,20 +140,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               createdAt: new Date(),
             });
           } else {
-            const userData = userDocSnapshot.data();
+            const userData = userDocSnapshot.data() as FirestoreUserData;
             if (userData.emailVerified !== updatedUser.emailVerified) {
               await updateDoc(userDocRef, {
                 emailVerified: updatedUser.emailVerified,
                 updatedAt: new Date(),
               });
             }
-          }
 
-          const userData = (await getDoc(userDocRef)).data();
-          setUser({ ...updatedUser, ...userData, role }); // Incluir el rol en el estado del usuario
+            // Validar que el campo 'role' en Firestore sea un string
+            const firestoreRole = userData.role;
+            const finalRole =
+              typeof firestoreRole === "string" ? firestoreRole : role; // Usar el rol de Firestore si existe, de lo contrario usar el del token
+
+            // Actualizar el estado del usuario
+            setUser({ ...updatedUser, ...userData, role: finalRole });
+          }
 
           if (updatedUser.emailVerified) {
             setIsVerifyEmailModalOpen(false);
+            const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
             if (!userData?.profileCompleted) {
               setIsCompleteRegisterModalOpen(true);
             } else if (userData.showOnboardingModal) {
@@ -174,7 +196,221 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Resto del código sin cambios...
+  // Función para registrar un nuevo usuario
+  const registerUser = async (email: string, password: string) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Enviar correo de verificación
+      await sendEmailVerification(user);
+
+      // Guardar datos del usuario en Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        email: user.email,
+        role: "registered",
+        profileCompleted: false,
+        emailVerified: false,
+        showOnboardingModal: true,
+        createdAt: new Date(),
+      });
+
+      // Asignar el rol 'registered' como Custom Claim
+      await fetch("/api/setUserRole", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: user.uid, role: "registered" }),
+      });
+
+      // Mostrar modal de verificación de correo
+      setIsVerifyEmailModalOpen(true);
+      setIsSignInModalOpen(false);
+    } catch (error: any) {
+      console.error("Error al registrar usuario:", error.message);
+      if (error.code === "auth/email-already-in-use") {
+        alert("Este correo ya está registrado. Intenta iniciar sesión.");
+        setIsSignInModalOpen(false);
+        setIsLoginModalOpen(true);
+      } else if (error.code === "auth/weak-password") {
+        alert("La contraseña es demasiado débil. Usa al menos 6 caracteres.");
+      } else {
+        alert("Ocurrió un error al registrar usuario. Inténtalo de nuevo.");
+      }
+    }
+  };
+
+  // Función para iniciar sesión con correo electrónico o nombre de usuario
+  const loginUser = async (identifier: string, password: string) => {
+    try {
+      let email;
+      if (identifier.includes("@")) {
+        email = identifier;
+      } else {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("userName", "==", identifier), limit(1));
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) {
+          throw new Error("Nombre de usuario o contraseña incorrectos.");
+        }
+        const userData = querySnapshot.docs[0].data() as { email: string };
+        email = userData.email;
+      }
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+      if (!userDocSnapshot.exists()) {
+        throw new Error("Datos de usuario no encontrados en Firestore.");
+      }
+      const userData = userDocSnapshot.data() as FirestoreUserData;
+      setUser({ ...user, ...userData });
+      setIsLoginModalOpen(false);
+    } catch (error: any) {
+      console.error("Error al iniciar sesión:", error.message);
+      alert("Nombre de usuario o contraseña incorrectos.");
+    }
+  };
+
+  // Función para iniciar sesión con Google
+  const signInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, providerGoogle);
+      const user = result.user;
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+      if (!userDocSnapshot.exists()) {
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "Usuario",
+          role: "registered",
+          profileCompleted: false,
+          emailVerified: true,
+          showOnboardingModal: true,
+          createdAt: new Date(),
+        });
+
+        // Asignar el rol 'registered' como Custom Claim
+        await fetch("/api/setUserRole", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: user.uid, role: "registered" }),
+        });
+      }
+      const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
+      setUser({ ...user, ...userData });
+      setIsLoginModalOpen(false);
+    } catch (error: any) {
+      console.error("Error al iniciar sesión con Google:", error.message);
+      alert("Ocurrió un error al iniciar sesión con Google.");
+    }
+  };
+
+  // Función para iniciar sesión con Facebook
+  const signInWithFacebook = async () => {
+    try {
+      const result = await signInWithPopup(auth, providerFacebook);
+      const user = result.user;
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+      if (!userDocSnapshot.exists()) {
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "Usuario",
+          role: "registered",
+          profileCompleted: false,
+          emailVerified: true,
+          showOnboardingModal: true,
+          createdAt: new Date(),
+        });
+
+        // Asignar el rol 'registered' como Custom Claim
+        await fetch("/api/setUserRole", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: user.uid, role: "registered" }),
+        });
+      }
+      const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
+      setUser({ ...user, ...userData });
+      setIsLoginModalOpen(false);
+    } catch (error: any) {
+      console.error("Error al iniciar sesión con Facebook:", error.message);
+      alert("Ocurrió un error al iniciar sesión con Facebook.");
+    }
+  };
+
+  // Función para cerrar sesión
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      setIsOnboardingModalOpen(false);
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      alert("Ocurrió un error al cerrar sesión.");
+    }
+  };
+
+  // Función para recuperar la contraseña
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return "Correo de recuperación enviado correctamente.";
+    } catch (error: any) {
+      console.error("Error al recuperar la contraseña:", error.message);
+      if (error.code === "auth/user-not-found") {
+        throw new Error("No se encontró ningún usuario con este correo electrónico.");
+      } else {
+        throw new Error("Ocurrió un error al intentar recuperar la contraseña.");
+      }
+    }
+  };
+
+  // Función para actualizar el correo electrónico del usuario
+  const updateAuthEmail = async (newEmail: string) => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("Usuario no autenticado");
+      await updateEmail(currentUser, newEmail);
+      await sendEmailVerification(currentUser);
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userDocRef, {
+        email: newEmail,
+        updatedAt: new Date().toISOString(),
+      });
+      setUser((prevUser: any) => ({ ...prevUser, email: newEmail }));
+      alert("Correo electrónico actualizado. Por favor, verifica tu nueva dirección.");
+    } catch (error: any) {
+      console.error("Error al actualizar el correo electrónico:", error.message);
+      alert(`Ocurrió un error al actualizar el correo: ${error.message}`);
+    }
+  };
+
+  // Función para depurar el token del usuario
+  const debugUserToken = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const idTokenResult = await user.getIdTokenResult(true);
+        console.log("Token del usuario:", idTokenResult.claims);
+        alert("Revisa la consola para ver los claims del token.");
+      } catch (error) {
+        console.error("Error al obtener el token del usuario:", error);
+        alert("Ocurrió un error al depurar el token del usuario.");
+      }
+    } else {
+      console.log("No hay usuario autenticado.");
+      alert("No hay usuario autenticado.");
+    }
+  };
 
   return (
     <AuthContext.Provider
@@ -196,204 +432,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoginModalOpen,
         isOnboardingModalOpen,
         setIsOnboardingModalOpen,
-        closeOnboardingModal, // Incluimos la función aquí
-        registerUser: async (email: string, password: string) => {
-          try {
-            const userCredential = await createUserWithEmailAndPassword(
-              auth,
-              email,
-              password
-            );
-            const user = userCredential.user;
-            await sendEmailVerification(user);
-            const userDocRef = doc(db, "users", user.uid);
-            await setDoc(userDocRef, {
-              uid: user.uid,
-              email: user.email,
-              role: "registered",
-              profileCompleted: false,
-              emailVerified: false,
-              showOnboardingModal: true,
-              createdAt: new Date(),
-            });
-            setIsVerifyEmailModalOpen(true);
-            setIsSignInModalOpen(false);
-          } catch (error: any) {
-            console.error("Error al registrar usuario:", error.message);
-            if (error.code === "auth/email-already-in-use") {
-              alert("Este correo ya está registrado. Intenta iniciar sesión.");
-              setIsSignInModalOpen(false);
-              setIsLoginModalOpen(true);
-            } else if (error.code === "auth/weak-password") {
-              alert(
-                "La contraseña es demasiado débil. Usa al menos 6 caracteres."
-              );
-            } else {
-              alert(
-                "Ocurrió un error al registrar usuario. Inténtalo de nuevo."
-              );
-            }
-          }
-        },
-        loginUser: async (identifier: string, password: string) => {
-          try {
-            let email;
-            if (identifier.includes("@")) {
-              email = identifier;
-            } else {
-              const usersRef = collection(db, "users");
-              const q = query(
-                usersRef,
-                where("userName", "==", identifier),
-                limit(1)
-              );
-              const querySnapshot = await getDocs(q);
-              if (querySnapshot.empty) {
-                throw new Error("Nombre de usuario o contraseña incorrectos.");
-              }
-              const userData = querySnapshot.docs[0].data();
-              email = userData.email;
-            }
-            const userCredential = await signInWithEmailAndPassword(
-              auth,
-              email,
-              password
-            );
-            const user = userCredential.user;
-            const userDocRef = doc(db, "users", user.uid);
-            const userDocSnapshot = await getDoc(userDocRef);
-            if (!userDocSnapshot.exists()) {
-              throw new Error("Datos de usuario no encontrados en Firestore.");
-            }
-            const userData = userDocSnapshot.data();
-            setUser({ ...user, ...userData });
-            setIsLoginModalOpen(false);
-          } catch (error: any) {
-            console.error("Error al iniciar sesión:", error.message);
-            alert("Nombre de usuario o contraseña incorrectos.");
-          }
-        },
-        signInWithGoogle: async () => {
-          try {
-            const result = await signInWithPopup(auth, providerGoogle);
-            const user = result.user;
-            const userDocRef = doc(db, "users", user.uid);
-            const userDocSnapshot = await getDoc(userDocRef);
-            if (!userDocSnapshot.exists()) {
-              await setDoc(userDocRef, {
-                uid: user.uid,
-                email: user.email,
-                name: user.displayName || "Usuario",
-                role: "registered",
-                profileCompleted: false,
-                emailVerified: true,
-                showOnboardingModal: true,
-                createdAt: new Date(),
-              });
-            }
-            const userData = (await getDoc(userDocRef)).data();
-            setUser({ ...user, ...userData });
-            setIsLoginModalOpen(false);
-          } catch (error: any) {
-            console.error("Error al iniciar sesión con Google:", error.message);
-            alert("Ocurrió un error al iniciar sesión con Google.");
-          }
-        },
-        signInWithFacebook: async () => {
-          try {
-            const result = await signInWithPopup(auth, providerFacebook);
-            const user = result.user;
-            const userDocRef = doc(db, "users", user.uid);
-            const userDocSnapshot = await getDoc(userDocRef);
-            if (!userDocSnapshot.exists()) {
-              await setDoc(userDocRef, {
-                uid: user.uid,
-                email: user.email,
-                name: user.displayName || "Usuario",
-                role: "registered",
-                profileCompleted: false,
-                emailVerified: true,
-                showOnboardingModal: true,
-                createdAt: new Date(),
-              });
-            }
-            const userData = (await getDoc(userDocRef)).data();
-            setUser({ ...user, ...userData });
-            setIsLoginModalOpen(false);
-          } catch (error: any) {
-            console.error(
-              "Error al iniciar sesión con Facebook:",
-              error.message
-            );
-            alert("Ocurrió un error al iniciar sesión con Facebook.");
-          }
-        },
-        logout: async () => {
-          try {
-            await signOut(auth);
-            setUser(null);
-            setIsOnboardingModalOpen(false);
-          } catch (error) {
-            console.error("Error al cerrar sesión:", error);
-            alert("Ocurrió un error al cerrar sesión.");
-          }
-        },
-        resetPassword: async (email: string) => {
-          try {
-            await sendPasswordResetEmail(auth, email);
-            return "Correo de recuperación enviado correctamente.";
-          } catch (error: any) {
-            console.error("Error al recuperar la contraseña:", error.message);
-            if (error.code === "auth/user-not-found") {
-              throw new Error(
-                "No se encontró ningún usuario con este correo electrónico."
-              );
-            } else {
-              throw new Error(
-                "Ocurrió un error al intentar recuperar la contraseña."
-              );
-            }
-          }
-        },
-        updateAuthEmail: async (newEmail: string) => {
-          try {
-            const currentUser = auth.currentUser;
-            if (!currentUser) throw new Error("Usuario no autenticado");
-            await updateEmail(currentUser, newEmail);
-            await sendEmailVerification(currentUser);
-            const userDocRef = doc(db, "users", currentUser.uid);
-            await updateDoc(userDocRef, {
-              email: newEmail,
-              updatedAt: new Date().toISOString(),
-            });
-            setUser((prevUser: any) => ({ ...prevUser, email: newEmail }));
-            alert(
-              "Correo electrónico actualizado. Por favor, verifica tu nueva dirección."
-            );
-          } catch (error: any) {
-            console.error(
-              "Error al actualizar el correo electrónico:",
-              error.message
-            );
-            alert(`Ocurrió un error al actualizar el correo: ${error.message}`);
-          }
-        },
-        debugUserToken: async () => {
-          const user = auth.currentUser;
-          if (user) {
-            try {
-              const idTokenResult = await user.getIdTokenResult();
-              console.log("Token del usuario:", idTokenResult.claims);
-              alert("Revisa la consola para ver los claims del token.");
-            } catch (error) {
-              console.error("Error al obtener el token del usuario:", error);
-              alert("Ocurrió un error al depurar el token del usuario.");
-            }
-          } else {
-            console.log("No hay usuario autenticado.");
-            alert("No hay usuario autenticado.");
-          }
-        },
+        closeOnboardingModal,
+        registerUser,
+        loginUser,
+        signInWithGoogle,
+        signInWithFacebook,
+        logout,
+        resetPassword,
+        updateAuthEmail,
+        debugUserToken,
       }}
     >
       {!loading && children}

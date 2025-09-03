@@ -1,5 +1,4 @@
-//app//blog/edit/[id]/page.tsx
-
+// app/blog/admin/blog/edit/[id]/page.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -7,6 +6,7 @@ import * as React from "react"; // Importar React explícitamente para usar Reac
 import { useAuth } from "@/context/AuthContext";
 import { getPostData, updatePost, createPost } from "@/lib/client/posts.client";
 import { uploadFeaturedImage } from "@/firebase/storageUtils";
+import { PostData } from "@/types/post.types"; // Importar la interfaz centralizada
 
 // Interfaces para los datos
 interface BasePostData {
@@ -22,21 +22,8 @@ interface BasePostData {
   keywords?: string[];
 }
 
-interface PostData extends BasePostData {
-  id: string;
-  author: {
-    uid: string;
-    displayName: string;
-    email: string;
-  };
-  likes: number;
-  views: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params);
+  const { id } = React.use(params); // Usar React.use() para desempaquetar params
 
   // Estados locales
   const [formData, setFormData] = useState<BasePostData>({
@@ -55,7 +42,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [saving, setSaving] = useState(false);
 
   const router = useRouter();
-  const { user, debugUserToken } = useAuth(); // Importamos debugUserToken desde el contexto
+  const { user, debugUserToken } = useAuth();
 
   // Cargar datos del post
   useEffect(() => {

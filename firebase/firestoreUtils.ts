@@ -1,63 +1,62 @@
-// firebase/firestoreUtils.ts
+// firebase/storageUtils.ts
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { v4 as uuidv4 } from "uuid";
 
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "./firebaseConfig";
-
-export const saveUserData = async (userData: any, role?: string) => {
+// Función para subir una imagen destacada a Firebase Storage
+export const uploadFeaturedImage = async (file: File, postId: string): Promise<string> => {
   try {
-    console.log("Intentando guardar datos en Firestore:", userData);
-
-    // Validaciones básicas
-    if (!userData.uid) {
-      throw new Error("UID del usuario no proporcionado.");
+    // Validar que se haya proporcionado un archivo
+    if (!file) {
+      throw new Error("No se proporcionó ningún archivo para subir.");
     }
 
-    const userRef = doc(db, "users", userData.uid);
+    // Obtener una referencia al servicio de almacenamiento de Firebase
+    const storage = getStorage();
 
-    // Limpieza de datos: Eliminar propiedades no serializables
-    const cleanUserData = ((data: any) => {
-      const allowedFields = [
-        "uid",
-        "email",
-        "name",
-        "lastName",
-        "country",
-        "avatarUrl",
-        "userName",
-        "sex",
-        "roles",
-        "interests",
-        "profileCompleted",
-        "createdAt",
-        "updatedAt",
-      ];
+    // Generar un nombre único para el archivo usando UUID
+    const fileName = `post-images/${postId}/${uuidv4()}-${file.name}`;
 
-      const cleanedData: Record<string, any> = {};
-      for (const key of allowedFields) {
-        if (data[key] !== undefined) {
-          cleanedData[key] = data[key];
+    // Crear una referencia al archivo en Firebase Storage
+    const storageRef = ref(storage, fileName);
+
+    // Subir el archivo al almacenamiento
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    // Esperar a que la subida se complete
+    await new Promise<void>((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // Opcional: Monitorear el progreso de la subida
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Progreso de la subida: ${progress.toFixed(2)}%`);
+        },
+        (error) => {
+          // Manejar errores específicos de Firebase Storage
+          if (error.code === "storage/unauthorized") {
+            console.error("No tienes permiso para subir archivos a esta ubicación.");
+            alert("No tienes permiso para subir archivos. Contacta al administrador.");
+          } else {
+            console.error("Error al subir la imagen destacada:", error.message);
+            alert(`Ocurrió un error al subir la imagen destacada: ${error.message}`);
+          }
+          reject(error);
+        },
+        () => {
+          // Subida completada
+          resolve();
         }
-      }
+      );
+    });
 
-      return cleanedData;
-    })(userData);
+    // Obtener la URL de descarga del archivo subido
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log("Imagen destacada subida exitosamente. URL:", downloadURL);
 
-    // Preparar datos finales
-    const finalUserData = {
-      ...cleanUserData,
-      role: role || "user", // Asignar rol predeterminado "user" si no se especifica
-      profileCompleted: cleanUserData.profileCompleted ?? false,
-      createdAt: cleanUserData.createdAt ?? new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    console.log("Datos finales para guardar en Firestore:", finalUserData);
-
-    // Usar merge: true para preservar campos existentes como emailVerified
-    await setDoc(userRef, finalUserData, { merge: true });
-    console.log("Datos guardados exitosamente en Firestore.");
+    return downloadURL;
   } catch (error: any) {
-    console.error("Error al guardar datos en Firestore:", error.message);
-    alert(`Ocurrió un error al guardar tus datos: ${error.message}`);
+    console.error("Error al subir la imagen destacada:", error.message);
+    alert(`Ocurrió un error al subir la imagen destacada: ${error.message}`);
+    throw error; // Relanzar el error para manejarlo en el componente que llama a esta función
   }
 };

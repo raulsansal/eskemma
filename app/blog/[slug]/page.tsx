@@ -81,7 +81,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <img
             src={validatedPostData.featureImage}
             alt={`Imagen destacada para ${validatedPostData.title}`}
-            className="w-full h-96 object-cover rounded-lg mb-8"
+            className="w-full h-128 object-cover rounded-lg mb-8"
           />
         )}
 

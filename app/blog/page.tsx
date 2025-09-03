@@ -59,7 +59,7 @@ export default async function BlogPage() {
                   <img
                     src={featureImage}
                     alt={`Imagen destacada para ${title}`}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
+                    className="w-full h-62 object-cover rounded-lg mb-4"
                   />
                 )}
 

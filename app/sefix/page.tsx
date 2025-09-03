@@ -11,7 +11,7 @@ export default function SefixPage() {
         {/* Iframe para el dashboard */}
         <div className="mt-6 relative aspect-video">
           <iframe
-            src="http://127.0.0.1:7680" // Reemplaza con la dirección IP o URL correcta
+            src="https://kj6hbt-ra0l-s0nchez.shinyapps.io/dashboard_rss/" // Reemplaza con la dirección IP o URL correcta
             title="Dashboard de Shiny"
             className="w-full h-full border-none rounded-lg shadow-md"
             allowFullScreen
