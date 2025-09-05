@@ -1,6 +1,5 @@
 // app/firebase/storageUtils.ts
 
-// Instalar primero: npm install browser-image-compression
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
 
@@ -28,17 +27,16 @@ export const uploadAvatar = async (file: File, uid: string) => {
       maxSizeMB: 1, // Tamaño máximo en MB
       maxWidthOrHeight: MAX_AVATAR_DIMENSIONS, // Máximo 500x500 píxeles
       useWebWorker: true, // Usar Web Worker para mejor rendimiento
-      fileType: "image/jpeg", // Convertir a JPEG
+      fileType: file.type, // Mantener el tipo MIME original
       initialQuality: 0.8, // Calidad inicial del 80%
     };
 
     // Comprimir y redimensionar la imagen
     const compressedFile = await imageCompression(file, options);
 
-    // Crear un nuevo nombre de archivo con extensión .jpg
-    const fileName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-    const finalFile = new File([compressedFile], fileName, {
-      type: "image/jpeg",
+    // Mantener el nombre original del archivo
+    const finalFile = new File([compressedFile], file.name, {
+      type: compressedFile.type, // Mantener el tipo MIME original
     });
 
     // Subir el archivo comprimido a Firebase Storage
@@ -79,17 +77,16 @@ export const uploadFeaturedImage = async (file: File, postId: string) => {
       maxSizeMB: 1, // Tamaño máximo en MB
       maxWidthOrHeight: MAX_IMAGE_DIMENSIONS, // Máximo 1920x1080 píxeles
       useWebWorker: true, // Usar Web Worker para mejor rendimiento
-      fileType: "image/jpeg", // Convertir a JPEG
+      fileType: file.type, // Mantener el tipo MIME original
       initialQuality: 0.8, // Calidad inicial del 80%
     };
 
     // Comprimir y redimensionar la imagen
     const compressedFile = await imageCompression(file, options);
 
-    // Crear un nuevo nombre de archivo con extensión .jpg
-    const fileName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-    const finalFile = new File([compressedFile], fileName, {
-      type: "image/jpeg",
+    // Mantener el nombre original del archivo
+    const finalFile = new File([compressedFile], file.name, {
+      type: compressedFile.type, // Mantener el tipo MIME original
     });
 
     // Subir el archivo comprimido a Firebase Storage
@@ -108,6 +105,61 @@ export const uploadFeaturedImage = async (file: File, postId: string) => {
       );
     }
     throw new Error("Ocurrió un error al subir la imagen destacada.");
+  }
+};
+
+/**
+ * Sube una imagen secundaria al Firebase Storage después de comprimirla y redimensionarla.
+ * @param file - El archivo de imagen que se va a subir.
+ * @param postId - El ID único del post para organizar las imágenes secundarias.
+ * @returns URL descargable de la imagen secundaria.
+ */
+export const uploadSecondaryImage = async (file: File, postId: string) => {
+  const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB en bytes
+  const MAX_IMAGE_DIMENSIONS = 1024; // Máximo 1024x1024 píxeles
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    throw new Error(
+      `El archivo es demasiado grande. El tamaño máximo permitido es ${
+        MAX_IMAGE_SIZE / (1024 * 1024)
+      } MB.`
+    );
+  }
+
+  try {
+    // Configuración para la compresión
+    const options = {
+      maxSizeMB: 1, // Tamaño máximo en MB
+      maxWidthOrHeight: MAX_IMAGE_DIMENSIONS, // Máximo 1024x1024 píxeles
+      useWebWorker: true, // Usar Web Worker para mejor rendimiento
+      fileType: file.type, // Mantener el tipo MIME original
+      initialQuality: 0.8, // Calidad inicial del 80%
+    };
+
+    // Comprimir y redimensionar la imagen
+    const compressedFile = await imageCompression(file, options);
+
+    // Mantener el nombre original del archivo
+    const finalFile = new File([compressedFile], file.name, {
+      type: compressedFile.type, // Mantener el tipo MIME original
+    });
+
+    // Subir el archivo comprimido a Firebase Storage
+    const storage = getStorage();
+    const storageRef = ref(storage, `post-images/${postId}/secondary/${finalFile.name}`);
+    await uploadBytes(storageRef, finalFile);
+
+    // Obtener la URL descargable
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  } catch (error: any) {
+    console.error("Error al subir la imagen secundaria:", error.message);
+    if (error.code === "storage/unauthorized") {
+      throw new Error(
+        "No tienes permisos para subir la imagen. Verifica las reglas de Firebase Storage."
+      );
+    }
+    throw new Error("Ocurrió un error al subir la imagen secundaria.");
   }
 };
 

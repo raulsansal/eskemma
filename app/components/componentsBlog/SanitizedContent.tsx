@@ -1,3 +1,5 @@
+//app/components/componentsBlog/SanitizedContent.tsx
+
 'use client';
 
 import { useEffect, useState } from 'react';

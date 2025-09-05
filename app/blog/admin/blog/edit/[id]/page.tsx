@@ -1,11 +1,10 @@
-// app/blog/admin/blog/edit/[id]/page.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import * as React from "react"; // Importar React explícitamente para usar React.use()
 import { useAuth } from "@/context/AuthContext";
 import { getPostData, updatePost, createPost } from "@/lib/client/posts.client";
-import { uploadFeaturedImage } from "@/firebase/storageUtils";
+import { uploadFeaturedImage, uploadSecondaryImage } from "@/firebase/storageUtils";
 import { PostData } from "@/types/post.types"; // Importar la interfaz centralizada
 
 // Interfaces para los datos
@@ -105,6 +104,23 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     } catch (error) {
       console.error("Error al subir la imagen destacada:", error);
       alert("Ocurrió un error al subir la imagen destacada.");
+    }
+  };
+
+  // Manejar la subida de imágenes secundarias
+  const handleSecondaryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    try {
+      const downloadURL = await uploadSecondaryImage(file, id);
+      const markdownImage = `![${file.name}](${downloadURL})`;
+      setFormData((prev) => ({
+        ...prev,
+        content: `${prev.content}\n\n${markdownImage}`,
+      }));
+    } catch (error) {
+      console.error("Error al subir la imagen secundaria:", error);
+      alert("Ocurrió un error al subir la imagen secundaria.");
     }
   };
 
@@ -298,6 +314,22 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               }}
             />
           )}
+        </div>
+
+        {/* Imágenes Secundarias */}
+        <div style={{ marginBottom: "15px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>Imágenes Secundarias:</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleSecondaryImageUpload}
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
+            }}
+          />
         </div>
 
         {/* Botones */}
