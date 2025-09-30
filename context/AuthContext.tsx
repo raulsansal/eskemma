@@ -77,6 +77,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<string>;
   updateAuthEmail: (newEmail: string) => Promise<void>;
   debugUserToken: () => Promise<void>;
+  updateUserRole: (uid: string, newRole: string) => Promise<void>; // Nueva función para actualizar el rol
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -412,6 +413,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Función para actualizar el rol del usuario
+  const updateUserRole = async (uid: string, newRole: string) => {
+    try {
+      const userDocRef = doc(db, "users", uid);
+      await updateDoc(userDocRef, {
+        role: newRole,
+        updatedAt: new Date().toISOString(),
+      });
+
+      // Actualizar el estado global del usuario
+      setUser((prevUser: any) => {
+        if (!prevUser) return null;
+        return { ...prevUser, role: newRole };
+      });
+    } catch (error) {
+      console.error("Error al actualizar el rol del usuario:", error);
+      alert("Ocurrió un error al actualizar el rol del usuario.");
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -441,6 +462,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         resetPassword,
         updateAuthEmail,
         debugUserToken,
+        updateUserRole, // Añadir la nueva función al contexto
       }}
     >
       {!loading && children}

@@ -1,7 +1,7 @@
+// app/components/componentsHome/FaqSection.tsx
+
 import { useState } from 'react';
-import GuestContactModal from './GuestContactModal'; // Importar el modal de contacto para invitados
-import RegisterModal from './RegisterModal'; // Importar el modal de registro
-import LoginModal from './LoginModal'; // Importar el modal de inicio de sesión
+import Link from 'next/link'; 
 import Button from '../Button';
 
 const FaqSection = () => {
@@ -239,35 +239,16 @@ const FaqSection = () => {
         </div>
 
         {/* Botón CONTACTAR CON ESKEMMA */}
-
         <div className="text-center mt-8">
-          <Button
-            label="CONTACTAR CON ESKEMMA"
-            variant="primary"            
-            onClick={() => setIsContactModalOpen(true)}
-          />
+          <Link href="/contacto" passHref>
+            <Button
+              label="CONTACTAR CON ESKEMMA"
+              variant="primary"
+            />
+          </Link>
         </div>
 
-        {/* Modal de Contacto para Invitados */}
-        <GuestContactModal
-          isOpen={isContactModalOpen}
-          onClose={() => setIsContactModalOpen(false)}
-          onOpenLoginModal={() => setIsLoginModalOpen(true)} // Abrir el modal de inicio de sesión
-          onOpenRegisterModal={() => setIsRegisterModalOpen(true)} // Abrir el modal de registro
-        />
-
-        {/* Modal de Registro */}
-        <RegisterModal
-          isOpen={isRegisterModalOpen}
-          onClose={() => setIsRegisterModalOpen(false)}
-        />
-
-        {/* Modal de Inicio de Sesión */}
-        <LoginModal
-          isOpen={isLoginModalOpen}
-          onClose={() => setIsLoginModalOpen(false)}
-          onOpenRegisterModal={() => setIsRegisterModalOpen(true)} // Abrir el modal de registro
-        />
+        
       </div>
     </section>
   );

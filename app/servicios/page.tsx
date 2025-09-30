@@ -7,7 +7,7 @@ export default function ServiciosPage() {
   return (
     <main className="min-h-screen bg-white-eske">
       {/* Hero Section */}
-      <section className="relative min-h-[400px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
+      <section className="relative min-h-[200px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
         {/* Imagen de fondo */}
         <Image
           src="/images/yanmin_yang.jpg" // Asegúrate de que esta imagen exista en /public/images/
@@ -49,7 +49,7 @@ export default function ServiciosPage() {
       <section className="bg-white-eske py-2 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl mb-12">
           <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-12">
-            Nuestros servicios destacados
+            Nuestros servicios
           </h2>
 
           {/* Grilla de Servicios */}
@@ -84,7 +84,7 @@ export default function ServiciosPage() {
                 Herramientas Digitales
               </h3>
               <p className="text-[16px] font-light text-gray-eske-90">
-                Acceso a herramientas para diseñar y gestionar tu estrategia política.
+                Acceso a metodologías y herramientas para diseñar y gestionar tu estrategia política.
               </p>
             </div>
 

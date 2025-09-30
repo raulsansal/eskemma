@@ -1,6 +1,8 @@
-// firebase/storageUtils.ts
+// firebase/firestoreUtils.ts
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "./firebaseConfig";
 
 // Función para subir una imagen destacada a Firebase Storage
 export const uploadFeaturedImage = async (file: File, postId: string): Promise<string> => {
@@ -58,5 +60,21 @@ export const uploadFeaturedImage = async (file: File, postId: string): Promise<s
     console.error("Error al subir la imagen destacada:", error.message);
     alert(`Ocurrió un error al subir la imagen destacada: ${error.message}`);
     throw error; // Relanzar el error para manejarlo en el componente que llama a esta función
+  }
+};
+
+// Función para guardar los datos del usuario en Firestore
+export const saveUserData = async (userData: any) => {
+  try {
+    // Referencia al documento del usuario en Firestore
+    const userRef = doc(db, "users", userData.uid);
+
+    // Guardar los datos del usuario
+    await setDoc(userRef, userData, { merge: true });
+
+    console.log("Datos guardados correctamente en Firestore.");
+  } catch (error) {
+    console.error("Error al guardar los datos en Firestore:", error);
+    throw error; // Re-lanzar el error para manejarlo en el componente
   }
 };

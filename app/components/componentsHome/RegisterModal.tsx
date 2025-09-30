@@ -155,61 +155,62 @@ export default function RegisterModal({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!user) {
-      alert("No se detectó un usuario autenticado. Por favor, inicia sesión.");
-      return;
-    }
+  if (!user) {
+    alert("No se detectó un usuario autenticado. Por favor, inicia sesión.");
+    return;
+  }
 
-    try {
-      console.log("Iniciando proceso de registro...");
+  try {
+    console.log("Iniciando proceso de registro...");
 
-      const currentUser = auth.currentUser;
-      if (!currentUser) throw new Error("Usuario no autenticado");
-      await currentUser.reload();
-      const emailVerified = currentUser.emailVerified;
+    const currentUser = auth.currentUser;
+    if (!currentUser) throw new Error("Usuario no autenticado");
+    await currentUser.reload();
+    const emailVerified = currentUser.emailVerified;
 
-      const userData = {
-        uid: user.uid,
-        email: user.email,
-        name: formData.name,
-        lastName: formData.lastName,
-        sex: formData.sex,
-        country: formData.country,
-        roles: formData.roles.includes("Otro")
-          ? [
-              ...formData.roles.filter((role) => role !== "Otro"),
-              formData.otherRole,
-            ].filter(Boolean)
-          : formData.roles,
-        interests: formData.interests.includes("Otro")
-          ? [
-              ...new Set([
-                ...formData.interests.filter((interest) => interest !== "Otro"),
-                formData.otherInterest,
-              ]),
-            ].filter(Boolean)
-          : [...new Set(formData.interests)],
-        userName: formData.userName,
-        profileCompleted: true,
-        emailVerified,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+    const userData = {
+      uid: user.uid,
+      email: user.email,
+      name: formData.name,
+      lastName: formData.lastName,
+      sex: formData.sex,
+      country: formData.country,
+      roles: formData.roles.includes("Otro")
+        ? [
+            ...formData.roles.filter((role) => role !== "Otro"),
+            formData.otherRole,
+          ].filter(Boolean)
+        : formData.roles,
+      interests: formData.interests.includes("Otro")
+        ? [
+            ...new Set([
+              ...formData.interests.filter((interest) => interest !== "Otro"),
+              formData.otherInterest,
+            ]),
+          ].filter(Boolean)
+        : [...new Set(formData.interests)],
+      userName: formData.userName,
+      profileCompleted: true,
+      role: "user", // Actualizar el rol a 'user'
+      emailVerified,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-      console.log("Datos preparados para guardar:", userData);
-      await saveUserData(userData);
-      console.log("Datos guardados correctamente en Firestore.");
+    console.log("Datos preparados para guardar:", userData);
+    await saveUserData(userData); // Guardar los datos en Firestore
+    console.log("Datos guardados correctamente en Firestore.");
 
-      setIsRegisterModalOpen(false);
-      setIsRegistrationSuccessModalOpen(true);
-      console.log("Registro completado con éxito.");
-    } catch (error) {
-      console.error("Error durante el registro:", error);
-      alert("Ocurrió un error al completar tu perfil. Inténtalo de nuevo.");
-    }
-  };
+    setIsRegisterModalOpen(false);
+    setIsRegistrationSuccessModalOpen(true);
+    console.log("Registro completado con éxito.");
+  } catch (error) {
+    console.error("Error durante el registro:", error);
+    alert("Ocurrió un error al completar tu perfil. Inténtalo de nuevo.");
+  }
+};
 
   if (!isOpen) return null;
 

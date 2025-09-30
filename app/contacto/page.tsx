@@ -1,43 +1,50 @@
 // app/contact/page.tsx
 
 import Link from "next/link";
+import Image from "next/image";
 
 export default function ContactoPage() {
   return (
     <main className="min-h-screen bg-white-eske">
-      {/* Hero Section - Corregida */}
-      <section className="relative min-h-[168px] w-full flex items-center bg-bluegreen-eske overflow-hidden">
+      {/* Hero Section - Responsiva */}
+      <section className="relative h-[250px] sm:h-[200px] md:h-[200px] w-full flex items-center bg-bluegreen-eske overflow-hidden">
         {/* Imagen de Fondo */}
-        <img
+        <Image
           src="/images/yanmin_yang.jpg"
           alt="Hero Background"
-          className="absolute inset-0 object-cover w-full h-full z-0"
+          fill
+          style={{ objectFit: "cover" }}
+          className="absolute inset-0 z-0"
+          priority
         />
 
         {/* Overlay con opacidad */}
         <div className="absolute inset-0 bg-bluegreen-eske opacity-75 z-10"></div>
 
         {/* Contenedor Principal */}
-        <div className="relative z-20 w-full max-w-screen-xl mx-auto flex items-center">
-          {/* Imagen de Persona Sonriendo (Izquierda) - Corregida */}
-          <div className="hidden md:block w-1/2 relative">
-            <div className="relative h-full min-h-[168px]">
-              <img
-                src="/images/woman_calling_contact_2.jpg"
-                alt="Persona Sonriendo"
-                className="object-cover w-full h-full"
-                style={{ objectPosition: "left center" }}
-              />
-            </div>
+        <div className="relative z-20 w-full max-w-screen-xl mx-auto flex items-center h-full">
+          {/* Imagen de Persona Sonriendo (Izquierda) - Solo en desktop */}
+          <div className="hidden md:block md:w-1/2 relative h-full">
+            <Image
+              src="/images/woman_calling_contact_2.jpg"
+              alt="Persona Sonriendo"
+              fill
+              style={{
+                objectFit: "contain", // Cambiamos a "contain" para que la imagen sea visible completa
+                objectPosition: "center",
+              }}
+              priority
+            />
           </div>
 
-          {/* Contenido del Hero (Derecha) */}
-          <div className="w-full md:w-1/2 px-4 sm:px-6 md:px-8 text-center md:text-left">
-            <h1 className="text-[36px] max-sm:text-2xl leading-tight font-bold text-white-eske">
+          {/* Contenido del Hero (Derecha en desktop, centrado en móvil) */}
+          <div className="w-full md:w-1/2 px-4 sm:px-6 md:px-8 flex flex-col justify-center text-center md:text-left py-4">
+            <h1 className="text-2xl sm:text-[26px] md:text-[28px] leading-tight font-bold text-white-eske">
               Estamos aquí para escucharte
             </h1>
-            <p className="mt-4 max-sm:mt-2 text-[18px] max-sm:text-base leading-relaxed font-light text-white-eske">
-              Facilitamos tu contacto con nosotros. <br />
+            <p className="mt-2 text-sm sm:text-[15px] md:text-[16px] leading-relaxed font-light text-white-eske">
+              Facilitamos tu contacto con nosotros. <br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>
               Resolvemos tus dudas y construimos juntos.
             </p>
           </div>
