@@ -33,21 +33,41 @@ import {
 } from "firebase/firestore";
 import { auth, db, providerGoogle, providerFacebook } from "../firebase/firebaseConfig";
 
-// Tipo extendido que incluye la propiedad 'role'
-interface ExtendedUser extends User {
-  role?: string; // Agregar la propiedad 'role' como opcional
-}
-
 // Interfaz para los datos de Firestore
 interface FirestoreUserData {
   uid: string;
   email: string;
   role?: string;
+  name?: string;
+  lastName?: string;
+  country?: string;
+  avatarUrl?: string;
+  userName?: string;
+  sex?: "hombre" | "mujer" | "no-binario" | string;
+  roles?: string[];
+  interests?: string[];
   profileCompleted: boolean;
   emailVerified: boolean;
   showOnboardingModal: boolean;
-  createdAt: Date;
-  updatedAt?: Date;
+  createdAt: Date | string;
+  updatedAt?: Date | string;
+}
+
+// Tipo extendido que combina User de Firebase con datos de Firestore
+interface ExtendedUser extends User {
+  role?: string;
+  name?: string;
+  lastName?: string;
+  country?: string;
+  avatarUrl?: string;
+  userName?: string;
+  sex?: "hombre" | "mujer" | "no-binario" | string;
+  roles?: string[];
+  interests?: string[];
+  profileCompleted?: boolean;
+  showOnboardingModal?: boolean;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 interface AuthContextType {
@@ -77,7 +97,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<string>;
   updateAuthEmail: (newEmail: string) => Promise<void>;
   debugUserToken: () => Promise<void>;
-  updateUserRole: (uid: string, newRole: string) => Promise<void>; // Nueva función para actualizar el rol
+  updateUserRole: (uid: string, newRole: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -124,7 +144,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           // Validar que el campo 'role' en el token sea un string
           const tokenRole = idTokenResult.claims.role;
-          const role = typeof tokenRole === "string" ? tokenRole : "visitor"; // Default a 'visitor' si no hay rol
+          const role = typeof tokenRole === "string" ? tokenRole : "visitor";
 
           // Cargar datos del usuario desde Firestore
           const userDocRef = doc(db, "users", updatedUser.uid);
@@ -134,14 +154,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await setDoc(userDocRef, {
               uid: updatedUser.uid,
               email: updatedUser.email,
-              role: role, // Guardar el rol del token en Firestore
+              role: role,
               profileCompleted: false,
               emailVerified: updatedUser.emailVerified,
               showOnboardingModal: true,
               createdAt: new Date(),
             });
+            
+            // Crear el usuario extendido con valores por defecto
+            const newExtendedUser: ExtendedUser = {
+              ...updatedUser,
+              role: role,
+              profileCompleted: false,
+              showOnboardingModal: true,
+            };
+            setUser(newExtendedUser);
           } else {
             const userData = userDocSnapshot.data() as FirestoreUserData;
+            
+            // Actualizar emailVerified si cambió
             if (userData.emailVerified !== updatedUser.emailVerified) {
               await updateDoc(userDocRef, {
                 emailVerified: updatedUser.emailVerified,
@@ -152,10 +183,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // Validar que el campo 'role' en Firestore sea un string
             const firestoreRole = userData.role;
             const finalRole =
-              typeof firestoreRole === "string" ? firestoreRole : role; // Usar el rol de Firestore si existe, de lo contrario usar el del token
+              typeof firestoreRole === "string" ? firestoreRole : role;
 
-            // Actualizar el estado del usuario
-            setUser({ ...updatedUser, ...userData, role: finalRole });
+            // Crear el usuario extendido combinando Firebase Auth y Firestore
+            const extendedUser: ExtendedUser = {
+              ...updatedUser,
+              ...userData,
+              role: finalRole,
+            };
+            
+            setUser(extendedUser);
           }
 
           if (updatedUser.emailVerified) {
@@ -166,8 +203,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             } else if (userData.showOnboardingModal) {
               setIsOnboardingModalOpen(true);
             }
-          } else {
-            setUser({ ...updatedUser, role: "visitor" });
           }
         } catch (error) {
           console.error("Error al verificar el estado del usuario:", error);
@@ -270,7 +305,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Datos de usuario no encontrados en Firestore.");
       }
       const userData = userDocSnapshot.data() as FirestoreUserData;
-      setUser({ ...user, ...userData });
+      
+      // Crear usuario extendido
+      const extendedUser: ExtendedUser = {
+        ...user,
+        ...userData,
+      };
+      
+      setUser(extendedUser);
       setIsLoginModalOpen(false);
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error.message);
@@ -305,7 +347,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       }
       const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
-      setUser({ ...user, ...userData });
+      
+      // Crear usuario extendido
+      const extendedUser: ExtendedUser = {
+        ...user,
+        ...userData,
+      };
+      
+      setUser(extendedUser);
       setIsLoginModalOpen(false);
     } catch (error: any) {
       console.error("Error al iniciar sesión con Google:", error.message);
@@ -340,7 +389,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       }
       const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
-      setUser({ ...user, ...userData });
+      
+      // Crear usuario extendido
+      const extendedUser: ExtendedUser = {
+        ...user,
+        ...userData,
+      };
+      
+      setUser(extendedUser);
       setIsLoginModalOpen(false);
     } catch (error: any) {
       console.error("Error al iniciar sesión con Facebook:", error.message);
@@ -387,7 +443,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email: newEmail,
         updatedAt: new Date().toISOString(),
       });
-      setUser((prevUser: any) => ({ ...prevUser, email: newEmail }));
+      setUser((prevUser) => {
+        if (!prevUser) return null;
+        return { ...prevUser, email: newEmail };
+      });
       alert("Correo electrónico actualizado. Por favor, verifica tu nueva dirección.");
     } catch (error: any) {
       console.error("Error al actualizar el correo electrónico:", error.message);
@@ -423,7 +482,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       // Actualizar el estado global del usuario
-      setUser((prevUser: any) => {
+      setUser((prevUser) => {
         if (!prevUser) return null;
         return { ...prevUser, role: newRole };
       });
@@ -462,7 +521,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         resetPassword,
         updateAuthEmail,
         debugUserToken,
-        updateUserRole, // Añadir la nueva función al contexto
+        updateUserRole,
       }}
     >
       {!loading && children}

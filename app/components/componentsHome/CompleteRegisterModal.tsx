@@ -1,6 +1,6 @@
 // components/CompleteRegisterModal.tsx
 "use client";
-import { useAuth } from "../../../context/AuthContext"; // Importar el contexto de autenticación
+import { useAuth } from "../../../context/AuthContext";
 
 export default function CompleteRegisterModal({
   isOpen,
@@ -9,16 +9,17 @@ export default function CompleteRegisterModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const { setIsRegisterModalOpen } = useAuth();
+  const { isCompleteRegisterModalOpen, setIsRegisterModalOpen } = useAuth();
 
-  if (!isOpen) return null;
+  // Usar tanto la prop isOpen como el estado del contexto
+  if (!isOpen && !isCompleteRegisterModalOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
-      <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6">
+      <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative">
         {/* Botón de Cierre */}
         <button
           className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
@@ -50,7 +51,7 @@ export default function CompleteRegisterModal({
           ¡Gracias por verificar tu correo electrónico!
         </p>
         <p className="text-[18px] text-black-eske text-center mb-6">
-         Ahora puedes completar tu registro proporcionando información adicional de tu perfil.
+          Ahora puedes completar tu registro proporcionando información adicional de tu perfil.
         </p>
 
         {/* Botón Continuar */}
@@ -59,7 +60,7 @@ export default function CompleteRegisterModal({
             setIsRegisterModalOpen(true); // Abrir el modal RegisterModal
             onClose(); // Cerrar el modal CompleteRegisterModal
           }}
-          className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-6070 transition-colors duration-300 cursor-pointer"
+          className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 cursor-pointer"
         >
           CONTINUAR
         </button>

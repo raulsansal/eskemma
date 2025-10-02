@@ -1,5 +1,5 @@
 // app/profile/page.tsx
-"use client"; // Indica que es un Client Component
+"use client";
 
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
@@ -8,29 +8,11 @@ import { saveUserData } from "../../firebase/firestoreUtils";
 import Button from "../components/Button";
 import ConfirmEditProfileModal from "../components/componentsHome/ConfirmEditProfileModal";
 
-// Definición de la interfaz User
-interface User {
-  uid: string;
-  email: string;
-  name?: string;
-  lastName?: string;
-  country?: string;
-  avatarUrl?: string;
-  profileCompleted?: boolean;
-  role?: string;
-  roles?: string[];
-  sex?: "hombre" | "mujer" | "no-binario" | string;
-  interests?: string[];
-  userName?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 const ProfilePage = () => {
   const { user, setUser, updateAuthEmail } = useAuth();
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
-  // Tamao máximo del avatar
+  // Tamaño máximo del avatar
   const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2 MB en bytes
 
   // Estado para los datos del formulario
@@ -43,9 +25,9 @@ const ProfilePage = () => {
     sex: user?.sex || "",
     roles: user?.roles || [],
     interests: user?.interests || [],
-    otherRole: "", // Para manejar roles personalizados
-    otherInterest: "", // Para manejar intereses personalizados
-    email: user?.email || "", // Incluye el correo de autenticación
+    otherRole: "",
+    otherInterest: "",
+    email: user?.email || "",
   });
 
   // Estado para controlar el proceso de guardado
@@ -56,7 +38,6 @@ const ProfilePage = () => {
   ) => {
     const { name, value } = e.target;
 
-    // Manejo especial para roles e intereses (campos múltiples)
     if (name === "roles" || name === "interests") {
       const values = value.split(",").map((item) => item.trim());
       setFormData((prev) => ({ ...prev, [name]: values }));
@@ -66,11 +47,15 @@ const ProfilePage = () => {
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) {
+      alert("Debes estar autenticado para subir un avatar.");
+      return;
+    }
+
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
 
-    // Verificar el tamaño del archivo
     if (file.size > MAX_AVATAR_SIZE) {
       alert(
         `El archivo es demasiado grande. El tamaño máximo permitido es ${MAX_AVATAR_SIZE / (1024 * 1024)} MB.`
@@ -79,10 +64,9 @@ const ProfilePage = () => {
     }
 
     try {
-      const downloadURL = await uploadAvatar(file, user.uid); // Subir la imagen
-      setFormData((prev) => ({ ...prev, avatarUrl: downloadURL })); // Actualizar el estado local
+      const downloadURL = await uploadAvatar(file, user.uid);
+      setFormData((prev) => ({ ...prev, avatarUrl: downloadURL }));
 
-      // Actualizar el campo avatarUrl en Firestore
       await saveUserData({ uid: user.uid, avatarUrl: downloadURL });
     } catch (error) {
       console.error("Error al subir el avatar:", error);
@@ -91,23 +75,13 @@ const ProfilePage = () => {
   };
 
   const handleSave = async () => {
+    if (!user) {
+      alert("Debes estar autenticado para guardar cambios.");
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const userDataWithUid = {
-        ...user,
-        ...formData,
-        uid: user.uid,
-        // Asegurar que el sexo esté en el formato correcto
-        sex:
-          formData.sex === "male"
-            ? "hombre"
-            : formData.sex === "female"
-              ? "mujer"
-              : formData.sex === "other"
-                ? "no-binario"
-                : formData.sex,
-      };
-
       // Procesar roles e intereses personalizados
       const processedRoles = formData.roles.includes("Otro")
         ? [
@@ -127,22 +101,48 @@ const ProfilePage = () => {
           ].filter(Boolean)
         : formData.interests;
 
-      // Actualizar los roles e intereses procesados en los datos finales
-      userDataWithUid.roles = processedRoles;
-      userDataWithUid.interests = processedInterests;
+      // Crear un objeto limpio con solo los campos de Firestore
+      const userDataToSave = {
+        uid: user.uid,
+        email: formData.email,
+        name: formData.name,
+        lastName: formData.lastName,
+        country: formData.country,
+        avatarUrl: formData.avatarUrl,
+        userName: formData.userName,
+        sex: formData.sex === "male"
+          ? "hombre"
+          : formData.sex === "female"
+            ? "mujer"
+            : formData.sex === "other"
+              ? "no-binario"
+              : formData.sex,
+        roles: processedRoles,
+        interests: processedInterests,
+        role: user.role || "visitor",
+        profileCompleted: user.profileCompleted ?? true,
+        emailVerified: user.emailVerified ?? false,
+        showOnboardingModal: user.showOnboardingModal ?? false,
+        updatedAt: new Date().toISOString(),
+      };
 
       // Actualizar el correo de autenticación si ha cambiado
       if (formData.email !== user.email) {
-        await updateAuthEmail(formData.email); // Actualiza el correo en Firebase Auth
+        await updateAuthEmail(formData.email);
       }
 
-      // Guarda los datos actualizados en Firestore
-      await saveUserData(userDataWithUid);
+      // Guardar los datos actualizados en Firestore
+      await saveUserData(userDataToSave);
 
-      // Actualiza el estado global del usuario
-      setUser((prevUser: any) => {
-        if (!prevUser) return null; // Maneja el caso en que prevUser sea null
-        return { ...prevUser, ...userDataWithUid };
+      // Actualizar el estado global del usuario
+      setUser((prevUser) => {
+        if (!prevUser) return null;
+        return { 
+          ...prevUser, 
+          ...userDataToSave,
+          displayName: prevUser.displayName,
+          photoURL: prevUser.photoURL,
+        };
       });
 
       setIsConfirmationModalOpen(true);
@@ -150,9 +150,18 @@ const ProfilePage = () => {
       console.error("Error al guardar el perfil:", error.message);
       alert(`Ocurrió un error al guardar tu perfil: ${error.message}`);
     } finally {
-      setIsSaving(false); // Desactivar el estado de guardado
+      setIsSaving(false);
     }
   };
+
+  // Mostrar mensaje de carga si el usuario no está disponible
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto p-4 text-center">
+        <p className="text-gray-600">Cargando perfil...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto p-4">
@@ -324,7 +333,7 @@ const ProfilePage = () => {
         label={isSaving ? "Guardando..." : "Guardar Cambios"}
         variant="primary"
         onClick={handleSave}
-        disabled={isSaving} // Deshabilitar el botón mientras se guarda
+        disabled={isSaving}
       />
 
       {/* Modal de Confirmación */}
