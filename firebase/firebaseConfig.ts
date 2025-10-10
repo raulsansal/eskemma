@@ -19,8 +19,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Servicios de Firebase
-export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const providerGoogle = new GoogleAuthProvider();
 export const providerFacebook = new FacebookAuthProvider();

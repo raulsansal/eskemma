@@ -1,3 +1,5 @@
+//app/components/componentsHome/OnboardingModal.tsx
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -17,19 +19,21 @@ export default function OnboardingModal({
 
   // Funciones para manejar las acciones de los botones
   const handleExploreResources = () => {
-    console.log("Explorando recursos...");
+    console.log("Navegando a recursos...");
     onClose(showOnLogin); // Pasar el valor de showOnLogin al cerrar el modal
+    router.push("/recursos"); // Redirigir a la página de recursos
   };
 
   const handleScheduleConsultationSefix = () => {
-    console.log("Consultando estadísticas electorales");
+    console.log("Navegando a Sefix...");
     onClose(showOnLogin); // Pasar el valor de showOnLogin al cerrar el modal
+    router.push("/sefix"); // Redirigir a la página de Sefix
   };
 
   const handleConfigureProfile = () => {
     console.log("Configurando perfil...");
-    router.push("/profile"); // Redirigir al usuario a la página de perfil
     onClose(showOnLogin); // Pasar el valor de showOnLogin al cerrar el modal
+    router.push("/profile"); // Redirigir al usuario a la página de perfil
   };
 
   // Manejar el cierre del modal con el botón de cierre
@@ -71,9 +75,9 @@ export default function OnboardingModal({
 
         {/* Mensaje de Introducción */}
         <p className="text-[18px] text-black-eske text-center mb-6">
-          Te damos la bienvenida a{" "}
+          Te damos la bienvenida a{" "}<br></br>
           <span className="text-blue-eske font-bold">Eskemma</span> <br></br>{" "}
-          <span className="text-center text-[14px] text-orange-eske font-semibold">
+          <span className="text-center text-[13px] text-bluegreen-eske font-semibold">
             El ecosistema digital para tu proyecto político
           </span>
         </p>
@@ -86,19 +90,19 @@ export default function OnboardingModal({
         <div className="space-y-4">
           <button
             onClick={handleExploreResources}
-            className="w-full bg-blue-eske-40 text-white-eske py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300"
+            className="w-full bg-blue-eske-60 text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
           >
             Explorar recursos
           </button>
           <button
             onClick={handleScheduleConsultationSefix}
-            className="w-full bg-blue-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300"
+            className="w-full bg-blue-eske-60 text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
           >
             Consultar estadísticas electorales
           </button>
           <button
             onClick={handleConfigureProfile}
-            className="w-full bg-blue-eske-60 text-white-eske py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300"
+            className="w-full bg-blue-eske-60 text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
           >
             Configurar perfil
           </button>

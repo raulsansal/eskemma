@@ -172,7 +172,7 @@ const ProfilePage = () => {
       {/* Avatar */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700">
-          Avatar
+          Crear o editar tu Avatar
         </label>
         <input type="file" onChange={handleAvatarUpload} />
         {formData.avatarUrl && (

@@ -8,17 +8,17 @@ import VerifyEmailModal from "./VerifyEmailModal";
 interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenLoginModal: () => void; // ← AGREGAR esta prop
 }
 
-export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
+export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignInModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   // Obtener funciones y estados del contexto
   const {
     registerUser,
-    signInWithGoogle,
-    signInWithFacebook,
+    signInWithGoogle,    
     isVerifyEmailModalOpen,
     setIsVerifyEmailModalOpen,
   } = useAuth();
@@ -75,6 +75,12 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
         alert("Error al registrar usuario. Inténtalo de nuevo.");
       }
     }
+  };
+
+  // Función para manejar el clic en "Inicia sesión"
+  const handleLoginClick = () => {
+    onClose(); // Cerrar el modal de registro
+    onOpenLoginModal(); // Abrir el modal de login
   };
 
   // Reiniciar los estados del formulario cuando el modal se cierra
@@ -134,15 +140,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
               className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300"
             >
               REGISTRARME CON GOOGLE
-            </button>
-
-            {/* Botón de Facebook */}
-            <button
-              onClick={signInWithFacebook}
-              className="w-full bg-blue-700 text-white py-2 rounded mb-4 hover:bg-blue-800 transition-colors duration-300"
-            >
-              REGISTRARME CON FACEBOOK
-            </button>
+            </button>            
 
             {/* Separador */}
             <div className="flex items-center my-4">
@@ -212,8 +210,9 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
               <p className="text-[16px] text-black-eske text-center">
                 ¿Ya te has registrado?{" "}
                 <button
-                  onClick={onClose} // Cerrar el modal de registro
-                  className="text-bluegreen-eske-60 underline cursor-pointer"
+                  type="button"
+                  onClick={handleLoginClick}
+                  className="text-bluegreen-eske-60 underline cursor-pointer bg-transparent border-none p-0 hover:text-bluegreen-eske"
                 >
                   Inicia sesión
                 </button>

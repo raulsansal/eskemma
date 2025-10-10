@@ -18,12 +18,7 @@ export default function LoginModal({
   onClose: () => void;
   onOpenRegisterModal: () => void;
 }) {
-  const {
-    loginUser,
-    signInWithGoogle,
-    signInWithFacebook,
-    setIsLoginModalOpen,
-  } = useAuth();
+  const { loginUser, setIsLoginModalOpen } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
     username: "",
     password: "",
@@ -31,7 +26,6 @@ export default function LoginModal({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Limpiar el formulario cuando el modal se abre
   useEffect(() => {
     if (isOpen) {
       setFormData({ username: "", password: "" });
@@ -44,59 +38,22 @@ export default function LoginModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // En el handleSubmit del LoginModal, actualiza el manejo de errores:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null); // Limpiar cualquier error anterior
+    setError(null);
 
     try {
-      // Validar que el nombre de usuario no esté vacío
       if (!formData.username.trim()) {
-        throw new Error("El nombre de usuario es obligatorio.");
+        throw new Error("El nombre de usuario o correo es obligatorio.");
       }
 
-      // Usar loginUser del contexto
       await loginUser(formData.username, formData.password);
-
-      // Cerrar el modal si el inicio de sesión es exitoso
       onClose();
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error.message);
-      console.log("Error recibido en LoginModal:", {
-        code: error.code,
-        message: error.message,
-      });
-
-      // Priorizar el mensaje del error por encima del código
-      // porque loginUser() ya maneja todos los casos y devuelve mensajes apropiados
-      if (error.message) {
-        // Si tenemos un mensaje específico, usarlo directamente
-        if (
-          error.message.includes("Nombre de usuario o contraseña incorrectos")
-        ) {
-          setError("Nombre de usuario o contraseña incorrectos.");
-        } else if (error.message.includes("Error de configuración")) {
-          setError("Error de configuración. Contacta al administrador.");
-        } else if (error.message.includes("nombre de usuario es obligatorio")) {
-          setError("El nombre de usuario es obligatorio.");
-        } else {
-          // Para cualquier otro mensaje personalizado de loginUser
-          setError(error.message);
-        }
-      } else {
-        // Fallback: verificar códigos de Firebase como respaldo
-        if (
-          error.code === "auth/user-not-found" ||
-          error.code === "auth/wrong-password" ||
-          error.code === "auth/invalid-credential"
-        ) {
-          setError("Nombre de usuario o contraseña incorrectos.");
-        } else if (error.code === "auth/invalid-email") {
-          setError("El correo electrónico no es válido.");
-        } else {
-          setError("Ocurrió un error al iniciar sesión. Inténtalo de nuevo.");
-        }
-      }
+      setError(error.message); // Usa el mensaje específico de la función loginUser
     } finally {
       setLoading(false);
     }
@@ -110,12 +67,11 @@ export default function LoginModal({
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
-        {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-gray-700 hover:text-red-500 transition-colors duration-300"
           onClick={() => {
             onClose();
             setError(null);
@@ -138,38 +94,13 @@ export default function LoginModal({
           </svg>
         </button>
 
-        {/* Título */}
         <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
           Iniciar sesión
         </h2>
 
-        {/* Botón de Google */}
-        <button
-          onClick={signInWithGoogle}
-          className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300"
-        >
-          INICIAR SESIÓN CON GOOGLE
-        </button>
-
-        {/* Botón de Facebook */}
-        <button
-          onClick={signInWithFacebook}
-          className="w-full bg-blue-700 text-white py-2 rounded mb-4 hover:bg-blue-800 transition-colors duration-300"
-        >
-          INICIAR SESIÓN CON FACEBOOK
-        </button>
-
-        {/* Separador */}
-        <div className="flex items-center my-4">
-          <hr className="flex-grow border-gray-300" />
-          <span className="mx-4 text-gray-500">O</span>
-          <hr className="flex-grow border-gray-300" />
-        </div>
-
-        {/* Formulario de inicio de sesión con correo electrónico */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[18px] font-medium text-black-eske mb-1">
+            <label className="block text-[18px] font-medium text-black mb-1">
               Usuario
             </label>
             <input
@@ -179,12 +110,13 @@ export default function LoginModal({
               onChange={handleChange}
               required
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              placeholder="Correo o nombre de usuario"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-[18px] font-medium text-black-eske mb-1">
+            <label className="block text-[18px] font-medium text-black mb-1">
               Contraseña
             </label>
             <input
@@ -194,7 +126,8 @@ export default function LoginModal({
               onChange={handleChange}
               required
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              placeholder="Contraseña"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
             />
           </div>
 
@@ -203,22 +136,19 @@ export default function LoginModal({
           <button
             type="submit"
             disabled={loading}
-            className={`w-full text-[18px] bg-bluegreen-eske text-white-eske py-2 rounded transition-colors duration-300 ${
-              loading
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-bluegreen-eske-60"
+            className={`w-full text-[18px] bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 cursor-pointer"              
             }`}
           >
             {loading ? "Cargando..." : "INICIAR SESIÓN"}
           </button>
 
-          <p className="text-[14px] mt-4 text-black-eske text-center">
+          <p className="text-[14px] mt-4 text-black text-center">
             Al iniciar sesión acepto las{" "}
             <Link
               href="/condiciones-de-uso"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-bluegreen-eske underline"
+              className="text-blue-600 underline"
             >
               condiciones de uso
             </Link>{" "}
@@ -227,7 +157,7 @@ export default function LoginModal({
               href="/politica-de-privacidad"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-bluegreen-eske underline"
+              className="text-blue-600 underline"
             >
               políticas de privacidad
             </Link>{" "}
@@ -239,7 +169,7 @@ export default function LoginModal({
           <p className="text-[14px] text-gray-700 text-center">
             ¿Aún no te has registrado?{" "}
             <span
-              className="text-bluegreen-eske underline cursor-pointer"
+              className="text-blue-600 underline cursor-pointer"
               onClick={() => {
                 onClose();
                 onOpenRegisterModal();
@@ -251,14 +181,14 @@ export default function LoginModal({
             </span>
           </p>
 
-          <p className="text-[14px] text-black-eske text-center">
+          <p className="text-[14px] text-black text-center">
             ¿No recuerdas tu contraseña?{" "}
             <button
               onClick={() => {
-                onClose(); // Cierra el modal
-                window.location.href = "/recover-password"; // Redirige a la página de recuperación
+                onClose();
+                window.location.href = "/recover-password";
               }}
-              className="text-bluegreen-eske underline cursor-pointer"
+              className="text-blue-600 underline cursor-pointer"
             >
               Recuperar contraseña
             </button>

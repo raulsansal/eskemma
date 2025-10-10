@@ -1,5 +1,4 @@
-//components/componentsHome/RegisterModal.tsx
-
+// components/componentsHome/RegisterModal.tsx
 "use client";
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
@@ -90,19 +89,12 @@ export default function RegisterModal({
   ) => {
     const { name, value } = e.target;
 
-    // Depuración: Mostrar el valor original del campo
-    console.log(`Campo: ${name}, Valor recibido: "${value}"`);
-
     if (name === "name" || name === "lastName") {
       // Validación para letras, acentos, ñ, ü, y espacios
       const isValid = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜçÇ\s´]*$/.test(value);
 
-      // Depuración: Mostrar el resultado de la validación
-      console.log(`Campo: ${name}, Valor: "${value}", Es válido: ${isValid}`);
-
       if (!isValid) {
-        console.log(`Campo: ${name}, Valor rechazado: "${value}"`);
-        return; // Si no es válido, no actualizamos el estado
+        return;
       }
 
       if (name === "name") {
@@ -120,13 +112,11 @@ export default function RegisterModal({
       return;
     }
 
-    // Para otros campos, actualizamos normalmente
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    // Validación: solo letras, números, y guiones bajos, sin espacios
     const isValid = /^[a-zA-ZñÑüÜçÇ\s]*$/.test(value);
     if (isValid) {
       setFormData((prev) => ({ ...prev, userName: value.toLowerCase() }));
@@ -155,62 +145,74 @@ export default function RegisterModal({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!user) {
-    alert("No se detectó un usuario autenticado. Por favor, inicia sesión.");
-    return;
-  }
+    if (!user) {
+      alert("No se detectó un usuario autenticado. Por favor, inicia sesión.");
+      return;
+    }
 
-  try {
-    console.log("Iniciando proceso de registro...");
+    try {
+      console.log("Iniciando proceso de registro...");
 
-    const currentUser = auth.currentUser;
-    if (!currentUser) throw new Error("Usuario no autenticado");
-    await currentUser.reload();
-    const emailVerified = currentUser.emailVerified;
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("Usuario no autenticado");
+      await currentUser.reload();
+      const emailVerified = currentUser.emailVerified;
 
-    const userData = {
-      uid: user.uid,
-      email: user.email,
-      name: formData.name,
-      lastName: formData.lastName,
-      sex: formData.sex,
-      country: formData.country,
-      roles: formData.roles.includes("Otro")
-        ? [
-            ...formData.roles.filter((role) => role !== "Otro"),
-            formData.otherRole,
-          ].filter(Boolean)
-        : formData.roles,
-      interests: formData.interests.includes("Otro")
-        ? [
-            ...new Set([
-              ...formData.interests.filter((interest) => interest !== "Otro"),
-              formData.otherInterest,
-            ]),
-          ].filter(Boolean)
-        : [...new Set(formData.interests)],
-      userName: formData.userName,
-      profileCompleted: true,
-      role: "user", // Actualizar el rol a 'user'
-      emailVerified,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        name: formData.name,
+        lastName: formData.lastName,
+        sex: formData.sex,
+        country: formData.country,
+        roles: formData.roles.includes("Otro")
+          ? [
+              ...formData.roles.filter((role) => role !== "Otro"),
+              formData.otherRole,
+            ].filter(Boolean)
+          : formData.roles,
+        interests: formData.interests.includes("Otro")
+          ? [
+              ...new Set([
+                ...formData.interests.filter((interest) => interest !== "Otro"),
+                formData.otherInterest,
+              ]),
+            ].filter(Boolean)
+          : [...new Set(formData.interests)],
+        userName: formData.userName,
+        profileCompleted: true,
+        role: "user",
+        emailVerified,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
 
-    console.log("Datos preparados para guardar:", userData);
-    await saveUserData(userData); // Guardar los datos en Firestore
-    console.log("Datos guardados correctamente en Firestore.");
+      console.log("Datos preparados para guardar:", userData);
+      await saveUserData(userData);
+      console.log("Datos guardados correctamente en Firestore.");
 
+      setIsRegisterModalOpen(false);
+      setIsRegistrationSuccessModalOpen(true);
+      console.log("Registro completado con éxito.");
+    } catch (error) {
+      console.error("Error durante el registro:", error);
+      alert("Ocurrió un error al completar tu perfil. Inténtalo de nuevo.");
+    }
+  };
+
+  // FUNCIÓN CORREGIDA - Esta SÍ funciona
+  const handleLoginClick = () => {
+    console.log("🔄 Cerrando registro y abriendo login...");
+    // Primero cerramos el modal actual
     setIsRegisterModalOpen(false);
-    setIsRegistrationSuccessModalOpen(true);
-    console.log("Registro completado con éxito.");
-  } catch (error) {
-    console.error("Error durante el registro:", error);
-    alert("Ocurrió un error al completar tu perfil. Inténtalo de nuevo.");
-  }
-};
+    // Usamos setTimeout para asegurar que el estado se actualice
+    setTimeout(() => {
+      setIsLoginModalOpen(true);
+      console.log("✅ Modal de login abierto");
+    }, 50);
+  };
 
   if (!isOpen) return null;
 
@@ -443,11 +445,9 @@ export default function RegisterModal({
           <p className="text-[14px] text-black-eske text-center">
             ¿Ya te has registrado?{" "}
             <button
-              onClick={() => {
-                onClose();
-                setIsLoginModalOpen(true);
-              }}
-              className="text-bluegreen-eske-60 underline cursor-pointer"
+              type="button"
+              onClick={handleLoginClick}
+              className="text-bluegreen-eske-60 underline cursor-pointer bg-transparent border-none p-0 hover:text-bluegreen-eske"
             >
               Inicia sesión
             </button>

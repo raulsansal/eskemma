@@ -16,9 +16,11 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   sendPasswordResetEmail,
-  updateEmail,
+  updateEmail as firebaseUpdateEmail,
   getIdTokenResult,
   User,
+  getAuth,
+  fetchSignInMethodsForEmail, // ← AGREGAR esta importación
 } from "firebase/auth";
 import {
   doc,
@@ -31,7 +33,11 @@ import {
   getDocs,
   limit,
 } from "firebase/firestore";
-import { auth, db, providerGoogle, providerFacebook } from "../firebase/firebaseConfig";
+import {
+  auth,
+  db,
+  providerGoogle,  
+} from "../firebase/firebaseConfig";
 
 // Interfaz para los datos de Firestore
 interface FirestoreUserData {
@@ -91,8 +97,7 @@ interface AuthContextType {
   closeOnboardingModal: (showOnLogin?: boolean) => Promise<void>;
   registerUser: (email: string, password: string) => Promise<void>;
   loginUser: (identifier: string, password: string) => Promise<any>;
-  signInWithGoogle: () => Promise<void>;
-  signInWithFacebook: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;  
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<string>;
   updateAuthEmail: (newEmail: string) => Promise<void>;
@@ -139,7 +144,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
           }
 
-          // Forzar la renovación del token
+          // Forzar la renovación del token con un pequeño retraso
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           const idTokenResult = await updatedUser.getIdTokenResult(true);
 
           // Validar que el campo 'role' en el token sea un string
@@ -154,14 +160,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             await setDoc(userDocRef, {
               uid: updatedUser.uid,
               email: updatedUser.email,
+              userName: generateDefaultUserName(updatedUser.email || ""),
               role: role,
               profileCompleted: false,
               emailVerified: updatedUser.emailVerified,
               showOnboardingModal: true,
               createdAt: new Date(),
             });
-            
-            // Crear el usuario extendido con valores por defecto
+
             const newExtendedUser: ExtendedUser = {
               ...updatedUser,
               role: role,
@@ -171,7 +177,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(newExtendedUser);
           } else {
             const userData = userDocSnapshot.data() as FirestoreUserData;
-            
+
             // Actualizar emailVerified si cambió
             if (userData.emailVerified !== updatedUser.emailVerified) {
               await updateDoc(userDocRef, {
@@ -185,19 +191,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const finalRole =
               typeof firestoreRole === "string" ? firestoreRole : role;
 
-            // Crear el usuario extendido combinando Firebase Auth y Firestore
             const extendedUser: ExtendedUser = {
               ...updatedUser,
               ...userData,
               role: finalRole,
             };
-            
+
+            // Agregar logs para depuración
+            console.log("Usuario autenticado:", updatedUser);
+            console.log("Datos de usuario desde Firestore:", userData);
+
             setUser(extendedUser);
           }
 
           if (updatedUser.emailVerified) {
             setIsVerifyEmailModalOpen(false);
-            const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
+            const userData = (
+              await getDoc(userDocRef)
+            ).data() as FirestoreUserData;
             if (!userData?.profileCompleted) {
               setIsCompleteRegisterModalOpen(true);
             } else if (userData.showOnboardingModal) {
@@ -215,6 +226,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => unsubscribe();
   }, []);
+
+  // Función para generar un nombre de usuario predeterminado
+  const generateDefaultUserName = (email: string): string => {
+    const [username] = email.split("@");
+    return username;
+  };
 
   // Función para cerrar el modal de Onboarding
   const closeOnboardingModal = async (showOnLogin?: boolean) => {
@@ -250,6 +267,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await setDoc(userDocRef, {
         uid: user.uid,
         email: user.email,
+        userName: generateDefaultUserName(user.email || ""),
         role: "registered",
         profileCompleted: false,
         emailVerified: false,
@@ -284,123 +302,199 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Función para iniciar sesión con correo electrónico o nombre de usuario
   const loginUser = async (identifier: string, password: string) => {
     try {
-      let email;
+      let email: string;
+
+      console.log("🔐 Iniciando proceso de login con:", identifier);
+
+      // 1. Determinar si es email o userName
       if (identifier.includes("@")) {
-        email = identifier;
+        // Login directo con email
+        email = identifier.toLowerCase().trim();
+        console.log("📧 Login con email:", email);
       } else {
-        const usersRef = collection(db, "users");
-        const q = query(usersRef, where("userName", "==", identifier), limit(1));
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) {
-          throw new Error("Nombre de usuario o contraseña incorrectos.");
+        // Buscar usuario por userName via API
+        console.log("👤 Buscando usuario por userName:", identifier);
+
+        const response = await fetch("/api/auth/find-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userName: identifier }),
+        });
+
+        // Verificar respuesta del API
+        if (!response.ok) {
+          throw new Error(`Error del servidor: ${response.status}`);
         }
-        const userData = querySnapshot.docs[0].data() as { email: string };
-        email = userData.email;
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error || "Usuario no encontrado");
+        }
+
+        if (!result.data?.email) {
+          throw new Error("Datos de usuario incompletos");
+        }
+
+        email = result.data.email;
+
+        console.log("✅ Email encontrado via API:", email);
+
+        // VERIFICAR MÉTODOS DE AUTENTICACIÓN DEL USUARIO
+        console.log("🔍 Verificando métodos de autenticación...");
+        const authInstance = getAuth();
+        try {
+          const authMethods = await fetchSignInMethodsForEmail(authInstance, email);
+          console.log("📋 Métodos de autenticación disponibles:", authMethods);
+          
+          // Si el usuario solo tiene Google como método, no puede usar contraseña
+          if (authMethods.length === 1 && authMethods[0] === "google.com") {
+            throw new Error("Este usuario se registró con Google. Por favor, usa 'Iniciar sesión con Google'.");
+          }
+          
+          // Si el usuario no tiene método de email/contraseña
+          if (!authMethods.includes("password")) {
+            throw new Error("Este usuario no tiene contraseña configurada. Usa el método de autenticación original.");
+          }
+        } catch (authError) {
+          console.error("Error al verificar métodos de autenticación:", authError);
+          // Continuar con el login normal si hay error en la verificación
+        }
+
+        // Verificar si el email está verificado
+        if (result.data.emailVerified === false) {
+          throw new Error(
+            "Por favor, verifica tu correo electrónico antes de iniciar sesión."
+          );
+        }
       }
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      // 2. Autenticar con Firebase Auth
+      console.log("🔥 Autenticando con Firebase Auth...");
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      console.log("✅ Autenticación exitosa");
+
       const user = userCredential.user;
+
+      // 3. Obtener datos completos del usuario desde Firestore
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
+
       if (!userDocSnapshot.exists()) {
-        throw new Error("Datos de usuario no encontrados en Firestore.");
+        throw new Error("Datos de usuario no encontrados.");
       }
+
+      // 4. Actualizar el estado global del usuario
       const userData = userDocSnapshot.data() as FirestoreUserData;
-      
-      // Crear usuario extendido
-      const extendedUser: ExtendedUser = {
-        ...user,
-        ...userData,
-      };
-      
+      const extendedUser: ExtendedUser = { ...user, ...userData };
       setUser(extendedUser);
+
+      // 5. Cerrar el modal de login
       setIsLoginModalOpen(false);
+
+      // 6. Mostrar modales según el estado del usuario
+      if (!userData.emailVerified) {
+        setIsVerifyEmailModalOpen(true);
+      } else if (!userData.profileCompleted) {
+        setIsCompleteRegisterModalOpen(true);
+      } else if (userData.showOnboardingModal) {
+        setIsOnboardingModalOpen(true);
+      }
+
+      return extendedUser;
     } catch (error: any) {
-      console.error("Error al iniciar sesión:", error.message);
-      alert("Nombre de usuario o contraseña incorrectos.");
+      console.error("❌ Error en login:", error);
+
+      // Manejo de errores específicos
+      switch (error.code) {
+        case "auth/wrong-password":
+          throw new Error("Contraseña incorrecta.");
+        case "auth/user-not-found":
+          throw new Error("Usuario no encontrado.");
+        case "auth/invalid-email":
+          throw new Error("Formato de correo electrónico inválido.");
+        case "auth/invalid-credential":
+          throw new Error("Credenciales inválidas.");
+        case "auth/too-many-requests":
+          throw new Error("Demasiados intentos fallidos. Intenta más tarde.");
+        default:
+          throw new Error(
+            error.message || "Error al iniciar sesión. Inténtalo de nuevo."
+          );
+      }
     }
   };
 
-  // Función para iniciar sesión con Google
+  // Función para iniciar sesión con Google - VERSIÓN MEJORADA
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, providerGoogle);
       const user = result.user;
+
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
+      
       if (!userDocSnapshot.exists()) {
+        // Crear documento completo con todos los campos requeridos
         await setDoc(userDocRef, {
           uid: user.uid,
           email: user.email,
           name: user.displayName || "Usuario",
+          userName: generateDefaultUserName(user.email || ""),
           role: "registered",
-          profileCompleted: false,
+          profileCompleted: false, // IMPORTANTE: Dejar como false para completar registro
           emailVerified: true,
           showOnboardingModal: true,
           createdAt: new Date(),
+          // Campos requeridos para el formulario de registro completo
+          lastName: "",
+          sex: "",
+          country: "",
+          roles: [],
+          interests: [],
         });
 
-        // Asignar el rol 'registered' como Custom Claim
         await fetch("/api/setUserRole", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ uid: user.uid, role: "registered" }),
         });
+        
+        console.log("✅ Nuevo usuario Google creado en Firestore");
+      } else {
+        // Si el usuario ya existe, actualizar datos si es necesario
+        const userData = userDocSnapshot.data();
+        console.log("✅ Usuario Google ya existe en Firestore:", userData);
       }
+
       const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
-      
-      // Crear usuario extendido
       const extendedUser: ExtendedUser = {
         ...user,
         ...userData,
       };
-      
+
       setUser(extendedUser);
       setIsLoginModalOpen(false);
+
+      // Mostrar modales según el estado del usuario
+      if (!userData.profileCompleted) {
+        console.log("📝 Mostrando modal de completar registro para usuario Google");
+        setIsCompleteRegisterModalOpen(true);
+      } else if (userData.showOnboardingModal) {
+        console.log("🎯 Mostrando onboarding para usuario Google");
+        setIsOnboardingModalOpen(true);
+      }
+
     } catch (error: any) {
       console.error("Error al iniciar sesión con Google:", error.message);
       alert("Ocurrió un error al iniciar sesión con Google.");
-    }
-  };
-
-  // Función para iniciar sesión con Facebook
-  const signInWithFacebook = async () => {
-    try {
-      const result = await signInWithPopup(auth, providerFacebook);
-      const user = result.user;
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnapshot = await getDoc(userDocRef);
-      if (!userDocSnapshot.exists()) {
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName || "Usuario",
-          role: "registered",
-          profileCompleted: false,
-          emailVerified: true,
-          showOnboardingModal: true,
-          createdAt: new Date(),
-        });
-
-        // Asignar el rol 'registered' como Custom Claim
-        await fetch("/api/setUserRole", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uid: user.uid, role: "registered" }),
-        });
-      }
-      const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
-      
-      // Crear usuario extendido
-      const extendedUser: ExtendedUser = {
-        ...user,
-        ...userData,
-      };
-      
-      setUser(extendedUser);
-      setIsLoginModalOpen(false);
-    } catch (error: any) {
-      console.error("Error al iniciar sesión con Facebook:", error.message);
-      alert("Ocurrió un error al iniciar sesión con Facebook.");
     }
   };
 
@@ -424,9 +518,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error("Error al recuperar la contraseña:", error.message);
       if (error.code === "auth/user-not-found") {
-        throw new Error("No se encontró ningún usuario con este correo electrónico.");
+        throw new Error(
+          "No se encontró ningún usuario con este correo electrónico."
+        );
       } else {
-        throw new Error("Ocurrió un error al intentar recuperar la contraseña.");
+        throw new Error(
+          "Ocurrió un error al intentar recuperar la contraseña."
+        );
       }
     }
   };
@@ -436,20 +534,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const currentUser = auth.currentUser;
       if (!currentUser) throw new Error("Usuario no autenticado");
-      await updateEmail(currentUser, newEmail);
+      await firebaseUpdateEmail(currentUser, newEmail);
       await sendEmailVerification(currentUser);
+
       const userDocRef = doc(db, "users", currentUser.uid);
       await updateDoc(userDocRef, {
         email: newEmail,
         updatedAt: new Date().toISOString(),
       });
+
       setUser((prevUser) => {
         if (!prevUser) return null;
         return { ...prevUser, email: newEmail };
       });
-      alert("Correo electrónico actualizado. Por favor, verifica tu nueva dirección.");
+
+      alert(
+        "Correo electrónico actualizado. Por favor, verifica tu nueva dirección."
+      );
     } catch (error: any) {
-      console.error("Error al actualizar el correo electrónico:", error.message);
+      console.error(
+        "Error al actualizar el correo electrónico:",
+        error.message
+      );
       alert(`Ocurrió un error al actualizar el correo: ${error.message}`);
     }
   };
@@ -481,7 +587,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         updatedAt: new Date().toISOString(),
       });
 
-      // Actualizar el estado global del usuario
       setUser((prevUser) => {
         if (!prevUser) return null;
         return { ...prevUser, role: newRole };
@@ -515,8 +620,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         closeOnboardingModal,
         registerUser,
         loginUser,
-        signInWithGoogle,
-        signInWithFacebook,
+        signInWithGoogle,        
         logout,
         resetPassword,
         updateAuthEmail,

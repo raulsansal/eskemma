@@ -94,6 +94,7 @@ const Header = () => {
       <SignInModal
         isOpen={isSignInModalOpen}
         onClose={() => setIsSignInModalOpen(false)}
+        onOpenLoginModal={() => setIsLoginModalOpen(true)} // ← Agregar esta línea
       />
 
       {/* Modal de Inicio de Sesión */}
