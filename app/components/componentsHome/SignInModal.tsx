@@ -18,9 +18,10 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
   // Obtener funciones y estados del contexto
   const {
     registerUser,
-    signInWithGoogle,    
+    signInWithGoogle,
     isVerifyEmailModalOpen,
     setIsVerifyEmailModalOpen,
+    setIsSignInModalOpen, // Añadimos esta función para cerrar el modal inicial
   } = useAuth();
 
   // Función para verificar si el correo ya está registrado
@@ -136,11 +137,14 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
           <div className="max-h-[calc(80vh-120px)] overflow-y-auto">
             {/* Botón de Google */}
             <button
-              onClick={signInWithGoogle}
+              onClick={() => {
+                setIsSignInModalOpen(false); // Cerrar el modal inicial
+                signInWithGoogle(); // Iniciar sesión con Google
+              }}
               className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300"
             >
               REGISTRARME CON GOOGLE
-            </button>            
+            </button>
 
             {/* Separador */}
             <div className="flex items-center my-4">

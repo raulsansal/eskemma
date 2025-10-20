@@ -40,9 +40,12 @@ export default function RegisterModal({
 
   const {
     user,
+    setUser, // ← IMPORTANTE: Agregar setUser
     setIsRegisterModalOpen,
+    setIsCompleteRegisterModalOpen, // ← AGREGAR ESTO
     setIsRegistrationSuccessModalOpen,
     setIsLoginModalOpen,
+    setIsOnboardingModalOpen, // ← AGREGAR ESTO
   } = useAuth();
 
   // Definir los países preferenciales
@@ -160,6 +163,23 @@ export default function RegisterModal({
       await currentUser.reload();
       const emailVerified = currentUser.emailVerified;
 
+      // Filtrar correctamente para eliminar undefined y asegurar string[]
+      const finalRoles: string[] = formData.roles.includes("Otro")
+        ? [
+            ...formData.roles.filter((role) => role !== "Otro"),
+            formData.otherRole || "",
+          ].filter((role) => role !== "")
+        : formData.roles;
+
+      const finalInterests: string[] = formData.interests.includes("Otro")
+        ? [
+            ...new Set([
+              ...formData.interests.filter((interest) => interest !== "Otro"),
+              formData.otherInterest || "",
+            ]),
+          ].filter((interest) => interest !== "")
+        : [...new Set(formData.interests)];
+
       const userData = {
         uid: user.uid,
         email: user.email,
@@ -167,37 +187,54 @@ export default function RegisterModal({
         lastName: formData.lastName,
         sex: formData.sex,
         country: formData.country,
-        roles: formData.roles.includes("Otro")
-          ? [
-              ...formData.roles.filter((role) => role !== "Otro"),
-              formData.otherRole,
-            ].filter(Boolean)
-          : formData.roles,
-        interests: formData.interests.includes("Otro")
-          ? [
-              ...new Set([
-                ...formData.interests.filter((interest) => interest !== "Otro"),
-                formData.otherInterest,
-              ]),
-            ].filter(Boolean)
-          : [...new Set(formData.interests)],
+        roles: finalRoles,
+        interests: finalInterests,
         userName: formData.userName,
         profileCompleted: true,
         role: "user",
         emailVerified,
-        createdAt: new Date().toISOString(),
+        createdAt: user.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
       console.log("Datos preparados para guardar:", userData);
-      await saveUserData(userData);
-      console.log("Datos guardados correctamente en Firestore.");
 
+      // Guardar en Firestore
+      await saveUserData(userData);
+      console.log("✅ Datos guardados correctamente en Firestore.");
+
+      // Actualizar el usuario en el contexto
+      setUser({
+        ...user,
+        name: formData.name,
+        lastName: formData.lastName,
+        sex: formData.sex,
+        country: formData.country,
+        roles: finalRoles,
+        interests: finalInterests,
+        userName: formData.userName,
+        profileCompleted: true,
+        updatedAt: new Date().toISOString(),
+      });
+
+      console.log("✅ Usuario actualizado en el contexto");
+
+      // Cerrar modal de registro
       setIsRegisterModalOpen(false);
-      setIsRegistrationSuccessModalOpen(true);
-      console.log("Registro completado con éxito.");
+      setIsCompleteRegisterModalOpen(false);
+
+      // Mostrar modal de onboarding si corresponde
+      if (user.showOnboardingModal) {
+        console.log("🎯 Mostrando modal de onboarding");
+        setIsOnboardingModalOpen(true);
+      } else {
+        console.log("✅ Registro completado - No se requiere onboarding");
+        alert("¡Registro completado exitosamente!");
+      }
+
+      console.log("✅ Registro completado con éxito.");
     } catch (error) {
-      console.error("Error durante el registro:", error);
+      console.error("❌ Error durante el registro:", error);
       alert("Ocurrió un error al completar tu perfil. Inténtalo de nuevo.");
     }
   };

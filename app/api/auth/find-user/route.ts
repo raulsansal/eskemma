@@ -2,9 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth'; // ← AGREGAR esta importación
+import { getAuth } from 'firebase-admin/auth';
 
-// Inicializar Firebase Admin SDK
 const apps = getApps();
 if (!apps.length) {
   initializeApp({
@@ -17,13 +16,12 @@ if (!apps.length) {
 }
 
 const adminDb = getFirestore();
-const adminAuth = getAuth(); // ← Crear instancia de Admin Auth
+const adminAuth = getAuth();
 
 export async function POST(request: NextRequest) {
   try {
     const { userName } = await request.json();
 
-    // Validar entrada
     if (!userName || typeof userName !== 'string' || userName.trim().length === 0) {
       return NextResponse.json(
         { 
@@ -37,7 +35,6 @@ export async function POST(request: NextRequest) {
     const normalizedUserName = userName.trim().toLowerCase();
     console.log('🔍 Buscando usuario:', normalizedUserName);
 
-    // Usar Admin SDK que ignora las reglas de seguridad
     const usersRef = adminDb.collection('users');
     const snapshot = await usersRef
       .where('userName', '==', normalizedUserName)
@@ -59,7 +56,9 @@ export async function POST(request: NextRequest) {
     const userDoc = snapshot.docs[0];
     const userData = userDoc.data();
 
-    // Validar datos esenciales
+    // ✅ OBTENER UID DEL DOCUMENTO
+    const uid = userDoc.id;
+
     if (!userData.email) {
       return NextResponse.json(
         {
@@ -70,25 +69,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // VERIFICAR MÉTODOS DE AUTENTICACIÓN CON ADMIN SDK
+    // Verificar métodos de autenticación
     let authMethods: string[] = [];
     try {
       const userRecord = await adminAuth.getUserByEmail(userData.email);
       authMethods = userRecord.providerData.map(provider => provider.providerId);
-      console.log('🔐 Métodos de autenticación (Admin SDK):', authMethods);
+      console.log('🔐 Métodos de autenticación:', authMethods);
     } catch (error) {
       console.error('Error al obtener métodos de autenticación:', error);
     }
 
-    // Devolver información completa para el login
+    // ✅ DEVOLVER UID EN LA RESPUESTA
     return NextResponse.json({
       success: true,
       data: {
+        uid: uid, // ← AGREGAR ESTO
         email: userData.email,
         emailVerified: userData.emailVerified || false,
         profileCompleted: userData.profileCompleted || false,
-        authMethods: authMethods, // ← Informar los métodos disponibles
-        canUsePassword: authMethods.includes('password') // ← Indicar si puede usar contraseña
+        authMethods: authMethods,
+        canUsePassword: authMethods.includes('password')
       }
     });
 

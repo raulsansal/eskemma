@@ -33,11 +33,7 @@ import {
   getDocs,
   limit,
 } from "firebase/firestore";
-import {
-  auth,
-  db,
-  providerGoogle,  
-} from "../firebase/firebaseConfig";
+import { auth, db, providerGoogle } from "../firebase/firebaseConfig";
 
 // Interfaz para los datos de Firestore
 interface FirestoreUserData {
@@ -97,7 +93,7 @@ interface AuthContextType {
   closeOnboardingModal: (showOnLogin?: boolean) => Promise<void>;
   registerUser: (email: string, password: string) => Promise<void>;
   loginUser: (identifier: string, password: string) => Promise<any>;
-  signInWithGoogle: () => Promise<void>;  
+  signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<string>;
   updateAuthEmail: (newEmail: string) => Promise<void>;
@@ -303,29 +299,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const loginUser = async (identifier: string, password: string) => {
     try {
       let email: string;
+      let userUid: string | null = null;
 
       console.log("🔐 Iniciando proceso de login con:", identifier);
 
       // 1. Determinar si es email o userName
       if (identifier.includes("@")) {
-        // Login directo con email
         email = identifier.toLowerCase().trim();
         console.log("📧 Login con email:", email);
       } else {
-        // Buscar usuario por userName via API
         console.log("👤 Buscando usuario por userName:", identifier);
 
         const response = await fetch("/api/auth/find-user", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userName: identifier }),
         });
 
-        // Verificar respuesta del API
         if (!response.ok) {
-          throw new Error(`Error del servidor: ${response.status}`);
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || `Error del servidor: ${response.status}`
+          );
         }
 
         const result = await response.json();
@@ -334,40 +329,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           throw new Error(result.error || "Usuario no encontrado");
         }
 
-        if (!result.data?.email) {
+        if (!result.data?.email || !result.data?.uid) {
           throw new Error("Datos de usuario incompletos");
         }
 
         email = result.data.email;
+        userUid = result.data.uid;
 
-        console.log("✅ Email encontrado via API:", email);
+        // ✅ VERIFICAR MÉTODOS DE AUTENTICACIÓN DESDE EL API
+        if (!result.data.canUsePassword) {
+          const methods = result.data.authMethods || [];
+          if (methods.includes("google.com")) {
+            throw new Error(
+              "Este usuario se registró con Google. Por favor, usa 'Iniciar sesión con Google'."
+            );
+          }
+          throw new Error(
+            "Este usuario no tiene contraseña configurada. Usa el método de autenticación original."
+          );
+        }
 
-        // VERIFICAR MÉTODOS DE AUTENTICACIÓN DEL USUARIO
+        console.log("✅ Usuario encontrado via API:", { email, uid: userUid });
+      }
+
+      // ✅ SOLO VERIFICAR MÉTODOS SI NO TENEMOS LA INFO DEL API
+      if (!userUid) {
         console.log("🔍 Verificando métodos de autenticación...");
         const authInstance = getAuth();
         try {
-          const authMethods = await fetchSignInMethodsForEmail(authInstance, email);
-          console.log("📋 Métodos de autenticación disponibles:", authMethods);
-          
-          // Si el usuario solo tiene Google como método, no puede usar contraseña
-          if (authMethods.length === 1 && authMethods[0] === "google.com") {
-            throw new Error("Este usuario se registró con Google. Por favor, usa 'Iniciar sesión con Google'.");
-          }
-          
-          // Si el usuario no tiene método de email/contraseña
-          if (!authMethods.includes("password")) {
-            throw new Error("Este usuario no tiene contraseña configurada. Usa el método de autenticación original.");
-          }
-        } catch (authError) {
-          console.error("Error al verificar métodos de autenticación:", authError);
-          // Continuar con el login normal si hay error en la verificación
-        }
-
-        // Verificar si el email está verificado
-        if (result.data.emailVerified === false) {
-          throw new Error(
-            "Por favor, verifica tu correo electrónico antes de iniciar sesión."
+          const authMethods = await fetchSignInMethodsForEmail(
+            authInstance,
+            email
           );
+          console.log("📋 Métodos disponibles:", authMethods);
+
+          if (authMethods.length === 1 && authMethods[0] === "google.com") {
+            throw new Error(
+              "Este usuario se registró con Google. Por favor, usa 'Iniciar sesión con Google'."
+            );
+          }
+
+          if (!authMethods.includes("password")) {
+            throw new Error(
+              "Este usuario no tiene contraseña configurada. Usa el método de autenticación original."
+            );
+          }
+        } catch (authError: any) {
+          console.error("Error al verificar métodos:", authError);
+          if (authError.message?.includes("Google")) {
+            throw authError;
+          }
         }
       }
 
@@ -378,33 +389,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         password
       );
-
-      console.log("✅ Autenticación exitosa");
-
       const user = userCredential.user;
 
-      // 3. Obtener datos completos del usuario desde Firestore
-      const userDocRef = doc(db, "users", user.uid);
+      // 3. Obtener datos desde Firestore usando el UID correcto
+      const finalUid = userUid || user.uid;
+      console.log("📄 Obteniendo datos de Firestore para UID:", finalUid);
+
+      const userDocRef = doc(db, "users", finalUid);
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (!userDocSnapshot.exists()) {
-        throw new Error("Datos de usuario no encontrados.");
+        console.error(
+          "❌ Documento no encontrado en Firestore para UID:",
+          finalUid
+        );
+        throw new Error("Datos de usuario no encontrados en Firestore.");
       }
 
-      // 4. Actualizar el estado global del usuario
       const userData = userDocSnapshot.data() as FirestoreUserData;
-      const extendedUser: ExtendedUser = { ...user, ...userData };
+      console.log("✅ Datos de Firestore obtenidos:", userData);
+
+      // Verificar email verificado
+      if (!userData.emailVerified && !user.emailVerified) {
+        throw new Error(
+          "Por favor, verifica tu correo electrónico antes de iniciar sesión."
+        );
+      }
+
+      // 4. Crear usuario extendido
+      const extendedUser: ExtendedUser = {
+        ...user,
+        ...userData,
+      };
       setUser(extendedUser);
 
-      // 5. Cerrar el modal de login
+      console.log("✅ Login completado exitosamente");
+
+      // 5. Cerrar modal y mostrar siguiente según estado
       setIsLoginModalOpen(false);
 
-      // 6. Mostrar modales según el estado del usuario
-      if (!userData.emailVerified) {
-        setIsVerifyEmailModalOpen(true);
-      } else if (!userData.profileCompleted) {
+      if (!extendedUser.profileCompleted) {
+        console.log("📝 Mostrando modal de completar registro");
         setIsCompleteRegisterModalOpen(true);
-      } else if (userData.showOnboardingModal) {
+      } else if (extendedUser.showOnboardingModal) {
+        console.log("🎯 Mostrando modal de onboarding");
         setIsOnboardingModalOpen(true);
       }
 
@@ -412,18 +440,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error("❌ Error en login:", error);
 
-      // Manejo de errores específicos
+      // Manejo de errores mejorado
+      if (error.message?.includes("Google")) {
+        throw error;
+      }
+
       switch (error.code) {
         case "auth/wrong-password":
-          throw new Error("Contraseña incorrecta.");
-        case "auth/user-not-found":
-          throw new Error("Usuario no encontrado.");
-        case "auth/invalid-email":
-          throw new Error("Formato de correo electrónico inválido.");
         case "auth/invalid-credential":
-          throw new Error("Credenciales inválidas.");
+          throw new Error(
+            "Contraseña incorrecta. Por favor, verifica tus credenciales."
+          );
+        case "auth/user-not-found":
+          throw new Error(
+            "Usuario no encontrado. Verifica tu email o nombre de usuario."
+          );
         case "auth/too-many-requests":
           throw new Error("Demasiados intentos fallidos. Intenta más tarde.");
+        case "auth/invalid-email":
+          throw new Error("Formato de correo electrónico inválido.");
         default:
           throw new Error(
             error.message || "Error al iniciar sesión. Inténtalo de nuevo."
@@ -440,7 +475,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
-      
+
       if (!userDocSnapshot.exists()) {
         // Crear documento completo con todos los campos requeridos
         await setDoc(userDocRef, {
@@ -466,7 +501,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ uid: user.uid, role: "registered" }),
         });
-        
+
         console.log("✅ Nuevo usuario Google creado en Firestore");
       } else {
         // Si el usuario ya existe, actualizar datos si es necesario
@@ -485,13 +520,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Mostrar modales según el estado del usuario
       if (!userData.profileCompleted) {
-        console.log("📝 Mostrando modal de completar registro para usuario Google");
+        console.log(
+          "📝 Mostrando modal de completar registro para usuario Google"
+        );
         setIsCompleteRegisterModalOpen(true);
       } else if (userData.showOnboardingModal) {
         console.log("🎯 Mostrando onboarding para usuario Google");
         setIsOnboardingModalOpen(true);
       }
-
     } catch (error: any) {
       console.error("Error al iniciar sesión con Google:", error.message);
       alert("Ocurrió un error al iniciar sesión con Google.");
@@ -620,7 +656,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         closeOnboardingModal,
         registerUser,
         loginUser,
-        signInWithGoogle,        
+        signInWithGoogle,
         logout,
         resetPassword,
         updateAuthEmail,
