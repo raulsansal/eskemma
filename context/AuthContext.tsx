@@ -307,6 +307,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (identifier.includes("@")) {
         email = identifier.toLowerCase().trim();
         console.log("📧 Login con email:", email);
+
+        // ✅ VERIFICAR MÉTODOS CUANDO ES EMAIL DIRECTO (CON MANEJO MEJORADO)
+        console.log("🔍 Verificando métodos de autenticación para email...");
+        const authInstance = getAuth();
+        try {
+          const authMethods = await fetchSignInMethodsForEmail(
+            authInstance,
+            email
+          );
+          console.log("📋 Métodos disponibles:", authMethods);
+
+          // ✅ SOLO VALIDAR SI HAY MÉTODOS RETORNADOS
+          if (authMethods.length > 0) {
+            // Si solo tiene Google, informar al usuario
+            if (authMethods.length === 1 && authMethods[0] === "google.com") {
+              throw new Error(
+                "Este usuario se registró con Google. Por favor, usa 'Iniciar sesión con Google'."
+              );
+            }
+
+            // Si no tiene método de contraseña pero tiene otros métodos
+            if (!authMethods.includes("password") && authMethods.length > 0) {
+              throw new Error(
+                "Este usuario no tiene contraseña configurada. Si te registraste con tu cuenta de Google, intenta usa 'Iniciar sesión con Google'."
+              );
+            }
+          } else {
+            // ✅ CASO: authMethods.length === 0
+            // Esto puede ocurrir por configuraciones de Firebase
+            // Permitir que continúe y deje que signInWithEmailAndPassword maneje la validación
+            console.log(
+              "⚠️ No se pudieron obtener los métodos de autenticación. Continuando con el login..."
+            );
+          }
+        } catch (authError: any) {
+          console.error("Error al verificar métodos:", authError);
+          // Si el error ya tiene un mensaje específico sobre Google, relanzarlo
+          if (
+            authError.message?.includes("Google") ||
+            authError.message?.includes("contraseña configurada")
+          ) {
+            throw authError;
+          }
+          // ✅ Para otros errores (incluyendo problemas de red), continuar con el login
+          console.log(
+            "⚠️ Error al verificar métodos, pero continuando con autenticación..."
+          );
+        }
       } else {
         console.log("👤 Buscando usuario por userName:", identifier);
 
@@ -336,7 +384,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email = result.data.email;
         userUid = result.data.uid;
 
-        // ✅ VERIFICAR MÉTODOS DE AUTENTICACIÓN DESDE EL API
+        // VERIFICAR MÉTODOS DE AUTENTICACIÓN DESDE EL API
         if (!result.data.canUsePassword) {
           const methods = result.data.authMethods || [];
           if (methods.includes("google.com")) {
@@ -345,41 +393,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             );
           }
           throw new Error(
-            "Este usuario no tiene contraseña configurada. Usa el método de autenticación original."
+            "Este usuario no tiene contraseña configurada. Por favor, usa 'Iniciar sesión con Google'."
           );
         }
 
         console.log("✅ Usuario encontrado via API:", { email, uid: userUid });
-      }
-
-      // ✅ SOLO VERIFICAR MÉTODOS SI NO TENEMOS LA INFO DEL API
-      if (!userUid) {
-        console.log("🔍 Verificando métodos de autenticación...");
-        const authInstance = getAuth();
-        try {
-          const authMethods = await fetchSignInMethodsForEmail(
-            authInstance,
-            email
-          );
-          console.log("📋 Métodos disponibles:", authMethods);
-
-          if (authMethods.length === 1 && authMethods[0] === "google.com") {
-            throw new Error(
-              "Este usuario se registró con Google. Por favor, usa 'Iniciar sesión con Google'."
-            );
-          }
-
-          if (!authMethods.includes("password")) {
-            throw new Error(
-              "Este usuario no tiene contraseña configurada. Usa el método de autenticación original."
-            );
-          }
-        } catch (authError: any) {
-          console.error("Error al verificar métodos:", authError);
-          if (authError.message?.includes("Google")) {
-            throw authError;
-          }
-        }
       }
 
       // 2. Autenticar con Firebase Auth
@@ -440,11 +458,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error("❌ Error en login:", error);
 
-      // Manejo de errores mejorado
-      if (error.message?.includes("Google")) {
+      // Si ya es un error personalizado con mensaje específico, relanzarlo
+      if (
+        error.message?.includes("Google") ||
+        error.message?.includes("contraseña configurada")
+      ) {
         throw error;
       }
 
+      // Manejo de errores de Firebase Auth
       switch (error.code) {
         case "auth/wrong-password":
         case "auth/invalid-credential":

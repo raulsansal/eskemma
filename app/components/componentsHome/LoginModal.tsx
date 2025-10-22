@@ -30,7 +30,7 @@ export default function LoginModal({
     if (isOpen) {
       setFormData({ username: "", password: "" });
       setError(null);
-      setLoading(false); // Restablecer el estado de carga al abrir el modal
+      setLoading(false);
     }
   }, [isOpen]);
 
@@ -39,7 +39,6 @@ export default function LoginModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Manejar el inicio de sesión con correo electrónico y contraseña
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -51,41 +50,37 @@ export default function LoginModal({
       }
 
       await loginUser(formData.username, formData.password);
-      onClose(); // Cerrar el modal al completar el inicio de sesión
+      onClose();
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error.message);
 
-      if (error.message.includes("registrado con Google")) {
+      if (error.message.includes("registrado con Google") || 
+          error.message.includes("contraseña configurada")) {
         setError(
-          "Este usuario se registró con Google. Usa 'Iniciar sesión con Google'."
-        );
-      } else if (error.message.includes("contraseña configurada")) {
-        setError(
-          "Este usuario no tiene contraseña configurada. Usa el método de autenticación original."
+          "Este usuario se registró con Google. Por favor, usa el botón de 'Iniciar sesión con Google' a continuación."
         );
       } else {
-        setError(error.message); // Usa el mensaje específico de la función loginUser
+        setError(error.message);
       }
     } finally {
-      setLoading(false); // Restablecer el estado de carga, incluso si hay un error
+      setLoading(false);
     }
   };
 
-  // Manejar el inicio de sesión con Google
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
 
     try {
       await signInWithGoogle();
-      onClose(); // Cerrar el modal al completar el inicio de sesión
+      onClose();
     } catch (error: any) {
       console.error("Error al iniciar sesión con Google:", error.message);
       setError(
         "Ocurrió un error al iniciar sesión con Google. Inténtalo de nuevo."
       );
     } finally {
-      setLoading(false); // Restablecer el estado de carga, incluso si hay un error
+      setLoading(false);
     }
   };
 
@@ -180,6 +175,15 @@ export default function LoginModal({
           <span className="mx-4 text-gray-500">O</span>
           <hr className="flex-grow border-gray-300" />
         </div>
+
+        {/* ✅ NUEVO MENSAJE INFORMATIVO */}
+        <p className="text-[14px] text-gray-700 text-center mb-3 px-2">
+          <span className="font-medium text-bluegreen-eske">
+            ¿Te registraste con tu cuenta de Google?
+          </span>
+          <br />
+          Inicia sesión con el siguiente botón.
+        </p>
 
         {/* Botón de inicio de sesión con Google */}
         <button
