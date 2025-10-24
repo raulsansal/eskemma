@@ -1,9 +1,10 @@
-// components/componentsHome/ConfirmEditProfileModal.tsx
+// components/componentsHome/ConfirmAvatarChange.tsx
 "use client";
-import { useRouter } from "next/navigation";
-import Button from "../Button"; // Importamos el componente Button
 
-export default function ConfirmEditProfileModal({
+import { useRouter } from "next/navigation";
+import Button from "../Button";
+
+export default function ConfirmAvatarChange({
   isOpen,
   onClose,
 }: {
@@ -11,13 +12,6 @@ export default function ConfirmEditProfileModal({
   onClose: () => void;
 }) {
   const router = useRouter();
-
-  // Redirigir al usuario a la última página visitada
-  const handleAccept = () => {
-    const lastVisitedPage = localStorage.getItem("lastVisitedPage") || "/";
-    router.push(lastVisitedPage);
-    onClose(); // Cerrar el modal
-  };
 
   if (!isOpen) return null;
 
@@ -50,15 +44,15 @@ export default function ConfirmEditProfileModal({
 
         {/* Contenido del Modal */}
         <h2 className="text-xl font-medium text-bluegreen-eske text-center mb-6">
-          Perfil actualizado correctamente
+          Avatar actualizado correctamente
         </h2>
 
         {/* Contenedor del Botón Centrado */}
         <div className="flex justify-center">
           <Button
             label="Aceptar"
-            variant="primary"
-            onClick={handleAccept} // Pasamos la función handleAccept como prop
+            variant="secondary"
+            onClick={onClose} // Cierra el modal al hacer clic en "Aceptar"
           />
         </div>
       </div>

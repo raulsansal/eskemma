@@ -1,10 +1,14 @@
 // firebase/firestoreUtils.ts
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
+import { updatePassword as firebaseUpdatePassword, fetchSignInMethodsForEmail } from "firebase/auth";
+import { auth } from "./firebaseConfig";
 
-// Función para subir una imagen destacada a Firebase Storage
+/**
+ * Función para subir una imagen destacada a Firebase Storage
+ */
 export const uploadFeaturedImage = async (file: File, postId: string): Promise<string> => {
   try {
     // Validar que se haya proporcionado un archivo
@@ -63,7 +67,9 @@ export const uploadFeaturedImage = async (file: File, postId: string): Promise<s
   }
 };
 
-// Función para guardar los datos del usuario en Firestore
+/**
+ * Función para guardar los datos del usuario en Firestore
+ */
 export const saveUserData = async (userData: any) => {
   try {
     // Referencia al documento del usuario en Firestore
@@ -75,6 +81,49 @@ export const saveUserData = async (userData: any) => {
     console.log("Datos guardados correctamente en Firestore.");
   } catch (error) {
     console.error("Error al guardar los datos en Firestore:", error);
+    throw error; // Re-lanzar el error para manejarlo en el componente
+  }
+};
+
+/**
+ * Función para actualizar la contraseña del usuario
+ */
+export const updatePassword = async (userId: string, newPassword: string) => {
+  try {
+    // Obtener el usuario actual
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      throw new Error("Usuario no autenticado. No se puede actualizar la contraseña.");
+    }
+
+    // Verificar si el usuario tiene un método de autenticación con contraseña
+    const email = currentUser.email || "";
+    const userMethods = await fetchSignInMethodsForEmail(auth, email);
+
+    if (!userMethods.includes("password")) {
+      throw new Error("Este usuario no tiene contraseña configurada. No se puede actualizar.");
+    }
+
+    // Actualizar la contraseña
+    await firebaseUpdatePassword(currentUser, newPassword);
+
+    console.log("Contraseña actualizada exitosamente.");
+    alert("Contraseña actualizada exitosamente.");
+  } catch (error: any) {
+    console.error("Error al actualizar la contraseña:", error.message);
+
+    // Manejar errores específicos
+    if (error.code === "auth/weak-password") {
+      alert("La nueva contraseña es demasiado débil. Usa al menos 6 caracteres.");
+    } else if (error.code === "auth/requires-recent-login") {
+      alert(
+        "Debes iniciar sesión nuevamente para realizar esta acción. Tu sesión ha expirado."
+      );
+    } else {
+      alert(`Ocurrió un error al actualizar la contraseña: ${error.message}`);
+    }
+
     throw error; // Re-lanzar el error para manejarlo en el componente
   }
 };

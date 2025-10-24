@@ -1,19 +1,83 @@
 // app/profile/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Importar useRouter
 import { useAuth } from "../../context/AuthContext";
 import { uploadAvatar } from "../../firebase/storageUtils";
 import { saveUserData } from "../../firebase/firestoreUtils";
 import Button from "../components/Button";
 import ConfirmEditProfileModal from "../components/componentsHome/ConfirmEditProfileModal";
+import ConfirmAvatarChange from "../components/componentsHome/ConfirmAvatarChange";
+import ConfirmPasswordChange from "../components/componentsHome/ConfirmPasswordChange"; // Importar el nuevo modal
+import countries from "../data/countries.json";
+import {
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from "firebase/auth";
+import { auth } from "../../firebase/firebaseConfig";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/firebaseConfig";
 
 const ProfilePage = () => {
+  const router = useRouter(); // Inicializar useRouter
   const { user, setUser, updateAuthEmail } = useAuth();
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isAvatarConfirmationOpen, setIsAvatarConfirmationOpen] =
+    useState(false);
+  const [isPasswordConfirmationOpen, setIsPasswordConfirmationOpen] =
+    useState(false);
+
+  // Redirigir al home si no hay usuario autenticado
+  useEffect(() => {
+    if (!user) {
+      router.push("/"); // Redirigir a la página de inicio
+    }
+  }, [user, router]);
 
   // Tamaño máximo del avatar
-  const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2 MB en bytes
+  const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2 MB
+
+  // Definir los países preferenciales
+  const preferredCountries = [
+    "México",
+    "Estados Unidos",
+    "España",
+    "Argentina",
+    "Perú",
+  ];
+  const allCountries = countries.filter(
+    (country) => !preferredCountries.includes(country)
+  );
+  const sortedCountries = [...preferredCountries, ...allCountries];
+
+  // Lista de intereses
+  const interestsList = [
+    "Análisis de Datos",
+    "Campañas Institucionales",
+    "Comunicación de Gobierno",
+    "Comunicación Política",
+    "Encuestas y Muestreo",
+    "Estrategia Electoral",
+    "Estrategia Política",
+    "Gerencia Electoral",
+    "Gobierno Municipal",
+    "Investigación Cualitativa",
+    "Liderazgo y Negociación",
+    "Marca Política",
+    "Marco Jurídico-Electoral",
+    "Marketing Electoral",
+    "Marketing Político Digital",
+    "Opinión Pública",
+    "Participación Ciudadana",
+    "Poder Legislativo",
+    "Políticas Públicas",
+    "Sociedad Civil",
+    "Storytelling",
+    "Técnicas de Análisis Político",
+  ];
 
   // Estado para los datos del formulario
   const [formData, setFormData] = useState({
@@ -30,20 +94,164 @@ const ProfilePage = () => {
     email: user?.email || "",
   });
 
+  // Estado para cambio de contraseña
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+
   // Estado para controlar el proceso de guardado
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  // Actualizar formData cuando el usuario cambie
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        lastName: user.lastName || "",
+        country: user.country || "",
+        avatarUrl: user.avatarUrl || "",
+        userName: user.userName || "",
+        sex: user.sex || "",
+        roles: user.roles || [],
+        interests: user.interests || [],
+        otherRole: "",
+        otherInterest: "",
+        email: user.email || "",
+      });
+      setAvatarPreview(user.avatarUrl || null);
+    }
+  }, [user]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
-    if (name === "roles" || name === "interests") {
-      const values = value.split(",").map((item) => item.trim());
-      setFormData((prev) => ({ ...prev, [name]: values }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
+  };
+
+  const handleRolesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      roles: checked
+        ? [...prev.roles, value]
+        : prev.roles.filter((item) => item !== value),
+    }));
+  };
+
+  const handleInterestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      interests: checked
+        ? [...new Set([...prev.interests, value])]
+        : prev.interests.filter((item) => item !== value),
+    }));
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateUserName = async (userName: string): Promise<boolean> => {
+    if (!userName.trim()) {
+      setErrors((prev) => ({
+        ...prev,
+        userName: "El nombre de usuario es obligatorio",
+      }));
+      return false;
+    }
+
+    if (userName.toLowerCase() === user?.userName?.toLowerCase()) {
+      return true;
+    }
+
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("userName", "==", userName.toLowerCase()));
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        setErrors((prev) => ({
+          ...prev,
+          userName: "Este nombre de usuario ya está en uso",
+        }));
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error al validar userName:", error);
+      setErrors((prev) => ({
+        ...prev,
+        userName: "Error al validar el nombre de usuario",
+      }));
+      return false;
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "El nombre es obligatorio";
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Los apellidos son obligatorios";
+    }
+
+    if (!formData.userName.trim()) {
+      newErrors.userName = "El nombre de usuario es obligatorio";
+    }
+
+    if (!formData.sex) {
+      newErrors.sex = "Selecciona tu sexo";
+    }
+
+    if (!formData.country) {
+      newErrors.country = "Selecciona tu país";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "El correo electrónico es obligatorio";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validatePassword = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!passwordData.currentPassword) {
+      newErrors.currentPassword = "Ingresa tu contraseña actual";
+    }
+
+    if (!passwordData.newPassword) {
+      newErrors.newPassword = "Ingresa tu nueva contraseña";
+    } else if (passwordData.newPassword.length < 6) {
+      newErrors.newPassword = "La contraseña debe tener al menos 6 caracteres";
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      newErrors.confirmPassword = "Las contraseñas no coinciden";
+    }
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,19 +266,71 @@ const ProfilePage = () => {
 
     if (file.size > MAX_AVATAR_SIZE) {
       alert(
-        `El archivo es demasiado grande. El tamaño máximo permitido es ${MAX_AVATAR_SIZE / (1024 * 1024)} MB.`
+        `El archivo es demasiado grande. El tamaño máximo permitido es ${
+          MAX_AVATAR_SIZE / (1024 * 1024)
+        } MB.`
       );
       return;
     }
 
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    setIsUploadingAvatar(true);
     try {
       const downloadURL = await uploadAvatar(file, user.uid);
       setFormData((prev) => ({ ...prev, avatarUrl: downloadURL }));
-
-      await saveUserData({ uid: user.uid, avatarUrl: downloadURL });
+      setIsAvatarConfirmationOpen(true); // Mostrar el modal en lugar del alert
     } catch (error) {
       console.error("Error al subir el avatar:", error);
       alert("Ocurrió un error al subir tu avatar.");
+      setAvatarPreview(formData.avatarUrl || null);
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!validatePassword()) return;
+
+    const currentUser = auth.currentUser;
+    if (!currentUser || !currentUser.email) {
+      alert("No se pudo autenticar al usuario");
+      return;
+    }
+
+    try {
+      const credential = EmailAuthProvider.credential(
+        currentUser.email,
+        passwordData.currentPassword
+      );
+      await reauthenticateWithCredential(currentUser, credential);
+
+      await updatePassword(currentUser, passwordData.newPassword);
+
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setShowPasswordSection(false);
+      setIsPasswordConfirmationOpen(true); // Mostrar el modal en lugar del alert
+    } catch (error: any) {
+      console.error("Error al cambiar contraseña:", error);
+
+      if (error.code === "auth/wrong-password") {
+        setErrors((prev) => ({
+          ...prev,
+          currentPassword: "Contraseña actual incorrecta",
+        }));
+      } else if (error.code === "auth/too-many-requests") {
+        alert("Demasiados intentos. Intenta más tarde.");
+      } else {
+        alert("Error al cambiar la contraseña. Inténtalo de nuevo.");
+      }
     }
   };
 
@@ -80,28 +340,36 @@ const ProfilePage = () => {
       return;
     }
 
+    if (!validateForm()) {
+      alert("Por favor, completa todos los campos obligatorios");
+      return;
+    }
+
+    const isUserNameValid = await validateUserName(formData.userName);
+    if (!isUserNameValid) {
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // Procesar roles e intereses personalizados
-      const processedRoles = formData.roles.includes("Otro")
+      const finalRoles: string[] = formData.roles.includes("Otro")
         ? [
             ...formData.roles.filter((role: string) => role !== "Otro"),
-            formData.otherRole,
-          ].filter(Boolean)
+            formData.otherRole || "",
+          ].filter((role) => role !== "")
         : formData.roles;
 
-      const processedInterests = formData.interests.includes("Otro")
+      const finalInterests: string[] = formData.interests.includes("Otro")
         ? [
             ...new Set([
               ...formData.interests.filter(
                 (interest: string) => interest !== "Otro"
               ),
-              formData.otherInterest,
+              formData.otherInterest || "",
             ]),
-          ].filter(Boolean)
-        : formData.interests;
+          ].filter((interest) => interest !== "")
+        : [...new Set(formData.interests)];
 
-      // Crear un objeto limpio con solo los campos de Firestore
       const userDataToSave = {
         uid: user.uid,
         email: formData.email,
@@ -109,40 +377,28 @@ const ProfilePage = () => {
         lastName: formData.lastName,
         country: formData.country,
         avatarUrl: formData.avatarUrl,
-        userName: formData.userName,
-        sex: formData.sex === "male"
-          ? "hombre"
-          : formData.sex === "female"
-            ? "mujer"
-            : formData.sex === "other"
-              ? "no-binario"
-              : formData.sex,
-        roles: processedRoles,
-        interests: processedInterests,
-        role: user.role || "visitor",
-        profileCompleted: user.profileCompleted ?? true,
+        userName: formData.userName.toLowerCase(),
+        sex: formData.sex,
+        roles: finalRoles,
+        interests: finalInterests,
+        role: user.role || "user",
+        profileCompleted: true,
         emailVerified: user.emailVerified ?? false,
         showOnboardingModal: user.showOnboardingModal ?? false,
+        createdAt: user.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
 
-      // Actualizar el correo de autenticación si ha cambiado
       if (formData.email !== user.email) {
         await updateAuthEmail(formData.email);
+        alert("Se ha enviado un correo de verificación a tu nueva dirección");
       }
 
-      // Guardar los datos actualizados en Firestore
       await saveUserData(userDataToSave);
 
-      // Actualizar el estado global del usuario
-      setUser((prevUser) => {
-        if (!prevUser) return null;
-        return { 
-          ...prevUser, 
-          ...userDataToSave,
-          displayName: prevUser.displayName,
-          photoURL: prevUser.photoURL,
-        };
+      setUser({
+        ...user,
+        ...userDataToSave,
       });
 
       setIsConfirmationModalOpen(true);
@@ -154,189 +410,395 @@ const ProfilePage = () => {
     }
   };
 
-  // Mostrar mensaje de carga si el usuario no está disponible
-  if (!user) {
-    return (
-      <div className="max-w-md mx-auto p-4 text-center">
-        <p className="text-gray-600">Cargando perfil...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-md mx-auto p-4">
-      <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+    <div className="max-w-2xl mx-auto p-6">
+      <h2 className="text-3xl font-bold text-bluegreen-eske text-center mb-8">
         Editar Perfil
       </h2>
 
-      {/* Avatar */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Crear o editar tu Avatar
-        </label>
-        <input type="file" onChange={handleAvatarUpload} />
-        {formData.avatarUrl && (
-          <img
-            src={formData.avatarUrl}
-            alt="Avatar"
-            className="w-20 h-20 rounded-full mt-2 object-cover"
-          />
-        )}
-      </div>
-
-      {/* Nombre */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Nombre
-        </label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        />
-      </div>
-
-      {/* Apellido */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Apellidos
-        </label>
-        <input
-          type="text"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleInputChange}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        />
-      </div>
-
-      {/* País */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">País</label>
-        <input
-          type="text"
-          name="country"
-          value={formData.country}
-          onChange={handleInputChange}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        />
-      </div>
-
-      {/* Sexo */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Sexo</label>
-        <select
-          name="sex"
-          value={formData.sex}
-          onChange={handleInputChange}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        >
-          <option value="">Selecciona una opción</option>
-          <option value="hombre">Hombre</option>
-          <option value="mujer">Mujer</option>
-          <option value="no-binario">No binario</option>
-        </select>
-      </div>
-
-      {/* Roles */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Roles</label>
-        <input
-          type="text"
-          name="roles"
-          value={formData.roles.join(", ")}
-          onChange={handleInputChange}
-          placeholder="Ej. Diseñador, Desarrollador"
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        />
-        {formData.roles.includes("Otro") && (
-          <div className="mt-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Otro Rol
+      {/* SECCIÓN: Avatar */}
+      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+          Foto de Perfil
+        </h3>
+        <div className="flex items-center gap-6">
+          <div className="flex-shrink-0">
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Avatar"
+                className="w-32 h-32 rounded-full object-cover border-4 border-bluegreen-eske"
+              />
+            ) : (
+              <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300">
+                <span className="text-gray-400 text-sm text-center px-2">
+                  Sin foto
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <label
+              htmlFor="avatar-upload"
+              className="cursor-pointer inline-block bg-bluegreen-eske text-white px-6 py-3 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300"
+            >
+              {isUploadingAvatar ? "Subiendo..." : "Cambiar foto"}
             </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              disabled={isUploadingAvatar}
+              className="hidden"
+            />
+            <p className="text-sm text-gray-500 mt-2">
+              Tamaño máximo: 2 MB. Formatos: JPG, PNG, GIF
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* SECCIÓN: Información Personal */}
+      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+          Información Personal
+        </h3>
+
+        {/* Nombre */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Nombre <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border ${
+              errors.name ? "border-red-500" : "border-gray-300"
+            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+          />
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+          )}
+        </div>
+
+        {/* Apellidos */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Apellidos <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border ${
+              errors.lastName ? "border-red-500" : "border-gray-300"
+            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+          />
+          {errors.lastName && (
+            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+          )}
+        </div>
+
+        {/* Nombre de Usuario */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Nombre de Usuario <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="userName"
+            value={formData.userName}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border ${
+              errors.userName ? "border-red-500" : "border-gray-300"
+            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+          />
+          {errors.userName && (
+            <p className="text-red-500 text-sm mt-1">{errors.userName}</p>
+          )}
+        </div>
+
+        {/* Sexo */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Sexo <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="sex"
+            value={formData.sex}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border ${
+              errors.sex ? "border-red-500" : "border-gray-300"
+            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+          >
+            <option value="">Selecciona una opción</option>
+            <option value="hombre">Hombre</option>
+            <option value="mujer">Mujer</option>
+            <option value="no-binario">No binario</option>
+          </select>
+          {errors.sex && (
+            <p className="text-red-500 text-sm mt-1">{errors.sex}</p>
+          )}
+        </div>
+
+        {/* País */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            País <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="country"
+            value={formData.country}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border ${
+              errors.country ? "border-red-500" : "border-gray-300"
+            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+          >
+            <option value="">Selecciona una opción</option>
+            {sortedCountries.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
+          {errors.country && (
+            <p className="text-red-500 text-sm mt-1">{errors.country}</p>
+          )}
+        </div>
+
+        {/* Email */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Correo Electrónico <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 border ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            ⚠️ Este es tu correo de autenticación. Cambiarlo requerirá
+            verificación y afectará tu inicio de sesión.
+          </p>
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+          )}
+        </div>
+      </div>
+
+      {/* SECCIÓN: Roles */}
+      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+          Roles Profesionales
+        </h3>
+        <div className="space-y-2">
+          {[
+            "Candidatura",
+            "Consultoría o Asesoría",
+            "Integrante de equipo de campaña",
+            "Integrante de partido político",
+            "Servicio público",
+            "Academia",
+            "Otro",
+          ].map((role) => (
+            <label key={role} className="flex items-center">
+              <input
+                type="checkbox"
+                value={role}
+                checked={formData.roles.includes(role)}
+                onChange={handleRolesChange}
+                className="mr-2 accent-bluegreen-eske"
+              />
+              <span className="text-gray-700">{role}</span>
+            </label>
+          ))}
+          {formData.roles.includes("Otro") && (
             <input
               type="text"
               name="otherRole"
               value={formData.otherRole}
               onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+              placeholder="Especifica tu rol"
+              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-bluegreen-eske"
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Intereses */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Intereses
-        </label>
-        <input
-          type="text"
-          name="interests"
-          value={formData.interests.join(", ")}
-          onChange={handleInputChange}
-          placeholder="Ej. Tecnología, Arte"
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        />
-        {formData.interests.includes("Otro") && (
-          <div className="mt-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Otro Interés
+      {/* SECCIÓN: Intereses */}
+      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+          Temas de Interés
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {interestsList.map((interest) => (
+            <label key={interest} className="flex items-center">
+              <input
+                type="checkbox"
+                value={interest}
+                checked={formData.interests.includes(interest)}
+                onChange={handleInterestsChange}
+                className="mr-2 accent-bluegreen-eske"
+              />
+              <span className="text-gray-700 text-sm">{interest}</span>
             </label>
+          ))}
+          <label className="flex items-center">
             <input
-              type="text"
-              name="otherInterest"
-              value={formData.otherInterest}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+              type="checkbox"
+              value="Otro"
+              checked={formData.interests.includes("Otro")}
+              onChange={handleInterestsChange}
+              className="mr-2 accent-bluegreen-eske"
             />
+            <span className="text-gray-700 text-sm">Otro</span>
+          </label>
+        </div>
+        {formData.interests.includes("Otro") && (
+          <input
+            type="text"
+            name="otherInterest"
+            value={formData.otherInterest}
+            onChange={handleInputChange}
+            placeholder="Especifica tu interés"
+            className="mt-4 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-bluegreen-eske"
+          />
+        )}
+      </div>
+
+      {/* SECCIÓN: Cambiar Contraseña */}
+      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+          Seguridad
+        </h3>
+
+        {!showPasswordSection ? (
+          <button
+            onClick={() => setShowPasswordSection(true)}
+            className="text-bluegreen-eske hover:underline cursor-pointer"
+          >
+            Cambiar contraseña
+          </button>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña Actual <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                name="currentPassword"
+                value={passwordData.currentPassword}
+                onChange={handlePasswordChange}
+                className={`w-full px-4 py-2 border ${
+                  errors.currentPassword ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+              />
+              {errors.currentPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.currentPassword}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nueva Contraseña <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                name="newPassword"
+                value={passwordData.newPassword}
+                onChange={handlePasswordChange}
+                className={`w-full px-4 py-2 border ${
+                  errors.newPassword ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+              />
+              {errors.newPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.newPassword}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Confirmar Nueva Contraseña{" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={passwordData.confirmPassword}
+                onChange={handlePasswordChange}
+                className={`w-full px-4 py-2 border ${
+                  errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={handleChangePassword}
+                className="bg-bluegreen-eske text-white px-6 py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300"
+              >
+                Actualizar Contraseña
+              </button>
+              <button
+                onClick={() => {
+                  setShowPasswordSection(false);
+                  setPasswordData({
+                    currentPassword: "",
+                    newPassword: "",
+                    confirmPassword: "",
+                  });
+                  setErrors({});
+                }}
+                className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors duration-300"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Nombre de Usuario */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Nombre de Usuario
-        </label>
-        <input
-          type="text"
-          name="userName"
-          value={formData.userName}
-          onChange={handleInputChange}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+      {/* Botón Guardar Cambios */}
+      <div className="flex justify-center">
+        <Button
+          label={isSaving ? "Guardando..." : "Guardar Cambios"}
+          variant="primary"
+          onClick={handleSave}
+          disabled={isSaving || isUploadingAvatar}
         />
       </div>
 
-      {/* Correo Electrónico */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Correo Electrónico <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleInputChange}
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-        />
-        <p className="text-xs text-gray-500">
-          Este es tu correo de autenticación. Cambiarlo afectará tu inicio de
-          sesión y comunicación.
-        </p>
-      </div>
-
-      {/* Botón Guardar */}
-      <Button
-        label={isSaving ? "Guardando..." : "Guardar Cambios"}
-        variant="primary"
-        onClick={handleSave}
-        disabled={isSaving}
+      {/* Modal de Confirmación del Avatar */}
+      <ConfirmAvatarChange
+        isOpen={isAvatarConfirmationOpen}
+        onClose={() => setIsAvatarConfirmationOpen(false)}
       />
 
-      {/* Modal de Confirmación */}
+      {/* Modal de Confirmación del Cambio de Contraseña */}
+      <ConfirmPasswordChange
+        isOpen={isPasswordConfirmationOpen}
+        onClose={() => setIsPasswordConfirmationOpen(false)}
+      />
+
+      {/* Modal de Confirmación del Perfil */}
       <ConfirmEditProfileModal
         isOpen={isConfirmationModalOpen}
         onClose={() => setIsConfirmationModalOpen(false)}

@@ -118,7 +118,7 @@ export default function OnboardingModal({
             className="mr-2"
           />
           <label htmlFor="showOnLogin" className="text-[14px] text-black-eske">
-            Mostrar al iniciar sesión
+            Volver a mostrar
           </label>
         </div>
       </div>
