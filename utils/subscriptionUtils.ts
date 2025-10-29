@@ -69,19 +69,27 @@ export const getPlanPrice = (plan: SubscriptionPlan): number => {
 
 /**
  * Verifica si el usuario tiene acceso premium (cualquier plan activo)
+ * ✅ ADMIN siempre tiene acceso premium
  */
 export const hasPremiumAccess = (role: string): boolean => {
+  // ✅ ADMIN tiene acceso completo
+  if (role === "admin") return true;
+  
   return ["basic", "premium", "grupal"].includes(role);
 };
 
 /**
  * Verifica si el usuario puede acceder a una funcionalidad
  * basándose en una jerarquía de roles
+ * ✅ ADMIN tiene acceso a todo
  */
 export const canAccessFeature = (
   userRole: string,
   requiredRole: "user" | "basic" | "premium" | "grupal"
 ): boolean => {
+  // ✅ ADMIN tiene acceso a todo
+  if (userRole === "admin") return true;
+
   const roleHierarchy = {
     visitor: 0,
     registered: 1,
@@ -93,6 +101,7 @@ export const canAccessFeature = (
     "unsubscribed-premium": 2,
     "unsubscribed-grupal": 2,
     expired: 2,
+    admin: 999, // ✅ Nivel máximo para admin
   };
 
   const requiredLevel = roleHierarchy[requiredRole] || 0;
@@ -164,11 +173,17 @@ export const isSubscriptionExpiringSoon = (
 
 /**
  * Obtiene un mensaje descriptivo del estado de la suscripción
+ * ✅ Incluye mensaje especial para admin
  */
 export const getSubscriptionStatusMessage = (
   role: string,
   endDate: string | Date | null
 ): string => {
+  // ✅ Mensaje para admin
+  if (role === "admin") {
+    return "Acceso administrativo completo al sistema.";
+  }
+
   if (["basic", "premium", "grupal"].includes(role)) {
     const daysRemaining = getDaysRemaining(endDate);
     if (daysRemaining > 7) {
@@ -221,8 +236,11 @@ export const calculateProratedPrice = (
 
 /**
  * Obtiene el color asociado a cada plan (para badges, UI, etc.)
+ * ✅ Incluye color para admin
  */
-export const getPlanColor = (plan: SubscriptionPlan | null): string => {
+export const getPlanColor = (plan: SubscriptionPlan | null | "admin"): string => {
+  if (plan === "admin") return "red"; // ✅ Color para admin
+  
   const colors: Record<SubscriptionPlan, string> = {
     basic: "blue",
     premium: "purple",
@@ -238,3 +256,66 @@ export const getPlanColor = (plan: SubscriptionPlan | null): string => {
 export const formatPrice = (price: number, currency: string = "$"): string => {
   return `${currency}${price.toFixed(2)}`;
 };
+
+/**
+ * Verifica si un usuario es administrador
+ */
+export const isAdmin = (role: string): boolean => {
+  return role === "admin";
+};
+
+/**
+ * Verifica si un rol requiere suscripción
+ * ✅ Admin no requiere suscripción
+ */
+export const requiresSubscription = (role: string): boolean => {
+  // Admin y roles base no requieren suscripción
+  return !["visitor", "registered", "user", "admin"].includes(role);
+};
+
+/**
+ * Obtiene la lista de permisos según el rol
+ * Útil para mostrar qué puede hacer cada usuario
+ */
+export const getRolePermissions = (role: string): string[] => {
+  const permissions: Record<string, string[]> = {
+    visitor: ["Ver contenido público"],
+    registered: ["Ver contenido público", "Completar registro"],
+    user: [
+      "Ver contenido público",
+      "Acceso a perfil",
+      "Ver cursos gratuitos",
+    ],
+    basic: [
+      "Todo lo de Usuario",
+      "Acceso a cursos básicos",
+      "Certificados",
+      "Soporte por email",
+    ],
+    premium: [
+      "Todo lo de Plan Básico",
+      "Acceso a cursos premium",
+      "Sesiones en vivo",
+      "Soporte prioritario",
+      "Comunidad privada",
+    ],
+    grupal: [
+      "Todo lo de Plan Premium",
+      "Dashboard de equipo",
+      "Gestión de miembros",
+      "Reportes grupales",
+      "Gestor dedicado",
+    ],
+    admin: [
+      "Acceso completo al sistema",
+      "Gestión de usuarios",
+      "Gestión de contenido",
+      "Gestión de suscripciones",
+      "Reportes y análisis",
+      "Configuración del sitio",
+    ],
+  };
+
+  return permissions[role] || ["Sin permisos definidos"];
+};
+

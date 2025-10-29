@@ -149,7 +149,7 @@ const ProfilePage = () => {
       const confirmDiscard = window.confirm(
         "¿Estás seguro de que deseas descartar los cambios? Todos los cambios no guardados se perderán."
       );
-      
+
       if (!confirmDiscard) {
         return; // El usuario decidió no descartar los cambios
       }
@@ -252,25 +252,29 @@ const ProfilePage = () => {
       return false;
     }
 
+    // Si el userName es el mismo que tiene actualmente, es válido
     if (userName.toLowerCase() === user?.userName?.toLowerCase()) {
       return true;
     }
 
     try {
-      const usersRef = collection(db, "users");
-      const q = query(
-        usersRef,
-        where("userName", "==", userName.toLowerCase())
-      );
-      const snapshot = await getDocs(q);
+      // ✅ USAR LA FUNCIÓN DE UTILIDAD EN VEZ DE QUERY DIRECTA
+      const available = await isUserNameAvailable(userName.toLowerCase());
 
-      if (!snapshot.empty) {
+      if (!available) {
         setErrors((prev) => ({
           ...prev,
           userName: "Este nombre de usuario ya está en uso",
         }));
         return false;
       }
+
+      // Limpiar error si existía
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.userName;
+        return newErrors;
+      });
 
       return true;
     } catch (error) {

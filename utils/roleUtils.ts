@@ -1,4 +1,4 @@
-// utils/roleUtils.ts
+// utils/roleUtils.ts (VERSIÓN DEFINITIVA CON ADMIN)
 type UserRole =
   | "visitor"
   | "registered"
@@ -9,7 +9,8 @@ type UserRole =
   | "unsubscribed-basic"
   | "unsubscribed-premium"
   | "unsubscribed-grupal"
-  | "expired";
+  | "expired"
+  | "admin"; 
 
 type SubscriptionPlan = "basic" | "premium" | "grupal" | null;
 type SubscriptionStatus = "active" | "cancelled" | "expired" | null;
@@ -21,12 +22,18 @@ interface UserData {
   subscriptionStatus?: SubscriptionStatus;
   subscriptionEndDate?: Date | string | null;
   previousSubscription?: SubscriptionPlan;
+  role?: UserRole; // ✅ AGREGAR para preservar admin
 }
 
 /**
  * Calcula el rol correcto del usuario basado en su estado
  */
 export const calculateUserRole = (userData: UserData): UserRole => {
+  // ✅ CRÍTICO: Preservar rol admin
+  if (userData.role === "admin") {
+    return "admin";
+  }
+
   const {
     emailVerified,
     profileCompleted,
@@ -109,6 +116,7 @@ export const getRoleName = (role: UserRole): string => {
     "unsubscribed-premium": "Plan Premium (Cancelado)",
     "unsubscribed-grupal": "Plan Grupal (Cancelado)",
     expired: "Suscripción Expirada",
+    admin: "Administrador", // ✅ ADMIN
   };
   return roleNames[role] || "Usuario";
 };

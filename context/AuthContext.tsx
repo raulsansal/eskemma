@@ -38,16 +38,17 @@ import { isUserNameAvailable } from "../utils/userUtils";
 
 // ✅ TIPOS DE ROLES
 type UserRole =
-  | "visitor" // Email registrado, NO verificado
-  | "registered" // Email verificado, NO completó registro
-  | "user" // Registro completo, sin suscripción
-  | "basic" // Con suscripción básica activa
-  | "premium" // Con suscripción premium activa
-  | "grupal" // Con suscripción grupal activa
-  | "unsubscribed-basic" // Canceló básica
-  | "unsubscribed-premium" // Canceló premium
-  | "unsubscribed-grupal" // Canceló grupal
-  | "expired"; // Suscripción expirada
+  | "visitor"
+  | "registered"
+  | "user"
+  | "basic"
+  | "premium"
+  | "grupal"
+  | "unsubscribed-basic"
+  | "unsubscribed-premium"
+  | "unsubscribed-grupal"
+  | "expired"
+  | "admin";   
 
 // ✅ TIPOS DE PLANES
 type SubscriptionPlan = "basic" | "premium" | "grupal" | null;
