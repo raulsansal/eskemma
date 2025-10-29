@@ -5,8 +5,9 @@ import { useAuth } from "../../../context/AuthContext";
 import { saveUserData } from "../../../firebase/firestoreUtils";
 import { auth } from "../../../firebase/firebaseConfig";
 import countries from "../../../app/data/countries.json";
-import { isUserNameAvailable, } from "../../../utils/userUtils"; // Importar la función
+import { isUserNameAvailable } from "../../../utils/userUtils";
 import { generateAlternativeUserName } from "../../../utils/generateAlternativeUserName";
+import { calculateUserRole } from "../../../utils/roleUtils"; // ✅ IMPORTAR
 
 interface RegisterFormData {
   name: string;
@@ -39,18 +40,19 @@ export default function RegisterModal({
     userName: "",
   });
   const [userNameEdited, setUserNameEdited] = useState(false);
-  const [isUserNameValid, setIsUserNameValid] = useState(true); // Estado para validar disponibilidad
-  const [userNameError, setUserNameError] = useState(""); // Estado para mensajes de error
-  const [suggestionMessage, setSuggestionMessage] = useState(""); // Estado para el mensaje de sugerencia
+  const [isUserNameValid, setIsUserNameValid] = useState(true);
+  const [userNameError, setUserNameError] = useState("");
+  const [suggestionMessage, setSuggestionMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // ✅ AGREGAR estado de loading
 
   const {
     user,
-    setUser, // ← IMPORTANTE: Agregar setUser
+    setUser,
     setIsRegisterModalOpen,
-    setIsCompleteRegisterModalOpen, // ← AGREGAR ESTO
+    setIsCompleteRegisterModalOpen,
     setIsRegistrationSuccessModalOpen,
     setIsLoginModalOpen,
-    setIsOnboardingModalOpen, // ← AGREGAR ESTO
+    setIsOnboardingModalOpen,
   } = useAuth();
 
   // Definir los países preferenciales
@@ -66,7 +68,7 @@ export default function RegisterModal({
   );
   const sortedCountries = [...preferredCountries, ...allCountries];
 
-  // Lista normalizada de intereses (sin duplicados ni errores)
+  // Lista normalizada de intereses
   const interestsList = [
     "Análisis de Datos",
     "Campañas Institucionales",
@@ -91,14 +93,13 @@ export default function RegisterModal({
     "Storytelling",
     "Técnicas de Análisis Político",
   ];
-  
+
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
 
     if (name === "name" || name === "lastName") {
-      // Validación para letras, acentos, ñ, ü, y espacios
       const isValid = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜçÇ\s´]*$/.test(value);
 
       if (!isValid) {
@@ -107,32 +108,26 @@ export default function RegisterModal({
 
       if (name === "name") {
         const baseUserName = value.toLowerCase().replace(/\s+/g, "");
-
-        // Verificar si el userName está disponible
         const available = await isUserNameAvailable(baseUserName);
-
-        // Si no está disponible, generar una alternativa
         const finalUserName = available
           ? baseUserName
           : await generateAlternativeUserName(baseUserName);
 
-        // Actualizar el estado con el userName validado
         setFormData((prev) => ({
           ...prev,
           name: value,
           userName: finalUserName,
         }));
 
-        // Mostrar mensaje si se sugirió una alternativa
         if (!available) {
           setSuggestionMessage(
             `El nombre de usuario "${baseUserName}" no está disponible. Se ha sugerido "${finalUserName}".`
           );
         } else {
-          setSuggestionMessage(""); // Limpiar el mensaje si el userName es válido
+          setSuggestionMessage("");
         }
 
-        setUserNameEdited(!available); // Marcar como editado si se sugirió una alternativa
+        setUserNameEdited(!available);
         return;
       }
 
@@ -148,7 +143,6 @@ export default function RegisterModal({
   ) => {
     const { value } = e.target;
 
-    // Validar caracteres permitidos
     const isValid = /^[a-zA-ZñÑüÜçÇ\s]*$/.test(value);
     if (!isValid) {
       setUserNameError("Solo se permiten letras, espacios, ñ, ü, ç.");
@@ -156,18 +150,15 @@ export default function RegisterModal({
       return;
     }
 
-    // Actualizar el valor del userName
     setFormData((prev) => ({ ...prev, userName: value.toLowerCase() }));
     setUserNameEdited(true);
 
-    // Validar disponibilidad
     if (value.trim().length > 0) {
       try {
         const available = await isUserNameAvailable(value.toLowerCase());
         setIsUserNameValid(available);
 
         if (!available) {
-          // Si el userName no está disponible, sugerir una alternativa
           const alternativeUserName = await generateAlternativeUserName(
             value.toLowerCase()
           );
@@ -209,10 +200,10 @@ export default function RegisterModal({
     }));
   };
 
+  // ✅ FUNCIÓN handleSubmit ACTUALIZADA
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validar el userName antes de continuar
     if (!isUserNameValid) {
       alert("Por favor, corrige el nombre de usuario antes de continuar.");
       return;
@@ -223,15 +214,17 @@ export default function RegisterModal({
       return;
     }
 
+    setIsSubmitting(true); // ✅ Activar loading
+
     try {
-      console.log("Iniciando proceso de registro...");
+      console.log("📝 Iniciando proceso de completar registro...");
 
       const currentUser = auth.currentUser;
       if (!currentUser) throw new Error("Usuario no autenticado");
       await currentUser.reload();
       const emailVerified = currentUser.emailVerified;
 
-      // Filtrar correctamente para eliminar undefined y asegurar string[]
+      // Filtrar roles e intereses
       const finalRoles: string[] = formData.roles.includes("Otro")
         ? [
             ...formData.roles.filter((role) => role !== "Otro"),
@@ -248,6 +241,20 @@ export default function RegisterModal({
           ].filter((interest) => interest !== "")
         : [...new Set(formData.interests)];
 
+      // ✅ CALCULAR ROL CORRECTO
+      // Al completar el registro: emailVerified=true, profileCompleted=true → role="user"
+      const calculatedRole = calculateUserRole({
+        emailVerified: emailVerified,
+        profileCompleted: true, // ✅ Ahora sí está completo
+        subscriptionPlan: user.subscriptionPlan || null,
+        subscriptionStatus: user.subscriptionStatus || null,
+        subscriptionEndDate: user.subscriptionEndDate || null,
+        previousSubscription: user.previousSubscription || null,
+      });
+
+      console.log(`✅ Rol calculado después de completar registro: ${calculatedRole}`);
+
+      // ✅ PREPARAR DATOS CON EL ROL CORRECTO
       const userData = {
         uid: user.uid,
         email: user.email,
@@ -257,21 +264,40 @@ export default function RegisterModal({
         country: formData.country,
         roles: finalRoles,
         interests: finalInterests,
-        userName: formData.userName,
-        profileCompleted: true,
-        role: "user",
+        userName: formData.userName.toLowerCase(),
+        profileCompleted: true, // ✅ Marcar como completado
+        role: calculatedRole, // ✅ Usar el rol calculado
         emailVerified,
         createdAt: user.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        // ✅ Mantener campos de suscripción si existen
+        subscriptionPlan: user.subscriptionPlan || null,
+        subscriptionStatus: user.subscriptionStatus || null,
+        subscriptionStartDate: user.subscriptionStartDate || null,
+        subscriptionEndDate: user.subscriptionEndDate || null,
+        previousSubscription: user.previousSubscription || null,
+        stripeCustomerId: user.stripeCustomerId || null,
+        stripeSubscriptionId: user.stripeSubscriptionId || null,
       };
 
-      console.log("Datos preparados para guardar:", userData);
+      console.log("📦 Datos preparados para guardar:", userData);
 
-      // Guardar en Firestore
+      // ✅ GUARDAR EN FIRESTORE
       await saveUserData(userData);
-      console.log("✅ Datos guardados correctamente en Firestore.");
+      console.log("✅ Datos guardados correctamente en Firestore");
 
-      // Actualizar el usuario en el contexto
+      // ✅ ACTUALIZAR CUSTOM CLAIM
+      await fetch("/api/setUserRole", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: user.uid,
+          role: calculatedRole,
+        }),
+      });
+      console.log("✅ Custom claim actualizado");
+
+      // ✅ ACTUALIZAR EL USUARIO EN EL CONTEXTO
       setUser({
         ...user,
         name: formData.name,
@@ -280,18 +306,19 @@ export default function RegisterModal({
         country: formData.country,
         roles: finalRoles,
         interests: finalInterests,
-        userName: formData.userName,
+        userName: formData.userName.toLowerCase(),
         profileCompleted: true,
+        role: calculatedRole, // ✅ Actualizar con el rol correcto
         updatedAt: new Date().toISOString(),
       });
 
       console.log("✅ Usuario actualizado en el contexto");
 
-      // Cerrar modal de registro
+      // ✅ CERRAR MODALES DE REGISTRO
       setIsRegisterModalOpen(false);
       setIsCompleteRegisterModalOpen(false);
 
-      // Mostrar modal de onboarding si corresponde
+      // ✅ MOSTRAR MODAL DE ONBOARDING SI CORRESPONDE
       if (user.showOnboardingModal) {
         console.log("🎯 Mostrando modal de onboarding");
         setIsOnboardingModalOpen(true);
@@ -300,19 +327,22 @@ export default function RegisterModal({
         alert("¡Registro completado exitosamente!");
       }
 
-      console.log("✅ Registro completado con éxito.");
-    } catch (error) {
+      console.log(`✅ Registro completado con éxito. Role final: ${calculatedRole}`);
+    } catch (error: any) {
       console.error("❌ Error durante el registro:", error);
-      alert("Ocurrió un error al completar tu perfil. Inténtalo de nuevo.");
+      alert(
+        `Ocurrió un error al completar tu perfil: ${
+          error.message || "Inténtalo de nuevo."
+        }`
+      );
+    } finally {
+      setIsSubmitting(false); // ✅ Desactivar loading
     }
   };
 
-  // FUNCIÓN CORREGIDA - Esta SÍ funciona
   const handleLoginClick = () => {
     console.log("🔄 Cerrando registro y abriendo login...");
-    // Primero cerramos el modal actual
     setIsRegisterModalOpen(false);
-    // Usamos setTimeout para asegurar que el estado se actualice
     setTimeout(() => {
       setIsLoginModalOpen(true);
       console.log("✅ Modal de login abierto");
@@ -333,6 +363,7 @@ export default function RegisterModal({
         <button
           className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
           onClick={onClose}
+          disabled={isSubmitting} // ✅ Deshabilitar mientras se envía
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -357,7 +388,7 @@ export default function RegisterModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
-              Nombre
+              Nombre <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -365,13 +396,14 @@ export default function RegisterModal({
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              disabled={isSubmitting} // ✅ Deshabilitar mientras se envía
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
             />
           </div>
 
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
-              Apellidos
+              Apellidos <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -379,13 +411,14 @@ export default function RegisterModal({
               value={formData.lastName}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              disabled={isSubmitting}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
             />
           </div>
 
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
-              Nombre de usuario
+              Nombre de usuario <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -393,9 +426,10 @@ export default function RegisterModal({
               value={formData.userName}
               onChange={handleUserNameChange}
               required
+              disabled={isSubmitting}
               className={`w-full px-3 py-2 border ${
                 !isUserNameValid ? "border-red-500" : "border-gray-300"
-              } rounded focus:outline-none focus:border-blue-eske`}
+              } rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100`}
             />
             {!isUserNameValid && (
               <p className="text-red-500 text-sm mt-1">{userNameError}</p>
@@ -407,14 +441,15 @@ export default function RegisterModal({
 
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
-              Sexo
+              Sexo <span className="text-red-500">*</span>
             </label>
             <select
               name="sex"
               value={formData.sex}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              disabled={isSubmitting}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
             >
               <option value="">Selecciona una opción</option>
               <option value="hombre">Hombre</option>
@@ -425,14 +460,15 @@ export default function RegisterModal({
 
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
-              País
+              País <span className="text-red-500">*</span>
             </label>
             <select
               name="country"
               value={formData.country}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              disabled={isSubmitting}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
             >
               <option value="">Selecciona una opción</option>
               {sortedCountries.map((country) => (
@@ -472,7 +508,8 @@ export default function RegisterModal({
                     value={role}
                     checked={formData.roles.includes(role)}
                     onChange={handleRolesChange}
-                    className="mr-2 accent-blue-eske"
+                    disabled={isSubmitting}
+                    className="mr-2 accent-blue-eske disabled:opacity-50"
                   />
                   {role}
                 </label>
@@ -484,7 +521,8 @@ export default function RegisterModal({
                   value={formData.otherRole}
                   onChange={handleChange}
                   placeholder="Especifica tu rol"
-                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+                  disabled={isSubmitting}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
                 />
               )}
             </div>
@@ -504,7 +542,8 @@ export default function RegisterModal({
                     value={interest}
                     checked={formData.interests.includes(interest)}
                     onChange={handleInterestsChange}
-                    className="mr-2 accent-blue-eske"
+                    disabled={isSubmitting}
+                    className="mr-2 accent-blue-eske disabled:opacity-50"
                   />
                   {interest}
                 </label>
@@ -516,7 +555,8 @@ export default function RegisterModal({
                   value="Otro"
                   checked={formData.interests.includes("Otro")}
                   onChange={handleInterestsChange}
-                  className="mr-2 accent-blue-eske"
+                  disabled={isSubmitting}
+                  className="mr-2 accent-blue-eske disabled:opacity-50"
                 />
                 Otro
               </label>
@@ -527,7 +567,8 @@ export default function RegisterModal({
                   value={formData.otherInterest}
                   onChange={handleChange}
                   placeholder="Especifica tu interés"
-                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+                  disabled={isSubmitting}
+                  className="mt-2 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
                 />
               )}
             </div>
@@ -535,9 +576,10 @@ export default function RegisterModal({
 
           <button
             type="submit"
-            className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-70 transition-colors duration-300 cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-70 transition-colors duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            COMPLETAR REGISTRO
+            {isSubmitting ? "COMPLETANDO REGISTRO..." : "COMPLETAR REGISTRO"}
           </button>
 
           <p className="mt-4 text-[14px] text-black-eske text-center">
@@ -560,7 +602,8 @@ export default function RegisterModal({
             <button
               type="button"
               onClick={handleLoginClick}
-              className="text-bluegreen-eske-60 underline cursor-pointer bg-transparent border-none p-0 hover:text-bluegreen-eske"
+              disabled={isSubmitting}
+              className="text-bluegreen-eske-60 underline cursor-pointer bg-transparent border-none p-0 hover:text-bluegreen-eske disabled:opacity-50"
             >
               Inicia sesión
             </button>

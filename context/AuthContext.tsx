@@ -20,7 +20,7 @@ import {
   getIdTokenResult,
   User,
   getAuth,
-  fetchSignInMethodsForEmail, // ← AGREGAR esta importación
+  fetchSignInMethodsForEmail,
 } from "firebase/auth";
 import {
   doc,
@@ -36,11 +36,30 @@ import {
 import { auth, db, providerGoogle } from "../firebase/firebaseConfig";
 import { isUserNameAvailable } from "../utils/userUtils";
 
-// Interfaz para los datos de Firestore
+// ✅ TIPOS DE ROLES
+type UserRole =
+  | "visitor" // Email registrado, NO verificado
+  | "registered" // Email verificado, NO completó registro
+  | "user" // Registro completo, sin suscripción
+  | "basic" // Con suscripción básica activa
+  | "premium" // Con suscripción premium activa
+  | "grupal" // Con suscripción grupal activa
+  | "unsubscribed-basic" // Canceló básica
+  | "unsubscribed-premium" // Canceló premium
+  | "unsubscribed-grupal" // Canceló grupal
+  | "expired"; // Suscripción expirada
+
+// ✅ TIPOS DE PLANES
+type SubscriptionPlan = "basic" | "premium" | "grupal" | null;
+
+// ✅ TIPOS DE ESTADO DE SUSCRIPCIÓN
+type SubscriptionStatus = "active" | "cancelled" | "expired" | null;
+
+// ✅ Interfaz para los datos de Firestore (ACTUALIZADA)
 interface FirestoreUserData {
   uid: string;
   email: string;
-  role?: string;
+  role: UserRole;
   name?: string;
   lastName?: string;
   country?: string;
@@ -54,11 +73,20 @@ interface FirestoreUserData {
   showOnboardingModal: boolean;
   createdAt: Date | string;
   updatedAt?: Date | string;
+
+  // ✅ NUEVOS CAMPOS PARA SUSCRIPCIONES
+  subscriptionPlan?: SubscriptionPlan;
+  subscriptionStatus?: SubscriptionStatus;
+  subscriptionStartDate?: Date | string | null;
+  subscriptionEndDate?: Date | string | null;
+  previousSubscription?: SubscriptionPlan;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
 }
 
-// Tipo extendido que combina User de Firebase con datos de Firestore
+// ✅ Tipo extendido que combina User de Firebase con datos de Firestore (ACTUALIZADO)
 interface ExtendedUser extends User {
-  role?: string;
+  role: UserRole;
   name?: string;
   lastName?: string;
   country?: string;
@@ -71,8 +99,18 @@ interface ExtendedUser extends User {
   showOnboardingModal?: boolean;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+
+  // ✅ CAMPOS DE SUSCRIPCIÓN
+  subscriptionPlan?: SubscriptionPlan;
+  subscriptionStatus?: SubscriptionStatus;
+  subscriptionStartDate?: Date | string | null;
+  subscriptionEndDate?: Date | string | null;
+  previousSubscription?: SubscriptionPlan;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
 }
 
+// ✅ AuthContextType (ACTUALIZADO)
 interface AuthContextType {
   user: ExtendedUser | null;
   setUser: Dispatch<SetStateAction<ExtendedUser | null>>;
@@ -99,7 +137,15 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<string>;
   updateAuthEmail: (newEmail: string) => Promise<void>;
   debugUserToken: () => Promise<void>;
-  updateUserRole: (uid: string, newRole: string) => Promise<void>;
+  updateUserRole: (uid: string, newRole: UserRole) => Promise<void>;
+
+  // ✅ NUEVAS FUNCIONES PARA SUSCRIPCIONES
+  activateSubscription: (
+    plan: SubscriptionPlan,
+    stripeSubscriptionId?: string
+  ) => Promise<void>;
+  cancelSubscription: () => Promise<void>;
+  checkAndUpdateExpiredSubscriptions: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -127,6 +173,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
 
+  // ✅ FUNCIÓN AUXILIAR: Calcular rol desde roleUtils
+  const { calculateUserRole } = require("../utils/roleUtils");
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
@@ -141,33 +190,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return;
           }
 
-          // Forzar la renovación del token con un pequeño retraso
           await new Promise((resolve) => setTimeout(resolve, 1000));
           const idTokenResult = await updatedUser.getIdTokenResult(true);
 
-          // Validar que el campo 'role' en el token sea un string
-          const tokenRole = idTokenResult.claims.role;
-          const role = typeof tokenRole === "string" ? tokenRole : "visitor";
-
-          // Cargar datos del usuario desde Firestore
           const userDocRef = doc(db, "users", updatedUser.uid);
           const userDocSnapshot = await getDoc(userDocRef);
 
           if (!userDocSnapshot.exists()) {
+            // ✅ NUEVO USUARIO: Crear con role "visitor"
+            const initialRole: UserRole = "visitor";
+
             await setDoc(userDocRef, {
               uid: updatedUser.uid,
               email: updatedUser.email,
               userName: generateDefaultUserName(updatedUser.email || ""),
-              role: role,
+              role: initialRole,
               profileCompleted: false,
               emailVerified: updatedUser.emailVerified,
               showOnboardingModal: true,
               createdAt: new Date(),
+              // ✅ Campos de suscripción inicializados
+              subscriptionPlan: null,
+              subscriptionStatus: null,
+              subscriptionStartDate: null,
+              subscriptionEndDate: null,
+              previousSubscription: null,
+              stripeCustomerId: null,
+              stripeSubscriptionId: null,
             });
 
             const newExtendedUser: ExtendedUser = {
               ...updatedUser,
-              role: role,
+              role: initialRole,
               profileCompleted: false,
               showOnboardingModal: true,
             };
@@ -175,28 +229,61 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           } else {
             const userData = userDocSnapshot.data() as FirestoreUserData;
 
+            // ✅ CALCULAR ROL CORRECTO
+            const calculatedRole = calculateUserRole({
+              emailVerified: updatedUser.emailVerified,
+              profileCompleted: userData.profileCompleted,
+              subscriptionPlan: userData.subscriptionPlan,
+              subscriptionStatus: userData.subscriptionStatus,
+              subscriptionEndDate: userData.subscriptionEndDate,
+              previousSubscription: userData.previousSubscription,
+            });
+
+            // ✅ ACTUALIZAR ROL SI CAMBIÓ
+            if (userData.role !== calculatedRole) {
+              await updateDoc(userDocRef, {
+                role: calculatedRole,
+                updatedAt: new Date(),
+              });
+
+              // Actualizar custom claim
+              await fetch("/api/setUserRole", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  uid: updatedUser.uid,
+                  role: calculatedRole,
+                }),
+              });
+            }
+
             // Actualizar emailVerified si cambió
             if (userData.emailVerified !== updatedUser.emailVerified) {
+              const newRole = calculateUserRole({
+                emailVerified: updatedUser.emailVerified,
+                profileCompleted: userData.profileCompleted,
+                subscriptionPlan: userData.subscriptionPlan,
+                subscriptionStatus: userData.subscriptionStatus,
+                subscriptionEndDate: userData.subscriptionEndDate,
+                previousSubscription: userData.previousSubscription,
+              });
+
               await updateDoc(userDocRef, {
                 emailVerified: updatedUser.emailVerified,
+                role: newRole,
                 updatedAt: new Date(),
               });
             }
 
-            // Validar que el campo 'role' en Firestore sea un string
-            const firestoreRole = userData.role;
-            const finalRole =
-              typeof firestoreRole === "string" ? firestoreRole : role;
-
             const extendedUser: ExtendedUser = {
               ...updatedUser,
               ...userData,
-              role: finalRole,
+              role: calculatedRole,
             };
 
-            // Agregar logs para depuración
             console.log("Usuario autenticado:", updatedUser);
             console.log("Datos de usuario desde Firestore:", userData);
+            console.log("Rol calculado:", calculatedRole);
 
             setUser(extendedUser);
           }
@@ -246,7 +333,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para registrar un nuevo usuario
+  // ✅ Función para registrar un nuevo usuario (ACTUALIZADA)
   const registerUser = async (email: string, password: string) => {
     try {
       // Crear usuario en Firebase Authentication
@@ -257,7 +344,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       );
       const user = userCredential.user;
 
-      // Esperar a que el usuario esté completamente autenticado
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Generar un nombre de usuario predeterminado
@@ -281,25 +367,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Enviar correo de verificación
       await sendEmailVerification(user);
 
+      // ✅ NUEVO: role inicial es "visitor" (email no verificado)
+      const initialRole: UserRole = "visitor";
+
       // Guardar datos del usuario en Firestore
       const userDocRef = doc(db, "users", user.uid);
       await setDoc(userDocRef, {
         uid: user.uid,
         email: user.email,
         userName: defaultUserName,
-        role: "registered",
+        role: initialRole,
         profileCompleted: false,
         emailVerified: false,
         showOnboardingModal: true,
         createdAt: new Date(),
+        // ✅ Campos de suscripción inicializados
+        subscriptionPlan: null,
+        subscriptionStatus: null,
+        subscriptionStartDate: null,
+        subscriptionEndDate: null,
+        previousSubscription: null,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
       });
 
-      // Asignar el rol 'registered' como Custom Claim
+      // Asignar el rol como Custom Claim
       await fetch("/api/setUserRole", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: user.uid, role: "registered" }),
+        body: JSON.stringify({ uid: user.uid, role: initialRole }),
       });
+
+      console.log(`✅ Usuario registrado con role: ${initialRole}`);
 
       // Mostrar modal de verificación de correo
       setIsVerifyEmailModalOpen(true);
@@ -336,7 +435,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email = identifier.toLowerCase().trim();
         console.log("📧 Login con email:", email);
 
-        // ✅ VERIFICAR MÉTODOS CUANDO ES EMAIL DIRECTO (CON MANEJO MEJORADO)
         console.log("🔍 Verificando métodos de autenticación para email...");
         const authInstance = getAuth();
         try {
@@ -346,39 +444,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           );
           console.log("📋 Métodos disponibles:", authMethods);
 
-          // ✅ SOLO VALIDAR SI HAY MÉTODOS RETORNADOS
           if (authMethods.length > 0) {
-            // Si solo tiene Google, informar al usuario
             if (authMethods.length === 1 && authMethods[0] === "google.com") {
               throw new Error(
                 "Este usuario se registró con Google. Por favor, usa 'Iniciar sesión con Google'."
               );
             }
 
-            // Si no tiene método de contraseña pero tiene otros métodos
             if (!authMethods.includes("password") && authMethods.length > 0) {
               throw new Error(
                 "Este usuario no tiene contraseña configurada. Si te registraste con tu cuenta de Google, intenta usa 'Iniciar sesión con Google'."
               );
             }
           } else {
-            // ✅ CASO: authMethods.length === 0
-            // Esto puede ocurrir por configuraciones de Firebase
-            // Permitir que continúe y deje que signInWithEmailAndPassword maneje la validación
             console.log(
               "⚠️ No se pudieron obtener los métodos de autenticación. Continuando con el login..."
             );
           }
         } catch (authError: any) {
           console.error("Error al verificar métodos:", authError);
-          // Si el error ya tiene un mensaje específico sobre Google, relanzarlo
           if (
             authError.message?.includes("Google") ||
             authError.message?.includes("contraseña configurada")
           ) {
             throw authError;
           }
-          // ✅ Para otros errores (incluyendo problemas de red), continuar con el login
           console.log(
             "⚠️ Error al verificar métodos, pero continuando con autenticación..."
           );
@@ -412,7 +502,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email = result.data.email;
         userUid = result.data.uid;
 
-        // VERIFICAR MÉTODOS DE AUTENTICACIÓN DESDE EL API
         if (!result.data.canUsePassword) {
           const methods = result.data.authMethods || [];
           if (methods.includes("google.com")) {
@@ -462,14 +551,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         );
       }
 
+      // ✅ CALCULAR ROL CORRECTO AL INICIAR SESIÓN
+      const calculatedRole = calculateUserRole({
+        emailVerified: user.emailVerified,
+        profileCompleted: userData.profileCompleted,
+        subscriptionPlan: userData.subscriptionPlan,
+        subscriptionStatus: userData.subscriptionStatus,
+        subscriptionEndDate: userData.subscriptionEndDate,
+        previousSubscription: userData.previousSubscription,
+      });
+
+      // ✅ ACTUALIZAR ROL SI ES DIFERENTE
+      if (userData.role !== calculatedRole) {
+        console.log(
+          `🔄 Actualizando role de "${userData.role}" a "${calculatedRole}"`
+        );
+        await updateDoc(userDocRef, {
+          role: calculatedRole,
+          updatedAt: new Date(),
+        });
+
+        // Actualizar custom claim
+        await fetch("/api/setUserRole", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            uid: finalUid,
+            role: calculatedRole,
+          }),
+        });
+      }
+
       // 4. Crear usuario extendido
       const extendedUser: ExtendedUser = {
         ...user,
         ...userData,
+        role: calculatedRole,
       };
       setUser(extendedUser);
 
-      console.log("✅ Login completado exitosamente");
+      console.log("✅ Login completado exitosamente con role:", calculatedRole);
 
       // 5. Cerrar modal y mostrar siguiente según estado
       setIsLoginModalOpen(false);
@@ -486,7 +607,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error("❌ Error en login:", error);
 
-      // Si ya es un error personalizado con mensaje específico, relanzarlo
       if (
         error.message?.includes("Google") ||
         error.message?.includes("contraseña configurada")
@@ -494,7 +614,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw error;
       }
 
-      // Manejo de errores de Firebase Auth
       switch (error.code) {
         case "auth/wrong-password":
         case "auth/invalid-credential":
@@ -517,7 +636,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para iniciar sesión con Google - VERSIÓN MEJORADA
+  // ✅ Función para iniciar sesión con Google (ACTUALIZADA)
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, providerGoogle);
@@ -527,14 +646,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (!userDocSnapshot.exists()) {
-        // Crear documento completo con todos los campos requeridos
+        // ✅ NUEVO USUARIO GOOGLE: role "registered" (email verificado automáticamente)
+        const initialRole: UserRole = "registered";
+
         await setDoc(userDocRef, {
           uid: user.uid,
           email: user.email,
           name: user.displayName || "Usuario",
           userName: generateDefaultUserName(user.email || ""),
-          role: "registered",
-          profileCompleted: false, // IMPORTANTE: Dejar como false para completar registro
+          role: initialRole,
+          profileCompleted: false,
           emailVerified: true,
           showOnboardingModal: true,
           createdAt: new Date(),
@@ -544,25 +665,61 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           country: "",
           roles: [],
           interests: [],
+          // ✅ Campos de suscripción inicializados
+          subscriptionPlan: null,
+          subscriptionStatus: null,
+          subscriptionStartDate: null,
+          subscriptionEndDate: null,
+          previousSubscription: null,
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
         });
 
         await fetch("/api/setUserRole", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uid: user.uid, role: "registered" }),
+          body: JSON.stringify({ uid: user.uid, role: initialRole }),
         });
 
-        console.log("✅ Nuevo usuario Google creado en Firestore");
-      } else {
-        // Si el usuario ya existe, actualizar datos si es necesario
-        const userData = userDocSnapshot.data();
-        console.log("✅ Usuario Google ya existe en Firestore:", userData);
+        console.log(`✅ Nuevo usuario Google creado con role: ${initialRole}`);
       }
 
       const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
+
+      // ✅ CALCULAR ROL CORRECTO
+      const calculatedRole = calculateUserRole({
+        emailVerified: true, // Google siempre verifica email
+        profileCompleted: userData.profileCompleted,
+        subscriptionPlan: userData.subscriptionPlan,
+        subscriptionStatus: userData.subscriptionStatus,
+        subscriptionEndDate: userData.subscriptionEndDate,
+        previousSubscription: userData.previousSubscription,
+      });
+
+      // ✅ ACTUALIZAR ROL SI ES DIFERENTE
+      if (userData.role !== calculatedRole) {
+        console.log(
+          `🔄 Actualizando role de "${userData.role}" a "${calculatedRole}"`
+        );
+        await updateDoc(userDocRef, {
+          role: calculatedRole,
+          updatedAt: new Date(),
+        });
+
+        await fetch("/api/setUserRole", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            uid: user.uid,
+            role: calculatedRole,
+          }),
+        });
+      }
+
       const extendedUser: ExtendedUser = {
         ...user,
         ...userData,
+        role: calculatedRole,
       };
 
       setUser(extendedUser);
@@ -664,8 +821,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para actualizar el rol del usuario
-  const updateUserRole = async (uid: string, newRole: string) => {
+  // ✅ Función para actualizar el rol del usuario (ACTUALIZADA)
+  const updateUserRole = async (uid: string, newRole: UserRole) => {
     try {
       const userDocRef = doc(db, "users", uid);
       await updateDoc(userDocRef, {
@@ -673,15 +830,239 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         updatedAt: new Date().toISOString(),
       });
 
+      // Actualizar custom claim
+      await fetch("/api/setUserRole", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid, role: newRole }),
+      });
+
       setUser((prevUser) => {
         if (!prevUser) return null;
         return { ...prevUser, role: newRole };
       });
+
+      console.log(`✅ Rol actualizado a: ${newRole}`);
     } catch (error) {
       console.error("Error al actualizar el rol del usuario:", error);
       alert("Ocurrió un error al actualizar el rol del usuario.");
     }
   };
+
+  // ✅ ========== NUEVAS FUNCIONES PARA SUSCRIPCIONES ==========
+
+  /**
+   * Activa una suscripción para el usuario actual
+   */
+  const activateSubscription = async (
+    plan: SubscriptionPlan,
+    stripeSubscriptionId?: string
+  ) => {
+    if (!user) {
+      throw new Error("Usuario no autenticado");
+    }
+
+    if (!plan) {
+      throw new Error("Plan de suscripción no especificado");
+    }
+
+    try {
+      console.log(`🎯 Activando suscripción ${plan} para usuario ${user.uid}`);
+
+      const userDocRef = doc(db, "users", user.uid);
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 1); // Suscripción de 1 mes
+
+      const updateData: any = {
+        subscriptionPlan: plan,
+        subscriptionStatus: "active" as SubscriptionStatus,
+        subscriptionStartDate: startDate.toISOString(),
+        subscriptionEndDate: endDate.toISOString(),
+        previousSubscription: null,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (stripeSubscriptionId) {
+        updateData.stripeSubscriptionId = stripeSubscriptionId;
+      }
+
+      await updateDoc(userDocRef, updateData);
+
+      // ✅ CALCULAR Y ACTUALIZAR ROL
+      const newRole = calculateUserRole({
+        emailVerified: user.emailVerified ?? true,
+        profileCompleted: user.profileCompleted ?? true,
+        subscriptionPlan: plan,
+        subscriptionStatus: "active",
+        subscriptionEndDate: endDate.toISOString(),
+        previousSubscription: null,
+      });
+
+      await updateDoc(userDocRef, {
+        role: newRole,
+      });
+
+      // Actualizar custom claim
+      await fetch("/api/setUserRole", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: user.uid, role: newRole }),
+      });
+
+      // Actualizar estado local
+      setUser((prevUser) => {
+        if (!prevUser) return null;
+        return {
+          ...prevUser,
+          subscriptionPlan: plan,
+          subscriptionStatus: "active",
+          subscriptionStartDate: startDate.toISOString(),
+          subscriptionEndDate: endDate.toISOString(),
+          stripeSubscriptionId: stripeSubscriptionId || null,
+          role: newRole,
+        };
+      });
+
+      console.log(`✅ Suscripción ${plan} activada. Nuevo role: ${newRole}`);
+      alert(`¡Suscripción ${plan} activada exitosamente!`);
+    } catch (error: any) {
+      console.error("Error al activar suscripción:", error);
+      throw new Error(`Error al activar suscripción: ${error.message}`);
+    }
+  };
+
+  /**
+   * Cancela la suscripción actual del usuario
+   */
+  const cancelSubscription = async () => {
+    if (!user) {
+      throw new Error("Usuario no autenticado");
+    }
+
+    if (!user.subscriptionPlan || user.subscriptionStatus !== "active") {
+      throw new Error("No hay suscripción activa para cancelar");
+    }
+
+    try {
+      console.log(`🚫 Cancelando suscripción para usuario ${user.uid}`);
+
+      const userDocRef = doc(db, "users", user.uid);
+      const previousPlan = user.subscriptionPlan;
+
+      await updateDoc(userDocRef, {
+        subscriptionStatus: "cancelled" as SubscriptionStatus,
+        previousSubscription: previousPlan,
+        updatedAt: new Date().toISOString(),
+      });
+
+      // ✅ CALCULAR Y ACTUALIZAR ROL
+      const newRole = calculateUserRole({
+        emailVerified: user.emailVerified ?? true,
+        profileCompleted: user.profileCompleted ?? true,
+        subscriptionPlan: previousPlan,
+        subscriptionStatus: "cancelled",
+        subscriptionEndDate: user.subscriptionEndDate,
+        previousSubscription: previousPlan,
+      });
+
+      await updateDoc(userDocRef, {
+        role: newRole,
+      });
+
+      // Actualizar custom claim
+      await fetch("/api/setUserRole", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uid: user.uid, role: newRole }),
+      });
+
+      // Actualizar estado local
+      setUser((prevUser) => {
+        if (!prevUser) return null;
+        return {
+          ...prevUser,
+          subscriptionStatus: "cancelled",
+          previousSubscription: previousPlan,
+          role: newRole,
+        };
+      });
+
+      console.log(`✅ Suscripción cancelada. Nuevo role: ${newRole}`);
+      alert("Suscripción cancelada exitosamente.");
+    } catch (error: any) {
+      console.error("Error al cancelar suscripción:", error);
+      throw new Error(`Error al cancelar suscripción: ${error.message}`);
+    }
+  };
+
+  /**
+   * Verifica y actualiza suscripciones expiradas
+   * Debe ejecutarse periódicamente o al iniciar sesión
+   */
+  const checkAndUpdateExpiredSubscriptions = async () => {
+    if (!user) return;
+
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+
+      if (!userDocSnapshot.exists()) return;
+
+      const userData = userDocSnapshot.data() as FirestoreUserData;
+
+      // Verificar si la suscripción está expirada
+      if (
+        userData.subscriptionEndDate &&
+        new Date(userData.subscriptionEndDate) < new Date() &&
+        userData.subscriptionStatus === "active"
+      ) {
+        console.log("⏰ Suscripción expirada detectada");
+
+        await updateDoc(userDocRef, {
+          subscriptionStatus: "expired" as SubscriptionStatus,
+          updatedAt: new Date().toISOString(),
+        });
+
+        // ✅ CALCULAR Y ACTUALIZAR ROL
+        const newRole: UserRole = "expired";
+
+        await updateDoc(userDocRef, {
+          role: newRole,
+        });
+
+        // Actualizar custom claim
+        await fetch("/api/setUserRole", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uid: user.uid, role: newRole }),
+        });
+
+        // Actualizar estado local
+        setUser((prevUser) => {
+          if (!prevUser) return null;
+          return {
+            ...prevUser,
+            subscriptionStatus: "expired",
+            role: newRole,
+          };
+        });
+
+        console.log(
+          `✅ Suscripción marcada como expirada. Nuevo role: ${newRole}`
+        );
+      }
+    } catch (error) {
+      console.error("Error al verificar suscripciones expiradas:", error);
+    }
+  };
+
+  // ✅ EJECUTAR VERIFICACIÓN AL CARGAR EL USUARIO
+  useEffect(() => {
+    if (user) {
+      checkAndUpdateExpiredSubscriptions();
+    }
+  }, [user?.uid]);
 
   return (
     <AuthContext.Provider
@@ -712,6 +1093,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         updateAuthEmail,
         debugUserToken,
         updateUserRole,
+        // ✅ NUEVAS FUNCIONES DE SUSCRIPCIONES
+        activateSubscription,
+        cancelSubscription,
+        checkAndUpdateExpiredSubscriptions,
       }}
     >
       {!loading && children}
