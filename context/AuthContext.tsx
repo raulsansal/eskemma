@@ -34,6 +34,7 @@ import {
   limit,
 } from "firebase/firestore";
 import { auth, db, providerGoogle } from "../firebase/firebaseConfig";
+import { isUserNameAvailable } from "../utils/userUtils";
 
 // Interfaz para los datos de Firestore
 interface FirestoreUserData {
@@ -248,12 +249,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Función para registrar un nuevo usuario
   const registerUser = async (email: string, password: string) => {
     try {
+      // Crear usuario en Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
       const user = userCredential.user;
+
+      // Esperar a que el usuario esté completamente autenticado
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Generar un nombre de usuario predeterminado
+      let defaultUserName = generateDefaultUserName(user.email || "");
+
+      // Verificar si el nombre de usuario está disponible
+      let isAvailable = await isUserNameAvailable(defaultUserName);
+
+      if (!isAvailable) {
+        let counter = 1;
+        let alternativeUserName = `${defaultUserName}${counter}`;
+
+        while (!(await isUserNameAvailable(alternativeUserName))) {
+          counter++;
+          alternativeUserName = `${defaultUserName}${counter}`;
+        }
+
+        defaultUserName = alternativeUserName;
+      }
 
       // Enviar correo de verificación
       await sendEmailVerification(user);
@@ -263,7 +286,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await setDoc(userDocRef, {
         uid: user.uid,
         email: user.email,
-        userName: generateDefaultUserName(user.email || ""),
+        userName: defaultUserName,
         role: "registered",
         profileCompleted: false,
         emailVerified: false,
@@ -283,14 +306,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsSignInModalOpen(false);
     } catch (error: any) {
       console.error("Error al registrar usuario:", error.message);
+
       if (error.code === "auth/email-already-in-use") {
-        alert("Este correo ya está registrado. Intenta iniciar sesión.");
+        alert(
+          "Este correo electrónico ya está registrado. Intenta iniciar sesión."
+        );
         setIsSignInModalOpen(false);
         setIsLoginModalOpen(true);
       } else if (error.code === "auth/weak-password") {
-        alert("La contraseña es demasiado débil. Usa al menos 6 caracteres.");
+        alert("La contraseña debe tener al menos 6 caracteres.");
+      } else if (error.code === "permission-denied") {
+        alert("Error de configuración. Contacta al administrador.");
       } else {
-        alert("Ocurrió un error al registrar usuario. Inténtalo de nuevo.");
+        alert("Ocurrió un error inesperado. Inténtalo de nuevo más tarde.");
       }
     }
   };

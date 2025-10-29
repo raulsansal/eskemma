@@ -26,6 +26,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validar que el UID sea un string no vacío
+    if (typeof uid !== "string" || uid.trim() === "") {
+      console.error("El valor del UID no es válido:", { uid });
+      return NextResponse.json(
+        { error: "El valor del UID no es válido. Debe ser un string no vacío." },
+        { status: 400 }
+      );
+    }
+
     // Asignar el Custom Claim usando Firebase Admin SDK
     await adminAuth.setCustomUserClaims(uid, { role });
 

@@ -2,14 +2,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Importar useRouter
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { uploadAvatar } from "../../firebase/storageUtils";
 import { saveUserData } from "../../firebase/firestoreUtils";
 import Button from "../components/Button";
 import ConfirmEditProfileModal from "../components/componentsHome/ConfirmEditProfileModal";
 import ConfirmAvatarChange from "../components/componentsHome/ConfirmAvatarChange";
-import ConfirmPasswordChange from "../components/componentsHome/ConfirmPasswordChange"; // Importar el nuevo modal
+import ConfirmPasswordChange from "../components/componentsHome/ConfirmPasswordChange";
 import countries from "../data/countries.json";
 import {
   updatePassword,
@@ -19,9 +19,11 @@ import {
 import { auth } from "../../firebase/firebaseConfig";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
+import { isUserNameAvailable } from "../../utils/userUtils";
+import { generateAlternativeUserName } from "@/utils/generateAlternativeUserName";
 
 const ProfilePage = () => {
-  const router = useRouter(); // Inicializar useRouter
+  const router = useRouter();
   const { user, setUser, updateAuthEmail } = useAuth();
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -33,7 +35,7 @@ const ProfilePage = () => {
   // Redirigir al home si no hay usuario autenticado
   useEffect(() => {
     if (!user) {
-      router.push("/"); // Redirigir a la página de inicio
+      router.push("/");
     }
   }, [user, router]);
 
@@ -52,6 +54,9 @@ const ProfilePage = () => {
     (country) => !preferredCountries.includes(country)
   );
   const sortedCountries = [...preferredCountries, ...allCountries];
+  const [isUserNameValid, setIsUserNameValid] = useState(true);
+  const [userNameError, setUserNameError] = useState("");
+  const [suggestionMessage, setSuggestionMessage] = useState("");
 
   // Lista de intereses
   const interestsList = [
@@ -127,13 +132,86 @@ const ProfilePage = () => {
     }
   }, [user]);
 
-  const handleInputChange = (
+  // ✅ NUEVA FUNCIÓN: Manejar cancelación
+  const handleCancel = () => {
+    // Confirmar si el usuario desea descartar cambios
+    const hasChanges =
+      formData.name !== user?.name ||
+      formData.lastName !== user?.lastName ||
+      formData.userName !== user?.userName ||
+      formData.sex !== user?.sex ||
+      formData.country !== user?.country ||
+      formData.email !== user?.email ||
+      JSON.stringify(formData.roles) !== JSON.stringify(user?.roles) ||
+      JSON.stringify(formData.interests) !== JSON.stringify(user?.interests);
+
+    if (hasChanges) {
+      const confirmDiscard = window.confirm(
+        "¿Estás seguro de que deseas descartar los cambios? Todos los cambios no guardados se perderán."
+      );
+      
+      if (!confirmDiscard) {
+        return; // El usuario decidió no descartar los cambios
+      }
+    }
+
+    // Redirigir al home
+    router.push("/");
+  };
+
+  const handleInputChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    if (name === "userName") {
+      const isValidChars = /^[a-zA-ZñÑüÜçÇ\s]*$/.test(value);
+      if (!isValidChars) {
+        setUserNameError("Solo se permiten letras, espacios, ñ, ü, ç.");
+        setIsUserNameValid(false);
+        return;
+      }
+
+      setFormData((prev) => ({ ...prev, [name]: value.toLowerCase() }));
+
+      if (
+        value.trim().length > 0 &&
+        value.toLowerCase() !== user?.userName?.toLowerCase()
+      ) {
+        try {
+          const available = await isUserNameAvailable(value.toLowerCase());
+          setIsUserNameValid(available);
+
+          if (!available) {
+            const alternativeUserName = await generateAlternativeUserName(
+              value.toLowerCase()
+            );
+            setFormData((prev) => ({ ...prev, userName: alternativeUserName }));
+            setUserNameError("Este nombre de usuario ya está en uso.");
+            setSuggestionMessage(
+              `Se ha sugerido "${alternativeUserName}" como alternativa.`
+            );
+          } else {
+            setUserNameError("");
+            setSuggestionMessage("");
+          }
+        } catch (error) {
+          console.error("Error al verificar el nombre de usuario:", error);
+          setUserNameError(
+            "Ocurrió un error al verificar el nombre de usuario."
+          );
+          setIsUserNameValid(false);
+        }
+      } else {
+        setIsUserNameValid(true);
+        setUserNameError("");
+        setSuggestionMessage("");
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      if (errors[name]) {
+        setErrors((prev) => ({ ...prev, [name]: "" }));
+      }
     }
   };
 
@@ -180,7 +258,10 @@ const ProfilePage = () => {
 
     try {
       const usersRef = collection(db, "users");
-      const q = query(usersRef, where("userName", "==", userName.toLowerCase()));
+      const q = query(
+        usersRef,
+        where("userName", "==", userName.toLowerCase())
+      );
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
@@ -283,7 +364,7 @@ const ProfilePage = () => {
     try {
       const downloadURL = await uploadAvatar(file, user.uid);
       setFormData((prev) => ({ ...prev, avatarUrl: downloadURL }));
-      setIsAvatarConfirmationOpen(true); // Mostrar el modal en lugar del alert
+      setIsAvatarConfirmationOpen(true);
     } catch (error) {
       console.error("Error al subir el avatar:", error);
       alert("Ocurrió un error al subir tu avatar.");
@@ -317,7 +398,7 @@ const ProfilePage = () => {
         confirmPassword: "",
       });
       setShowPasswordSection(false);
-      setIsPasswordConfirmationOpen(true); // Mostrar el modal en lugar del alert
+      setIsPasswordConfirmationOpen(true);
     } catch (error: any) {
       console.error("Error al cambiar contraseña:", error);
 
@@ -514,11 +595,14 @@ const ProfilePage = () => {
             value={formData.userName}
             onChange={handleInputChange}
             className={`w-full px-4 py-2 border ${
-              errors.userName ? "border-red-500" : "border-gray-300"
+              !isUserNameValid ? "border-red-500" : "border-gray-300"
             } rounded-md focus:outline-none focus:border-bluegreen-eske`}
           />
-          {errors.userName && (
-            <p className="text-red-500 text-sm mt-1">{errors.userName}</p>
+          {!isUserNameValid && (
+            <p className="text-red-500 text-sm mt-1">{userNameError}</p>
+          )}
+          {suggestionMessage && (
+            <p className="text-blue-500 text-sm mt-1">{suggestionMessage}</p>
           )}
         </div>
 
@@ -776,8 +860,14 @@ const ProfilePage = () => {
         )}
       </div>
 
-      {/* Botón Guardar Cambios */}
-      <div className="flex justify-center">
+      {/* ✅ BOTONES: Guardar Cambios y Cancelar */}
+      <div className="flex justify-center gap-4">
+        <Button
+          label="Cancelar"
+          variant="secondary"
+          onClick={handleCancel}
+          disabled={isSaving || isUploadingAvatar}
+        />
         <Button
           label={isSaving ? "Guardando..." : "Guardar Cambios"}
           variant="primary"

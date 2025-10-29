@@ -5,6 +5,8 @@ import { useAuth } from "../../../context/AuthContext";
 import { saveUserData } from "../../../firebase/firestoreUtils";
 import { auth } from "../../../firebase/firebaseConfig";
 import countries from "../../../app/data/countries.json";
+import { isUserNameAvailable, } from "../../../utils/userUtils"; // Importar la función
+import { generateAlternativeUserName } from "../../../utils/generateAlternativeUserName";
 
 interface RegisterFormData {
   name: string;
@@ -37,6 +39,9 @@ export default function RegisterModal({
     userName: "",
   });
   const [userNameEdited, setUserNameEdited] = useState(false);
+  const [isUserNameValid, setIsUserNameValid] = useState(true); // Estado para validar disponibilidad
+  const [userNameError, setUserNameError] = useState(""); // Estado para mensajes de error
+  const [suggestionMessage, setSuggestionMessage] = useState(""); // Estado para el mensaje de sugerencia
 
   const {
     user,
@@ -86,8 +91,8 @@ export default function RegisterModal({
     "Storytelling",
     "Técnicas de Análisis Político",
   ];
-
-  const handleChange = (
+  
+  const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
@@ -101,13 +106,33 @@ export default function RegisterModal({
       }
 
       if (name === "name") {
+        const baseUserName = value.toLowerCase().replace(/\s+/g, "");
+
+        // Verificar si el userName está disponible
+        const available = await isUserNameAvailable(baseUserName);
+
+        // Si no está disponible, generar una alternativa
+        const finalUserName = available
+          ? baseUserName
+          : await generateAlternativeUserName(baseUserName);
+
+        // Actualizar el estado con el userName validado
         setFormData((prev) => ({
           ...prev,
           name: value,
-          userName: userNameEdited
-            ? prev.userName
-            : value.toLowerCase().replace(/\s+/g, ""),
+          userName: finalUserName,
         }));
+
+        // Mostrar mensaje si se sugirió una alternativa
+        if (!available) {
+          setSuggestionMessage(
+            `El nombre de usuario "${baseUserName}" no está disponible. Se ha sugerido "${finalUserName}".`
+          );
+        } else {
+          setSuggestionMessage(""); // Limpiar el mensaje si el userName es válido
+        }
+
+        setUserNameEdited(!available); // Marcar como editado si se sugirió una alternativa
         return;
       }
 
@@ -118,12 +143,49 @@ export default function RegisterModal({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUserNameChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { value } = e.target;
+
+    // Validar caracteres permitidos
     const isValid = /^[a-zA-ZñÑüÜçÇ\s]*$/.test(value);
-    if (isValid) {
-      setFormData((prev) => ({ ...prev, userName: value.toLowerCase() }));
-      setUserNameEdited(true);
+    if (!isValid) {
+      setUserNameError("Solo se permiten letras, espacios, ñ, ü, ç.");
+      setIsUserNameValid(false);
+      return;
+    }
+
+    // Actualizar el valor del userName
+    setFormData((prev) => ({ ...prev, userName: value.toLowerCase() }));
+    setUserNameEdited(true);
+
+    // Validar disponibilidad
+    if (value.trim().length > 0) {
+      try {
+        const available = await isUserNameAvailable(value.toLowerCase());
+        setIsUserNameValid(available);
+
+        if (!available) {
+          // Si el userName no está disponible, sugerir una alternativa
+          const alternativeUserName = await generateAlternativeUserName(
+            value.toLowerCase()
+          );
+          setFormData((prev) => ({ ...prev, userName: alternativeUserName }));
+          setUserNameError(
+            "Este nombre de usuario ya está en uso. Se ha sugerido una alternativa."
+          );
+        } else {
+          setUserNameError("");
+        }
+      } catch (error) {
+        console.error("Error al verificar el nombre de usuario:", error);
+        setUserNameError("Ocurrió un error al verificar el nombre de usuario.");
+        setIsUserNameValid(false);
+      }
+    } else {
+      setIsUserNameValid(true);
+      setUserNameError("");
     }
   };
 
@@ -149,6 +211,12 @@ export default function RegisterModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validar el userName antes de continuar
+    if (!isUserNameValid) {
+      alert("Por favor, corrige el nombre de usuario antes de continuar.");
+      return;
+    }
 
     if (!user) {
       alert("No se detectó un usuario autenticado. Por favor, inicia sesión.");
@@ -325,8 +393,16 @@ export default function RegisterModal({
               value={formData.userName}
               onChange={handleUserNameChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              className={`w-full px-3 py-2 border ${
+                !isUserNameValid ? "border-red-500" : "border-gray-300"
+              } rounded focus:outline-none focus:border-blue-eske`}
             />
+            {!isUserNameValid && (
+              <p className="text-red-500 text-sm mt-1">{userNameError}</p>
+            )}
+            {suggestionMessage && (
+              <p className="text-blue-500 text-sm mt-1">{suggestionMessage}</p>
+            )}
           </div>
 
           <div>
