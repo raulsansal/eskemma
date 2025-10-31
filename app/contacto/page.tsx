@@ -213,7 +213,7 @@ export default function ContactoPage() {
             {/* Item 1 */}
             <div className="flex flex-col items-center text-center">
               <img
-                src="/icons/esk_sym_csm.svg"
+                src="/icons/icon_Consultoria.svg"
                 alt="Consultoría Política"
                 width={60}
                 height={60}
@@ -230,7 +230,7 @@ export default function ContactoPage() {
             {/* Item 2 */}
             <div className="flex flex-col items-center text-center">
               <img
-                src="/icons/esk_sym_csm.svg"
+                src="/icons/icon_Info.svg"
                 alt="Pedir Información"
                 width={60}
                 height={60}
@@ -247,7 +247,7 @@ export default function ContactoPage() {
             {/* Item 3 */}
             <div className="flex flex-col items-center text-center">
               <img
-                src="/icons/esk_sym_csm.svg"
+                src="/icons/icon_Blog.svg"
                 alt="Publicar en el Blog"
                 width={60}
                 height={60}
