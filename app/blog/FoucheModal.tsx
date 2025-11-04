@@ -1,10 +1,8 @@
-// app/blog/FoucheModalClient.tsx
+// app/blog/FoucheModal.tsx
 "use client";
-import { useState } from "react";
 import Image from "next/image";
 
-// Componente del Modal
-function FoucheModal({
+export default function FoucheModal({
   isOpen,
   onClose,
 }: {
@@ -15,7 +13,8 @@ function FoucheModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
       onClick={onClose}
     >
       <div
@@ -71,7 +70,7 @@ function FoucheModal({
 
           <p className="text-[16px]">
             Su capacidad para adaptarse a diferentes regímenes políticos —desde
-            el jacobinismo radical hasta el Imperio de Napoleón, y luego la
+            el jacobinismo radical hasta el Imperio de Napoleón, y luego en la
             Restauración borbónica— lo convirtió en una figura fascinante y
             controvertida de la historia europea.
           </p>
@@ -90,13 +89,12 @@ function FoucheModal({
             </h3>
             <p className="text-[15px] text-gray-eske-90">
               Nuestro blog toma su nombre del legendario{" "}
-              <strong>"baúl de Fouché"</strong>, una metáfora de los archivos
+              <strong>"Joseph Fouché"</strong>, una metáfora de los archivos
               secretos que este político mantenía sobre sus aliados y enemigos.
               Al igual que Fouché recopilaba información valiosa sobre la
               política de su tiempo, este espacio busca analizar, documentar y
-              compartir conocimientos profundos sobre la política
-              contemporánea, las estrategias electorales y los fenómenos
-              sociales que moldean nuestro mundo.
+              compartir conocimientos sobre estrategias políticas, gerencia electoral y los fenómenos
+              sociales que moldean el espacio político contemporáneo.
             </p>
           </div>
 
@@ -116,46 +114,5 @@ function FoucheModal({
         </div>
       </div>
     </div>
-  );
-}
-
-// ✅ Componente clickeable + modal
-export default function FoucheImageWithModal() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  return (
-    <>
-      {/* ✅ IMAGEN CLICKEABLE - EXACTAMENTE IGUAL QUE EN CONTACTO */}
-      <div className="hidden md:block md:w-1/2 relative h-full">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="relative w-full h-full cursor-pointer transition-transform duration-300 hover:scale-105 focus:outline-none"
-          aria-label="Conocer más sobre Joseph Fouché"
-        >
-          <Image
-            src="/images/fouche.jpg"
-            alt="Joseph Fouché - Click para conocer más"
-            fill
-            style={{
-              objectFit: "contain",
-              objectPosition: "center",
-            }}
-            priority
-          />
-          {/* Indicador visual de que es clickeable */}
-          <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-            <span className="opacity-0 hover:opacity-100 transition-opacity duration-300 bg-white-eske text-bluegreen-eske px-4 py-2 rounded-lg font-semibold text-sm shadow-lg">
-              ℹ️ Click para conocer más
-            </span>
-          </div>
-        </button>
-      </div>
-
-      {/* Modal */}
-      <FoucheModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
-    </>
   );
 }

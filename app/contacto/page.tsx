@@ -177,7 +177,7 @@ export default function ContactoPage() {
           {/* Imagen de Persona Sonriendo (Izquierda) - Solo en desktop */}
           <div className="hidden md:block md:w-1/2 relative h-full">
             <Image
-              src="/images/woman_calling_contact_2.jpg"
+              src="/images/womanContact.jpg"
               alt="Persona Sonriendo"
               fill
               style={{
