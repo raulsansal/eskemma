@@ -11,7 +11,7 @@ import { getPostData as serverGetPostData } from './server/posts.server';
 import { updatePost as serverUpdatePost } from './server/posts.server';
 
 // Importar la interfaz PostData
-import { PostData } from '@/lib/types';
+import { PostData } from '@/types/post.types';
 
 // Exportar las funciones del servidor
 export function getSortedPostsData() {
