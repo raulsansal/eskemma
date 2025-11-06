@@ -6,7 +6,14 @@ import { collection, addDoc, doc, updateDoc, getDocs, query, orderBy, where, get
 export async function GET() {
   try {
     const postsRef = collection(db, 'posts');
-    const q = query(postsRef, orderBy('date', 'desc')); // Ordenar por fecha descendente
+    
+    // ✅ Filtrar solo posts publicados y ordenar por fecha descendente
+    const q = query(
+      postsRef,
+      where('status', '==', 'published'),
+      orderBy('date', 'desc')
+    );
+    
     const querySnapshot = await getDocs(q);
 
     const posts = querySnapshot.docs.map((doc) => ({

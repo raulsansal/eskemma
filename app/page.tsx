@@ -1,12 +1,12 @@
 // app/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 
 import Image from 'next/image';
-import blogPosts from './data/blogPosts';
+import { BlogPost } from '@/types/post.types';
 import Button from './components/Button';
 import PropAnimation from './components/componentsHome/PropAnimation';
 import TeamModal from './components/componentsHome/TeamModal';
@@ -27,6 +27,11 @@ export default function HomePage() {
     email: '',
     dateTime: '',
   });
+  
+  // ✅ AGREGAR: Estado para los posts del blog
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+  
   // Estados para controlar la visibilidad de los modales de planes de suscripción
   const [isBasicSuscriptionModalOpen, setIsBasicSuscriptionModalOpen] =
     useState(false);
@@ -37,18 +42,50 @@ export default function HomePage() {
   const [isResponseSuscriptionModalOpen, setIsResponseSuscriptionModalOpen] =
     useState(false);
 
-  const { user  } = useAuth();
+  const { user } = useAuth();
 
-  // Valor predeterminado estático para userName
-  // Este valor será reemplazado por el nombre del usuario autenticado en el futuro
-  const userName = 'Usuario'; // Puedes cambiar esto a un valor dinámico cuando tengas el backend listo
+  const userName = 'Usuario';
+
+  // ✅ AGREGAR: useEffect para cargar los posts
+  useEffect(() => {
+    async function loadBlogPosts() {
+      try {
+        const response = await fetch('/api/posts');
+        if (!response.ok) throw new Error('Error al cargar posts');
+        
+        const posts = await response.json();
+        
+        // Filtrar solo posts publicados y tomar los primeros 3
+        const publishedPosts = posts
+          .filter((post: any) => post.status === 'published')
+          .slice(0, 3)
+          .map((post: any) => ({
+            id: post.id,
+            title: post.title,
+            slug: post.slug,
+            content: post.content,
+            featureImage: post.featureImage,
+            updatedAt: post.updatedAt ? new Date(post.updatedAt) : new Date(),
+            author: post.author,
+            status: post.status,
+          }));
+        
+        setBlogPosts(publishedPosts);
+      } catch (error) {
+        console.error('Error al cargar posts del blog:', error);
+      } finally {
+        setLoadingPosts(false);
+      }
+    }
+
+    loadBlogPosts();
+  }, []);
 
   return (
     <main className="min-h-screen overflow-x-hidden w-full">
 
       {/* Hero Section */}
       <section className="relative min-h-[650px] max-sm:min-h-[50vh] w-full flex items-center justify-center overflow-hidden bg-bluegreen-eske">
-        {/* Imagen de fondo */}
         <Image
           src="/images/hero2.webp"
           alt="Hero Background"
@@ -57,11 +94,7 @@ export default function HomePage() {
           className="object-cover max-sm:object-contain"
           priority
         />
-
-        {/* Overlay con opacidad */}
         <div className="absolute inset-0 bg-bluegreen-eske opacity-20"></div>
-
-        {/* Contenido del Hero */}
         <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full">
           <h1 className="text-[48px] max-sm:text-2xl leading-tight font-bold">
             Consultoría política
@@ -78,50 +111,72 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Blog Section */}
+      {/* Blog Section - ✅ REEMPLAZAR ESTA SECCIÓN COMPLETA */}
       <section className="bg-gray-eske-10 min-h-[580px] py-12 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          {/* Título de la Sección */}
           <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-12">
             Hoy en Eskemma
           </h2>
 
-          {/* Contenedor de Artículos */}
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.map((post) => (
-              <div
-                key={post.id}
-                className="flex flex-col items-center text-center"
-              >
-                {/* Imagen del Artículo */}
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  width={350} // Ancho fijo para imágenes responsivas
-                  height={200} // Altura fija para mantener proporción
-                  className="w-full h-auto object-cover rounded-lg mb-4"
-                />
-
-                {/* Título del Artículo */}
-                <h3 className="text-xl text-bluegreen-eske-60 font-light mb-2">
-                  {post.title}
-                </h3>
-
-                {/* Resumen del Artículo */}
-                <p className="text-[16px] font-light text-gray mb-4">
-                  {post.excerpt}
-                </p>
-
-                {/* Enlace "Leer completo" */}
-                <a
-                  href={post.link}
-                  className="text-blue-eske hover:text-blue-eske-70 font-medium text-[14px]"
+          {loadingPosts ? (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-eske-60">Cargando posts...</p>
+            </div>
+          ) : blogPosts.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-eske-60">No hay posts disponibles</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {blogPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="flex flex-col items-center text-center bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6"
                 >
-                  Leer completo
-                </a>
-              </div>
-            ))}
-          </div>
+                  {/* Imagen del Post */}
+                  {post.featureImage && (
+                    <img
+                      src={post.featureImage}
+                      alt={post.title}
+                      className="w-full h-48 object-cover rounded-lg mb-4"
+                    />
+                  )}
+
+                  {/* Título del Post */}
+                  <h3 className="text-xl text-bluegreen-eske-60 font-semibold mb-2 hover:text-bluegreen-eske transition-colors duration-300">
+                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                  </h3>
+
+                  {/* Resumen del Post */}
+                  <p className="text-[16px] font-light text-gray-eske-90 mb-4 line-clamp-3">
+                    {post.content.substring(0, 160)}...
+                  </p>
+
+                  {/* Fecha y Autor */}
+                  <div className="flex justify-between w-full text-sm text-gray-700 mb-4 px-2">
+                    <small className="text-gray-eske-60">
+                      {post.updatedAt.toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </small>
+                    <small className="text-bluegreen-eske font-medium">
+                      {post.author?.displayName || 'Desconocido'}
+                    </small>
+                  </div>
+
+                  {/* Enlace "Leer completo" */}
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
+                  >
+                    Leer completo →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

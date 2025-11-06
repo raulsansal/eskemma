@@ -1,13 +1,12 @@
 // types/post.types.ts
-
 export interface BasePostData {
   title: string;
-  date?: Date; // Opcional: permite drafts sin fecha definida
+  date?: Date;
   content: string;
   tags?: string[];
   status: "draft" | "published";
   featureImage?: string;
-  slug: string; // Obligatorio: necesario para generar URLs
+  slug: string;
   metaTitle?: string;
   metaDescription?: string;
   keywords?: string[];
@@ -20,8 +19,24 @@ export interface PostData extends BasePostData {
     displayName: string;
     email: string;
   };
-  likes: number; // Obligatorio: valor predeterminado 0
-  views: number; // Obligatorio: valor predeterminado 0
+  likes: number;
+  views: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// ✅ AGREGAR ESTA INTERFAZ para la página principal
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  featureImage?: string;
+  updatedAt: Date;
+  author?: {
+    uid: string;
+    displayName: string;
+    email: string;
+  };
+  status: string;
 }

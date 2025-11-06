@@ -1,7 +1,7 @@
 // app/blog/[slug]/page.tsx
 import { getPostData } from "@/lib/posts";
 import SanitizedContent from "../../components/componentsBlog/SanitizedContent";
-import { PostData } from "@/lib/types";
+import { PostData } from "@/types/post.types";
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
