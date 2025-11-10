@@ -48,7 +48,7 @@ type UserRole =
   | "unsubscribed-premium"
   | "unsubscribed-grupal"
   | "expired"
-  | "admin";   
+  | "admin";
 
 // ✅ TIPOS DE PLANES
 type SubscriptionPlan = "basic" | "premium" | "grupal" | null;
@@ -210,7 +210,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               emailVerified: updatedUser.emailVerified,
               showOnboardingModal: true,
               createdAt: new Date(),
-              // ✅ Campos de suscripción inicializados
               subscriptionPlan: null,
               subscriptionStatus: null,
               subscriptionStartDate: null,
@@ -230,37 +229,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           } else {
             const userData = userDocSnapshot.data() as FirestoreUserData;
 
-            // ✅ CALCULAR ROL CORRECTO
-            const calculatedRole = calculateUserRole({
-              emailVerified: updatedUser.emailVerified,
-              profileCompleted: userData.profileCompleted,
-              subscriptionPlan: userData.subscriptionPlan,
-              subscriptionStatus: userData.subscriptionStatus,
-              subscriptionEndDate: userData.subscriptionEndDate,
-              previousSubscription: userData.previousSubscription,
-            });
+            // ✅ SI EL USUARIO ES ADMIN, NO RECALCULAR EL ROL
+            if (userData.role === "admin") {
+              console.log("🔒 Usuario es admin, manteniendo rol");
 
-            // ✅ ACTUALIZAR ROL SI CAMBIÓ
-            if (userData.role !== calculatedRole) {
-              await updateDoc(userDocRef, {
-                role: calculatedRole,
-                updatedAt: new Date(),
-              });
+              const extendedUser: ExtendedUser = {
+                ...updatedUser,
+                ...userData,
+                role: "admin",
+              };
 
-              // Actualizar custom claim
-              await fetch("/api/setUserRole", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  uid: updatedUser.uid,
-                  role: calculatedRole,
-                }),
-              });
-            }
+              console.log("Usuario autenticado:", updatedUser);
+              console.log("Datos de usuario desde Firestore:", userData);
+              console.log("Rol: admin (protegido)");
 
-            // Actualizar emailVerified si cambió
-            if (userData.emailVerified !== updatedUser.emailVerified) {
-              const newRole = calculateUserRole({
+              setUser(extendedUser);
+            } else {
+              // ✅ CALCULAR ROL SOLO SI NO ES ADMIN
+              const calculatedRole = calculateUserRole({
                 emailVerified: updatedUser.emailVerified,
                 profileCompleted: userData.profileCompleted,
                 subscriptionPlan: userData.subscriptionPlan,
@@ -269,24 +255,53 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 previousSubscription: userData.previousSubscription,
               });
 
-              await updateDoc(userDocRef, {
-                emailVerified: updatedUser.emailVerified,
-                role: newRole,
-                updatedAt: new Date(),
-              });
+              // ✅ ACTUALIZAR ROL SI CAMBIÓ
+              if (userData.role !== calculatedRole) {
+                await updateDoc(userDocRef, {
+                  role: calculatedRole,
+                  updatedAt: new Date(),
+                });
+
+                await fetch("/api/setUserRole", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    uid: updatedUser.uid,
+                    role: calculatedRole,
+                  }),
+                });
+              }
+
+              // Actualizar emailVerified si cambió
+              if (userData.emailVerified !== updatedUser.emailVerified) {
+                const newRole = calculateUserRole({
+                  emailVerified: updatedUser.emailVerified,
+                  profileCompleted: userData.profileCompleted,
+                  subscriptionPlan: userData.subscriptionPlan,
+                  subscriptionStatus: userData.subscriptionStatus,
+                  subscriptionEndDate: userData.subscriptionEndDate,
+                  previousSubscription: userData.previousSubscription,
+                });
+
+                await updateDoc(userDocRef, {
+                  emailVerified: updatedUser.emailVerified,
+                  role: newRole,
+                  updatedAt: new Date(),
+                });
+              }
+
+              const extendedUser: ExtendedUser = {
+                ...updatedUser,
+                ...userData,
+                role: calculatedRole,
+              };
+
+              console.log("Usuario autenticado:", updatedUser);
+              console.log("Datos de usuario desde Firestore:", userData);
+              console.log("Rol calculado:", calculatedRole);
+
+              setUser(extendedUser);
             }
-
-            const extendedUser: ExtendedUser = {
-              ...updatedUser,
-              ...userData,
-              role: calculatedRole,
-            };
-
-            console.log("Usuario autenticado:", updatedUser);
-            console.log("Datos de usuario desde Firestore:", userData);
-            console.log("Rol calculado:", calculatedRole);
-
-            setUser(extendedUser);
           }
 
           if (updatedUser.emailVerified) {
@@ -337,7 +352,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // ✅ Función para registrar un nuevo usuario (ACTUALIZADA)
   const registerUser = async (email: string, password: string) => {
     try {
-      // Crear usuario en Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -347,10 +361,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Generar un nombre de usuario predeterminado
       let defaultUserName = generateDefaultUserName(user.email || "");
-
-      // Verificar si el nombre de usuario está disponible
       let isAvailable = await isUserNameAvailable(defaultUserName);
 
       if (!isAvailable) {
@@ -365,13 +376,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         defaultUserName = alternativeUserName;
       }
 
-      // Enviar correo de verificación
       await sendEmailVerification(user);
 
-      // ✅ NUEVO: role inicial es "visitor" (email no verificado)
       const initialRole: UserRole = "visitor";
 
-      // Guardar datos del usuario en Firestore
       const userDocRef = doc(db, "users", user.uid);
       await setDoc(userDocRef, {
         uid: user.uid,
@@ -382,7 +390,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         emailVerified: false,
         showOnboardingModal: true,
         createdAt: new Date(),
-        // ✅ Campos de suscripción inicializados
         subscriptionPlan: null,
         subscriptionStatus: null,
         subscriptionStartDate: null,
@@ -392,7 +399,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         stripeSubscriptionId: null,
       });
 
-      // Asignar el rol como Custom Claim
       await fetch("/api/setUserRole", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -401,7 +407,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log(`✅ Usuario registrado con role: ${initialRole}`);
 
-      // Mostrar modal de verificación de correo
       setIsVerifyEmailModalOpen(true);
       setIsSignInModalOpen(false);
     } catch (error: any) {
@@ -431,7 +436,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log("🔐 Iniciando proceso de login con:", identifier);
 
-      // 1. Determinar si es email o userName
       if (identifier.includes("@")) {
         email = identifier.toLowerCase().trim();
         console.log("📧 Login con email:", email);
@@ -518,7 +522,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("✅ Usuario encontrado via API:", { email, uid: userUid });
       }
 
-      // 2. Autenticar con Firebase Auth
       console.log("🔥 Autenticando con Firebase Auth...");
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -527,7 +530,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       );
       const user = userCredential.user;
 
-      // 3. Obtener datos desde Firestore usando el UID correcto
       const finalUid = userUid || user.uid;
       console.log("📄 Obteniendo datos de Firestore para UID:", finalUid);
 
@@ -545,14 +547,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const userData = userDocSnapshot.data() as FirestoreUserData;
       console.log("✅ Datos de Firestore obtenidos:", userData);
 
-      // Verificar email verificado
       if (!userData.emailVerified && !user.emailVerified) {
         throw new Error(
           "Por favor, verifica tu correo electrónico antes de iniciar sesión."
         );
       }
 
-      // ✅ CALCULAR ROL CORRECTO AL INICIAR SESIÓN
+      // ✅ SI EL USUARIO ES ADMIN, NO RECALCULAR EL ROL
+      if (userData.role === "admin") {
+        console.log("🔒 Usuario es admin, manteniendo rol");
+
+        const extendedUser: ExtendedUser = {
+          ...user,
+          ...userData,
+          role: "admin",
+        };
+        setUser(extendedUser);
+
+        console.log("✅ Login completado exitosamente con role: admin");
+
+        setIsLoginModalOpen(false);
+
+        if (!extendedUser.profileCompleted) {
+          console.log("📝 Mostrando modal de completar registro");
+          setIsCompleteRegisterModalOpen(true);
+        } else if (extendedUser.showOnboardingModal) {
+          console.log("🎯 Mostrando modal de onboarding");
+          setIsOnboardingModalOpen(true);
+        }
+
+        return extendedUser;
+      }
+
+      // ✅ CALCULAR ROL SOLO SI NO ES ADMIN
       const calculatedRole = calculateUserRole({
         emailVerified: user.emailVerified,
         profileCompleted: userData.profileCompleted,
@@ -562,7 +589,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         previousSubscription: userData.previousSubscription,
       });
 
-      // ✅ ACTUALIZAR ROL SI ES DIFERENTE
       if (userData.role !== calculatedRole) {
         console.log(
           `🔄 Actualizando role de "${userData.role}" a "${calculatedRole}"`
@@ -572,7 +598,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           updatedAt: new Date(),
         });
 
-        // Actualizar custom claim
         await fetch("/api/setUserRole", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -583,7 +608,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
       }
 
-      // 4. Crear usuario extendido
       const extendedUser: ExtendedUser = {
         ...user,
         ...userData,
@@ -593,7 +617,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log("✅ Login completado exitosamente con role:", calculatedRole);
 
-      // 5. Cerrar modal y mostrar siguiente según estado
       setIsLoginModalOpen(false);
 
       if (!extendedUser.profileCompleted) {
@@ -647,7 +670,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (!userDocSnapshot.exists()) {
-        // ✅ NUEVO USUARIO GOOGLE: role "registered" (email verificado automáticamente)
         const initialRole: UserRole = "registered";
 
         await setDoc(userDocRef, {
@@ -660,13 +682,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           emailVerified: true,
           showOnboardingModal: true,
           createdAt: new Date(),
-          // Campos requeridos para el formulario de registro completo
           lastName: "",
           sex: "",
           country: "",
           roles: [],
           interests: [],
-          // ✅ Campos de suscripción inicializados
           subscriptionPlan: null,
           subscriptionStatus: null,
           subscriptionStartDate: null,
@@ -687,9 +707,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
 
-      // ✅ CALCULAR ROL CORRECTO
+      // ✅ SI EL USUARIO ES ADMIN, NO RECALCULAR EL ROL
+      if (userData.role === "admin") {
+        console.log("🔒 Usuario es admin, manteniendo rol");
+
+        const extendedUser: ExtendedUser = {
+          ...user,
+          ...userData,
+          role: "admin",
+        };
+
+        setUser(extendedUser);
+        setIsLoginModalOpen(false);
+
+        if (!userData.profileCompleted) {
+          console.log(
+            "📝 Mostrando modal de completar registro para usuario Google"
+          );
+          setIsCompleteRegisterModalOpen(true);
+        } else if (userData.showOnboardingModal) {
+          console.log("🎯 Mostrando onboarding para usuario Google");
+          setIsOnboardingModalOpen(true);
+        }
+
+        return;
+      }
+
+      // ✅ CALCULAR ROL SOLO SI NO ES ADMIN
       const calculatedRole = calculateUserRole({
-        emailVerified: true, // Google siempre verifica email
+        emailVerified: true,
         profileCompleted: userData.profileCompleted,
         subscriptionPlan: userData.subscriptionPlan,
         subscriptionStatus: userData.subscriptionStatus,
@@ -697,7 +743,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         previousSubscription: userData.previousSubscription,
       });
 
-      // ✅ ACTUALIZAR ROL SI ES DIFERENTE
       if (userData.role !== calculatedRole) {
         console.log(
           `🔄 Actualizando role de "${userData.role}" a "${calculatedRole}"`
@@ -726,7 +771,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(extendedUser);
       setIsLoginModalOpen(false);
 
-      // Mostrar modales según el estado del usuario
       if (!userData.profileCompleted) {
         console.log(
           "📝 Mostrando modal de completar registro para usuario Google"
@@ -831,7 +875,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         updatedAt: new Date().toISOString(),
       });
 
-      // Actualizar custom claim
       await fetch("/api/setUserRole", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -867,13 +910,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error("Plan de suscripción no especificado");
     }
 
+    // ✅ NO MODIFICAR ROL SI ES ADMIN
+    if (user.role === "admin") {
+      console.log("🔒 Usuario admin detectado, no se modificará el rol");
+      return;
+    }
+
     try {
       console.log(`🎯 Activando suscripción ${plan} para usuario ${user.uid}`);
 
       const userDocRef = doc(db, "users", user.uid);
       const startDate = new Date();
       const endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + 1); // Suscripción de 1 mes
+      endDate.setMonth(endDate.getMonth() + 1);
 
       const updateData: any = {
         subscriptionPlan: plan,
@@ -890,7 +939,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       await updateDoc(userDocRef, updateData);
 
-      // ✅ CALCULAR Y ACTUALIZAR ROL
       const newRole = calculateUserRole({
         emailVerified: user.emailVerified ?? true,
         profileCompleted: user.profileCompleted ?? true,
@@ -904,14 +952,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         role: newRole,
       });
 
-      // Actualizar custom claim
       await fetch("/api/setUserRole", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uid: user.uid, role: newRole }),
       });
 
-      // Actualizar estado local
       setUser((prevUser) => {
         if (!prevUser) return null;
         return {
@@ -945,6 +991,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error("No hay suscripción activa para cancelar");
     }
 
+    // ✅ NO MODIFICAR ROL SI ES ADMIN
+    if (user.role === "admin") {
+      console.log("🔒 Usuario admin detectado, no se modificará el rol");
+      return;
+    }
+
     try {
       console.log(`🚫 Cancelando suscripción para usuario ${user.uid}`);
 
@@ -957,7 +1009,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         updatedAt: new Date().toISOString(),
       });
 
-      // ✅ CALCULAR Y ACTUALIZAR ROL
       const newRole = calculateUserRole({
         emailVerified: user.emailVerified ?? true,
         profileCompleted: user.profileCompleted ?? true,
@@ -971,14 +1022,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         role: newRole,
       });
 
-      // Actualizar custom claim
       await fetch("/api/setUserRole", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uid: user.uid, role: newRole }),
       });
 
-      // Actualizar estado local
       setUser((prevUser) => {
         if (!prevUser) return null;
         return {
@@ -1004,6 +1053,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkAndUpdateExpiredSubscriptions = async () => {
     if (!user) return;
 
+    // ✅ NO MODIFICAR ROL SI ES ADMIN
+    if (user.role === "admin") {
+      console.log(
+        "🔒 Usuario admin detectado, omitiendo verificación de expiración"
+      );
+      return;
+    }
+
     try {
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
@@ -1012,7 +1069,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const userData = userDocSnapshot.data() as FirestoreUserData;
 
-      // Verificar si la suscripción está expirada
       if (
         userData.subscriptionEndDate &&
         new Date(userData.subscriptionEndDate) < new Date() &&
@@ -1025,21 +1081,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           updatedAt: new Date().toISOString(),
         });
 
-        // ✅ CALCULAR Y ACTUALIZAR ROL
         const newRole: UserRole = "expired";
 
         await updateDoc(userDocRef, {
           role: newRole,
         });
 
-        // Actualizar custom claim
         await fetch("/api/setUserRole", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ uid: user.uid, role: newRole }),
         });
 
-        // Actualizar estado local
         setUser((prevUser) => {
           if (!prevUser) return null;
           return {
@@ -1094,7 +1147,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         updateAuthEmail,
         debugUserToken,
         updateUserRole,
-        // ✅ NUEVAS FUNCIONES DE SUSCRIPCIONES
         activateSubscription,
         cancelSubscription,
         checkAndUpdateExpiredSubscriptions,

@@ -3,6 +3,7 @@ export interface BasePostData {
   title: string;
   date?: Date;
   content: string;
+  category: string;
   tags?: string[];
   status: "draft" | "published";
   featureImage?: string;

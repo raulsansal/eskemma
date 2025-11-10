@@ -1,22 +1,6 @@
 // app/api/auth/find-user/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-
-const apps = getApps();
-if (!apps.length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
-
-const adminDb = getFirestore();
-const adminAuth = getAuth();
+import { adminDb, adminAuth } from '@/lib/firebase-admin'; // ← CAMBIAR IMPORT
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,8 +39,6 @@ export async function POST(request: NextRequest) {
 
     const userDoc = snapshot.docs[0];
     const userData = userDoc.data();
-
-    // ✅ OBTENER UID DEL DOCUMENTO
     const uid = userDoc.id;
 
     if (!userData.email) {
@@ -79,11 +61,10 @@ export async function POST(request: NextRequest) {
       console.error('Error al obtener métodos de autenticación:', error);
     }
 
-    // ✅ DEVOLVER UID EN LA RESPUESTA
     return NextResponse.json({
       success: true,
       data: {
-        uid: uid, // ← AGREGAR ESTO
+        uid: uid,
         email: userData.email,
         emailVerified: userData.emailVerified || false,
         profileCompleted: userData.profileCompleted || false,

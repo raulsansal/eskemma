@@ -1,20 +1,24 @@
+//app/blog/admin/blog/edit/[id]/page.ts
+
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import * as React from "react"; // Importar React explícitamente para usar React.use()
+import * as React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getPostData, updatePost, createPost } from "@/lib/client/posts.client";
 import { uploadFeaturedImage, uploadSecondaryImage } from "@/firebase/storageUtils";
-import { PostData } from "@/types/post.types"; // Importar la interfaz centralizada
+import { PostData } from "@/types/post.types";
+import { CATEGORIES } from "@/lib/constants/categories"; // ✅ Importar categorías
 
 // Interfaces para los datos
 interface BasePostData {
   title: string;
   date: Date;
   content: string;
-  tags?: string[]; // Tags opcionales (valor predeterminado: [])
+  category: string; // ✅ NUEVO
+  tags?: string[];
   status: "draft" | "published";
-  featureImage?: string; // Imagen destacada (opcional)
+  featureImage?: string;
   slug: string;
   metaTitle?: string;
   metaDescription?: string;
@@ -22,16 +26,17 @@ interface BasePostData {
 }
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params); // Usar React.use() para desempaquetar params
+  const { id } = React.use(params);
 
   // Estados locales
   const [formData, setFormData] = useState<BasePostData>({
     title: "",
     date: new Date(),
     content: "",
-    tags: [], // Valor predeterminado: array vacío
+    category: "tactica", // ✅ Valor por defecto
+    tags: [],
     status: "draft",
-    featureImage: "", // Inicializar como cadena vacía
+    featureImage: "",
     slug: "",
     metaTitle: "",
     metaDescription: "",
@@ -57,7 +62,8 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
           setFormData({
             ...postData,
-            tags: postData.tags || [], // Asignar valor predeterminado si tags no está presente
+            category: postData.category || "tactica", // ✅ Asegurar categoría
+            tags: postData.tags || [],
             date: postData.date ? new Date(postData.date) : new Date(),
           });
         } catch (error) {
@@ -74,7 +80,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   }, [id]);
 
   // Manejar cambios en el formulario
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
 
     if (name === "title") {
@@ -91,7 +99,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   // Manejar cambios en los tags
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const tags = e.target.value.split(",").map((tag) => tag.trim());
-    setFormData((prev) => ({ ...prev, tags: tags || [] })); // Asegurar que tags sea un array
+    setFormData((prev) => ({ ...prev, tags: tags || [] }));
+  };
+
+  // Manejar cambios en keywords
+  const handleKeywordsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const keywords = e.target.value.split(",").map((keyword) => keyword.trim());
+    setFormData((prev) => ({ ...prev, keywords: keywords || [] }));
   };
 
   // Manejar la subida de la imagen destacada
@@ -130,8 +144,8 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       alert("Debes iniciar sesión para guardar posts");
       return;
     }
-    if (!formData.title || !formData.content || !formData.slug) {
-      alert("Por favor, completa todos los campos obligatorios.");
+    if (!formData.title || !formData.content || !formData.slug || !formData.category) {
+      alert("Por favor, completa todos los campos obligatorios (título, contenido, slug y categoría).");
       return;
     }
     try {
@@ -140,23 +154,27 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         title: formData.title,
         content: formData.content,
         slug: formData.slug,
+        category: formData.category, // ✅ Incluir categoría
         status: formData.status,
         author: {
           uid: user.uid,
           displayName: user.displayName || "Admin",
           email: user.email || "",
         },
-        date: formData.date.toISOString(), // Convertir Date a string antes de enviarlo
+        date: formData.date.toISOString(),
         featureImage: formData.featureImage || undefined,
-        tags: formData.tags || [], // Asegurar que tags sea un array
+        tags: formData.tags || [],
+        metaTitle: formData.metaTitle || formData.title,
+        metaDescription: formData.metaDescription || "",
+        keywords: formData.keywords || [],
       };
       if (id === "new") {
         await createPost(postBaseData);
       } else {
         await updatePost(id, {
           ...postBaseData,
-          likes: 0, // Valor por defecto
-          views: 0, // Valor por defecto
+          likes: 0,
+          views: 0,
         });
       }
       alert("Post guardado exitosamente.");
@@ -184,7 +202,6 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     }
   };
 
-  // Mostrar loading mientras se resuelven los params o se cargan los datos
   if (loading) {
     return <div>Cargando...</div>;
   }
@@ -213,7 +230,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       <form onSubmit={(e) => e.preventDefault()}>
         {/* Título */}
         <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Título:</label>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Título: <span style={{ color: "red" }}>*</span>
+          </label>
           <input
             type="text"
             name="title"
@@ -227,6 +246,31 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               border: "1px solid #ddd",
             }}
           />
+        </div>
+
+        {/* ✅ NUEVO: Categoría */}
+        <div style={{ marginBottom: "15px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Categoría: <span style={{ color: "red" }}>*</span>
+          </label>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
+            }}
+          >
+            {CATEGORIES.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Fecha */}
@@ -254,7 +298,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
         {/* Contenido */}
         <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Contenido:</label>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Contenido: <span style={{ color: "red" }}>*</span>
+          </label>
           <textarea
             name="content"
             value={formData.content}
@@ -272,14 +318,77 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
         {/* Tags */}
         <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Tags:</label>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Tags (separados por comas):
+          </label>
           <input
             type="text"
             name="tags"
             value={formData.tags?.join(", ") || ""}
             onChange={handleTagsChange}
+            placeholder="Ej: mensaje, storytelling, compol"
             style={{
               width: "100%",
+              padding: "8px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
+            }}
+          />
+        </div>
+
+        {/* ✅ NUEVO: Keywords (palabras clave para SEO) */}
+        <div style={{ marginBottom: "15px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Palabras clave (separadas por comas):
+          </label>
+          <input
+            type="text"
+            name="keywords"
+            value={formData.keywords?.join(", ") || ""}
+            onChange={handleKeywordsChange}
+            placeholder="Ej: política, estrategia, campaña"
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
+            }}
+          />
+        </div>
+
+        {/* Meta Title */}
+        <div style={{ marginBottom: "15px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Meta Title (SEO):
+          </label>
+          <input
+            type="text"
+            name="metaTitle"
+            value={formData.metaTitle}
+            onChange={handleChange}
+            placeholder="Título para SEO (opcional, por defecto usa el título del post)"
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
+            }}
+          />
+        </div>
+
+        {/* Meta Description */}
+        <div style={{ marginBottom: "15px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>
+            Meta Description (SEO):
+          </label>
+          <textarea
+            name="metaDescription"
+            value={formData.metaDescription}
+            onChange={handleChange}
+            placeholder="Descripción para SEO (opcional, max 160 caracteres)"
+            style={{
+              width: "100%",
+              height: "60px",
               padding: "8px",
               marginTop: "5px",
               border: "1px solid #ddd",
@@ -330,6 +439,25 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               border: "1px solid #ddd",
             }}
           />
+        </div>
+
+        {/* Estado (Draft/Published) */}
+        <div style={{ marginBottom: "15px" }}>
+          <label style={{ display: "block", marginBottom: "5px" }}>Estado:</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginTop: "5px",
+              border: "1px solid #ddd",
+            }}
+          >
+            <option value="draft">Borrador</option>
+            <option value="published">Publicado</option>
+          </select>
         </div>
 
         {/* Botones */}

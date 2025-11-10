@@ -8,9 +8,10 @@ interface CreatePostData {
   title: string;
   content: string;
   slug: string;
+  category: string; // ✅ AGREGAR
   status: 'draft' | 'published';
   author: { uid: string; displayName: string; email: string };
-  featureImage?: string; // Campo opcional para la imagen destacada
+  featureImage?: string;
   tags?: string[];
   date?: string;
   metaTitle?: string;
@@ -30,13 +31,14 @@ interface PostData {
   title: string;
   content: string;
   slug: string;
+  category: string; // ✅ AGREGAR
   status: 'draft' | 'published';
   author: {
     uid: string;
     displayName: string;
     email: string;
   };
-  featureImage?: string; // Campo opcional para la imagen destacada
+  featureImage?: string;
   tags: string[];
   date: Date;
   createdAt: Date;
@@ -56,6 +58,7 @@ export async function createPost(newPostData: CreatePostData) {
 
     await setDoc(newPostRef, {
       ...newPostData,
+      category: newPostData.category || 'tactica', // ✅ Asegurar categoría
       likes: 0,
       views: 0,
       createdAt: new Date(),
@@ -77,9 +80,10 @@ export async function updatePost(postId: string, updatedPostData: UpdatePostData
     const postRef = doc(db, "posts", postId);
     await updateDoc(postRef, {
       ...updatedPostData,
+      category: updatedPostData.category || 'tactica', // ✅ Asegurar categoría
       updatedAt: new Date(),
       date: updatedPostData.date ? new Date(updatedPostData.date) : new Date(),
-      featureImage: updatedPostData.featureImage || null, // Incluir featureImage si está presente
+      featureImage: updatedPostData.featureImage || null,
     });
   } catch (error) {
     console.error('Error al actualizar el post:', error);
@@ -121,17 +125,18 @@ export async function getPostData(postId: string): Promise<PostData | null> {
       title: data.title || "Sin título",
       content: data.content || "",
       slug: data.slug || "",
+      category: data.category || "tactica", // ✅ AGREGAR con valor por defecto
       status: data.status || "draft",
       author: data.author || {
         uid: "",
         displayName: "Desconocido",
         email: "",
       },
-      featureImage: data.featureImage || undefined, // Incluir featureImage si está presente
+      featureImage: data.featureImage || undefined,
       tags: data.tags || [],
-      date: data.date ? data.date.toDate() : new Date(), // Convertir Timestamp a Date
-      createdAt: data.createdAt ? data.createdAt.toDate() : new Date(), // Convertir Timestamp a Date
-      updatedAt: data.updatedAt ? data.updatedAt.toDate() : new Date(), // Convertir Timestamp a Date
+      date: data.date ? data.date.toDate() : new Date(),
+      createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
+      updatedAt: data.updatedAt ? data.updatedAt.toDate() : new Date(),
       likes: data.likes || 0,
       views: data.views || 0,
       metaTitle: data.metaTitle || data.title || "Sin título",
@@ -159,17 +164,18 @@ export async function getPosts(): Promise<PostData[]> {
         title: data.title || "Sin título",
         content: data.content || "",
         slug: data.slug || "",
+        category: data.category || "tactica", // ✅ AGREGAR con valor por defecto
         status: data.status || "draft",
         author: data.author || {
           uid: "",
           displayName: "Desconocido",
           email: "",
         },
-        featureImage: data.featureImage || undefined, // Incluir featureImage si está presente
+        featureImage: data.featureImage || undefined,
         tags: data.tags || [],
-        date: data.date ? data.date.toDate() : new Date(), // Convertir Timestamp a Date
-        createdAt: data.createdAt ? data.createdAt.toDate() : new Date(), // Convertir Timestamp a Date
-        updatedAt: data.updatedAt ? data.updatedAt.toDate() : new Date(), // Convertir Timestamp a Date
+        date: data.date ? data.date.toDate() : new Date(),
+        createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
+        updatedAt: data.updatedAt ? data.updatedAt.toDate() : new Date(),
         likes: data.likes || 0,
         views: data.views || 0,
         metaTitle: data.metaTitle || data.title || "Sin título",

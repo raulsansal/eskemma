@@ -41,6 +41,7 @@ export async function getPostData(slug: string): Promise<PostData | null> {
         ? postData.updatedAt
         : new Date(),
       content: postData.content || '',
+      category: postData.category || '', // ✅ AGREGAR categoría con valor por defecto
       tags: postData.tags || [],
       status: postData.status || 'draft',
       featureImage: postData.featureImage || undefined,
@@ -50,8 +51,8 @@ export async function getPostData(slug: string): Promise<PostData | null> {
         displayName: 'Desconocido',
         email: 'correo@desconocido.com',
       },
-      likes: postData.likes || 0, // Valor por defecto
-      views: postData.views || 0, // Valor por defecto
+      likes: postData.likes || 0,
+      views: postData.views || 0,
       createdAt: postData.createdAt instanceof Date && !isNaN(postData.createdAt.getTime())
         ? postData.createdAt
         : new Date(),
