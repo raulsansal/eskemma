@@ -24,20 +24,18 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const validatedPostData: PostData = {
     id: postData.id || "",
     title: postData.title || "Sin título",
-    date: postData.updatedAt instanceof Date && !isNaN(postData.updatedAt.getTime())
-      ? postData.updatedAt
-      : new Date(),
     content: postData.content || "",
+    category: postData.category || "General", // ✅ AGREGADO - resuelve el warning
     featureImage: postData.featureImage || undefined,
-    slug: postData.slug || "", // Asegurarse de que siempre haya un slug
+    slug: postData.slug || "",
     status: postData.status || "draft",
     author: postData.author || {
       uid: "",
       displayName: "Desconocido",
       email: "correo@desconocido.com",
     },
-    likes: postData.likes || 0, // Valor por defecto
-    views: postData.views || 0, // Valor por defecto
+    likes: postData.likes || 0,
+    views: postData.views || 0,
     createdAt: postData.createdAt instanceof Date && !isNaN(postData.createdAt.getTime())
       ? postData.createdAt
       : new Date(),
@@ -50,9 +48,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     keywords: postData.keywords || [],
   };
 
+  // ✅ CORREGIDO: Usar updatedAt en vez de date
   const formattedDate =
-    validatedPostData.date instanceof Date && !isNaN(validatedPostData.date.getTime())
-      ? validatedPostData.date.toLocaleDateString("es-ES", {
+    validatedPostData.updatedAt instanceof Date && !isNaN(validatedPostData.updatedAt.getTime())
+      ? validatedPostData.updatedAt.toLocaleDateString("es-ES", {
           year: "numeric",
           month: "long",
           day: "numeric",

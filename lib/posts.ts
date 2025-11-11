@@ -36,10 +36,7 @@ export async function getPostData(slug: string): Promise<PostData | null> {
     // Validar y asignar valores predeterminados si es necesario
     const validatedPostData: PostData = {
       id: postData.id || '',
-      title: postData.title || 'Sin título',
-      date: postData.updatedAt instanceof Date && !isNaN(postData.updatedAt.getTime())
-        ? postData.updatedAt
-        : new Date(),
+      title: postData.title || 'Sin título',      
       content: postData.content || '',
       category: postData.category || '', // ✅ AGREGAR categoría con valor por defecto
       tags: postData.tags || [],

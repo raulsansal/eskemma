@@ -12,8 +12,7 @@ import { CATEGORIES } from "@/lib/constants/categories"; // ✅ Importar categor
 
 // Interfaces para los datos
 interface BasePostData {
-  title: string;
-  date: Date;
+  title: string;  
   content: string;
   category: string; // ✅ NUEVO
   tags?: string[];
@@ -30,8 +29,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
   // Estados locales
   const [formData, setFormData] = useState<BasePostData>({
-    title: "",
-    date: new Date(),
+    title: "",    
     content: "",
     category: "tactica", // ✅ Valor por defecto
     tags: [],
@@ -63,8 +61,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           setFormData({
             ...postData,
             category: postData.category || "tactica", // ✅ Asegurar categoría
-            tags: postData.tags || [],
-            date: postData.date ? new Date(postData.date) : new Date(),
+            tags: postData.tags || [],            
           });
         } catch (error) {
           console.error("Error al obtener los datos del post:", error);
@@ -160,8 +157,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           uid: user.uid,
           displayName: user.displayName || "Admin",
           email: user.email || "",
-        },
-        date: formData.date.toISOString(),
+        },        
         featureImage: formData.featureImage || undefined,
         tags: formData.tags || [],
         metaTitle: formData.metaTitle || formData.title,
@@ -271,30 +267,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               </option>
             ))}
           </select>
-        </div>
-
-        {/* Fecha */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Fecha:</label>
-          <input
-            type="date"
-            name="date"
-            value={formData.date.toISOString().split("T")[0]}
-            onChange={(e) => {
-              setFormData((prev) => ({
-                ...prev,
-                date: new Date(e.target.value),
-              }));
-            }}
-            required
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
-          />
-        </div>
+        </div>        
 
         {/* Contenido */}
         <div style={{ marginBottom: "15px" }}>

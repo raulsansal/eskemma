@@ -1,7 +1,6 @@
 // types/post.types.ts
 export interface BasePostData {
   title: string;
-  date?: Date;
   content: string;
   category: string;
   tags?: string[];
@@ -26,12 +25,13 @@ export interface PostData extends BasePostData {
   updatedAt: Date;
 }
 
-// ✅ AGREGAR ESTA INTERFAZ para la página principal
+// ✅ Interfaz para la página principal del blog
 export interface BlogPost {
   id: string;
   title: string;
   slug: string;
   content: string;
+  category: string;
   featureImage?: string;
   updatedAt: Date;
   author?: {
@@ -40,4 +40,5 @@ export interface BlogPost {
     email: string;
   };
   status: string;
+  tags?: string[];
 }

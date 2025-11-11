@@ -1,37 +1,37 @@
 // app/page.tsx
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useAuth } from "../context/AuthContext";
 
-import Image from 'next/image';
-import { BlogPost } from '@/types/post.types';
-import Button from './components/Button';
-import PropAnimation from './components/componentsHome/PropAnimation';
-import TeamModal from './components/componentsHome/TeamModal';
-import ScheduleDate from './components/componentsHome/ScheduleDate';
-import ResponseDate from './components/componentsHome/ReponseDate';
-import BenefitsSection from './components/componentsHome/BenefitsSection';
-import SuscriptionBasicModal from './components/componentsHome/SuscriptionBasicModal';
-import SuscriptionPremiumModal from './components/componentsHome/SuscriptionPremiumModal';
-import SuscriptionGrupalModal from './components/componentsHome/SuscriptionGrupalModal';
-import SuscriptionResponseModal from './components/componentsHome/SucriptionResponseModal';
-import FaqSection from './components/componentsHome/FaqSection';
+import Image from "next/image";
+import { BlogPost } from "@/types/post.types";
+import Button from "./components/Button";
+import PropAnimation from "./components/componentsHome/PropAnimation";
+import TeamModal from "./components/componentsHome/TeamModal";
+import ScheduleDate from "./components/componentsHome/ScheduleDate";
+import ResponseDate from "./components/componentsHome/ReponseDate";
+import BenefitsSection from "./components/componentsHome/BenefitsSection";
+import SuscriptionBasicModal from "./components/componentsHome/SuscriptionBasicModal";
+import SuscriptionPremiumModal from "./components/componentsHome/SuscriptionPremiumModal";
+import SuscriptionGrupalModal from "./components/componentsHome/SuscriptionGrupalModal";
+import SuscriptionResponseModal from "./components/componentsHome/SucriptionResponseModal";
+import FaqSection from "./components/componentsHome/FaqSection";
 
 export default function HomePage() {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    dateTime: '',
+    fullName: "",
+    email: "",
+    dateTime: "",
   });
-  
+
   // ✅ AGREGAR: Estado para los posts del blog
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
-  
+
   // Estados para controlar la visibilidad de los modales de planes de suscripción
   const [isBasicSuscriptionModalOpen, setIsBasicSuscriptionModalOpen] =
     useState(false);
@@ -44,35 +44,45 @@ export default function HomePage() {
 
   const { user } = useAuth();
 
-  const userName = 'Usuario';
+  const userName = "Usuario";
 
   // ✅ AGREGAR: useEffect para cargar los posts
   useEffect(() => {
     async function loadBlogPosts() {
       try {
-        const response = await fetch('/api/posts');
-        if (!response.ok) throw new Error('Error al cargar posts');
-        
+        const response = await fetch("/api/posts");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Error al cargar posts");
+        }
+
         const posts = await response.json();
-        
+
         // Filtrar solo posts publicados y tomar los primeros 3
         const publishedPosts = posts
-          .filter((post: any) => post.status === 'published')
+          .filter((post: any) => post.status === "published")
           .slice(0, 3)
           .map((post: any) => ({
             id: post.id,
             title: post.title,
             slug: post.slug,
             content: post.content,
+            category: post.category || "general",
             featureImage: post.featureImage,
+            // ✅ Convertir string ISO a Date
             updatedAt: post.updatedAt ? new Date(post.updatedAt) : new Date(),
             author: post.author,
             status: post.status,
+            tags: post.tags || [],
           }));
-        
+
         setBlogPosts(publishedPosts);
       } catch (error) {
-        console.error('Error al cargar posts del blog:', error);
+        console.error("Error al cargar posts del blog:", error);
+        // Mostrar mensaje más detallado
+        if (error instanceof Error) {
+          console.error("Detalles del error:", error.message);
+        }
       } finally {
         setLoadingPosts(false);
       }
@@ -83,14 +93,13 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden w-full">
-
       {/* Hero Section */}
       <section className="relative min-h-[650px] max-sm:min-h-[50vh] w-full flex items-center justify-center overflow-hidden bg-bluegreen-eske">
         <Image
           src="/images/hero2.webp"
           alt="Hero Background"
           fill
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: "cover" }}
           className="object-cover max-sm:object-contain"
           priority
         />
@@ -124,7 +133,9 @@ export default function HomePage() {
             </div>
           ) : blogPosts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-xl text-gray-eske-60">No hay posts disponibles</p>
+              <p className="text-xl text-gray-eske-60">
+                No hay posts disponibles
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -155,14 +166,14 @@ export default function HomePage() {
                   {/* Fecha y Autor */}
                   <div className="flex justify-between w-full text-sm text-gray-700 mb-4 px-2">
                     <small className="text-gray-eske-60">
-                      {post.updatedAt.toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
+                      {post.updatedAt.toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
                       })}
                     </small>
                     <small className="text-bluegreen-eske font-medium">
-                      {post.author?.displayName || 'Desconocido'}
+                      {post.author?.displayName || "Desconocido"}
                     </small>
                   </div>
 
@@ -303,7 +314,7 @@ export default function HomePage() {
           <div className="text-center">
             <Button
               label="AGENDAR ASESORÍA GRATUITA"
-              variant="secondary"              
+              variant="secondary"
               action="openScheduleModal"
               onClick={() => setIsScheduleModalOpen(true)} // Función personalizada
             />
@@ -427,7 +438,7 @@ export default function HomePage() {
       {/* Sección - Planes de suscripción */}
       <section
         className="bg-white-eske min-h-[800px] py-18 px-4 sm:px-6 md:px-8"
-        style={{ backgroundColor: 'var(--White-eske)' }}
+        style={{ backgroundColor: "var(--White-eske)" }}
       >
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Título de la Sección */}
@@ -449,7 +460,7 @@ export default function HomePage() {
               {/* Encabezado con fondo white-eske */}
               <div
                 className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 py-2 border border-bluegreen-eske text-black-eske text-10px font-medium z-10 whitespace-nowrap"
-                style={{ boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.2)' }}
+                style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
               >
                 Sólo un producto
               </div>
@@ -507,7 +518,7 @@ export default function HomePage() {
               {/* Encabezado con fondo black-eske */}
               <div
                 className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-black-eske px-6 py-2 border border-bluegreen-eske text-white-eske text-10px font-medium z-10 whitespace-nowrap"
-                style={{ boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.2)' }}
+                style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
               >
                 Todo Eskemma
               </div>
@@ -562,7 +573,7 @@ export default function HomePage() {
               {/* Encabezado con fondo white-eske */}
               <div
                 className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 py-2 border border-bluegreen-eske text-black text-10px font-medium z-10 whitespace-nowrap"
-                style={{ boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.2)' }}
+                style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
               >
                 Trabajo Colaborativo
               </div>
@@ -659,7 +670,7 @@ export default function HomePage() {
       {/* Enlaces Rápidos Section */}
       <section
         className="bg-white-eske min-h-[500px] py-16 px-4 sm:px-6 md:px-8"
-        style={{ backgroundColor: 'var(--white-eske)' }}
+        style={{ backgroundColor: "var(--white-eske)" }}
       >
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Título de la Sección */}

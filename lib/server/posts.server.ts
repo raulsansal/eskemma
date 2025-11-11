@@ -21,7 +21,6 @@ export interface Post {
   content: string;
   category: string; // ✅ AGREGAR
   featureImage?: string | null;
-  date: string;
   author: {
     uid: string;
     displayName: string;
@@ -55,7 +54,6 @@ export async function getSortedPostsData(): Promise<Post[]> {
       content: data.content || '',
       category: data.category || 'tactica', // ✅ AGREGAR
       featureImage: data.featureImage || undefined,
-      date: data.date || new Date().toISOString(),
       author: data.author || {
         uid: '',
         displayName: 'Desconocido',
@@ -139,8 +137,7 @@ export async function getPostData(slug: string): Promise<Post | null> {
     title: docData.title || 'Sin título',
     content: docData.content || '',
     category: docData.category || 'tactica', // ✅ AGREGAR
-    featureImage: docData.featureImage || undefined,
-    date: docData.date || new Date().toISOString(),
+    featureImage: docData.featureImage || undefined,    
     author: docData.author || {
       uid: '',
       displayName: 'Desconocido',

@@ -6,19 +6,19 @@ import { updatePost } from '@/lib/server/posts.server';
 export interface Post {
   title: string;
   content: string;
-  date: string;
+  category: string;
   slug: string;
   author: {
     uid: string;
     displayName: string;
     email: string;
   };
-  status: 'draft' | 'published'; // Estado del post
-  featureImage?: string | null; // Campo opcional para la imagen destacada
-  tags?: string[]; // Tags opcionales
-  comments?: any[]; // Ajusta según tu estructura
-  media?: any[]; // Ajusta según tu estructura
-  translations?: Record<string, any>; // Ajusta según tu estructura
+  status: 'draft' | 'published';
+  featureImage?: string | null;
+  tags?: string[];
+  comments?: any[];
+  media?: any[];
+  translations?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,23 +26,23 @@ export interface Post {
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
-    const body: Partial<Post> = await request.json(); // Usar Partial para permitir campos opcionales
-    const { title, date, content, featureImage, tags, status } = body;
+    const body: Partial<Post> = await request.json();
+    const { title, content, category, featureImage, tags, status } = body;
 
-    // Validar datos
-    if (!title || !date || !content) {
+    // Validar datos - ✅ Eliminada validación de 'date'
+    if (!title || !content) {
       return NextResponse.json(
-        { error: 'Todos los campos son requeridos' },
+        { error: 'Título y contenido son requeridos' },
         { status: 400 }
       );
     }
 
-    // Actualizar el post
+    // Actualizar el post - ✅ Sin campo 'date'
     await updatePost(id, {
       title,
-      date,
       content,
-      featureImage: featureImage ?? null, // Asignar null si featureImage no está definido
+      category: category || 'general',
+      featureImage: featureImage ?? null,
       tags: tags || [],
       status: status || 'draft',
       updatedAt: new Date(),
