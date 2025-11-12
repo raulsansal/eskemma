@@ -325,7 +325,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, []);  
 
   // Función para generar un nombre de usuario predeterminado
   const generateDefaultUserName = (email: string): string => {
@@ -660,12 +660,60 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ Función para iniciar sesión con Google (ACTUALIZADA)
+  // ✅ Función para iniciar sesión con Google (SOLO POPUP - SIMPLIFICADO)
   const signInWithGoogle = async () => {
     try {
+      console.log("🔐 Iniciando login con Google...");
       const result = await signInWithPopup(auth, providerGoogle);
-      const user = result.user;
+      await processGoogleSignIn(result.user);
+    } catch (error: any) {
+      console.error("Error al iniciar sesión con Google:", error);
 
+      // Manejar errores específicos
+      switch (error.code) {
+        case "auth/popup-blocked":
+          alert(
+            "⚠️ Los popups están bloqueados\n\n" +
+              "Solución:\n" +
+              "1. Permite popups en la configuración de tu navegador\n" +
+              "2. O prueba en Chrome/Safari (no en apps de redes sociales)"
+          );
+          break;
+
+        case "auth/popup-closed-by-user":
+          // Usuario canceló, no mostrar error
+          console.log("Usuario canceló el inicio de sesión");
+          break;
+
+        case "auth/cancelled-popup-request":
+          // Múltiples popups, ignorar
+          console.log("Solicitud de popup cancelada");
+          break;
+
+        case "auth/unauthorized-domain":
+          alert(
+            "Error de configuración: dominio no autorizado.\n\n" +
+              "Si eres el administrador, agrega este dominio en Firebase Console."
+          );
+          break;
+
+        case "auth/network-request-failed":
+          alert("Error de red. Verifica tu conexión a internet.");
+          break;
+
+        default:
+          console.error("Error inesperado:", error);
+          alert(
+            "Error al iniciar sesión con Google.\n\n" +
+              "Intenta de nuevo o usa email y contraseña."
+          );
+      }
+    }
+  };
+
+  // ✅ FUNCIÓN AUXILIAR: Procesar login de Google
+  const processGoogleSignIn = async (user: User) => {
+    try {
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
 
@@ -721,12 +769,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoginModalOpen(false);
 
         if (!userData.profileCompleted) {
-          console.log(
-            "📝 Mostrando modal de completar registro para usuario Google"
-          );
           setIsCompleteRegisterModalOpen(true);
         } else if (userData.showOnboardingModal) {
-          console.log("🎯 Mostrando onboarding para usuario Google");
           setIsOnboardingModalOpen(true);
         }
 
@@ -744,9 +788,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (userData.role !== calculatedRole) {
-        console.log(
-          `🔄 Actualizando role de "${userData.role}" a "${calculatedRole}"`
-        );
         await updateDoc(userDocRef, {
           role: calculatedRole,
           updatedAt: new Date(),
@@ -772,17 +813,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoginModalOpen(false);
 
       if (!userData.profileCompleted) {
-        console.log(
-          "📝 Mostrando modal de completar registro para usuario Google"
-        );
         setIsCompleteRegisterModalOpen(true);
       } else if (userData.showOnboardingModal) {
-        console.log("🎯 Mostrando onboarding para usuario Google");
         setIsOnboardingModalOpen(true);
       }
-    } catch (error: any) {
-      console.error("Error al iniciar sesión con Google:", error.message);
-      alert("Ocurrió un error al iniciar sesión con Google.");
+    } catch (error) {
+      console.error("Error al procesar login de Google:", error);
+      throw error;
     }
   };
 

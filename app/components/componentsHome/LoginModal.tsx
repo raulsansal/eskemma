@@ -67,21 +67,20 @@ export default function LoginModal({
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
+  // ✅ FUNCIÓN CORREGIDA - Sin async, sin setLoading antes del popup
+  const handleGoogleSignIn = () => {
     setError(null);
-
-    try {
-      await signInWithGoogle();
-      onClose();
-    } catch (error: any) {
-      console.error("Error al iniciar sesión con Google:", error.message);
-      setError(
-        "Ocurrió un error al iniciar sesión con Google. Inténtalo de nuevo."
-      );
-    } finally {
-      setLoading(false);
-    }
+    
+    signInWithGoogle()
+      .then(() => {
+        onClose();
+      })
+      .catch((error: any) => {
+        console.error("Error al iniciar sesión con Google:", error.message);
+        setError(
+          "Ocurrió un error al iniciar sesión con Google. Inténtalo de nuevo."
+        );
+      });
   };
 
   if (!isOpen) return null;
@@ -176,7 +175,7 @@ export default function LoginModal({
           <hr className="flex-grow border-gray-300" />
         </div>
 
-        {/* ✅ NUEVO MENSAJE INFORMATIVO */}
+        {/* Mensaje informativo */}
         <p className="text-[14px] text-gray-700 text-center mb-3 px-2">
           <span className="font-medium text-bluegreen-eske">
             ¿Te registraste con tu cuenta de Google?
@@ -191,7 +190,7 @@ export default function LoginModal({
           disabled={loading}
           className="w-full text-[18px] bg-red-500 text-white py-2 rounded hover:bg-red-600 transition-colors duration-300 cursor-pointer"
         >
-          {loading ? "Cargando..." : "INICIAR SESIÓN CON GOOGLE"}
+          INICIAR SESIÓN CON GOOGLE
         </button>
 
         {/* Enlaces adicionales */}

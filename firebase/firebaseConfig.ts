@@ -22,5 +22,11 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+
+// ✅ Configurar provider de Google
 export const providerGoogle = new GoogleAuthProvider();
+providerGoogle.setCustomParameters({
+  prompt: 'select_account'
+});
+
 export const providerFacebook = new FacebookAuthProvider();
