@@ -230,6 +230,111 @@ export async function getPaginatedPostsByCategory(
 }
 
 /**
+ * Obtiene posts paginados con filtros avanzados
+ * @param page - Número de página
+ * @param postsPerPage - Posts por página
+ * @param category - Categoría para filtrar
+ * @param searchTerm - Término de búsqueda
+ * @param sortBy - Criterio de ordenamiento
+ * @returns Posts filtrados y ordenados
+ */
+export async function getFilteredPosts(
+  page: number = 1,
+  postsPerPage: number = 6,
+  category: string | null = null,
+  searchTerm: string | null = null,
+  sortBy: 'newest' | 'oldest' | 'popular' = 'newest'
+): Promise<{ posts: Post[]; totalPages: number; totalPosts: number }> {
+  const postsRef = collection(db, "posts");
+  
+  const q = query(
+    postsRef,
+    where("status", "==", "published"),
+    orderBy("updatedAt", "desc")
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  // Obtener todos los posts publicados
+  let allPosts: Post[] = querySnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      title: data.title || "Sin título",
+      content: data.content || "",
+      category: data.category || "tactica",
+      featureImage: data.featureImage || undefined,
+      author: data.author || {
+        uid: "",
+        displayName: "Desconocido",
+        email: "",
+      },
+      tags: data.tags || [],
+      slug: data.slug || "",
+      status: data.status || "draft",
+      createdAt: data.createdAt
+        ? new Date(data.createdAt.toDate())
+        : new Date(),
+      updatedAt: data.updatedAt
+        ? new Date(data.updatedAt.toDate())
+        : new Date(),
+      likes: data.likes || 0,
+      views: data.views || 0,
+      metaTitle: data.metaTitle || data.title || "Sin título",
+      metaDescription:
+        data.metaDescription || data.content?.substring(0, 160) || "",
+      keywords: data.keywords || [],
+    };
+  });
+
+  // 1. Filtrar por categoría
+  if (category && category !== "todos") {
+    allPosts = allPosts.filter((post) => post.category === category);
+  }
+
+  // 2. Filtrar por búsqueda (título, contenido, autor)
+  if (searchTerm && searchTerm.trim() !== "") {
+    const searchLower = searchTerm.toLowerCase().trim();
+    allPosts = allPosts.filter((post) => {
+      const titleMatch = post.title.toLowerCase().includes(searchLower);
+      const contentMatch = post.content.toLowerCase().includes(searchLower);
+      const authorMatch = post.author?.displayName.toLowerCase().includes(searchLower);
+      return titleMatch || contentMatch || authorMatch;
+    });
+  }
+
+  // 3. Ordenar según criterio
+  switch (sortBy) {
+    case 'oldest':
+      allPosts.sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime());
+      break;
+    case 'popular':
+      allPosts.sort((a, b) => (b.views || 0) - (a.views || 0));
+      break;
+    case 'newest':
+    default:
+      allPosts.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+      break;
+  }
+
+  const totalPosts = allPosts.length;
+  const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+  // Calcular índices para la paginación
+  const startIndex = (page - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+
+  // Obtener solo los posts de la página actual
+  const paginatedPosts = allPosts.slice(startIndex, endIndex);
+
+  return {
+    posts: paginatedPosts,
+    totalPages,
+    totalPosts,
+  };
+}
+
+/**
  * Obtiene los slugs de todos los posts para generar rutas dinámicas.
  */
 export async function getAllPostIds(): Promise<Array<{ slug: string }>> {

@@ -3,13 +3,18 @@ import Link from "next/link";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 import DOMPurify from "isomorphic-dompurify";
-import { getPaginatedPostsByCategory } from "@/lib/posts";
+import { getFilteredPosts } from "@/lib/posts";
 import FoucheHeroSection from "./FoucheHeroSection";
 import Pagination from "../components/componentsBlog/Pagination";
 import BlogToolbar from "../components/componentsBlog/BlogToolbar";
 
 interface BlogPageProps {
-  searchParams: Promise<{ page?: string; category?: string }>;
+  searchParams: Promise<{ 
+    page?: string; 
+    category?: string;
+    search?: string;
+    sort?: string;
+  }>;
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
@@ -18,15 +23,18 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     const params = await searchParams;
     const currentPage = Number(params.page) || 1;
     const selectedCategory = params.category || "todos";
+    const searchTerm = params.search || "";
+    const sortBy = (params.sort as 'newest' | 'oldest' | 'popular') || "newest";
     const postsPerPage = 6;
 
-    // Obtener posts paginados y filtrados por categoría
-    const { posts: sortedPosts, totalPages, totalPosts } =
-      await getPaginatedPostsByCategory(
-        currentPage,
-        postsPerPage,
-        selectedCategory === "todos" ? null : selectedCategory
-      );
+    // Obtener posts con todos los filtros aplicados
+    const { posts: sortedPosts, totalPages, totalPosts } = await getFilteredPosts(
+      currentPage,
+      postsPerPage,
+      selectedCategory === "todos" ? null : selectedCategory,
+      searchTerm || null,
+      sortBy
+    );
 
     // Procesar posts para mostrar
     const publishedPosts = sortedPosts.map(async (post) => {
@@ -50,6 +58,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         author: post.author?.displayName || "Desconocido",
         featureImage: post.featureImage || undefined,
         category: post.category,
+        views: post.views || 0,
       };
     });
 
@@ -73,22 +82,25 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
             {/* Contador de posts */}
             <div className="mb-8 text-center">
-              <p className="text-gray-600 text-sm">
-                {totalPosts === 0 ? (
-                  "No hay artículos en esta categoría"
-                ) : (
-                  <>
-                    Mostrando <span className="font-semibold">{totalPosts}</span>{" "}
-                    {totalPosts === 1 ? "artículo" : "artículos"}
-                    {selectedCategory !== "todos" && (
-                      <span className="text-bluegreen-eske">
-                        {" "}
-                        en esta categoría
-                      </span>
-                    )}
-                  </>
-                )}
-              </p>
+              {totalPosts === 0 ? (
+                <p className="text-gray-600 text-sm">
+                  No se encontraron artículos con los filtros seleccionados
+                </p>
+              ) : (
+                <p className="text-gray-600 text-sm">
+                  Mostrando{" "}
+                  <span className="font-semibold text-bluegreen-eske">
+                    {totalPosts}
+                  </span>{" "}
+                  {totalPosts === 1 ? "artículo" : "artículos"}
+                  {searchTerm && (
+                    <span className="text-gray-700">
+                      {" "}
+                      para <span className="font-medium">"{searchTerm}"</span>
+                    </span>
+                  )}
+                </p>
+              )}
             </div>
 
             {resolvedPosts.length === 0 ? (
@@ -106,14 +118,17 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                <p className="text-xl text-gray-eske-60 mb-4">
-                  No hay posts en esta categoría.
+                <p className="text-xl text-gray-eske-60 mb-2">
+                  No se encontraron resultados
+                </p>
+                <p className="text-gray-500 mb-4">
+                  Intenta ajustar los filtros o términos de búsqueda
                 </p>
                 <Link
                   href="/blog"
                   className="inline-block px-6 py-2 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors duration-300"
                 >
-                  Ver todos los artículos
+                  Limpiar filtros
                 </Link>
               </div>
             ) : (
@@ -128,6 +143,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                       slug,
                       author,
                       featureImage,
+                      views,
                     }) => (
                       <div
                         key={id}
@@ -163,6 +179,32 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                           </small>
                         </div>
 
+                        {/* Mostrar vistas si está ordenado por popularidad */}
+                        {sortBy === "popular" && (
+                          <div className="w-full text-xs text-gray-500 mb-2 flex items-center justify-center gap-1">
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                            {views} {views === 1 ? "vista" : "vistas"}
+                          </div>
+                        )}
+
                         <Link
                           href={`/blog/${slug}`}
                           className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
@@ -179,6 +221,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   currentPage={currentPage}
                   totalPages={totalPages}
                   categoryFilter={selectedCategory}
+                  searchQuery={searchTerm}
+                  sortBy={sortBy}
                 />
               </>
             )}

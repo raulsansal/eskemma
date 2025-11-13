@@ -8,6 +8,7 @@ if (typeof window !== "undefined") {
 import { getSortedPostsData as serverGetSortedPostsData } from "./server/posts.server";
 import { getPaginatedPosts as serverGetPaginatedPosts } from "./server/posts.server";
 import { getPaginatedPostsByCategory as serverGetPaginatedPostsByCategory } from "./server/posts.server";
+import { getFilteredPosts as serverGetFilteredPosts } from "./server/posts.server";
 import { getAllPostIds as serverGetAllPostIds } from "./server/posts.server";
 import { getPostData as serverGetPostData } from "./server/posts.server";
 import { updatePost as serverUpdatePost } from "./server/posts.server";
@@ -30,6 +31,16 @@ export function getPaginatedPostsByCategory(
   category: string | null = null
 ) {
   return serverGetPaginatedPostsByCategory(page, postsPerPage, category);
+}
+
+export function getFilteredPosts(
+  page: number = 1,
+  postsPerPage: number = 6,
+  category: string | null = null,
+  searchTerm: string | null = null,
+  sortBy: 'newest' | 'oldest' | 'popular' = 'newest'
+) {
+  return serverGetFilteredPosts(page, postsPerPage, category, searchTerm, sortBy);
 }
 
 export async function getAllPostIds() {

@@ -6,22 +6,37 @@ import Link from "next/link";
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  categoryFilter?: string; // ✅ NUEVO
+  categoryFilter?: string;
+  searchQuery?: string;
+  sortBy?: string;
 }
 
 export default function Pagination({
   currentPage,
   totalPages,
   categoryFilter = "todos",
+  searchQuery = "",
+  sortBy = "newest",
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  // ✅ Construir URL con filtro de categoría
+  // ✅ Construir URL manteniendo TODOS los filtros
   const buildUrl = (page: number) => {
+    const params = new URLSearchParams();
+    
+    params.set("page", page.toString());
+    
     if (categoryFilter && categoryFilter !== "todos") {
-      return `/blog?page=${page}&category=${categoryFilter}`;
+      params.set("category", categoryFilter);
     }
-    return `/blog?page=${page}`;
+    if (searchQuery && searchQuery.trim() !== "") {
+      params.set("search", searchQuery.trim());
+    }
+    if (sortBy && sortBy !== "newest") {
+      params.set("sort", sortBy);
+    }
+
+    return `/blog?${params.toString()}`;
   };
 
   return (
