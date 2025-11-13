@@ -1,27 +1,41 @@
 // lib/posts.ts
 
-if (typeof window !== 'undefined') {
-  throw new Error('Este archivo solo debe ser importado en el servidor.');
+if (typeof window !== "undefined") {
+  throw new Error("Este archivo solo debe ser importado en el servidor.");
 }
 
 // Importar las funciones del servidor
-import { getSortedPostsData as serverGetSortedPostsData } from './server/posts.server';
-import { getAllPostIds as serverGetAllPostIds } from './server/posts.server';
-import { getPostData as serverGetPostData } from './server/posts.server';
-import { updatePost as serverUpdatePost } from './server/posts.server';
+import { getSortedPostsData as serverGetSortedPostsData } from "./server/posts.server";
+import { getPaginatedPosts as serverGetPaginatedPosts } from "./server/posts.server";
+import { getPaginatedPostsByCategory as serverGetPaginatedPostsByCategory } from "./server/posts.server";
+import { getAllPostIds as serverGetAllPostIds } from "./server/posts.server";
+import { getPostData as serverGetPostData } from "./server/posts.server";
+import { updatePost as serverUpdatePost } from "./server/posts.server";
 
 // Importar la interfaz PostData
-import { PostData } from '@/types/post.types';
+import { PostData } from "@/types/post.types";
 
 // Exportar las funciones del servidor
 export function getSortedPostsData() {
   return serverGetSortedPostsData();
 }
 
+export function getPaginatedPosts(page: number = 1, postsPerPage: number = 6) {
+  return serverGetPaginatedPosts(page, postsPerPage);
+}
+
+export function getPaginatedPostsByCategory(
+  page: number = 1,
+  postsPerPage: number = 6,
+  category: string | null = null
+) {
+  return serverGetPaginatedPostsByCategory(page, postsPerPage, category);
+}
+
 export async function getAllPostIds() {
   const posts = await serverGetAllPostIds();
   return posts.map((post) => ({
-    slug: post.slug || '', // Asegúrate de que cada objeto tenga la propiedad `slug`
+    slug: post.slug || "",
   }));
 }
 
@@ -35,39 +49,47 @@ export async function getPostData(slug: string): Promise<PostData | null> {
 
     // Validar y asignar valores predeterminados si es necesario
     const validatedPostData: PostData = {
-      id: postData.id || '',
-      title: postData.title || 'Sin título',      
-      content: postData.content || '',
-      category: postData.category || '', // ✅ AGREGAR categoría con valor por defecto
+      id: postData.id || "",
+      title: postData.title || "Sin título",
+      content: postData.content || "",
+      category: postData.category || "",
       tags: postData.tags || [],
-      status: postData.status || 'draft',
+      status: postData.status || "draft",
       featureImage: postData.featureImage || undefined,
-      slug: postData.slug || '',
+      slug: postData.slug || "",
       author: postData.author || {
-        uid: '',
-        displayName: 'Desconocido',
-        email: 'correo@desconocido.com',
+        uid: "",
+        displayName: "Desconocido",
+        email: "correo@desconocido.com",
       },
       likes: postData.likes || 0,
       views: postData.views || 0,
-      createdAt: postData.createdAt instanceof Date && !isNaN(postData.createdAt.getTime())
-        ? postData.createdAt
-        : new Date(),
-      updatedAt: postData.updatedAt instanceof Date && !isNaN(postData.updatedAt.getTime())
-        ? postData.updatedAt
-        : new Date(),
-      metaTitle: postData.metaTitle || postData.title || 'Sin título',
-      metaDescription: postData.metaDescription || postData.content?.substring(0, 160) || '',
+      createdAt:
+        postData.createdAt instanceof Date &&
+        !isNaN(postData.createdAt.getTime())
+          ? postData.createdAt
+          : new Date(),
+      updatedAt:
+        postData.updatedAt instanceof Date &&
+        !isNaN(postData.updatedAt.getTime())
+          ? postData.updatedAt
+          : new Date(),
+      metaTitle: postData.metaTitle || postData.title || "Sin título",
+      metaDescription:
+        postData.metaDescription || postData.content?.substring(0, 160) || "",
       keywords: postData.keywords || [],
     };
 
     return validatedPostData;
   } catch (error) {
-    console.error('Error al obtener los datos del post:', error);
+    console.error("Error al obtener los datos del post:", error);
     return null;
   }
 }
 
-export function updatePost(slug: string, updatedData: { title: string; date: string; content: string }) {
+export function updatePost(
+  slug: string,
+  updatedData: { title: string; date: string; content: string }
+) {
   return serverUpdatePost(slug, updatedData);
 }
