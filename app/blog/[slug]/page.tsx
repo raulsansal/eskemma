@@ -2,8 +2,13 @@
 import { getPostData } from "@/lib/posts";
 import SanitizedContent from "../../components/componentsBlog/SanitizedContent";
 import { PostData } from "@/types/post.types";
+import ViewCounter from "./ViewCounter";
 
-export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function PostPage({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}) {
   const { slug } = await params;
 
   console.log("Slug recibido:", slug);
@@ -25,7 +30,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     id: postData.id || "",
     title: postData.title || "Sin título",
     content: postData.content || "",
-    category: postData.category || "General", // ✅ AGREGADO - resuelve el warning
+    category: postData.category || "General",
     featureImage: postData.featureImage || undefined,
     slug: postData.slug || "",
     status: postData.status || "draft",
@@ -48,7 +53,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     keywords: postData.keywords || [],
   };
 
-  // ✅ CORREGIDO: Usar updatedAt en vez de date
   const formattedDate =
     validatedPostData.updatedAt instanceof Date && !isNaN(validatedPostData.updatedAt.getTime())
       ? validatedPostData.updatedAt.toLocaleDateString("es-ES", {
@@ -60,19 +64,75 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="min-h-screen bg-[--background] text-[--foreground] py-8 px-4 sm:px-6 lg:px-8">
+      {/* ✅ AGREGAR EL CONTADOR DE VISTAS */}
+      <ViewCounter postId={validatedPostData.id} slug={validatedPostData.slug} />
+
       <div className="max-w-4xl mx-auto">
         {/* Título */}
-        <h1 className="text-4xl font-bold text-bluegreen-eske mb-6">{validatedPostData.title}</h1>
+        <h1 className="text-4xl font-bold text-bluegreen-eske mb-6">
+          {validatedPostData.title}
+        </h1>
 
-        {/* Fecha, Autor y Correo Electrónico */}
-        <div className="mb-8">
-          <small className="text-base text-gray-500 leading-relaxed">{formattedDate}</small>
-          <p className="text-sm text-gray-600 font-bold leading-relaxed">
-            Por {validatedPostData.author?.displayName || "Desconocido"}
-          </p>
-          <p className="text-sm text-blue-eske-60">
-            {validatedPostData.author?.email || "correo@desconocido.com"}
-          </p>
+        {/* Fecha, Autor y Metadata */}
+        <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <span>{formattedDate}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+            <span className="font-medium">
+              {validatedPostData.author?.displayName || "Desconocido"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+              />
+            </svg>
+            <span>{validatedPostData.views} vistas</span>
+          </div>
         </div>
 
         {/* Imagen Destacada */}
@@ -80,15 +140,36 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <img
             src={validatedPostData.featureImage}
             alt={`Imagen destacada para ${validatedPostData.title}`}
-            className="w-full h-128 object-cover rounded-lg mb-8"
+            className="w-full h-auto max-h-[500px] object-cover rounded-lg mb-8 shadow-lg"
           />
         )}
 
         {/* Contenido del Post */}
-        <SanitizedContent
-          content={validatedPostData.content}
-          className="max-w-none text-[--foreground]"
-        />
+        <article className="prose prose-lg max-w-none">
+          <SanitizedContent
+            content={validatedPostData.content}
+            className="text-[--foreground]"
+          />
+        </article>
+
+        {/* Tags si existen */}
+        {validatedPostData.tags && validatedPostData.tags.length > 0 && (
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              Etiquetas:
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {validatedPostData.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-block px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-bluegreen-eske hover:text-white-eske transition-colors cursor-pointer"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

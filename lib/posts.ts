@@ -12,6 +12,9 @@ import { getFilteredPosts as serverGetFilteredPosts } from "./server/posts.serve
 import { getAllPostIds as serverGetAllPostIds } from "./server/posts.server";
 import { getPostData as serverGetPostData } from "./server/posts.server";
 import { updatePost as serverUpdatePost } from "./server/posts.server";
+import { getPopularPosts as serverGetPopularPosts } from "./server/posts.server";
+import { getCategoryCounts as serverGetCategoryCounts } from "./server/posts.server";
+import { getAllTags as serverGetAllTags } from "./server/posts.server";
 
 // Importar la interfaz PostData
 import { PostData } from "@/types/post.types";
@@ -103,4 +106,17 @@ export function updatePost(
   updatedData: { title: string; date: string; content: string }
 ) {
   return serverUpdatePost(slug, updatedData);
+}
+
+// ✅ AGREGAR estas funciones para sidebar en Blog
+export function getPopularPosts(limit: number = 5) {
+  return serverGetPopularPosts(limit);
+}
+
+export function getCategoryCounts() {
+  return serverGetCategoryCounts();
+}
+
+export function getAllTags() {
+  return serverGetAllTags();
 }

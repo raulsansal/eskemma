@@ -42,3 +42,31 @@ export interface BlogPost {
   status: string;
   tags?: string[];
 }
+
+// ✅ NUEVAS INTERFACES PARA EL SIDEBAR
+
+/**
+ * Interfaz para posts populares en el sidebar
+ */
+export interface PopularPostItem {
+  id: string;
+  title: string;
+  slug: string;
+  views: number;
+  featureImage?: string;
+}
+
+/**
+ * Interfaz para tags con contador
+ */
+export interface TagItem {
+  tag: string;
+  count: number;
+}
+
+/**
+ * Interfaz para conteo de categorías
+ */
+export interface CategoryCount {
+  [categoryId: string]: number;
+}

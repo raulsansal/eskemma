@@ -447,6 +447,102 @@ export async function updatePost(postId: string, updatedData: Partial<Post>) {
 }
 
 /**
+ * Obtiene los posts más populares (top 5)
+ * @param limit - Cantidad de posts a retornar (default: 5)
+ * @returns Posts ordenados por vistas
+ */
+export async function getPopularPosts(limit: number = 5): Promise<Post[]> {
+  const postsRef = collection(db, "posts");
+  const q = query(
+    postsRef,
+    where("status", "==", "published"),
+    orderBy("views", "desc")
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  const posts: Post[] = querySnapshot.docs.slice(0, limit).map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      title: data.title || "Sin título",
+      content: data.content || "",
+      category: data.category || "tactica",
+      featureImage: data.featureImage || undefined,
+      author: data.author || {
+        uid: "",
+        displayName: "Desconocido",
+        email: "",
+      },
+      tags: data.tags || [],
+      slug: data.slug || "",
+      status: data.status || "draft",
+      createdAt: data.createdAt
+        ? new Date(data.createdAt.toDate())
+        : new Date(),
+      updatedAt: data.updatedAt
+        ? new Date(data.updatedAt.toDate())
+        : new Date(),
+      likes: data.likes || 0,
+      views: data.views || 0,
+      metaTitle: data.metaTitle || data.title || "Sin título",
+      metaDescription:
+        data.metaDescription || data.content?.substring(0, 160) || "",
+      keywords: data.keywords || [],
+    };
+  });
+
+  return posts;
+}
+
+/**
+ * Obtiene el conteo de posts por categoría
+ * @returns Objeto con categorías y su conteo
+ */
+export async function getCategoryCounts(): Promise<Record<string, number>> {
+  const postsRef = collection(db, "posts");
+  const q = query(postsRef, where("status", "==", "published"));
+  const querySnapshot = await getDocs(q);
+
+  const categoryCounts: Record<string, number> = {};
+
+  querySnapshot.docs.forEach((doc) => {
+    const data = doc.data();
+    const category = data.category || "tactica";
+    categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+  });
+
+  return categoryCounts;
+}
+
+/**
+ * Obtiene todos los tags únicos con su frecuencia
+ * @returns Array de tags con conteo
+ */
+export async function getAllTags(): Promise<Array<{ tag: string; count: number }>> {
+  const postsRef = collection(db, "posts");
+  const q = query(postsRef, where("status", "==", "published"));
+  const querySnapshot = await getDocs(q);
+
+  const tagCounts: Record<string, number> = {};
+
+  querySnapshot.docs.forEach((doc) => {
+    const data = doc.data();
+    const tags = data.tags || [];
+    tags.forEach((tag: string) => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+  });
+
+  // Convertir a array y ordenar por frecuencia
+  const tagsArray = Object.entries(tagCounts)
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count);
+
+  return tagsArray;
+}
+
+/**
  * Crea un nuevo post en Firestore.
  */
 export async function createPost(postData: Omit<Post, "id">): Promise<string> {
