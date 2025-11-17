@@ -325,7 +325,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);  
+  }, []);
 
   // Función para generar un nombre de usuario predeterminado
   const generateDefaultUserName = (email: string): string => {
@@ -829,6 +829,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await signOut(auth);
       setUser(null);
       setIsOnboardingModalOpen(false);
+
+      // ✅ Redirigir a la página de inicio
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
       alert("Ocurrió un error al cerrar sesión.");

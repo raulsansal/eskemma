@@ -1,41 +1,52 @@
 // app/api/posts/increment-view/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { doc, updateDoc, increment } from "firebase/firestore";
-import { db } from "@/firebase/firebaseConfig";
+import { adminDb } from "@/lib/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(request: NextRequest) {
   try {
     const { postId } = await request.json();
 
-    if (!postId) {
-      return NextResponse.json(
-        { error: "postId es requerido" },
-        { status: 400 }
-      );
-    }
-
-    // Validar que postId sea un string válido
-    if (typeof postId !== "string" || postId.trim() === "") {
+    if (!postId || typeof postId !== "string" || postId.trim() === "") {
       return NextResponse.json(
         { error: "postId inválido" },
         { status: 400 }
       );
     }
 
-    const postRef = doc(db, "posts", postId);
+    const postRef = adminDb.collection("posts").doc(postId);
     
-    // Incrementar views usando Firestore increment (atómico)
-    await updateDoc(postRef, {
-      views: increment(1),
+    const postDoc = await postRef.get();
+    
+    if (!postDoc.exists) {
+      return NextResponse.json(
+        { error: "Post no encontrado" },
+        { status: 404 }
+      );
+    }
+
+    await postRef.update({
+      views: FieldValue.increment(1),
     });
 
-    console.log(`✅ Vista incrementada para post: ${postId}`);
+    const currentViews = (postDoc.data()?.views || 0) + 1;
+    
+    console.log(`✅ Vista incrementada para post: ${postId} (Total: ${currentViews})`);
 
-    return NextResponse.json({ success: true, postId });
+    return NextResponse.json({ 
+      success: true, 
+      postId,
+      views: currentViews
+    });
+
   } catch (error: any) {
-    console.error("Error al incrementar views:", error);
+    console.error("❌ Error al incrementar views:", error);
+    
     return NextResponse.json(
-      { error: "Error al incrementar views", details: error.message },
+      { 
+        error: "Error al incrementar views", 
+        details: error.message 
+      },
       { status: 500 }
     );
   }
