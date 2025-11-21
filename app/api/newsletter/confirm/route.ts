@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Buscar suscriptor por token
     const subscribersRef = adminDb.collection("newsletter_subscribers");
     const query = await subscribersRef
       .where("confirmationToken", "==", token)
@@ -34,35 +33,33 @@ export async function POST(request: NextRequest) {
     const subscriberDoc = query.docs[0];
     const subscriberData = subscriberDoc.data();
 
-    // Verificar si ya está confirmado
     if (subscriberData.status === "confirmed") {
+      console.log(`⚠️ Intento de confirmar suscripción ya confirmada: ${subscriberData.email}`);
       return NextResponse.json({
         success: true,
         message: "Tu suscripción ya estaba confirmada. ¡Gracias!",
       });
     }
 
-    // Confirmar suscripción
     await subscribersRef.doc(subscriberDoc.id).update({
       status: "confirmed",
       confirmedAt: new Date(),
-      confirmationToken: null, // Eliminar token usado
+      confirmationToken: null,
     });
 
     console.log(`✅ Suscripción confirmada: ${subscriberData.email}`);
 
-    // Enviar email de bienvenida
+    // ✅ Enviar email de bienvenida CON NOMBRE
     try {
-      await sendWelcomeEmail(subscriberData.email);
+      await sendWelcomeEmail(subscriberData.email, subscriberData.name || "amigo");
       console.log(`📧 Email de bienvenida enviado a: ${subscriberData.email}`);
-    } catch (emailError) {
-      console.error("Error al enviar email de bienvenida:", emailError);
-      // No fallar si el email falla
+    } catch (emailError: any) {
+      console.error("❌ Error al enviar email de bienvenida:", emailError);
     }
 
     return NextResponse.json({
       success: true,
-      message: "¡Gracias por confirmar tu suscripción! Pronto recibirás nuestro newsletter",
+      message: "¡Gracias por confirmar tu suscripción! Revisa tu email de bienvenida",
     });
   } catch (error: any) {
     console.error("❌ Error al confirmar suscripción:", error);

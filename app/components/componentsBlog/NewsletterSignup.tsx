@@ -9,6 +9,7 @@ export default function NewsletterSignup() {
   const setIsSignInModalOpen = authContext?.setIsSignInModalOpen || (() => {});
 
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [verificationLink, setVerificationLink] = useState<string | null>(null);
@@ -21,10 +22,13 @@ export default function NewsletterSignup() {
   useEffect(() => {
     if (isAuthenticatedUser && user?.email) {
       setEmail(user.email);
+      // Intentar obtener nombre del usuario
+      setName(user.displayName || user.name || "");
     } else {
       setEmail("");
+      setName("");
     }
-  }, [user?.uid, isAuthenticatedUser, user?.email]);
+  }, [user?.uid, isAuthenticatedUser, user?.email, user?.displayName]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,6 +36,12 @@ export default function NewsletterSignup() {
     if (!email.trim()) {
       setStatus("error");
       setMessage("Por favor, ingresa tu email");
+      return;
+    }
+
+    if (!name.trim()) {
+      setStatus("error");
+      setMessage("Por favor, ingresa tu nombre");
       return;
     }
 
@@ -45,6 +55,7 @@ export default function NewsletterSignup() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.trim(),
+          name: name.trim(),
           userId: user?.uid || null,
           source: "blog",
           interests: [],
@@ -63,6 +74,7 @@ export default function NewsletterSignup() {
         
         if (!isAuthenticatedUser) {
           setEmail("");
+          setName("");
         }
 
         setTimeout(() => {
@@ -94,6 +106,18 @@ export default function NewsletterSignup() {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Campo de Nombre */}
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Tu nombre"
+          required
+          disabled={status === "loading" || status === "success"}
+          className="w-full px-4 py-2 rounded-lg border-0 text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-white hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
+        />
+
+        {/* Campo de Email */}
         <input
           type="email"
           value={email}
@@ -101,12 +125,12 @@ export default function NewsletterSignup() {
           placeholder="tu@email.com"
           required
           disabled={status === "loading" || status === "success"}
-          className="w-full px-4 py-2 rounded-lg border-0 text-blue-eske-40 font-medium placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-white hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
+          className="w-full px-4 py-2 rounded-lg border-0 text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-white hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
         />
 
         {isAuthenticatedUser && email && status === "idle" && (
           <p className="text-xs text-white-eske/80 bg-white/10 rounded px-2 py-1">
-            ℹ️ Usaremos tu email de perfil (puedes editarlo)
+            ℹ️ Usaremos los datos de tu perfil (puedes editarlos)
           </p>
         )}
 

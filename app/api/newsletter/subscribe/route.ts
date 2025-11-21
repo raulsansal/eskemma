@@ -6,12 +6,20 @@ import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, userId, source, interests } = await request.json();
+    const { email, name, userId, source, interests } = await request.json();
 
     // Validar email
     if (!email || typeof email !== "string") {
       return NextResponse.json(
         { success: false, message: "Email es requerido" },
+        { status: 400 }
+      );
+    }
+
+    // Validar nombre
+    if (!name || typeof name !== "string" || name.trim().length === 0) {
+      return NextResponse.json(
+        { success: false, message: "Nombre es requerido" },
         { status: 400 }
       );
     }
@@ -25,6 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+    const normalizedName = name.trim();
 
     // Verificar si ya está suscrito
     const subscribersRef = adminDb.collection("newsletter_subscribers");
@@ -50,16 +59,16 @@ export async function POST(request: NextRequest) {
         
         await subscribersRef.doc(existingDoc.id).update({
           confirmationToken: newToken,
+          name: normalizedName,
         });
 
         const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/newsletter/confirm?token=${newToken}`;
 
-        // Enviar email de verificación
         try {
-          await sendVerificationEmail(normalizedEmail, verificationLink);
+          await sendVerificationEmail(normalizedEmail, normalizedName, verificationLink);
           console.log(`📧 Email de verificación reenviado a: ${normalizedEmail}`);
         } catch (emailError) {
-          console.error("Error al enviar email:", emailError);
+          console.error("❌ Error al enviar email:", emailError);
         }
 
         console.log("🔗 Link de verificación (reenvío):", verificationLink);
@@ -68,7 +77,7 @@ export async function POST(request: NextRequest) {
           success: true,
           message: "Revisa tu email para confirmar tu suscripción",
           alreadySubscribed: true,
-          verificationLink: verificationLink, // Solo para testing
+          verificationLink: verificationLink,
         });
       }
 
@@ -77,6 +86,7 @@ export async function POST(request: NextRequest) {
 
         await subscribersRef.doc(existingDoc.id).update({
           status: "pending",
+          name: normalizedName,
           subscribedAt: new Date(),
           unsubscribedAt: null,
           confirmationToken: token,
@@ -84,14 +94,13 @@ export async function POST(request: NextRequest) {
           interests: interests || [],
         });
 
-        const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/newsletter/confirm?token=${token}`;
+        const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/newsletter/confirm?token=${token}`; // ✅ CORREGIDO: token en lugar de newToken
 
-        // Enviar email de verificación
         try {
-          await sendVerificationEmail(normalizedEmail, verificationLink);
+          await sendVerificationEmail(normalizedEmail, normalizedName, verificationLink);
           console.log(`📧 Email de verificación enviado a: ${normalizedEmail}`);
         } catch (emailError) {
-          console.error("Error al enviar email:", emailError);
+          console.error("❌ Error al enviar email:", emailError);
         }
 
         console.log(`✅ Suscripción reactivada (pending): ${normalizedEmail}`);
@@ -101,7 +110,7 @@ export async function POST(request: NextRequest) {
           success: true,
           message: "¡Bienvenido de vuelta! Revisa tu email para confirmar tu suscripción",
           subscriberId: existingDoc.id,
-          verificationLink: verificationLink, // Solo para testing
+          verificationLink: verificationLink,
         });
       }
     }
@@ -111,6 +120,7 @@ export async function POST(request: NextRequest) {
 
     const subscriberData = {
       email: normalizedEmail,
+      name: normalizedName,
       userId: userId || null,
       status: "pending",
       subscribedAt: new Date(),
@@ -126,13 +136,11 @@ export async function POST(request: NextRequest) {
 
     const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/newsletter/confirm?token=${token}`;
 
-    // Enviar email de verificación
     try {
-      await sendVerificationEmail(normalizedEmail, verificationLink);
+      await sendVerificationEmail(normalizedEmail, normalizedName, verificationLink);
       console.log(`📧 Email de verificación enviado a: ${normalizedEmail}`);
     } catch (emailError) {
-      console.error("Error al enviar email de verificación:", emailError);
-      // No fallar si el email falla, el usuario aún tiene el link en pantalla
+      console.error("❌ Error al enviar email de verificación:", emailError);
     }
 
     console.log(`✅ Nuevo suscriptor creado (pending): ${normalizedEmail} (${newSubscriberRef.id})`);
@@ -142,7 +150,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "¡Gracias por suscribirte! Revisa tu email para confirmar tu suscripción",
       subscriberId: newSubscriberRef.id,
-      verificationLink: verificationLink, // Solo para testing - eliminar en producción
+      verificationLink: verificationLink,
     });
   } catch (error: any) {
     console.error("❌ Error al procesar suscripción:", error);

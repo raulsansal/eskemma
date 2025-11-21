@@ -1,7 +1,7 @@
 // app/newsletter/confirm/ConfirmContent.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -10,8 +10,11 @@ export default function ConfirmContent() {
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
+  const hasConfirmed = useRef(false);
 
   useEffect(() => {
+    if (hasConfirmed.current) return;
+
     const token = searchParams.get("token");
 
     if (!token) {
@@ -20,6 +23,7 @@ export default function ConfirmContent() {
       return;
     }
 
+    hasConfirmed.current = true;
     confirmSubscription(token);
   }, [searchParams]);
 
@@ -37,10 +41,15 @@ export default function ConfirmContent() {
         setStatus("success");
         setMessage(data.message);
         
-        // Redirigir después de 20 segundos
         setTimeout(() => {
-          router.push("/blog");
-        }, 20000); // ✅ 20 segundos
+          // Cerrar la ventana actual si fue abierta por el sistema
+          if (window.opener) {
+            window.close();
+          } else {
+            // Si no se puede cerrar, redirigir
+            router.push("/blog");
+          }
+        }, 20000);
       } else {
         setStatus("error");
         setMessage(data.message || "Error al confirmar suscripción");
@@ -48,6 +57,17 @@ export default function ConfirmContent() {
     } catch (error) {
       setStatus("error");
       setMessage("Error al procesar la confirmación");
+    }
+  };
+
+  const handleGoToBlog = () => {
+    // Intentar cerrar la ventana actual y que el usuario regrese al tab original
+    if (window.opener) {
+      window.opener.location.href = "/blog";
+      window.close();
+    } else {
+      // Si no hay ventana padre, simplemente ir al blog
+      router.push("/blog");
     }
   };
 
@@ -79,11 +99,14 @@ export default function ConfirmContent() {
               </p>
             </div>
             <p className="text-sm text-gray-500 mb-4">
-              Serás redirigido al blog en 20 segundos...
+              Esta ventana se cerrará en 20 segundos...
             </p>
-            <Link href="/blog" className="inline-block px-6 py-3 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-medium">
+            <button
+              onClick={handleGoToBlog}
+              className="inline-block px-6 py-3 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-medium cursor-pointer"
+            >
               Ir al blog ahora →
-            </Link>
+            </button>
           </>
         )}
 

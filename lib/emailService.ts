@@ -1,7 +1,6 @@
 // lib/emailService.ts
 import nodemailer from "nodemailer";
 
-// Configurar transportador
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -11,13 +10,15 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * Email de verificación con link para confirmar suscripción
+ * Email de verificación personalizado con nombre
  */
-export async function sendVerificationEmail(email: string, verificationLink: string) {
+export async function sendVerificationEmail(email: string, name: string, verificationLink: string) {
+  const firstName = name.split(" ")[0]; // Tomar solo el primer nombre
+
   const mailOptions = {
     from: `"Eskemma - El Baúl de Fouché" <${process.env.GMAIL_USER}>`,
     to: email,
-    subject: "Confirma tu suscripción al Baúl de Fouché",
+    subject: `${firstName}, confirma tu suscripción al Baúl de Fouché`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -37,14 +38,14 @@ export async function sendVerificationEmail(email: string, verificationLink: str
         <body>
           <div class="container">
             <div class="header">
-              <h1 style="margin: 0; font-size: 28px;">¡Bienvenido al Baúl de Fouché!</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.9;">Estás a un paso de recibir nuestro newsletter</p>
+              <h1 style="margin: 0; font-size: 28px;">¡Hola, ${firstName}!</h1>
+              <p style="margin: 10px 0 0 0; opacity: 0.9;">Bienvenido al Baúl de Fouché</p>
             </div>
             <div class="content">
               <h2 style="color: #2D7A6E; margin-top: 0;">Confirma tu suscripción</h2>
               
               <p style="font-size: 16px; line-height: 1.6; color: #333;">
-                Gracias por tu interés en <strong>El Baúl de Fouché</strong>, el newsletter de Eskemma con análisis político y estratégico.
+                Gracias por tu interés en <strong>El Baúl de Fouché</strong>, nuestro newsletter con análisis político y estratégico.
               </p>
 
               <div class="highlight">
@@ -57,7 +58,7 @@ export async function sendVerificationEmail(email: string, verificationLink: str
               </div>
 
               <p style="font-size: 16px; line-height: 1.6; color: #333;">
-                Para completar tu suscripción, confirma tu correo haciendo clic en el botón:
+                Para completar tu suscripción, ${firstName}, confirma tu correo haciendo clic en el botón:
               </p>
               
               <div style="text-align: center;">
@@ -88,13 +89,15 @@ export async function sendVerificationEmail(email: string, verificationLink: str
 }
 
 /**
- * Email de bienvenida después de confirmar suscripción
+ * Email de bienvenida personalizado con nombre
  */
-export async function sendWelcomeEmail(email: string) {
+export async function sendWelcomeEmail(email: string, name: string) {
+  const firstName = name.split(" ")[0];
+
   const mailOptions = {
     from: `"Eskemma - El Baúl de Fouché" <${process.env.GMAIL_USER}>`,
     to: email,
-    subject: "¡Bienvenido al Baúl de Fouché! 🎉",
+    subject: `¡Bienvenido, ${firstName}! Ya eres parte del Baúl de Fouché 🎉`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -113,14 +116,14 @@ export async function sendWelcomeEmail(email: string) {
         <body>
           <div class="container">
             <div class="header">
-              <h1 style="margin: 0; font-size: 32px;">🎉 ¡Suscripción confirmada!</h1>
+              <h1 style="margin: 0; font-size: 32px;">🎉 ¡Bienvenido, ${firstName}!</h1>
               <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">Ya eres parte del Baúl de Fouché</p>
             </div>
             <div class="content">
               <h2 style="color: #2D7A6E; margin-top: 0;">¡Gracias por unirte!</h2>
               
               <p style="font-size: 16px; line-height: 1.7; color: #333;">
-                Nos emociona tenerte en nuestra comunidad de análisis político y estratégico. 
+                ${firstName}, nos emociona tenerte en nuestra comunidad de análisis político y estratégico.
               </p>
 
               <div class="feature">
@@ -142,7 +145,7 @@ export async function sendWelcomeEmail(email: string) {
               </div>
 
               <p style="margin-top: 30px; color: #666; font-size: 14px; line-height: 1.6; text-align: center;">
-                Si tienes dudas o sugerencias, responde a este correo. ¡Nos encanta escuchar a nuestros lectores!
+                Si tienes dudas o sugerencias, ${firstName}, responde a este correo. ¡Nos encanta escuchar a nuestros lectores!
               </p>
             </div>
             <div class="footer">
