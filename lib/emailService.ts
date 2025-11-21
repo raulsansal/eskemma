@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
  * Email de verificación personalizado con nombre
  */
 export async function sendVerificationEmail(email: string, name: string, verificationLink: string) {
-  const firstName = name.split(" ")[0]; // Tomar solo el primer nombre
+  const firstName = name.split(" ")[0];
 
   const mailOptions = {
     from: `"Eskemma - El Baúl de Fouché" <${process.env.GMAIL_USER}>`,
@@ -24,6 +24,7 @@ export async function sendVerificationEmail(email: string, name: string, verific
       <html>
         <head>
           <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -90,7 +91,7 @@ export async function sendVerificationEmail(email: string, name: string, verific
 }
 
 /**
- * Email de bienvenida personalizado con nombre
+ * Email de bienvenida personalizado con nombre (OPTIMIZADO)
  */
 export async function sendWelcomeEmail(email: string, name: string) {
   const firstName = name.split(" ")[0];
@@ -104,15 +105,58 @@ export async function sendWelcomeEmail(email: string, name: string) {
       <html>
         <head>
           <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #3C95C6 0%, #006988 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: white; padding: 40px 30px; border: 1px solid #F4F8FC; border-top: none; }
-            .button { display: inline-block; background: #3C95C6; color: white !important; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 25px 0; font-size: 16px; }
-            .button:hover { background: #006988; }
-            .footer { text-align: center; color: #666; font-size: 13px; margin-top: 30px; padding: 20px; }
-            .feature { background: #F9F8F8; border-radius: 8px; padding: 20px; margin: 15px 0; }
+            body { 
+              margin: 0; 
+              padding: 0; 
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            }
+            .container { 
+              max-width: 600px; 
+              margin: 0 auto; 
+              padding: 20px; 
+            }
+            .header { 
+              background: linear-gradient(135deg, #3C95C6 0%, #006988 100%); 
+              color: white; 
+              padding: 40px 30px; 
+              text-align: center; 
+              border-radius: 10px 10px 0 0; 
+            }
+            .content { 
+              background: white; 
+              padding: 40px 30px; 
+              border: 1px solid #F4F8FC; 
+              border-top: none; 
+            }
+            .button { 
+              display: inline-block; 
+              background: #3C95C6; 
+              color: white !important; 
+              padding: 16px 40px; 
+              text-decoration: none; 
+              border-radius: 8px; 
+              font-weight: 600; 
+              margin: 25px 0; 
+              font-size: 16px; 
+            }
+            .button:hover { 
+              background: #006988; 
+            }
+            .footer { 
+              text-align: center; 
+              color: #666; 
+              font-size: 13px; 
+              margin-top: 30px; 
+              padding: 20px; 
+            }
+            .feature { 
+              background: #F9F8F8; 
+              border-radius: 8px; 
+              padding: 20px; 
+              margin: 15px 0; 
+            }
           </style>
         </head>
         <body>
@@ -121,6 +165,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
               <h1 style="margin: 0; font-size: 32px;">¡Te damos la bienvenida, ${firstName}!</h1>
               <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">Ya eres parte del Baúl de Fouché</p>
             </div>
+            
             <div class="content">
               <h2 style="color: #3C95C6; margin-top: 0;">¡Gracias por unirte!</h2>
               
@@ -131,10 +176,10 @@ export async function sendWelcomeEmail(email: string, name: string) {
               <div class="feature">
                 <h3 style="color: #006988; margin-top: 0; font-size: 18px;">¿Qué puedes esperar?</h3>
                 <ul style="color: #333; line-height: 1.8; padding-left: 20px;">
-                  <li><strong>Artículos quincenales</strong> sobre estrategia política y comunicación política</li>
+                  <li><strong>Artículos quincenales</strong> sobre estrategia política y comunicación</li>
                   <li><strong>Análisis de opinión pública</strong> con datos y tendencias</li>  
-                  <li><strong>Novedades sobre nuestros recursos descargables</li>  
-                  <li><strong>Noticias sobre herramientas prácticas para tu proyecto político</li>                
+                  <li><strong>Novedades sobre recursos descargables</strong></li>  
+                  <li><strong>Herramientas prácticas para tu proyecto político</strong></li>                
                   <li><strong>Contenido exclusivo</strong> para suscriptores</li>                  
                 </ul>
               </div>
@@ -148,9 +193,11 @@ export async function sendWelcomeEmail(email: string, name: string) {
               </div>
 
               <p style="margin-top: 30px; color: #666; font-size: 14px; line-height: 1.6; text-align: center;">
-                Si tienes dudas o sugerencias, ${firstName}, responde a este correo. <br></br>¡Nos encanta escuchar a nuestros lectores!
+                Si tienes dudas, ${firstName}, responde a este correo.<br>
+                ¡Nos encanta escuchar a nuestros lectores!
               </p>
             </div>
+            
             <div class="footer">
               <p><strong>Eskemma</strong> - El ecosistema digital para tu proyecto político</p>
               <p style="margin: 10px 0; font-size: 12px;">

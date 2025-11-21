@@ -19,16 +19,37 @@ export default function UnsubscribeContent() {
   const [status, setStatus] = useState<"form" | "loading" | "success">("form");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
   const [otherReason, setOtherReason] = useState("");
   const [error, setError] = useState("");
+  const [loadingUserData, setLoadingUserData] = useState(true);
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
     if (emailParam) {
-      setEmail(decodeURIComponent(emailParam));
+      const decodedEmail = decodeURIComponent(emailParam);
+      setEmail(decodedEmail);
+      fetchUserData(decodedEmail);
+    } else {
+      setLoadingUserData(false);
     }
   }, [searchParams]);
+
+  const fetchUserData = async (userEmail: string) => {
+    try {
+      const response = await fetch(`/api/newsletter/get-subscriber?email=${encodeURIComponent(userEmail)}`);
+      const data = await response.json();
+      
+      if (data.success && data.subscriber) {
+        setName(data.subscriber.name || "");
+      }
+    } catch (error) {
+      console.error("Error al obtener datos del usuario:", error);
+    } finally {
+      setLoadingUserData(false);
+    }
+  };
 
   const handleReasonToggle = (reason: string) => {
     setSelectedReasons((prev) =>
@@ -79,6 +100,22 @@ export default function UnsubscribeContent() {
     }
   };
 
+  const firstName = name ? name.split(" ")[0] : "";
+
+  if (loadingUserData) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
+        <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-bluegreen-eske mx-auto mb-6"></div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Cargando...
+          </h2>
+          <p className="text-gray-600">Un momento por favor</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
       <div className="max-w-2xl w-full">
@@ -90,20 +127,24 @@ export default function UnsubscribeContent() {
               <div className="inline-block bg-gradient-to-br from-bluegreen-eske to-bluegreen-eske-70 text-white px-6 py-2 rounded-full text-sm font-semibold mb-4">
                 El Baúl de Fouché
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">
-                <span className="italic">Nous sommes désolés!</span> 😢
+              <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-3">
+                {firstName && (
+                  <span className="block text-bluegreen-eske mb-2">
+                    {firstName},
+                  </span>
+                )}
+                <span className="italic">¡Sentimos mucho que te vayas!</span> 😢
               </h1>
               <p className="text-xl text-gray-600 font-medium mb-2">
-                Sentimos mucho que te vayas
+                ¿Podemos pedirte que lo consideres?
               </p>
             </div>
 
             {/* Mensaje principal */}
             <div className="bg-blue-50 border-l-4 border-bluegreen-eske rounded-lg p-6 mb-8">
               <p className="text-gray-700 leading-relaxed mb-4">
-                Sentimos que quieras dejarnos. Ojalá podamos hacer algo para
-                evitarlo. Si no es así, en cualquier caso,{" "}
-                <strong>gracias por el tiempo que nos dedicaste</strong>.
+                Sentimos que quieras dejarnos{firstName && `, ${firstName}`}. Ojalá podamos hacer algo para
+                evitarlo. Si no es así, gracias por el tiempo que nos dedicaste.
               </p>
               <p className="text-gray-700 leading-relaxed">
                 Queremos pedirte un último favor: si nos cuentas{" "}
@@ -165,7 +206,7 @@ export default function UnsubscribeContent() {
                   htmlFor="otherReason"
                   className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  ¿Hay algo más que quieras decirnos? 💭
+                  ¿Hay algo más que quieras decirnos?
                 </label>
                 <textarea
                   id="otherReason"
@@ -200,14 +241,14 @@ export default function UnsubscribeContent() {
                   href="/blog"
                   className="flex-1 text-center border-2 border-bluegreen-eske text-bluegreen-eske font-semibold py-3 px-6 rounded-lg hover:bg-bluegreen-eske hover:text-white transition-all"
                 >
-                  ¡Me quedo! 🎉
+                  ¡Me quedo!
                 </Link>
               </div>
 
               {/* Nota final */}
               <div className="text-center pt-4">
                 <p className="text-sm text-gray-500">
-                  Recuerda: siempre puedes volver cuando quieras. Te estaremos
+                  Recuerda{firstName && `, ${firstName}`}: siempre puedes volver cuando quieras. Te estaremos
                   esperando. ❤️
                 </p>
               </div>
@@ -230,7 +271,6 @@ export default function UnsubscribeContent() {
         {status === "success" && (
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
             <div className="text-center">
-              {/* Icon */}
               <div className="mb-6">
                 <svg
                   className="w-20 h-20 text-orange-500 mx-auto"
@@ -248,26 +288,25 @@ export default function UnsubscribeContent() {
               </div>
 
               <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                Suscripción cancelada
+                {firstName ? `${firstName}, tu suscripción ha sido ` : "Suscripción "}cancelada
               </h2>
 
               <p className="text-lg text-gray-700 mb-6 leading-relaxed">
                 {message}
               </p>
 
-              {/* Mensaje final con toque personal */}
               <div className="bg-gradient-to-br from-bluegreen-eske-10 to-blue-50 border border-bluegreen-eske-30 rounded-xl p-6 mb-8">
                 <p className="text-gray-800 font-medium mb-3">
                   💙 <strong>Gracias por tu contribución</strong>
                 </p>
                 <p className="text-gray-700 text-sm leading-relaxed mb-3">
-                  Tu opinión nos ayuda a crear mejores contenidos para quienes
+                  {firstName && `${firstName}, `}tu opinión nos ayuda a crear mejores contenidos para quienes
                   se quedan. Si alguna vez cambias de opinión, las puertas del
                   Baúl siempre están abiertas para ti.
                 </p>
                 <p className="text-gray-600 text-sm italic">
                   "Un político sabio aprende más de sus críticos que de sus
-                  aduladores"
+                  aduladores."
                   <span className="text-xs block mt-1">
                     - Adaptado de Fouché
                   </span>
@@ -276,11 +315,10 @@ export default function UnsubscribeContent() {
 
               <div className="space-y-3 mb-6">
                 <p className="text-sm text-gray-500">
-                  Serás redirigido al blog en 10 segundos...
+                  Esta página será redirigida al blog en 10 segundos...
                 </p>
               </div>
 
-              {/* Botones finales */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/blog"
@@ -296,7 +334,6 @@ export default function UnsubscribeContent() {
                 </Link>
               </div>
 
-              {/* Opción de re-suscripción */}
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <p className="text-sm text-gray-600 mb-3">
                   ¿Cambiaste de opinión?
