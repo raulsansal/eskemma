@@ -95,7 +95,7 @@ export default function ConfirmContent() {
             <p className="text-gray-700 mb-4 leading-relaxed">{message}</p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
               <p className="text-sm text-blue-800">
-                📧 Recibirás "El Baúl de Fouché" con nuestros mejores artículos sobre estrategia política
+                Recibirás "El Baúl de Fouché" con nuestros mejores artículos sobre análisis político y estrategia electoral.
               </p>
             </div>
             <p className="text-sm text-gray-500 mb-4">

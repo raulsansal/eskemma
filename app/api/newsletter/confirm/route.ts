@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "¡Gracias por confirmar tu suscripción! Revisa tu email de bienvenida",
+      message: "¡Gracias por confirmar tu suscripción! Revisa en tu email, el correo de bienvenida.",
     });
   } catch (error: any) {
     console.error("❌ Error al confirmar suscripción:", error);

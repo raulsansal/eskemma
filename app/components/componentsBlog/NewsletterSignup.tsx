@@ -114,7 +114,7 @@ export default function NewsletterSignup() {
           placeholder="Tu nombre"
           required
           disabled={status === "loading" || status === "success"}
-          className="w-full px-4 py-2 rounded-lg border-0 text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-white hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
+          className="w-full px-4 py-2 rounded-lg border-0 bg-gray-eske-30 text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-white hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
         />
 
         {/* Campo de Email */}
@@ -125,7 +125,7 @@ export default function NewsletterSignup() {
           placeholder="tu@email.com"
           required
           disabled={status === "loading" || status === "success"}
-          className="w-full px-4 py-2 rounded-lg border-0 text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-white hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
+          className="w-full px-4 py-2 rounded-lg border-0 bg-gray-eske-30 text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-white hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
         />
 
         {isAuthenticatedUser && email && status === "idle" && (

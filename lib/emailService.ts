@@ -27,38 +27,39 @@ export async function sendVerificationEmail(email: string, name: string, verific
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #2D7A6E 0%, #1F5A51 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: white; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; }
-            .button { display: inline-block; background: #2D7A6E; color: white !important; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 25px 0; font-size: 16px; }
-            .button:hover { background: #1F5A51; }
+            .header { background: linear-gradient(135deg, #3C95C6 0%, #006988 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: white; padding: 40px 30px; border: 1px solid #F4F8FC; border-top: none; }
+            .button { display: inline-block; background: #3C95C6; color: white !important; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 25px 0; font-size: 16px; }
+            .button:hover { background: #006988; }
             .footer { text-align: center; color: #666; font-size: 13px; margin-top: 30px; padding: 20px; }
-            .highlight { background: #f0f9ff; border-left: 4px solid #2D7A6E; padding: 15px; margin: 20px 0; }
+            .highlight { background: #F9F8F8; border-left: 4px solid #3C95C6; padding: 15px; margin: 20px 0; }
           </style>
         </head>
         <body>
           <div class="container">
             <div class="header">
               <h1 style="margin: 0; font-size: 28px;">¡Hola, ${firstName}!</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.9;">Bienvenido al Baúl de Fouché</p>
+              <p style="margin: 10px 0 0 0; opacity: 0.9;">Te damos la bienvenida al Baúl de Fouché</p>
             </div>
             <div class="content">
-              <h2 style="color: #2D7A6E; margin-top: 0;">Confirma tu suscripción</h2>
+              <h2 style="color: #3C95C6; margin-top: 0;">Confirma tu suscripción</h2>
               
               <p style="font-size: 16px; line-height: 1.6; color: #333;">
-                Gracias por tu interés en <strong>El Baúl de Fouché</strong>, nuestro newsletter con análisis político y estratégico.
+                Gracias por tu interés en <strong>El Baúl de Fouché</strong>, nuestro newsletter con análisis político, estrategias electorales y los secretos del poder contemporáneo.
               </p>
 
               <div class="highlight">
-                <p style="margin: 0; font-size: 15px; color: #1F5A51;">
-                  📧 <strong>Recibirás:</strong><br>
-                  • Artículos sobre estrategia política<br>
-                  • Análisis electoral y de opinión pública<br>
+                <p style="margin: 0; font-size: 15px; color: #006988;">
+                  <strong>Recibirás:</strong><br>
+                  • Artículos sobre estrategia política y electoral<br>
+                  • Análisis de datos y de opinión pública<br>
+                  • Novedades sobre herramientas para tu proyecto político<br>
                   • Contenido exclusivo para suscriptores
                 </p>
               </div>
 
               <p style="font-size: 16px; line-height: 1.6; color: #333;">
-                Para completar tu suscripción, ${firstName}, confirma tu correo haciendo clic en el botón:
+                Para completar tu suscripción, confirma tu correo haciendo clic en el botón:
               </p>
               
               <div style="text-align: center;">
@@ -74,9 +75,9 @@ export async function sendVerificationEmail(email: string, name: string, verific
               </p>
             </div>
             <div class="footer">
-              <p><strong>Eskemma</strong> - Comunicación Política Digital</p>
-              <p style="margin: 5px 0;">Si el botón no funciona, copia y pega este enlace:</p>
-              <p style="font-size: 11px; word-break: break-all; color: #2D7A6E;">${verificationLink}</p>
+              <p><strong>Eskemma</strong> - El espacio digital para tu proyecto político</p>
+              <p style="margin: 5px 0;">Si el botón no funciona, copia y pega el siguiente enlace:</p>
+              <p style="font-size: 11px; word-break: break-all; color: #3C95C6;">${verificationLink}</p>
             </div>
           </div>
         </body>
@@ -97,7 +98,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
   const mailOptions = {
     from: `"Eskemma - El Baúl de Fouché" <${process.env.GMAIL_USER}>`,
     to: email,
-    subject: `¡Bienvenido, ${firstName}! Ya eres parte del Baúl de Fouché 🎉`,
+    subject: `¡Te damos la bienvenida, ${firstName}! Ya eres parte del Baúl de Fouché.`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -106,33 +107,35 @@ export async function sendWelcomeEmail(email: string, name: string) {
           <style>
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #2D7A6E 0%, #1F5A51 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: white; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; }
-            .button { display: inline-block; background: #2D7A6E; color: white !important; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 25px 0; font-size: 16px; }
+            .header { background: linear-gradient(135deg, #3C95C6 0%, #006988 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: white; padding: 40px 30px; border: 1px solid #F4F8FC; border-top: none; }
+            .button { display: inline-block; background: #3C95C6; color: white !important; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 25px 0; font-size: 16px; }
+            .button:hover { background: #006988; }
             .footer { text-align: center; color: #666; font-size: 13px; margin-top: 30px; padding: 20px; }
-            .feature { background: #f8fafb; border-radius: 8px; padding: 20px; margin: 15px 0; }
+            .feature { background: #F9F8F8; border-radius: 8px; padding: 20px; margin: 15px 0; }
           </style>
         </head>
         <body>
           <div class="container">
             <div class="header">
-              <h1 style="margin: 0; font-size: 32px;">🎉 ¡Bienvenido, ${firstName}!</h1>
+              <h1 style="margin: 0; font-size: 32px;">¡Te damos la bienvenida, ${firstName}!</h1>
               <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">Ya eres parte del Baúl de Fouché</p>
             </div>
             <div class="content">
-              <h2 style="color: #2D7A6E; margin-top: 0;">¡Gracias por unirte!</h2>
+              <h2 style="color: #3C95C6; margin-top: 0;">¡Gracias por unirte!</h2>
               
               <p style="font-size: 16px; line-height: 1.7; color: #333;">
-                ${firstName}, nos emociona tenerte en nuestra comunidad de análisis político y estratégico.
+                ${firstName}, nos emociona tenerte en nuestro Newsletter.
               </p>
 
               <div class="feature">
-                <h3 style="color: #1F5A51; margin-top: 0; font-size: 18px;">📬 ¿Qué puedes esperar?</h3>
+                <h3 style="color: #006988; margin-top: 0; font-size: 18px;">¿Qué puedes esperar?</h3>
                 <ul style="color: #333; line-height: 1.8; padding-left: 20px;">
-                  <li><strong>Artículos semanales</strong> sobre estrategia política y comunicación</li>
-                  <li><strong>Análisis electoral</strong> con datos y tendencias</li>
-                  <li><strong>Contenido exclusivo</strong> para suscriptores</li>
-                  <li><strong>Recursos descargables</strong> y herramientas prácticas</li>
+                  <li><strong>Artículos quincenales</strong> sobre estrategia política y comunicación política</li>
+                  <li><strong>Análisis de opinión pública</strong> con datos y tendencias</li>  
+                  <li><strong>Novedades sobre nuestros recursos descargables</li>  
+                  <li><strong>Noticias sobre herramientas prácticas para tu proyecto político</li>                
+                  <li><strong>Contenido exclusivo</strong> para suscriptores</li>                  
                 </ul>
               </div>
 
@@ -145,13 +148,13 @@ export async function sendWelcomeEmail(email: string, name: string) {
               </div>
 
               <p style="margin-top: 30px; color: #666; font-size: 14px; line-height: 1.6; text-align: center;">
-                Si tienes dudas o sugerencias, ${firstName}, responde a este correo. ¡Nos encanta escuchar a nuestros lectores!
+                Si tienes dudas o sugerencias, ${firstName}, responde a este correo. <br></br>¡Nos encanta escuchar a nuestros lectores!
               </p>
             </div>
             <div class="footer">
-              <p><strong>Eskemma</strong> - Comunicación Política Digital</p>
+              <p><strong>Eskemma</strong> - El ecosistema digital para tu proyecto político</p>
               <p style="margin: 10px 0; font-size: 12px;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/blog" style="color: #2D7A6E; text-decoration: none;">Visitar blog</a> | 
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/" style="color: #3C95C6; text-decoration: none;">Ir a página de inicio</a> | 
                 <a href="${process.env.NEXT_PUBLIC_APP_URL}/newsletter/unsubscribe?email=${encodeURIComponent(email)}" style="color: #999; text-decoration: none;">Cancelar suscripción</a>
               </p>
             </div>
