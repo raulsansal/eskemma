@@ -1,6 +1,7 @@
 // app/page.tsx
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
@@ -22,6 +23,9 @@ import FaqSection from "./components/componentsHome/FaqSection";
 export default function HomePage() {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const isPublicMode = searchParams.get("public") === "true";
+  const { logout } = useAuth();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",

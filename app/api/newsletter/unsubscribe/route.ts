@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "No encontramos tu suscripción. Quizás ya estabas fuera del Baúl 🤔",
+          message: "No encontramos tu suscripción en nuestra base de datos.",
+          notFound: true,
         },
         { status: 404 }
       );
@@ -36,17 +36,29 @@ export async function POST(request: NextRequest) {
     const subscriberDoc = query.docs[0];
     const subscriberData = subscriberDoc.data();
 
-    // Verificar si ya estaba dado de baja
+    // ✅ VALIDACIÓN: Solo usuarios con status "confirmed" pueden desuscribirse
+    if (subscriberData.status === "pending") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Tu suscripción aún no ha sido confirmada. Revisa tu email para confirmarla primero.",
+          isPending: true,
+        },
+        { status: 400 }
+      );
+    }
+
+    // ✅ VALIDACIÓN: Prevenir desuscripción duplicada
     if (subscriberData.status === "unsubscribed") {
       return NextResponse.json({
-        success: true,
-        message:
-          "Ya te habías despedido antes. ¡Pero siempre serás bienvenido de vuelta!",
+        success: false,
+        message: "Ya te habías desuscrito anteriormente.",
         alreadyUnsubscribed: true,
+        subscriberName: subscriberData.name || null,
       });
     }
 
-    // Preparar datos de feedback
+    // ✅ Proceder con la desuscripción (solo si status === "confirmed")
     const unsubscribeData: any = {
       status: "unsubscribed",
       unsubscribedAt: new Date(),
@@ -64,10 +76,11 @@ export async function POST(request: NextRequest) {
     // Actualizar suscriptor
     await subscribersRef.doc(subscriberDoc.id).update(unsubscribeData);
 
-    // Guardar feedback en colección separada para análisis
+    // Guardar feedback en colección separada
     if ((reasons && reasons.length > 0) || otherReason) {
       await adminDb.collection("newsletter_feedback").add({
         email: normalizedEmail,
+        name: subscriberData.name || null,
         userId: subscriberData.userId || null,
         type: "unsubscribe",
         reasons: reasons || [],
@@ -90,16 +103,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message:
-        "Tu opinión nos ayuda a mejorar. ¡Gracias por el tiempo que nos dedicaste!",
+      message: "Tu opinión nos ayuda a mejorar. ¡Gracias por el tiempo que nos dedicaste!",
+      subscriberName: subscriberData.name || null,
     });
   } catch (error: any) {
     console.error("❌ Error al cancelar suscripción:", error);
     return NextResponse.json(
       {
         success: false,
-        message:
-          "Algo salió mal en nuestro lado. ¿Podrías intentarlo de nuevo?",
+        message: "Algo salió mal. ¿Podrías intentarlo de nuevo?",
       },
       { status: 500 }
     );

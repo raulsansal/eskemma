@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 const UNSUBSCRIBE_REASONS = [
@@ -15,8 +15,7 @@ const UNSUBSCRIBE_REASONS = [
 
 export default function UnsubscribeContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const [status, setStatus] = useState<"form" | "loading" | "success">("form");
+  const [status, setStatus] = useState<"form" | "loading" | "success" | "already-unsubscribed">("form");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -24,6 +23,7 @@ export default function UnsubscribeContent() {
   const [otherReason, setOtherReason] = useState("");
   const [error, setError] = useState("");
   const [loadingUserData, setLoadingUserData] = useState(true);
+  const [countdown, setCountdown] = useState(20); // ✅ NUEVO: 20 segundos
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -36,6 +36,24 @@ export default function UnsubscribeContent() {
     }
   }, [searchParams]);
 
+  // ✅ NUEVO: Countdown y cierre de ventana
+  useEffect(() => {
+    if (status === "success" || status === "already-unsubscribed") {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            window.close(); // ✅ Cerrar ventana
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [status]);
+
   const fetchUserData = async (userEmail: string) => {
     try {
       const response = await fetch(`/api/newsletter/get-subscriber?email=${encodeURIComponent(userEmail)}`);
@@ -43,6 +61,12 @@ export default function UnsubscribeContent() {
       
       if (data.success && data.subscriber) {
         setName(data.subscriber.name || "");
+        
+        // ✅ VALIDACIÓN: Si ya está desuscrito, mostrar mensaje inmediatamente
+        if (data.subscriber.status === "unsubscribed") {
+          setStatus("already-unsubscribed");
+          setMessage("Ya te habías desuscrito anteriormente.");
+        }
       }
     } catch (error) {
       console.error("Error al obtener datos del usuario:", error);
@@ -86,10 +110,12 @@ export default function UnsubscribeContent() {
       if (data.success) {
         setStatus("success");
         setMessage(data.message);
-
-        setTimeout(() => {
-          router.push("/blog");
-        }, 10000);
+        setCountdown(20); // ✅ Iniciar countdown
+      } else if (data.alreadyUnsubscribed) {
+        setStatus("already-unsubscribed");
+        setMessage(data.message);
+        setName(data.subscriberName || name);
+        setCountdown(20);
       } else {
         setStatus("form");
         setError(data.message || "Algo no salió bien. ¿Intentas de nuevo?");
@@ -107,9 +133,7 @@ export default function UnsubscribeContent() {
       <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
         <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-bluegreen-eske mx-auto mb-6"></div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Cargando...
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Cargando...</h2>
           <p className="text-gray-600">Un momento por favor</p>
         </div>
       </main>
@@ -122,16 +146,13 @@ export default function UnsubscribeContent() {
         {/* FORMULARIO */}
         {status === "form" && (
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-            {/* Header con diseño atractivo */}
             <div className="text-center mb-8">
               <div className="inline-block bg-gradient-to-br from-bluegreen-eske to-bluegreen-eske-70 text-white px-6 py-2 rounded-full text-sm font-semibold mb-4">
                 El Baúl de Fouché
               </div>
               <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-3">
                 {firstName && (
-                  <span className="block text-bluegreen-eske mb-2">
-                    {firstName},
-                  </span>
+                  <span className="block text-bluegreen-eske mb-2">{firstName},</span>
                 )}
                 <span className="italic">¡Sentimos mucho que te vayas!</span> 😢
               </h1>
@@ -140,27 +161,18 @@ export default function UnsubscribeContent() {
               </p>
             </div>
 
-            {/* Mensaje principal */}
             <div className="bg-blue-50 border-l-4 border-bluegreen-eske rounded-lg p-6 mb-8">
               <p className="text-gray-700 leading-relaxed mb-4">
-                Sentimos que quieras dejarnos{firstName && `, ${firstName}`}. Ojalá podamos hacer algo para
-                evitarlo. Si no es así, gracias por el tiempo que nos dedicaste.
+                Sentimos que quieras dejarnos{firstName && `, ${firstName}`}. Ojalá podamos hacer algo para evitarlo. Si no es así, gracias por el tiempo que nos dedicaste.
               </p>
               <p className="text-gray-700 leading-relaxed">
-                Queremos pedirte un último favor: si nos cuentas{" "}
-                <strong>por qué te vas</strong>, será más fácil para nosotros
-                ofrecer un mejor producto a nuestros suscriptores. Y quién
-                sabe... tal vez podamos hacer que te quedes con nosotros. 🤔
+                Queremos pedirte un último favor: si nos cuentas <strong>por qué te vas</strong>, será más fácil para nosotros ofrecer un mejor producto a nuestros suscriptores. Y quién sabe... tal vez podamos hacer que te quedes con nosotros. 🤔
               </p>
             </div>
 
             <form onSubmit={handleUnsubscribe} className="space-y-6">
-              {/* Email */}
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
+                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                   Confirma tu email
                 </label>
                 <input
@@ -174,11 +186,9 @@ export default function UnsubscribeContent() {
                 />
               </div>
 
-              {/* Razones */}
               <div>
                 <p className="text-sm font-semibold text-gray-700 mb-3">
-                  ¿Por qué decides desuscribirte? (opcional, pero muy valioso
-                  para nosotros)
+                  ¿Por qué decides desuscribirte? (opcional, pero muy valioso para nosotros)
                 </p>
                 <div className="space-y-2">
                   {UNSUBSCRIBE_REASONS.map((reason) => (
@@ -200,12 +210,8 @@ export default function UnsubscribeContent() {
                 </div>
               </div>
 
-              {/* Otra razón */}
               <div>
-                <label
-                  htmlFor="otherReason"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
+                <label htmlFor="otherReason" className="block text-sm font-semibold text-gray-700 mb-2">
                   ¿Hay algo más que quieras decirnos?
                 </label>
                 <textarea
@@ -217,19 +223,16 @@ export default function UnsubscribeContent() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent transition-all resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  Tu feedback nos ayuda a mejorar. No te llevará más de un
-                  minuto. 🙏
+                  Tu feedback nos ayuda a mejorar. No te llevará más de un minuto. 🙏
                 </p>
               </div>
 
-              {/* Error */}
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <p className="text-sm text-red-800">{error}</p>
                 </div>
               )}
 
-              {/* Botones */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <button
                   type="submit"
@@ -245,11 +248,9 @@ export default function UnsubscribeContent() {
                 </Link>
               </div>
 
-              {/* Nota final */}
               <div className="text-center pt-4">
                 <p className="text-sm text-gray-500">
-                  Recuerda{firstName && `, ${firstName}`}: siempre puedes volver cuando quieras. Te estaremos
-                  esperando. ❤️
+                  Recuerda{firstName && `, ${firstName}`}: siempre puedes volver cuando quieras. Te estaremos esperando. ❤️
                 </p>
               </div>
             </form>
@@ -260,10 +261,56 @@ export default function UnsubscribeContent() {
         {status === "loading" && (
           <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-bluegreen-eske mx-auto mb-6"></div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Procesando tu solicitud...
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Procesando tu solicitud...</h2>
             <p className="text-gray-600">Un momento por favor</p>
+          </div>
+        )}
+
+        {/* YA DESUSCRITO */}
+        {status === "already-unsubscribed" && (
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+            <div className="text-center">
+              <div className="mb-6">
+                <svg className="w-20 h-20 text-yellow-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                {firstName && `${firstName}, `}Ya te habías desuscrito
+              </h2>
+
+              <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                No te preocupes, tu desuscripción ya estaba registrada desde antes.
+              </p>
+
+              <div className="bg-gradient-to-br from-blue-50 to-gray-50 border border-blue-200 rounded-xl p-6 mb-8">
+                <p className="text-gray-800 font-medium mb-3">
+                  💙 <strong>¿Cambiaste de opinión?</strong>
+                </p>
+                <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                  Si deseas volver a recibir nuestro newsletter, siempre puedes suscribirte de nuevo. Las puertas del Baúl están abiertas para ti.
+                </p>
+                <Link
+                  href="/blog"
+                  className="inline-block bg-gradient-to-r from-bluegreen-eske to-bluegreen-eske-70 text-white font-semibold py-3 px-8 rounded-lg hover:from-bluegreen-eske-70 hover:to-bluegreen-eske transition-all shadow-md hover:shadow-lg"
+                >
+                  Suscribirme de nuevo
+                </Link>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <p className="text-sm text-gray-500">
+                  Esta ventana se cerrará automáticamente en <strong>{countdown}</strong> segundos...
+                </p>
+                <button
+                  onClick={() => window.close()}
+                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium text-sm underline transition-colors"
+                >
+                  Cerrar ahora
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -272,18 +319,8 @@ export default function UnsubscribeContent() {
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
             <div className="text-center">
               <div className="mb-6">
-                <svg
-                  className="w-20 h-20 text-orange-500 mx-auto"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
+                <svg className="w-20 h-20 text-orange-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
 
@@ -300,49 +337,35 @@ export default function UnsubscribeContent() {
                   💙 <strong>Gracias por tu contribución</strong>
                 </p>
                 <p className="text-gray-700 text-sm leading-relaxed mb-3">
-                  {firstName && `${firstName}, `}tu opinión nos ayuda a crear mejores contenidos para quienes
-                  se quedan. Si alguna vez cambias de opinión, las puertas del
-                  Baúl siempre están abiertas para ti.
+                  {firstName && `${firstName}, `}tu opinión nos ayuda a crear mejores contenidos para quienes se quedan. Si alguna vez cambias de opinión, las puertas del Baúl siempre están abiertas para ti.
                 </p>
                 <p className="text-gray-600 text-sm italic">
-                  "Un político sabio aprende más de sus críticos que de sus
-                  aduladores."
-                  <span className="text-xs block mt-1">
-                    - Adaptado de Fouché
-                  </span>
+                  "Un político sabio aprende más de sus críticos que de sus aduladores."
+                  <span className="text-xs block mt-1">- Adaptado de Fouché</span>
                 </p>
               </div>
 
-              <div className="space-y-3 mb-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-700 mb-2">
+                  <strong>¿Cambiaste de opinión?</strong>
+                </p>
+                <Link
+                  href="/blog"
+                  className="inline-block text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium text-sm underline transition-colors"
+                >
+                  Volver a suscribirme →
+                </Link>
+              </div>
+
+              <div className="space-y-3">
                 <p className="text-sm text-gray-500">
-                  Esta página será redirigida al blog en 10 segundos...
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link
-                  href="/blog"
-                  className="flex-1 text-center px-6 py-3 bg-gradient-to-r from-bluegreen-eske to-bluegreen-eske-70 text-white rounded-lg hover:from-bluegreen-eske-70 hover:to-bluegreen-eske transition-all font-semibold shadow-md hover:shadow-lg"
-                >
-                  Explorar el blog
-                </Link>
-                <Link
-                  href="/blog"
-                  className="flex-1 text-center border-2 border-bluegreen-eske text-bluegreen-eske font-semibold py-3 px-6 rounded-lg hover:bg-bluegreen-eske-10 transition-all"
-                >
-                  Volver al inicio
-                </Link>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-600 mb-3">
-                  ¿Cambiaste de opinión?
+                  Esta ventana se cerrará automáticamente en <strong>{countdown}</strong> segundos...
                 </p>
                 <button
-                  onClick={() => router.push("/blog")}
-                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium text-sm underline transition-colors"
+                  onClick={() => window.close()}
+                  className="text-gray-600 hover:text-gray-800 font-medium text-sm underline transition-colors"
                 >
-                  Suscribirme de nuevo →
+                  Cerrar ahora
                 </button>
               </div>
             </div>

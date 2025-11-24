@@ -137,7 +137,7 @@ export default function NewsletterSignup() {
         <button
           type="submit"
           disabled={status === "loading" || status === "success"}
-          className="w-full bg-white text-bluegreen-eske font-medium py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-white text-bluegreen-eske font-medium py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {status === "loading" ? "Procesando..." : status === "success" ? "✓ Solicitud enviada" : "Suscribirse"}
         </button>

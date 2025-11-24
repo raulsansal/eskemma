@@ -2,14 +2,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function ConfirmContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
+  const [countdown, setCountdown] = useState(20); // ✅ Countdown de 20 segundos
   const hasConfirmed = useRef(false);
 
   useEffect(() => {
@@ -27,6 +27,24 @@ export default function ConfirmContent() {
     confirmSubscription(token);
   }, [searchParams]);
 
+  // ✅ Countdown y cierre automático
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            window.close(); // ✅ Cerrar ventana
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 5000);
+
+      return () => clearInterval(timer);
+    }
+  }, [status]);
+
   const confirmSubscription = async (token: string) => {
     try {
       const response = await fetch("/api/newsletter/confirm", {
@@ -40,16 +58,6 @@ export default function ConfirmContent() {
       if (data.success) {
         setStatus("success");
         setMessage(data.message);
-        
-        setTimeout(() => {
-          // Cerrar la ventana actual si fue abierta por el sistema
-          if (window.opener) {
-            window.close();
-          } else {
-            // Si no se puede cerrar, redirigir
-            router.push("/blog");
-          }
-        }, 20000);
       } else {
         setStatus("error");
         setMessage(data.message || "Error al confirmar suscripción");
@@ -60,23 +68,13 @@ export default function ConfirmContent() {
     }
   };
 
-  const handleGoToBlog = () => {
-    // Intentar cerrar la ventana actual y que el usuario regrese al tab original
-    if (window.opener) {
-      window.opener.location.href = "/blog";
-      window.close();
-    } else {
-      // Si no hay ventana padre, simplemente ir al blog
-      router.push("/blog");
-    }
-  };
-
   return (
-    <main className="min-h-screen bg-gray-eske-10 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white-eske rounded-lg shadow-lg p-8 text-center">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+        {/* LOADING */}
         {status === "loading" && (
           <>
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-bluegreen-eske mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-bluegreen-eske mx-auto mb-6"></div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
               Confirmando suscripción...
             </h1>
@@ -84,45 +82,90 @@ export default function ConfirmContent() {
           </>
         )}
 
+        {/* SUCCESS */}
         {status === "success" && (
           <>
-            <svg className="w-20 h-20 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h1 className="text-2xl font-bold text-bluegreen-eske mb-3">
+            <div className="mb-6">
+              <svg className="w-20 h-20 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+
+            <h1 className="text-3xl font-bold text-bluegreen-eske mb-4">
               ¡Suscripción confirmada!
             </h1>
-            <p className="text-gray-700 mb-4 leading-relaxed">{message}</p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <p className="text-sm text-blue-800">
-                Recibirás "El Baúl de Fouché" con nuestros mejores artículos sobre análisis político y estrategia electoral.
+
+            <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+              {message}
+            </p>
+
+            <div className="bg-gradient-to-br from-bluegreen-eske-10 to-blue-50 border border-bluegreen-eske-30 rounded-xl p-6 mb-6">
+              <p className="text-gray-800 font-medium mb-2">
+                📧 <strong>¡Te damos la bienvenida al Baúl de Fouché!</strong>
+              </p>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                Recibirás nuestros mejores artículos sobre análisis político, estrategia electoral y comunicación política directamente en tu correo.
               </p>
             </div>
-            <p className="text-sm text-gray-500 mb-4">
-              Esta ventana se cerrará en 20 segundos...
-            </p>
-            <button
-              onClick={handleGoToBlog}
-              className="inline-block px-6 py-3 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-medium cursor-pointer"
-            >
-              Ir al blog ahora →
-            </button>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-gray-700">
+                <strong>Revisa tu bandeja de entrada</strong> para ver el email de bienvenida con más detalles sobre lo que puedes esperar.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-sm text-gray-500">
+                Esta ventana se cerrará automáticamente en <strong>{countdown}</strong> segundos...
+              </p>
+              <button
+                onClick={() => window.close()}
+                className="text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium text-sm underline transition-colors"
+              >
+                Cerrar ahora
+              </button>
+            </div>
           </>
         )}
 
+        {/* ERROR */}
         {status === "error" && (
           <>
-            <svg className="w-20 h-20 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <div className="mb-6">
+              <svg className="w-20 h-20 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+
             <h1 className="text-2xl font-bold text-gray-800 mb-3">
               Error al confirmar
             </h1>
-            <p className="text-gray-600 mb-6">{message}</p>
+
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              {message}
+            </p>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-yellow-800">
+                <strong>¿Qué puedo hacer?</strong><br/>
+                El enlace puede haber expirado o ya fue usado. Intenta suscribirte de nuevo desde el blog.
+              </p>
+            </div>
+
             <div className="space-y-3">
-              <Link href="/blog" className="block px-6 py-3 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-medium">
-                Volver al blog
+              <Link 
+                href="/blog" 
+                className="inline-block px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-medium shadow-md hover:shadow-lg"
+              >
+                Ir al blog
               </Link>
+              <p className="text-sm text-gray-500">o</p>
+              <button
+                onClick={() => window.close()}
+                className="text-gray-600 hover:text-gray-800 font-medium text-sm underline transition-colors"
+              >
+                Cerrar esta ventana
+              </button>
             </div>
           </>
         )}
