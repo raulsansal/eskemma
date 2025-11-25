@@ -50,6 +50,13 @@ export default function HomePage() {
 
   const userName = "Usuario";
 
+  // ✅ NUEVO: Si viene del email, forzar logout
+  useEffect(() => {
+    if (isPublicMode) {
+      logout();
+    }
+  }, [isPublicMode, logout]);
+
   // ✅ AGREGAR: useEffect para cargar los posts
   useEffect(() => {
     async function loadBlogPosts() {

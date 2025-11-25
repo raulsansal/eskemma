@@ -23,7 +23,7 @@ export default function UnsubscribeContent() {
   const [otherReason, setOtherReason] = useState("");
   const [error, setError] = useState("");
   const [loadingUserData, setLoadingUserData] = useState(true);
-  const [countdown, setCountdown] = useState(20); // ✅ NUEVO: 20 segundos
+  const [countdown, setCountdown] = useState(20);
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -36,14 +36,13 @@ export default function UnsubscribeContent() {
     }
   }, [searchParams]);
 
-  // ✅ NUEVO: Countdown y cierre de ventana
   useEffect(() => {
     if (status === "success" || status === "already-unsubscribed") {
       const timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            window.close(); // ✅ Cerrar ventana
+            window.close();
             return 0;
           }
           return prev - 1;
@@ -62,7 +61,6 @@ export default function UnsubscribeContent() {
       if (data.success && data.subscriber) {
         setName(data.subscriber.name || "");
         
-        // ✅ VALIDACIÓN: Si ya está desuscrito, mostrar mensaje inmediatamente
         if (data.subscriber.status === "unsubscribed") {
           setStatus("already-unsubscribed");
           setMessage("Ya te habías desuscrito anteriormente.");
@@ -110,7 +108,7 @@ export default function UnsubscribeContent() {
       if (data.success) {
         setStatus("success");
         setMessage(data.message);
-        setCountdown(20); // ✅ Iniciar countdown
+        setCountdown(20);
       } else if (data.alreadyUnsubscribed) {
         setStatus("already-unsubscribed");
         setMessage(data.message);
@@ -236,12 +234,12 @@ export default function UnsubscribeContent() {
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg"
+                  className="flex-1 bg-gradient-to-r from-red-eske-40 to-red-eske-70 text-white font-semibold py-3 px-6 rounded-lg hover:from-red-eske-30 hover:to-red-eske transition-all shadow-md hover:shadow-lg"
                 >
                   Confirmar cancelación
                 </button>
                 <Link
-                  href="/blog"
+                  href="/public/blog"
                   className="flex-1 text-center border-2 border-bluegreen-eske text-bluegreen-eske font-semibold py-3 px-6 rounded-lg hover:bg-bluegreen-eske hover:text-white transition-all"
                 >
                   ¡Me quedo!
@@ -271,7 +269,7 @@ export default function UnsubscribeContent() {
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
             <div className="text-center">
               <div className="mb-6">
-                <svg className="w-20 h-20 text-yellow-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-20 h-20 text-yellow-eske mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
@@ -292,7 +290,7 @@ export default function UnsubscribeContent() {
                   Si deseas volver a recibir nuestro newsletter, siempre puedes suscribirte de nuevo. Las puertas del Baúl están abiertas para ti.
                 </p>
                 <Link
-                  href="/blog"
+                  href="/public/blog"
                   className="inline-block bg-gradient-to-r from-bluegreen-eske to-bluegreen-eske-70 text-white font-semibold py-3 px-8 rounded-lg hover:from-bluegreen-eske-70 hover:to-bluegreen-eske transition-all shadow-md hover:shadow-lg"
                 >
                   Suscribirme de nuevo
@@ -319,7 +317,7 @@ export default function UnsubscribeContent() {
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
             <div className="text-center">
               <div className="mb-6">
-                <svg className="w-20 h-20 text-orange-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-20 h-20 text-orange-eske mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -340,7 +338,7 @@ export default function UnsubscribeContent() {
                   {firstName && `${firstName}, `}tu opinión nos ayuda a crear mejores contenidos para quienes se quedan. Si alguna vez cambias de opinión, las puertas del Baúl siempre están abiertas para ti.
                 </p>
                 <p className="text-gray-600 text-sm italic">
-                  "Un político sabio aprende más de sus críticos que de sus aduladores."
+                  &quot;Un político sabio aprende más de sus críticos que de sus aduladores.&quot;
                   <span className="text-xs block mt-1">- Adaptado de Fouché</span>
                 </p>
               </div>
@@ -350,7 +348,7 @@ export default function UnsubscribeContent() {
                   <strong>¿Cambiaste de opinión?</strong>
                 </p>
                 <Link
-                  href="/blog"
+                  href="/public/blog"
                   className="inline-block text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium text-sm underline transition-colors"
                 >
                   Volver a suscribirme →

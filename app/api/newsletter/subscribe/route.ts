@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
           name: normalizedName,
         });
 
-        const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/newsletter/confirm?token=${newToken}`;
+        const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/public/confirm?token=${newToken}`;
 
         try {
           await sendVerificationEmail(normalizedEmail, normalizedName, verificationLink);
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
           interests: interests || [],
         });
 
-        const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/newsletter/confirm?token=${token}`; // ✅ CORREGIDO: token en lugar de newToken
+        const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/public/confirm?token=${token}`;
 
         try {
           await sendVerificationEmail(normalizedEmail, normalizedName, verificationLink);
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
 
     const newSubscriberRef = await subscribersRef.add(subscriberData);
 
-    const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/newsletter/confirm?token=${token}`;
+    const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL}/public/confirm?token=${token}`;
 
     try {
       await sendVerificationEmail(normalizedEmail, normalizedName, verificationLink);

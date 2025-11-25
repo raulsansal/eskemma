@@ -8,15 +8,13 @@ const transporter = nodemailer.createTransport({
     pass: process.env.GMAIL_APP_PASSWORD,
   },
 
-  // ✅ NUEVO: Opciones adicionales para mejor entrega
   tls: {
     rejectUnauthorized: false,
   },
-  debug: true, // Ver logs detallados
-  logger: true, // Activar logs
+  debug: true,
+  logger: true,
 });
 
-// ✅ NUEVO: Verificar conexión al iniciar
 transporter.verify(function (error, success) {
   if (error) {
     console.error("❌ Error en configuración de email:", error);
@@ -66,7 +64,7 @@ export async function sendVerificationEmail(
               <h2 style="color: #3C95C6; margin-top: 0;">Confirma tu suscripción</h2>
               
               <p style="font-size: 16px; line-height: 1.6; color: #333;">
-                Gracias por tu interés en <strong>El Baúl de Fouché</strong>, nuestro newsletter con análisis político, estrategias electorales y los secretos del poder contemporáneo.
+                Gracias por tu interés en <strong>El Baúl de Fouché</strong>, nuestro newsletter de comunicación política y los secretos del poder contemporáneo.
               </p>
 
               <div class="highlight">
@@ -115,12 +113,12 @@ export async function sendVerificationEmail(
   } catch (error: any) {
     console.error(`❌ Error al enviar email a ${email}:`, error);
     console.error(`❌ Error detallado:`, error.message);
-    throw error; // Re-throw para que la API lo capture
+    throw error;
   }
 }
 
 /**
- * Email de bienvenida personalizado con nombre (OPTIMIZADO)
+ * Email de bienvenida personalizado con nombre
  */
 export async function sendWelcomeEmail(email: string, name: string) {
   const firstName = name.split(" ")[0];
@@ -205,10 +203,10 @@ export async function sendWelcomeEmail(email: string, name: string) {
               <div class="feature">
                 <h3 style="color: #006988; margin-top: 0; font-size: 18px;">¿Qué puedes esperar?</h3>
                 <ul style="color: #333; line-height: 1.8; padding-left: 20px; margin: 10px 0;">
-                  <li><strong>Artículos quincenales</strong> sobre estrategia política y comunicación</li>
-                  <li><strong>Análisis de opinión pública</strong> con datos y tendencias</li>  
-                  <li><strong>Novedades sobre recursos descargables</strong></li>  
-                  <li><strong>Herramientas prácticas para tu proyecto político</strong></li>                
+                  <li><strong>Artículos quincenales</strong> sobre estrategia y comunicación política</li>
+                  <li><strong>Análisis político y de opinión pública</strong> con datos y tendencias</li>  
+                  <li>Novedades sobre <strong>recursos descargables</strong></li>  
+                  <li><strong>Herramientas</strong> para tu proyecto político</li>                
                   <li><strong>Contenido exclusivo</strong> para suscriptores</li>                  
                 </ul>
               </div>
@@ -218,7 +216,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
               </p>
               
               <div style="text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/blog" class="button">Explorar el blog</a>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/public/blog" class="button">Explorar el blog</a>
               </div>
 
               <p style="margin-top: 20px; margin-bottom: 0; color: #666; font-size: 14px; line-height: 1.6; text-align: center;">
@@ -230,7 +228,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
             <div class="footer">
               <p style="margin: 0 0 5px 0;"><strong>Eskemma</strong> - El ecosistema digital para tu proyecto político</p>
               <p style="margin: 5px 0 0 0; font-size: 12px;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/" style="color: #3C95C6; text-decoration: none;">Ir a página de inicio</a> | 
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/public/home" style="color: #3C95C6; text-decoration: none;">Ir a página de inicio</a> | 
                 <a href="${process.env.NEXT_PUBLIC_APP_URL}/newsletter/unsubscribe?email=${encodeURIComponent(email)}" style="color: #999; text-decoration: none;">Cancelar suscripción</a>
               </p>
             </div>

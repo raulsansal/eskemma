@@ -86,7 +86,7 @@ export default function ConfirmContent() {
         {status === "success" && (
           <>
             <div className="mb-6">
-              <svg className="w-20 h-20 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-20 h-20 text-green-eske mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -101,7 +101,7 @@ export default function ConfirmContent() {
 
             <div className="bg-gradient-to-br from-bluegreen-eske-10 to-blue-50 border border-bluegreen-eske-30 rounded-xl p-6 mb-6">
               <p className="text-gray-800 font-medium mb-2">
-                📧 <strong>¡Te damos la bienvenida al Baúl de Fouché!</strong>
+                <strong>¡Te damos la bienvenida al Baúl de Fouché!</strong>
               </p>
               <p className="text-gray-700 text-sm leading-relaxed">
                 Recibirás nuestros mejores artículos sobre análisis político, estrategia electoral y comunicación política directamente en tu correo.
@@ -132,7 +132,7 @@ export default function ConfirmContent() {
         {status === "error" && (
           <>
             <div className="mb-6">
-              <svg className="w-20 h-20 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-20 h-20 text-red-eske mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
