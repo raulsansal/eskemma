@@ -47,11 +47,8 @@ export default function FoucheHeroSection() {
             <h1 className="text-2xl sm:text-[26px] md:text-[32px] leading-tight font-bold text-white-eske">
               El Baúl de Fouché
             </h1>
-            <p className="mt-2 text-sm sm:text-[15px] md:text-[16px] leading-relaxed font-light text-white-eske">
-              Análisis político, estrategias electorales{" "}
-              <br className="hidden sm:block" />
-              <span className="sm:hidden"> </span>y los secretos del poder
-              contemporáneo.
+            <p className="mt-2 text-sm sm:text-[15px] md:text-[16px] leading-relaxed font-light text-white-eske">                            
+              <span className="sm:hidden"> </span>Los secretos del poder contemporáneo
             </p>
           </div>
         </div>

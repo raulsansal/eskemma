@@ -4,8 +4,13 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { CATEGORIES } from "@/lib/constants/categories";
 import { useState, useEffect } from "react";
+import ViewToggle, { ViewMode } from "./ViewToggle";
 
-export default function BlogToolbar() {
+interface BlogToolbarProps {
+  onViewChange?: (view: ViewMode) => void;
+}
+
+export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -72,6 +77,16 @@ export default function BlogToolbar() {
 
   return (
     <div className="mb-8 bg-white-eske rounded-lg shadow-sm p-4 sm:p-6">
+      {/* ✅ NUEVO: Fila superior con título y ViewToggle */}
+      {onViewChange && (
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-eske-20">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Filtros y Vista
+          </h3>
+          <ViewToggle onViewChange={onViewChange} />
+        </div>
+      )}
+
       {/* Grid de 3 columnas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
         {/* Columna 1: Filtro por Categoría */}
@@ -198,7 +213,7 @@ export default function BlogToolbar() {
 
           {currentSearch && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              Búsqueda: "{currentSearch}"
+              Búsqueda: &quot;{currentSearch}&quot;
               <button
                 onClick={handleClearSearch}
                 className="ml-2 hover:text-blue-600"
