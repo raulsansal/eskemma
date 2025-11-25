@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 
 interface PaginationProps {
   currentPage: number;
@@ -18,9 +19,7 @@ export default function Pagination({
   searchQuery = "",
   sortBy = "newest",
 }: PaginationProps) {
-  if (totalPages <= 1) return null;
-
-  // ✅ Construir URL manteniendo TODOS los filtros
+  // Construir URL manteniendo TODOS los filtros
   const buildUrl = (page: number) => {
     const params = new URLSearchParams();
     
@@ -39,54 +38,176 @@ export default function Pagination({
     return `/blog?${params.toString()}`;
   };
 
+  // Generar array de números de página con lógica de dots
+  const pageNumbers = useMemo(() => {
+    const delta = 2; // Números a mostrar alrededor de la página actual
+    const range: (number | string)[] = [];
+    const rangeWithDots: (number | string)[] = [];
+
+    // Siempre mostrar primera página
+    range.push(1);
+
+    for (let i = currentPage - delta; i <= currentPage + delta; i++) {
+      if (i > 1 && i < totalPages) {
+        range.push(i);
+      }
+    }
+
+    // Siempre mostrar última página
+    if (totalPages > 1) {
+      range.push(totalPages);
+    }
+
+    // Agregar dots donde hay saltos
+    let prev = 0;
+    for (const page of range) {
+      if (typeof page === "number") {
+        if (page - prev > 1) {
+          rangeWithDots.push("...");
+        }
+        rangeWithDots.push(page);
+        prev = page;
+      }
+    }
+
+    return rangeWithDots;
+  }, [currentPage, totalPages]);
+
+  if (totalPages <= 1) return null;
+
   return (
-    <div className="flex justify-center items-center gap-2 sm:gap-3 mt-12 mb-8">
-      {/* Botón Anterior */}
-      {currentPage > 1 ? (
-        <Link
-          href={buildUrl(currentPage - 1)}
-          className="px-3 py-2 sm:px-4 sm:py-2 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors duration-300 text-sm sm:text-base flex items-center gap-1"
-        >
-          <span className="hidden sm:inline">←</span>
-          <span className="sm:hidden">←</span>
-          <span className="hidden xs:inline sm:inline">Anterior</span>
-        </Link>
-      ) : (
-        <button
-          disabled
-          className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-sm sm:text-base flex items-center gap-1"
-        >
-          <span className="hidden sm:inline">←</span>
-          <span className="sm:hidden">←</span>
-          <span className="hidden xs:inline sm:inline">Anterior</span>
-        </button>
-      )}
+    <nav className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8 flex-wrap">
+      {/* Botón: Primera página */}
+      <Link
+        href={buildUrl(1)}
+        className={`
+          hidden sm:flex items-center justify-center
+          px-3 py-2 rounded-lg text-sm font-medium
+          transition-all duration-200
+          ${
+            currentPage === 1
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-white-eske text-bluegreen-eske border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske hover:border-bluegreen-eske"
+          }
+        `}
+        aria-disabled={currentPage === 1}
+        tabIndex={currentPage === 1 ? -1 : 0}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+        </svg>
+        <span className="ml-1 hidden md:inline">Primera</span>
+      </Link>
 
-      {/* Indicador de página actual */}
-      <span className="px-2 py-2 sm:px-4 sm:py-2 text-gray-700 font-medium text-xs sm:text-base whitespace-nowrap">
-        {currentPage}/{totalPages}
-      </span>
+      {/* Botón: Anterior */}
+      <Link
+        href={buildUrl(Math.max(1, currentPage - 1))}
+        className={`
+          flex items-center justify-center
+          px-3 py-2 rounded-lg text-sm font-medium
+          transition-all duration-200
+          ${
+            currentPage === 1
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-white-eske text-bluegreen-eske border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske hover:border-bluegreen-eske"
+          }
+        `}
+        aria-disabled={currentPage === 1}
+        tabIndex={currentPage === 1 ? -1 : 0}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        <span className="ml-1 hidden xs:inline">Anterior</span>
+      </Link>
 
-      {/* Botón Siguiente */}
-      {currentPage < totalPages ? (
-        <Link
-          href={buildUrl(currentPage + 1)}
-          className="px-3 py-2 sm:px-4 sm:py-2 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors duration-300 text-sm sm:text-base flex items-center gap-1"
-        >
-          <span className="hidden xs:inline sm:inline">Siguiente</span>
-          <span className="hidden sm:inline">→</span>
-          <span className="sm:hidden">→</span>
-        </Link>
-      ) : (
-        <button
-          disabled
-          className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-sm sm:text-base flex items-center gap-1"
-        >
-          <span className="hidden xs:inline sm:inline">Siguiente</span>
-          <span className="hidden sm:inline">→</span>
-          <span className="sm:hidden">→</span>
-        </button>
-      )}
-    </div>
+      {/* Números de página */}
+      <div className="flex items-center gap-1 sm:gap-2">
+        {pageNumbers.map((pageNum, idx) => {
+          if (pageNum === "...") {
+            return (
+              <span
+                key={`dots-${idx}`}
+                className="px-2 py-2 text-gray-500 text-sm"
+              >
+                •••
+              </span>
+            );
+          }
+
+          const isActive = pageNum === currentPage;
+
+          return (
+            <Link
+              key={pageNum}
+              href={buildUrl(pageNum as number)}
+              className={`
+                flex items-center justify-center
+                min-w-[36px] sm:min-w-[40px] h-9 sm:h-10
+                rounded-lg text-sm font-medium
+                transition-all duration-200
+                ${
+                  isActive
+                    ? "bg-bluegreen-eske text-white-eske shadow-md scale-105"
+                    : "bg-white-eske text-gray-700 border border-gray-300 hover:bg-bluegreen-eske-10 hover:border-bluegreen-eske"
+                }
+              `}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {pageNum}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Botón: Siguiente */}
+      <Link
+        href={buildUrl(Math.min(totalPages, currentPage + 1))}
+        className={`
+          flex items-center justify-center
+          px-3 py-2 rounded-lg text-sm font-medium
+          transition-all duration-200
+          ${
+            currentPage === totalPages
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-white-eske text-bluegreen-eske border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske hover:border-bluegreen-eske"
+          }
+        `}
+        aria-disabled={currentPage === totalPages}
+        tabIndex={currentPage === totalPages ? -1 : 0}
+      >
+        <span className="mr-1 hidden xs:inline">Siguiente</span>
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </Link>
+
+      {/* Botón: Última página */}
+      <Link
+        href={buildUrl(totalPages)}
+        className={`
+          hidden sm:flex items-center justify-center
+          px-3 py-2 rounded-lg text-sm font-medium
+          transition-all duration-200
+          ${
+            currentPage === totalPages
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-white-eske text-bluegreen-eske border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske hover:border-bluegreen-eske"
+          }
+        `}
+        aria-disabled={currentPage === totalPages}
+        tabIndex={currentPage === totalPages ? -1 : 0}
+      >
+        <span className="mr-1 hidden md:inline">Última</span>
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        </svg>
+      </Link>
+
+      {/* Indicador móvil de página actual */}
+      <div className="flex sm:hidden items-center justify-center px-3 py-2 bg-gray-100 rounded-lg text-xs text-gray-600 ml-2">
+        Pág. {currentPage}/{totalPages}
+      </div>
+    </nav>
   );
 }
