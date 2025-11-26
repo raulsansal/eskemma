@@ -120,3 +120,74 @@ export function getCategoryCounts() {
 export function getAllTags() {
   return serverGetAllTags();
 }
+
+/**
+ * Obtiene posts relacionados por categoría
+ */
+export async function getRelatedPosts(
+  currentSlug: string,
+  category: string,
+  limit: number = 3
+) {
+  const allPosts = await getSortedPostsData();
+  
+  return allPosts
+    .filter(post => 
+      post.slug !== currentSlug && 
+      post.category === category &&
+      post.status === 'published'
+    )
+    .slice(0, limit);
+}
+
+/**
+ * Obtiene el post anterior y siguiente
+ */
+export async function getAdjacentPosts(currentSlug: string) {
+  const allPosts = await getSortedPostsData();
+  const publishedPosts = allPosts.filter(post => post.status === 'published');
+  
+  const currentIndex = publishedPosts.findIndex(post => post.slug === currentSlug);
+  
+  if (currentIndex === -1) {
+    return { previous: null, next: null };
+  }
+  
+  return {
+    previous: currentIndex > 0 ? publishedPosts[currentIndex - 1] : null,
+    next: currentIndex < publishedPosts.length - 1 ? publishedPosts[currentIndex + 1] : null,
+  };
+}
+
+/**
+ * Calcula el tiempo de lectura estimado
+ */
+export function calculateReadingTime(content: string): number {
+  const wordsPerMinute = 200; // Promedio de palabras por minuto en español
+  const words = content.trim().split(/\s+/).length;
+  const readingTime = Math.ceil(words / wordsPerMinute);
+  return readingTime;
+}
+
+/**
+ * Extrae encabezados del contenido Markdown para tabla de contenidos
+ */
+export function extractHeadings(content: string) {
+  const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+  const headings: Array<{ level: number; text: string; id: string }> = [];
+  let match;
+
+  while ((match = headingRegex.exec(content)) !== null) {
+    const level = match[1].length;
+    const text = match[2].trim();
+    const id = text
+      .toLowerCase()
+      .replace(/[^a-z0-9áéíóúñ\s-]/g, '')
+      .replace(/\s+/g, '-');
+    
+    headings.push({ level, text, id });
+  }
+
+  return headings;
+}
+

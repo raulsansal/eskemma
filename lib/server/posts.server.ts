@@ -86,9 +86,6 @@ export async function getSortedPostsData(): Promise<Post[]> {
 
 /**
  * Obtiene posts paginados
- * @param page - Número de página (empieza en 1)
- * @param postsPerPage - Cantidad de posts por página (default: 6)
- * @returns Posts de la página solicitada y total de páginas
  */
 export async function getPaginatedPosts(
   page: number = 1,
@@ -103,7 +100,6 @@ export async function getPaginatedPosts(
 
   const querySnapshot = await getDocs(q);
 
-  // Obtener todos los posts publicados
   const allPosts: Post[] = querySnapshot.docs.map((doc) => {
     const data = doc.data();
     return {
@@ -138,11 +134,9 @@ export async function getPaginatedPosts(
   const totalPosts = allPosts.length;
   const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-  // Calcular índices para la paginación
   const startIndex = (page - 1) * postsPerPage;
   const endIndex = startIndex + postsPerPage;
 
-  // Obtener solo los posts de la página actual
   const paginatedPosts = allPosts.slice(startIndex, endIndex);
 
   return {
@@ -154,10 +148,6 @@ export async function getPaginatedPosts(
 
 /**
  * Obtiene posts paginados con filtro por categoría
- * @param page - Número de página (empieza en 1)
- * @param postsPerPage - Cantidad de posts por página (default: 6)
- * @param category - ID de categoría para filtrar (opcional, null = todas)
- * @returns Posts de la página solicitada y total de páginas
  */
 export async function getPaginatedPostsByCategory(
   page: number = 1,
@@ -165,8 +155,7 @@ export async function getPaginatedPostsByCategory(
   category: string | null = null
 ): Promise<{ posts: Post[]; totalPages: number; totalPosts: number }> {
   const postsRef = collection(db, "posts");
-  
-  // Construir query base
+
   const q = query(
     postsRef,
     where("status", "==", "published"),
@@ -175,7 +164,6 @@ export async function getPaginatedPostsByCategory(
 
   const querySnapshot = await getDocs(q);
 
-  // Obtener todos los posts publicados
   let allPosts: Post[] = querySnapshot.docs.map((doc) => {
     const data = doc.data();
     return {
@@ -207,7 +195,6 @@ export async function getPaginatedPostsByCategory(
     };
   });
 
-  // Filtrar por categoría si se especifica
   if (category && category !== "todos") {
     allPosts = allPosts.filter((post) => post.category === category);
   }
@@ -215,11 +202,9 @@ export async function getPaginatedPostsByCategory(
   const totalPosts = allPosts.length;
   const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-  // Calcular índices para la paginación
   const startIndex = (page - 1) * postsPerPage;
   const endIndex = startIndex + postsPerPage;
 
-  // Obtener solo los posts de la página actual
   const paginatedPosts = allPosts.slice(startIndex, endIndex);
 
   return {
@@ -231,22 +216,16 @@ export async function getPaginatedPostsByCategory(
 
 /**
  * Obtiene posts paginados con filtros avanzados
- * @param page - Número de página
- * @param postsPerPage - Posts por página
- * @param category - Categoría para filtrar
- * @param searchTerm - Término de búsqueda
- * @param sortBy - Criterio de ordenamiento
- * @returns Posts filtrados y ordenados
  */
 export async function getFilteredPosts(
   page: number = 1,
   postsPerPage: number = 6,
   category: string | null = null,
   searchTerm: string | null = null,
-  sortBy: 'newest' | 'oldest' | 'popular' = 'newest'
+  sortBy: "newest" | "oldest" | "popular" = "newest"
 ): Promise<{ posts: Post[]; totalPages: number; totalPosts: number }> {
   const postsRef = collection(db, "posts");
-  
+
   const q = query(
     postsRef,
     where("status", "==", "published"),
@@ -255,7 +234,6 @@ export async function getFilteredPosts(
 
   const querySnapshot = await getDocs(q);
 
-  // Obtener todos los posts publicados
   let allPosts: Post[] = querySnapshot.docs.map((doc) => {
     const data = doc.data();
     return {
@@ -287,31 +265,30 @@ export async function getFilteredPosts(
     };
   });
 
-  // 1. Filtrar por categoría
   if (category && category !== "todos") {
     allPosts = allPosts.filter((post) => post.category === category);
   }
 
-  // 2. Filtrar por búsqueda (título, contenido, autor)
   if (searchTerm && searchTerm.trim() !== "") {
     const searchLower = searchTerm.toLowerCase().trim();
     allPosts = allPosts.filter((post) => {
       const titleMatch = post.title.toLowerCase().includes(searchLower);
       const contentMatch = post.content.toLowerCase().includes(searchLower);
-      const authorMatch = post.author?.displayName.toLowerCase().includes(searchLower);
+      const authorMatch = post.author?.displayName
+        .toLowerCase()
+        .includes(searchLower);
       return titleMatch || contentMatch || authorMatch;
     });
   }
 
-  // 3. Ordenar según criterio
   switch (sortBy) {
-    case 'oldest':
+    case "oldest":
       allPosts.sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime());
       break;
-    case 'popular':
+    case "popular":
       allPosts.sort((a, b) => (b.views || 0) - (a.views || 0));
       break;
-    case 'newest':
+    case "newest":
     default:
       allPosts.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
       break;
@@ -320,11 +297,9 @@ export async function getFilteredPosts(
   const totalPosts = allPosts.length;
   const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-  // Calcular índices para la paginación
   const startIndex = (page - 1) * postsPerPage;
   const endIndex = startIndex + postsPerPage;
 
-  // Obtener solo los posts de la página actual
   const paginatedPosts = allPosts.slice(startIndex, endIndex);
 
   return {
@@ -447,9 +422,7 @@ export async function updatePost(postId: string, updatedData: Partial<Post>) {
 }
 
 /**
- * Obtiene los posts más populares (top 5)
- * @param limit - Cantidad de posts a retornar (default: 5)
- * @returns Posts ordenados por vistas
+ * Obtiene los posts más populares
  */
 export async function getPopularPosts(limit: number = 5): Promise<Post[]> {
   const postsRef = collection(db, "posts");
@@ -497,7 +470,6 @@ export async function getPopularPosts(limit: number = 5): Promise<Post[]> {
 
 /**
  * Obtiene el conteo de posts por categoría
- * @returns Objeto con categorías y su conteo
  */
 export async function getCategoryCounts(): Promise<Record<string, number>> {
   const postsRef = collection(db, "posts");
@@ -517,7 +489,6 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
 
 /**
  * Obtiene todos los tags únicos con su frecuencia
- * @returns Array de tags con conteo
  */
 export async function getAllTags(): Promise<Array<{ tag: string; count: number }>> {
   const postsRef = collection(db, "posts");
@@ -534,7 +505,6 @@ export async function getAllTags(): Promise<Array<{ tag: string; count: number }
     });
   });
 
-  // Convertir a array y ordenar por frecuencia
   const tagsArray = Object.entries(tagCounts)
     .map(([tag, count]) => ({ tag, count }))
     .sort((a, b) => b.count - a.count);
@@ -563,5 +533,86 @@ export async function createPost(postData: Omit<Post, "id">): Promise<string> {
   } catch (error) {
     console.error("Error al crear el post:", error);
     throw new Error("Ocurrió un error al crear el post.");
+  }
+}
+
+/**
+ * Obtiene posts relacionados por categoría
+ */
+export async function getRelatedPosts(
+  currentSlug: string,
+  category: string,
+  limit: number = 3
+) {
+  try {
+    const postsRef = collection(db, "posts");
+    const q = query(
+      postsRef,
+      where("category", "==", category),
+      where("status", "==", "published"),
+      orderBy("updatedAt", "desc")
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const posts = querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          slug: data.slug,
+          title: data.title,
+          category: data.category,
+          featureImage: data.featureImage,
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        };
+      })
+      .filter((post) => post.slug !== currentSlug)
+      .slice(0, limit);
+
+    return posts;
+  } catch (error) {
+    console.error("Error al obtener posts relacionados:", error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene el post anterior y siguiente
+ */
+export async function getAdjacentPosts(currentSlug: string) {
+  try {
+    const postsRef = collection(db, "posts");
+    const q = query(
+      postsRef,
+      where("status", "==", "published"),
+      orderBy("updatedAt", "desc")
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    const posts = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        slug: data.slug,
+        title: data.title,
+        category: data.category,
+        featureImage: data.featureImage,
+      };
+    });
+
+    const currentIndex = posts.findIndex((post) => post.slug === currentSlug);
+
+    if (currentIndex === -1) {
+      return { previous: null, next: null };
+    }
+
+    return {
+      previous: currentIndex > 0 ? posts[currentIndex - 1] : null,
+      next: currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null,
+    };
+  } catch (error) {
+    console.error("Error al obtener posts adyacentes:", error);
+    return { previous: null, next: null };
   }
 }
