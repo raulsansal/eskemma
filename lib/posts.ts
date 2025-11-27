@@ -41,9 +41,15 @@ export function getFilteredPosts(
   postsPerPage: number = 6,
   category: string | null = null,
   searchTerm: string | null = null,
-  sortBy: 'newest' | 'oldest' | 'popular' = 'newest'
+  sortBy: "newest" | "oldest" | "popular" = "newest"
 ) {
-  return serverGetFilteredPosts(page, postsPerPage, category, searchTerm, sortBy);
+  return serverGetFilteredPosts(
+    page,
+    postsPerPage,
+    category,
+    searchTerm,
+    sortBy
+  );
 }
 
 export async function getAllPostIds() {
@@ -129,15 +135,10 @@ export async function getRelatedPosts(
   category: string,
   limit: number = 3
 ) {
-  const allPosts = await getSortedPostsData();
-  
-  return allPosts
-    .filter(post => 
-      post.slug !== currentSlug && 
-      post.category === category &&
-      post.status === 'published'
-    )
-    .slice(0, limit);
+  const { getRelatedPosts: serverGetRelatedPosts } = await import(
+    "./server/posts.server"
+  );
+  return serverGetRelatedPosts(currentSlug, category, limit);
 }
 
 /**
@@ -145,17 +146,22 @@ export async function getRelatedPosts(
  */
 export async function getAdjacentPosts(currentSlug: string) {
   const allPosts = await getSortedPostsData();
-  const publishedPosts = allPosts.filter(post => post.status === 'published');
-  
-  const currentIndex = publishedPosts.findIndex(post => post.slug === currentSlug);
-  
+  const publishedPosts = allPosts.filter((post) => post.status === "published");
+
+  const currentIndex = publishedPosts.findIndex(
+    (post) => post.slug === currentSlug
+  );
+
   if (currentIndex === -1) {
     return { previous: null, next: null };
   }
-  
+
   return {
     previous: currentIndex > 0 ? publishedPosts[currentIndex - 1] : null,
-    next: currentIndex < publishedPosts.length - 1 ? publishedPosts[currentIndex + 1] : null,
+    next:
+      currentIndex < publishedPosts.length - 1
+        ? publishedPosts[currentIndex + 1]
+        : null,
   };
 }
 
@@ -180,23 +186,22 @@ export function extractHeadings(content: string) {
   while ((match = headingRegex.exec(content)) !== null) {
     const level = match[1].length;
     let text = match[2].trim();
-    
+
     // ✅ NUEVO: Limpiar asteriscos y otros caracteres de formato Markdown
     text = text
-      .replace(/\*\*/g, '')       // Remover negritas **texto**
-      .replace(/\*/g, '')          // Remover cursivas *texto*
-      .replace(/`/g, '')           // Remover code `texto`
-      .replace(/~~(.*?)~~/g, '$1') // Remover tachado ~~texto~~
+      .replace(/\*\*/g, "") // Remover negritas **texto**
+      .replace(/\*/g, "") // Remover cursivas *texto*
+      .replace(/`/g, "") // Remover code `texto`
+      .replace(/~~(.*?)~~/g, "$1") // Remover tachado ~~texto~~
       .trim();
-    
+
     const id = text
       .toLowerCase()
-      .replace(/[^a-z0-9áéíóúñ\s-]/g, '')
-      .replace(/\s+/g, '-');
-    
+      .replace(/[^a-z0-9áéíóúñ\s-]/g, "")
+      .replace(/\s+/g, "-");
+
     headings.push({ level, text, id });
   }
 
   return headings;
 }
-

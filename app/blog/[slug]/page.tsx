@@ -4,6 +4,7 @@ import {
   getAdjacentPosts,
   calculateReadingTime,
   extractHeadings,
+  getRelatedPosts,
 } from "@/lib/posts";
 import Link from "next/link";
 import SanitizedContent from "../../components/componentsBlog/SanitizedContent";
@@ -14,6 +15,8 @@ import ReadingTime from "./ReadingTime";
 import ShareButtons from "./ShareButtons";
 import TableOfContents from "./TableOfContents";
 import PostNavigation from "./PostNavigation";
+import RelatedPosts from "./RelatedPosts";
+import PostReactions from "./PostReactions";
 import { getCategoryColor, getCategoryLabel } from "@/lib/constants/categories";
 
 export default async function PostPage({
@@ -85,6 +88,15 @@ export default async function PostPage({
   const readingTime = calculateReadingTime(validatedPostData.content);
   const headings = extractHeadings(validatedPostData.content);
   const { previous, next } = await getAdjacentPosts(slug);
+  const relatedPosts = await getRelatedPosts(
+    slug,
+    validatedPostData.category,
+    3
+  );
+
+  // ✅ DEBUG TEMPORAL - Verificar posts relacionados
+  console.log("🔍 Posts relacionados encontrados:", relatedPosts.length);
+  console.log("🔍 Categoría actual:", validatedPostData.category);
 
   const categoryColor = getCategoryColor(validatedPostData.category);
   const categoryLabel = getCategoryLabel(validatedPostData.category);
@@ -221,11 +233,30 @@ export default async function PostPage({
                 </div>
               )}
 
-              {/* ✅ NUEVO: Botones para compartir (duplicado al final) */}
+              {/* ✅ NUEVO: Botones compartir + Me gusta en la misma línea */}
               <div className="mt-8 pt-6 border-t border-gray-eske-20">
-                <ShareButtons title={validatedPostData.title} slug={slug} />
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                  {/* Me gusta (izquierda) */}
+                  <div className="w-full sm:w-auto">
+                    <PostReactions
+                      postId={validatedPostData.id}
+                      initialLikes={validatedPostData.likes}
+                    />
+                  </div>
+
+                  {/* Compartir (derecha) */}
+                  <div className="w-full sm:w-auto">
+                    <ShareButtons title={validatedPostData.title} slug={slug} />
+                  </div>
+                </div>
               </div>
             </article>
+
+            {/* ✅ FASE 2: Posts relacionados */}
+            <RelatedPosts
+              posts={relatedPosts}
+              currentCategory={validatedPostData.category}
+            />
 
             {/* Navegación entre posts */}
             <nav className="mt-16 pt-8 border-t border-gray-eske-30">
@@ -233,8 +264,7 @@ export default async function PostPage({
                 <h3 className="text-lg font-semibold text-gray-800">
                   Continuar leyendo
                 </h3>
-                
-                {/* ✅ NUEVO: Botón "Volver al blog" a la derecha */}
+
                 <Link
                   href="/blog"
                   className="inline-flex items-center gap-2 text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors duration-200 font-medium text-sm"

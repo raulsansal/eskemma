@@ -39,6 +39,18 @@ export interface Post {
 }
 
 /**
+ * Interfaz para posts relacionados (solo campos necesarios)
+ */
+export interface RelatedPost {
+  id: string; // ✅ NO opcional
+  slug: string;
+  title: string;
+  category: string;
+  featureImage?: string;
+  updatedAt: Date;
+}
+
+/**
  * Obtiene todos los posts ordenados por fecha.
  */
 export async function getSortedPostsData(): Promise<Post[]> {
@@ -490,7 +502,9 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
 /**
  * Obtiene todos los tags únicos con su frecuencia
  */
-export async function getAllTags(): Promise<Array<{ tag: string; count: number }>> {
+export async function getAllTags(): Promise<
+  Array<{ tag: string; count: number }>
+> {
   const postsRef = collection(db, "posts");
   const q = query(postsRef, where("status", "==", "published"));
   const querySnapshot = await getDocs(q);
@@ -543,7 +557,8 @@ export async function getRelatedPosts(
   currentSlug: string,
   category: string,
   limit: number = 3
-) {
+): Promise<RelatedPost[]> {
+  // ✅ TIPO EXPLÍCITO
   try {
     const postsRef = collection(db, "posts");
     const q = query(
@@ -555,19 +570,19 @@ export async function getRelatedPosts(
 
     const querySnapshot = await getDocs(q);
 
-    const posts = querySnapshot.docs
+    const posts: RelatedPost[] = querySnapshot.docs // ✅ TIPO EXPLÍCITO
       .map((doc) => {
         const data = doc.data();
         return {
           id: doc.id,
-          slug: data.slug,
-          title: data.title,
-          category: data.category,
-          featureImage: data.featureImage,
+          slug: data.slug || "",
+          title: data.title || "Sin título",
+          category: data.category || "general",
+          featureImage: data.featureImage || undefined,
           updatedAt: data.updatedAt?.toDate() || new Date(),
         };
       })
-      .filter((post) => post.slug !== currentSlug)
+      .filter((post) => post.slug !== currentSlug && post.slug !== "")
       .slice(0, limit);
 
     return posts;
