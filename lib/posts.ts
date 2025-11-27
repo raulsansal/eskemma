@@ -179,7 +179,16 @@ export function extractHeadings(content: string) {
 
   while ((match = headingRegex.exec(content)) !== null) {
     const level = match[1].length;
-    const text = match[2].trim();
+    let text = match[2].trim();
+    
+    // ✅ NUEVO: Limpiar asteriscos y otros caracteres de formato Markdown
+    text = text
+      .replace(/\*\*/g, '')       // Remover negritas **texto**
+      .replace(/\*/g, '')          // Remover cursivas *texto*
+      .replace(/`/g, '')           // Remover code `texto`
+      .replace(/~~(.*?)~~/g, '$1') // Remover tachado ~~texto~~
+      .trim();
+    
     const id = text
       .toLowerCase()
       .replace(/[^a-z0-9áéíóúñ\s-]/g, '')

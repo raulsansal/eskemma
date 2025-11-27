@@ -1,5 +1,11 @@
 // app/blog/[slug]/page.tsx
-import { getPostData, getAdjacentPosts, calculateReadingTime, extractHeadings } from "@/lib/posts";
+import {
+  getPostData,
+  getAdjacentPosts,
+  calculateReadingTime,
+  extractHeadings,
+} from "@/lib/posts";
+import Link from "next/link";
 import SanitizedContent from "../../components/componentsBlog/SanitizedContent";
 import { PostData } from "@/types/post.types";
 import ViewCounter from "./ViewCounter";
@@ -52,13 +58,11 @@ export default async function PostPage({
     likes: postData.likes || 0,
     views: postData.views || 0,
     createdAt:
-      postData.createdAt instanceof Date &&
-      !isNaN(postData.createdAt.getTime())
+      postData.createdAt instanceof Date && !isNaN(postData.createdAt.getTime())
         ? postData.createdAt
         : new Date(),
     updatedAt:
-      postData.updatedAt instanceof Date &&
-      !isNaN(postData.updatedAt.getTime())
+      postData.updatedAt instanceof Date && !isNaN(postData.updatedAt.getTime())
         ? postData.updatedAt
         : new Date(),
     tags: postData.tags || [],
@@ -87,7 +91,10 @@ export default async function PostPage({
 
   return (
     <div className="min-h-screen bg-gray-eske-10 py-8 px-4 sm:px-6 lg:px-8">
-      <ViewCounter postId={validatedPostData.id} slug={validatedPostData.slug} />
+      <ViewCounter
+        postId={validatedPostData.id}
+        slug={validatedPostData.slug}
+      />
 
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8">
@@ -198,25 +205,59 @@ export default async function PostPage({
               {/* Tags si existen */}
               {validatedPostData.tags && validatedPostData.tags.length > 0 && (
                 <div className="mt-12 pt-8 border-t border-gray-eske-20">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-4">
                     Etiquetas:
                   </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {validatedPostData.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-block px-3 py-1 text-sm bg-gray-eske-10 text-gray-700 rounded-full hover:bg-bluegreen-eske hover:text-white-eske transition-colors cursor-pointer"
-                      >
-                        {tag}
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-gray-eske-90">
+                    {validatedPostData.tags.map((tag, index) => (
+                      <span key={tag} className="flex items-center">
+                        {index > 0 && <span className="mr-2">|</span>}
+                        <span className="hover:text-black-eske-90 transition-colors">
+                          {tag}
+                        </span>
                       </span>
                     ))}
                   </div>
                 </div>
               )}
+
+              {/* ✅ NUEVO: Botones para compartir (duplicado al final) */}
+              <div className="mt-8 pt-6 border-t border-gray-eske-20">
+                <ShareButtons title={validatedPostData.title} slug={slug} />
+              </div>
             </article>
 
             {/* Navegación entre posts */}
-            <PostNavigation previous={previous} next={next} />
+            <nav className="mt-16 pt-8 border-t border-gray-eske-30">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Continuar leyendo
+                </h3>
+                
+                {/* ✅ NUEVO: Botón "Volver al blog" a la derecha */}
+                <Link
+                  href="/blog"
+                  className="inline-flex items-center gap-2 text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors duration-200 font-medium text-sm"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
+                  </svg>
+                  <span>Volver al blog</span>
+                </Link>
+              </div>
+
+              <PostNavigation previous={previous} next={next} />
+            </nav>
           </div>
 
           {/* Sidebar - Tabla de Contenidos */}

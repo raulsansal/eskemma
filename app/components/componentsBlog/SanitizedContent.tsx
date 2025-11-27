@@ -1,5 +1,4 @@
-//app/components/componentsBlog/SanitizedContent.tsx
-
+// app/components/componentsBlog/SanitizedContent.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -17,42 +16,45 @@ export default function SanitizedContent({ content, className }: SanitizedConten
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('Contenido Markdown original:', content); // Debug
+    console.log('Contenido Markdown original:', content);
 
-    // Limpiar el contenido Markdown (remover &nbsp; problemáticos)
+    // Limpiar el contenido Markdown
     const cleanContent = content
-      .replace(/&nbsp;/g, ' ') // Convertir &nbsp; a espacios normales
-      .replace(/\u00A0/g, ' '); // Convertir espacios no rompibles Unicode
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\u00A0/g, ' ');
 
-    console.log('Contenido Markdown limpio:', cleanContent); // Debug
+    console.log('Contenido Markdown limpio:', cleanContent);
 
     // Convertir Markdown a HTML
     remark()
       .use(remarkHtml, { 
         sanitize: false,
-        allowDangerousHtml: true // Permitir HTML en Markdown si es necesario
+        allowDangerousHtml: true
       })
       .process(cleanContent)
       .then((processedContent) => {
-        const htmlContent = processedContent.toString();
-        console.log('HTML generado por remark:', htmlContent); // Debug
+        let htmlContent = processedContent.toString();
+        console.log('HTML generado por remark:', htmlContent);
         
-        // Configuración más permisiva de DOMPurify
+        // ✅ NUEVO: Agregar IDs a los encabezados
+        htmlContent = addIdsToHeadings(htmlContent);
+        
+        // Configuración de DOMPurify
         const sanitized = DOMPurify.sanitize(htmlContent, {
           ALLOWED_TAGS: [
             'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
             'p', 'br', 'strong', 'em', 'b', 'i', 'u', 'strike', 'del',
-            'ul', 'ol', 'li', // Elementos de lista
+            'ul', 'ol', 'li',
             'a', 'img', 'blockquote', 'code', 'pre',
             'table', 'thead', 'tbody', 'tr', 'td', 'th',
-            'div', 'span' // Elementos contenedores
+            'div', 'span'
           ],
-          ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel', 'class'],
+          ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel', 'class', 'id'], // ✅ Agregado 'id'
           KEEP_CONTENT: true,
           ALLOW_DATA_ATTR: false
         });
         
-        console.log('HTML sanitizado final:', sanitized); // Debug
+        console.log('HTML sanitizado final:', sanitized);
         setSanitizedContent(sanitized);
         setIsLoading(false);
       })
@@ -73,3 +75,26 @@ export default function SanitizedContent({ content, className }: SanitizedConten
     />
   );
 }
+
+/**
+ * ✅ NUEVA FUNCIÓN: Agrega IDs a los encabezados HTML
+ */
+function addIdsToHeadings(html: string): string {
+  // Regex para encontrar encabezados H1-H6
+  const headingRegex = /<(h[1-6])>(.*?)<\/\1>/gi;
+  
+  return html.replace(headingRegex, (match, tag, content) => {
+    // Extraer el texto limpio del encabezado
+    const textContent = content.replace(/<[^>]*>/g, '').trim();
+    
+    // Generar ID igual que en extractHeadings() de lib/posts.ts
+    const id = textContent
+      .toLowerCase()
+      .replace(/[^a-z0-9áéíóúñ\s-]/g, '')
+      .replace(/\s+/g, '-');
+    
+    // Retornar el encabezado con el atributo id
+    return `<${tag} id="${id}">${content}</${tag}>`;
+  });
+}
+
