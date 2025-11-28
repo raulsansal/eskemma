@@ -18,6 +18,8 @@ import PostNavigation from "./PostNavigation";
 import RelatedPosts from "./RelatedPosts";
 import PostReactions from "./PostReactions";
 import { getCategoryColor, getCategoryLabel } from "@/lib/constants/categories";
+import SaveForLater from "./SaveForLater";
+import CommentSection from "./CommentSection";
 
 export default async function PostPage({
   params,
@@ -250,6 +252,13 @@ export default async function PostPage({
                   </div>
                 </div>
               </div>
+
+              {/* ✅ FASE 3: Guardar para leer después */}
+              <SaveForLater
+                postId={validatedPostData.id}
+                postTitle={validatedPostData.title}
+                postSlug={validatedPostData.slug}
+              />
             </article>
 
             {/* ✅ FASE 2: Posts relacionados */}
@@ -257,6 +266,9 @@ export default async function PostPage({
               posts={relatedPosts}
               currentCategory={validatedPostData.category}
             />
+
+            {/* ✅ FASE 3: Sistema de comentarios */}
+            <CommentSection postId={validatedPostData.id} />
 
             {/* Navegación entre posts */}
             <nav className="mt-16 pt-8 border-t border-gray-eske-30">

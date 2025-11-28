@@ -1,0 +1,163 @@
+// app/blog/[slug]/CommentForm.tsx
+"use client";
+
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { auth } from "@/firebase/firebaseConfig"; // ✅ AGREGAR IMPORT
+import { Comment } from "@/types/post.types";
+
+interface CommentFormProps {
+  postId: string;
+  onCommentAdded: (comment: Comment) => void;
+}
+
+export default function CommentForm({
+  postId,
+  onCommentAdded,
+}: CommentFormProps) {
+  const { user } = useAuth();
+  const [content, setContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const maxLength = 500;
+  const remainingChars = maxLength - content.length;
+
+  // ✅ FUNCIÓN PARA OBTENER INICIALES
+  const getInitials = (name?: string, lastName?: string): string => {
+    if (name && lastName) {
+      return `${name.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    }
+    if (name) {
+      const nameParts = name.split(" ");
+      if (nameParts.length >= 2) {
+        return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase();
+      }
+      return name.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!content.trim()) {
+      setError("El comentario no puede estar vacío");
+      return;
+    }
+
+    if (content.length > maxLength) {
+      setError(`El comentario no puede exceder ${maxLength} caracteres`);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      // ✅ CORRECCIÓN: Obtener token del objeto auth de Firebase
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        setError("Sesión expirada. Por favor, inicia sesión nuevamente.");
+        return;
+      }
+
+      const token = await currentUser.getIdToken();
+
+      const response = await fetch("/api/posts/comments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          postId,
+          content: content.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al publicar comentario");
+      }
+
+      const data = await response.json();
+
+      const newComment: Comment = {
+        ...data.comment,
+        createdAt: new Date(data.comment.createdAt),
+      };
+
+      onCommentAdded(newComment);
+      setContent("");
+    } catch (error: any) {
+      console.error("Error al publicar comentario:", error);
+      setError(error.message || "Error al publicar comentario");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mb-8">
+      <div className="bg-white-eske border border-gray-eske-30 rounded-lg p-6">
+        <div className="flex items-start gap-4">
+          {/* Avatar del usuario */}
+          <div className="flex-shrink-0">
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.name || "Usuario"}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-bluegreen-eske flex items-center justify-center text-white font-semibold text-sm">
+                {getInitials(user?.name, user?.lastName)}
+              </div>
+            )}
+          </div>
+
+          {/* Formulario */}
+          <div className="flex-1">
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Escribe tu comentario..."
+              className="w-full p-3 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske resize-none"
+              rows={4}
+              maxLength={maxLength}
+              disabled={isSubmitting}
+            />
+
+            <div className="flex items-center justify-between mt-2">
+              <span
+                className={`text-sm ${
+                  remainingChars < 50
+                    ? "text-red-500 font-semibold"
+                    : "text-gray-600"
+                }`}
+              >
+                {remainingChars} caracteres restantes
+              </span>
+
+              <button
+                type="submit"
+                disabled={isSubmitting || !content.trim()}
+                className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                  isSubmitting || !content.trim()
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-bluegreen-eske text-white hover:bg-bluegreen-eske-70"
+                }`}
+              >
+                {isSubmitting ? "Publicando..." : "Publicar comentario"}
+              </button>
+            </div>
+
+            {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+}
+

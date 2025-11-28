@@ -70,3 +70,28 @@ export interface TagItem {
 export interface CategoryCount {
   [categoryId: string]: number;
 }
+
+/**
+ * Interfaz para comentarios
+ */
+export interface Comment {
+  id: string;
+  content: string;
+  author: {
+    uid: string;
+    displayName: string;
+    photoURL?: string;
+  };
+  createdAt: Date;
+  postId: string;
+}
+
+/**
+ * Interfaz para posts guardados
+ */
+export interface SavedPost {
+  postId: string;
+  savedAt: Date;
+  postTitle: string;
+  postSlug: string;
+}
