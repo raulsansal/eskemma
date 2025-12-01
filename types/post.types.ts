@@ -95,3 +95,36 @@ export interface SavedPost {
   postTitle: string;
   postSlug: string;
 }
+
+/**
+ * Interfaz para recursos descargables
+ */
+export interface DownloadableResource {
+  id: string;
+  title: string;
+  description: string;
+  category: string; // Relacionado con categoría del post
+  fileType: "pdf" | "xlsx" | "docx" | "zip" | "pptx";
+  fileSize: string; // "2.5 MB"
+  thumbnail?: string;
+  fileStoragePath: string; // Ruta en Firebase Storage
+  isFree: boolean; // Si es $0.00
+  price?: number; // Precio si no es gratis
+  accessLevel: Array<"user" | "basic" | "premium" | "grupal" | "admin">;
+  downloadCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  status: "active" | "inactive";
+}
+
+/**
+ * Interfaz para posts relacionados en sidebar (versión compacta)
+ */
+export interface RelatedPostSidebar {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  featureImage?: string;
+  updatedAt: Date;
+}

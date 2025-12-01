@@ -6,6 +6,7 @@ import {
   extractHeadings,
   getRelatedPosts,
 } from "@/lib/posts";
+import { getResourcesByCategory } from "@/lib/resources"; // ✅ NUEVO
 import Link from "next/link";
 import SanitizedContent from "../../components/componentsBlog/SanitizedContent";
 import { PostData } from "@/types/post.types";
@@ -13,13 +14,12 @@ import ViewCounter from "./ViewCounter";
 import BackToButton from "./BackToButton";
 import ReadingTime from "./ReadingTime";
 import ShareButtons from "./ShareButtons";
-import TableOfContents from "./TableOfContents";
 import PostNavigation from "./PostNavigation";
-import RelatedPosts from "./RelatedPosts";
 import PostReactions from "./PostReactions";
 import { getCategoryColor, getCategoryLabel } from "@/lib/constants/categories";
 import SaveForLater from "./SaveForLater";
 import CommentSection from "./CommentSection";
+import PostSidebar from "./PostSidebar"; 
 
 export default async function PostPage({
   params,
@@ -90,15 +90,18 @@ export default async function PostPage({
   const readingTime = calculateReadingTime(validatedPostData.content);
   const headings = extractHeadings(validatedPostData.content);
   const { previous, next } = await getAdjacentPosts(slug);
+  
+  // ✅ Obtener datos para el sidebar
   const relatedPosts = await getRelatedPosts(
     slug,
     validatedPostData.category,
+    4 // ✅ Aumentado a 4 para el sidebar
+  );
+  
+  const resources = await getResourcesByCategory(
+    validatedPostData.category,
     3
   );
-
-  // ✅ DEBUG TEMPORAL - Verificar posts relacionados
-  console.log("🔍 Posts relacionados encontrados:", relatedPosts.length);
-  console.log("🔍 Categoría actual:", validatedPostData.category);
 
   const categoryColor = getCategoryColor(validatedPostData.category);
   const categoryLabel = getCategoryLabel(validatedPostData.category);
@@ -235,7 +238,7 @@ export default async function PostPage({
                 </div>
               )}
 
-              {/* ✅ NUEVO: Botones compartir + Me gusta en la misma línea */}
+              {/* Botones compartir + Me gusta en la misma línea */}
               <div className="mt-8 pt-6 border-t border-gray-eske-20">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                   {/* Me gusta (izquierda) */}
@@ -253,7 +256,7 @@ export default async function PostPage({
                 </div>
               </div>
 
-              {/* ✅ FASE 3: Guardar para leer después */}
+              {/* Guardar para leer después */}
               <SaveForLater
                 postId={validatedPostData.id}
                 postTitle={validatedPostData.title}
@@ -261,13 +264,7 @@ export default async function PostPage({
               />
             </article>
 
-            {/* ✅ FASE 2: Posts relacionados */}
-            <RelatedPosts
-              posts={relatedPosts}
-              currentCategory={validatedPostData.category}
-            />
-
-            {/* ✅ FASE 3: Sistema de comentarios */}
+            {/* Sistema de comentarios */}
             <CommentSection postId={validatedPostData.id} />
 
             {/* Navegación entre posts */}
@@ -302,12 +299,13 @@ export default async function PostPage({
             </nav>
           </div>
 
-          {/* Sidebar - Tabla de Contenidos */}
-          {headings.length > 0 && (
-            <aside className="hidden lg:block lg:w-1/3">
-              <TableOfContents headings={headings} />
-            </aside>
-          )}
+          {/* ✅ NUEVO: Sidebar unificado */}
+          <PostSidebar
+            headings={headings}
+            relatedPosts={relatedPosts}
+            resources={resources}
+            currentCategory={validatedPostData.category}
+          />
         </div>
       </div>
     </div>

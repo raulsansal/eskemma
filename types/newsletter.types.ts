@@ -35,7 +35,7 @@ export interface NewsletterSubscribeResponse {
   message: string;
   subscriberId?: string;
   alreadySubscribed?: boolean;
-  verificationLink?: string; // ✅ AGREGADO para testing
+  verificationLink?: string; 
 }
 
 // ✅ AGREGADO: Para unsubscribe
