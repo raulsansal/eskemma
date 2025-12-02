@@ -2,13 +2,14 @@
 "use client";
 
 import CommentItem from "./CommentItem";
-import { Comment } from "@/types/post.types";
+import { CommentWithReplies } from "@/types/post.types";
 
 interface CommentListProps {
-  comments: Comment[];
+  comments: CommentWithReplies[];
   postId: string;
   currentUserId?: string;
   onCommentDeleted: (commentId: string) => void;
+  onReply?: (parentId: string, content: string) => void; // ✅ NUEVO
 }
 
 export default function CommentList({
@@ -16,6 +17,7 @@ export default function CommentList({
   postId,
   currentUserId,
   onCommentDeleted,
+  onReply,
 }: CommentListProps) {
   return (
     <div className="space-y-4">
@@ -26,8 +28,10 @@ export default function CommentList({
           postId={postId}
           currentUserId={currentUserId}
           onDeleted={onCommentDeleted}
+          onReply={onReply}
         />
       ))}
     </div>
   );
 }
+

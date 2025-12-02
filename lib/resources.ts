@@ -8,8 +8,12 @@ import {
   getPopularResources as serverGetPopularResources,
 } from "./server/resources.server";
 
-export function getResourcesByCategory(category: string, limit: number = 3) {
-  return serverGetResourcesByCategory(category, limit);
+export function getResourcesByCategory(
+  category: string,
+  postId: string, // ✅ NUEVO: Agregar postId
+  limit: number = 3
+) {
+  return serverGetResourcesByCategory(category, postId, limit);
 }
 
 export function getPopularResources(limit: number = 3) {

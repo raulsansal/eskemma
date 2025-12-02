@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       if (existingData.status === "confirmed") {
         return NextResponse.json({
           success: true,
-          message: "Ya estás suscrito a nuestro newsletter",
+          message: "Ya te has suscrito a nuestro Newsletter",
           alreadySubscribed: true,
         });
       }

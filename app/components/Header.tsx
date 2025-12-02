@@ -8,6 +8,7 @@ import { Bars3Icon } from "@heroicons/react/24/solid";
 import SignInModal from "./componentsHome/SignInModal";
 import LoginModal from "./componentsHome/LoginModal";
 import OnboardingModal from "./componentsHome/OnboardingModal";
+import NotificationBell from "./NotificationBell";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -147,14 +148,17 @@ const Header = () => {
               </div>
             )}
 
+            {/* Notificaciones (solo para usuarios autenticados) */}
+            {user && <NotificationBell />}
+
             {/* Ícono de Hamburguesa */}
             <button
               className="cursor-pointer p-2 text-black-eske hover:text-blue-eske-80 focus:outline-none menu-button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <Bars3Icon className="h-6 w-6 max-sm:h-6 max-sm:w-6 text-black-eske hover:text-blue-eske-80" />
-            </button>
-
+            </button>                     
+          
             {/* Avatar (Visible después de iniciar sesión) */}
             {user && (
               <div className="relative">

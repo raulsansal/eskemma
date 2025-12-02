@@ -128,3 +128,36 @@ export interface RelatedPostSidebar {
   featureImage?: string;
   updatedAt: Date;
 }
+
+/**
+ * Interfaz extendida para comentarios con respuestas anidadas
+ */
+export interface CommentWithReplies extends Comment {
+  replies?: CommentWithReplies[];
+  parentId?: string | null;
+  isApproved?: boolean; // Para moderación
+  moderationStatus?: "pending" | "approved" | "rejected";
+}
+
+/**
+ * Interfaz para recursos con posts relacionados manualmente
+ */
+export interface DownloadableResourceExtended extends DownloadableResource {
+  relatedPosts?: string[]; // Array de postIds vinculados manualmente
+}
+
+/**
+ * Interfaz para notificaciones
+ */
+export interface Notification {
+  id: string;
+  userId: string;
+  type: "comment_reply" | "comment_mention" | "resource_download";
+  message: string;
+  postId?: string;
+  postSlug?: string;
+  commentId?: string;
+  isRead: boolean;
+  createdAt: Date;
+}
+

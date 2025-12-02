@@ -19,7 +19,7 @@ import PostReactions from "./PostReactions";
 import { getCategoryColor, getCategoryLabel } from "@/lib/constants/categories";
 import SaveForLater from "./SaveForLater";
 import CommentSection from "./CommentSection";
-import PostSidebar from "./PostSidebar"; 
+import PostSidebar from "./PostSidebar";
 
 export default async function PostPage({
   params,
@@ -90,16 +90,17 @@ export default async function PostPage({
   const readingTime = calculateReadingTime(validatedPostData.content);
   const headings = extractHeadings(validatedPostData.content);
   const { previous, next } = await getAdjacentPosts(slug);
-  
+
   // ✅ Obtener datos para el sidebar
   const relatedPosts = await getRelatedPosts(
     slug,
     validatedPostData.category,
     4 // ✅ Aumentado a 4 para el sidebar
   );
-  
+
   const resources = await getResourcesByCategory(
     validatedPostData.category,
+    validatedPostData.id, // ✅ Pasar el postId
     3
   );
 

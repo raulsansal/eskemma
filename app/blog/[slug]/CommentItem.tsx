@@ -3,14 +3,16 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { auth } from "@/firebase/firebaseConfig"; // ✅ AGREGAR
-import { Comment } from "@/types/post.types";
+import { auth } from "@/firebase/firebaseConfig";
+import { CommentWithReplies } from "@/types/post.types";
 
 interface CommentItemProps {
-  comment: Comment;
+  comment: CommentWithReplies;
   postId: string;
   currentUserId?: string;
   onDeleted: (commentId: string) => void;
+  onReply?: (parentId: string, content: string) => void; // ✅ NUEVO
+  isReply?: boolean; // ✅ NUEVO: Para estilos diferentes
 }
 
 export default function CommentItem({
@@ -18,16 +20,19 @@ export default function CommentItem({
   postId,
   currentUserId,
   onDeleted,
+  onReply,
+  isReply = false,
 }: CommentItemProps) {
   const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showReplyForm, setShowReplyForm] = useState(false); // ✅ NUEVO
+  const [replyContent, setReplyContent] = useState(""); // ✅ NUEVO
 
   const isOwner = currentUserId === comment.author.uid;
   const isAdmin = user?.role === "admin";
   const canDelete = isOwner || isAdmin;
 
-  // ✅ FUNCIÓN PARA OBTENER INICIALES (igual que en Header)
   const getInitials = (displayName: string): string => {
     const nameParts = displayName.trim().split(" ");
     if (nameParts.length >= 2) {
@@ -63,7 +68,6 @@ export default function CommentItem({
     setIsDeleting(true);
 
     try {
-      // ✅ CORRECCIÓN: Obtener token de auth.currentUser
       const currentUser = auth.currentUser;
       if (!currentUser) {
         alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
@@ -97,8 +101,22 @@ export default function CommentItem({
     }
   };
 
+  // ✅ NUEVO: Manejar respuesta
+  const handleReply = () => {
+    if (!replyContent.trim()) return;
+    if (onReply) {
+      onReply(comment.id, replyContent);
+      setReplyContent("");
+      setShowReplyForm(false);
+    }
+  };
+
   return (
-    <div className="bg-white-eske border border-gray-eske-30 rounded-lg p-6 hover:shadow-md transition-shadow duration-300">
+    <div
+      className={`bg-white-eske border border-gray-eske-30 rounded-lg p-6 hover:shadow-md transition-shadow duration-300 ${
+        isReply ? "ml-12 mt-4" : ""
+      }`}
+    >
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="flex-shrink-0">
@@ -127,20 +145,64 @@ export default function CommentItem({
               </span>
             </div>
 
-            {canDelete && !showConfirmDelete && (
-              <button
-                onClick={() => setShowConfirmDelete(true)}
-                className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
-                disabled={isDeleting}
-              >
-                Eliminar
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* ✅ NUEVO: Botón responder */}
+              {!isReply && user && (
+                <button
+                  onClick={() => setShowReplyForm(!showReplyForm)}
+                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 text-sm font-medium transition-colors"
+                >
+                  Responder
+                </button>
+              )}
+
+              {canDelete && !showConfirmDelete && (
+                <button
+                  onClick={() => setShowConfirmDelete(true)}
+                  className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
+                  disabled={isDeleting}
+                >
+                  Eliminar
+                </button>
+              )}
+            </div>
           </div>
 
           <p className="text-gray-700 whitespace-pre-wrap break-words">
             {comment.content}
           </p>
+
+          {/* ✅ NUEVO: Formulario de respuesta */}
+          {showReplyForm && (
+            <div className="mt-4 p-3 bg-gray-eske-10 rounded-lg">
+              <textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Escribe tu respuesta..."
+                className="w-full p-2 border border-gray-eske-30 rounded focus:outline-none focus:ring-2 focus:ring-bluegreen-eske resize-none"
+                rows={3}
+                maxLength={500}
+              />
+              <div className="flex justify-end gap-2 mt-2">
+                <button
+                  onClick={() => {
+                    setShowReplyForm(false);
+                    setReplyContent("");
+                  }}
+                  className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleReply}
+                  disabled={!replyContent.trim()}
+                  className="px-4 py-2 bg-bluegreen-eske text-white text-sm rounded hover:bg-bluegreen-eske-70 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Responder
+                </button>
+              </div>
+            </div>
+          )}
 
           {showConfirmDelete && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -165,9 +227,25 @@ export default function CommentItem({
               </div>
             </div>
           )}
+
+          {/* ✅ NUEVO: Mostrar respuestas anidadas */}
+          {comment.replies && comment.replies.length > 0 && (
+            <div className="mt-4 space-y-4">
+              {comment.replies.map((reply) => (
+                <CommentItem
+                  key={reply.id}
+                  comment={reply}
+                  postId={postId}
+                  currentUserId={currentUserId}
+                  onDeleted={onDeleted}
+                  onReply={onReply}
+                  isReply={true}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-

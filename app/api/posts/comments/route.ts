@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 
-// GET: Obtener comentarios de un post
+// GET: Obtener comentarios de un post (con soporte para respuestas anidadas)
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
@@ -32,10 +32,37 @@ export async function GET(request: NextRequest) {
         author: data.author,
         createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
         postId: data.postId,
+        parentId: data.parentId || null, // ✅ NUEVO: Para respuestas anidadas
+        isApproved: data.isApproved ?? true, // ✅ NUEVO: Moderación
+        moderationStatus: data.moderationStatus || "approved",
       };
     });
 
-    return NextResponse.json({ comments });
+    // ✅ NUEVO: Organizar comentarios en estructura de árbol
+    const topLevelComments = comments.filter((c) => !c.parentId);
+    const repliesMap = new Map<string, any[]>();
+
+    // Agrupar respuestas por parentId
+    comments
+      .filter((c) => c.parentId)
+      .forEach((reply) => {
+        if (!repliesMap.has(reply.parentId!)) {
+          repliesMap.set(reply.parentId!, []);
+        }
+        repliesMap.get(reply.parentId!)!.push(reply);
+      });
+
+    // Agregar respuestas a sus comentarios padres
+    const buildCommentTree = (comment: any): any => {
+      return {
+        ...comment,
+        replies: repliesMap.get(comment.id) || [],
+      };
+    };
+
+    const commentsWithReplies = topLevelComments.map(buildCommentTree);
+
+    return NextResponse.json({ comments: commentsWithReplies });
   } catch (error) {
     console.error("Error al obtener comentarios:", error);
     return NextResponse.json(
@@ -45,7 +72,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Crear un nuevo comentario
+// POST: Crear un nuevo comentario o respuesta
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get("authorization");
@@ -56,7 +83,7 @@ export async function POST(request: NextRequest) {
     const token = authHeader.split("Bearer ")[1];
     const decodedToken = await adminAuth.verifyIdToken(token);
 
-    const { postId, content } = await request.json();
+    const { postId, content, parentId } = await request.json(); // ✅ NUEVO: parentId
 
     if (!postId || !content) {
       return NextResponse.json(
@@ -76,15 +103,21 @@ export async function POST(request: NextRequest) {
     const userDoc = await adminDb.collection("users").doc(decodedToken.uid).get();
     const userData = userDoc.data();
 
+    // ✅ CORRECCIÓN: Priorizar avatarUrl de Firestore
+    const photoURL = userData?.avatarUrl || decodedToken.picture || null;
+
     const commentData = {
       content: content.trim(),
       author: {
         uid: decodedToken.uid,
         displayName: userData?.name || decodedToken.name || "Usuario",
-        photoURL: decodedToken.picture || userData?.avatarUrl || null,
+        photoURL: photoURL,
       },
       createdAt: FieldValue.serverTimestamp(),
       postId,
+      parentId: parentId || null, // ✅ NUEVO: Para respuestas anidadas
+      isApproved: true, // ✅ Auto-aprobar por ahora (cambiar a false para moderación)
+      moderationStatus: "approved", // ✅ NUEVO
     };
 
     const commentRef = await adminDb
@@ -92,6 +125,44 @@ export async function POST(request: NextRequest) {
       .doc(postId)
       .collection("comments")
       .add(commentData);
+
+    // ✅ NUEVO: Si es una respuesta, crear notificación
+    if (parentId) {
+      try {
+        const parentCommentDoc = await adminDb
+          .collection("posts")
+          .doc(postId)
+          .collection("comments")
+          .doc(parentId)
+          .get();
+
+        if (parentCommentDoc.exists) {
+          const parentComment = parentCommentDoc.data();
+          const parentAuthorUid = parentComment?.author?.uid;
+
+          // No notificar si el autor responde su propio comentario
+          if (parentAuthorUid && parentAuthorUid !== decodedToken.uid) {
+            // Obtener slug del post
+            const postDoc = await adminDb.collection("posts").doc(postId).get();
+            const postSlug = postDoc.data()?.slug;
+
+            await adminDb.collection("notifications").add({
+              userId: parentAuthorUid,
+              type: "comment_reply",
+              message: `${userData?.name || "Alguien"} respondió a tu comentario`,
+              postId: postId,
+              postSlug: postSlug,
+              commentId: commentRef.id,
+              isRead: false,
+              createdAt: FieldValue.serverTimestamp(),
+            });
+          }
+        }
+      } catch (notifError) {
+        console.error("Error al crear notificación:", notifError);
+        // No fallar la creación del comentario si falla la notificación
+      }
+    }
 
     const newComment = {
       id: commentRef.id,
@@ -111,3 +182,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
