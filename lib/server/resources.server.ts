@@ -9,14 +9,19 @@ import {
   limit as firestoreLimit,
 } from "firebase/firestore";
 import { DownloadableResource } from "@/types/post.types";
+import { RESOURCES_CONFIG } from "@/lib/constants/resources.config";
 
 /**
  * Obtiene recursos por categoría del post
  * Prioriza recursos vinculados manualmente via relatedPosts
+ * 
+ * Comportamiento controlado por RESOURCES_CONFIG.USE_MANUAL_RESOURCES_ONLY:
+ * - true: SOLO muestra recursos vinculados manualmente (control total)
+ * - false: Completa con recursos de la categoría si no hay suficientes manuales
  */
 export async function getResourcesByCategory(
   category: string,
-  postId: string, // ✅ NUEVO: Necesitamos el postId
+  postId: string,
   limit: number = 3
 ): Promise<DownloadableResource[]> {
   try {
@@ -52,13 +57,24 @@ export async function getResourcesByCategory(
       };
     });
 
+    // ✅ CONTROL GLOBAL: Si USE_MANUAL_RESOURCES_ONLY es true, retornar SOLO recursos manuales
+    if (RESOURCES_CONFIG.USE_MANUAL_RESOURCES_ONLY) {
+      console.log(`📌 Modo manual activado: mostrando ${manuallyRelatedResources.length} recursos vinculados manualmente para post ${postId}`);
+      return manuallyRelatedResources;
+    }
+
+    // ✅ MODO AUTOMÁTICO: Completar con recursos de la categoría si es necesario
+    
     // Si ya tenemos suficientes recursos manualmente vinculados, retornarlos
     if (manuallyRelatedResources.length >= limit) {
+      console.log(`✅ Suficientes recursos manuales (${manuallyRelatedResources.length}/${limit}) para post ${postId}`);
       return manuallyRelatedResources.slice(0, limit);
     }
 
-    // ✅ PASO 2: Completar con recursos de la misma categoría
+    // PASO 2: Completar con recursos de la misma categoría
     const remainingLimit = limit - manuallyRelatedResources.length;
+    console.log(`🔄 Completando con ${remainingLimit} recursos de categoría "${category}" para post ${postId}`);
+    
     const categoryQuery = query(
       resourcesRef,
       where("category", "==", category),
@@ -92,7 +108,10 @@ export async function getResourcesByCategory(
       });
 
     // Combinar recursos manualmente relacionados + recursos por categoría
-    return [...manuallyRelatedResources, ...categoryResources].slice(0, limit);
+    const finalResources = [...manuallyRelatedResources, ...categoryResources].slice(0, limit);
+    console.log(`✅ Total de recursos para post ${postId}: ${finalResources.length} (${manuallyRelatedResources.length} manuales + ${categoryResources.length} automáticos)`);
+    
+    return finalResources;
   } catch (error) {
     console.error("Error al obtener recursos por categoría:", error);
     return [];

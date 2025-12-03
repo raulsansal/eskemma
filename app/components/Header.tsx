@@ -146,10 +146,7 @@ const Header = () => {
                   INICIO
                 </span>
               </div>
-            )}
-
-            {/* Notificaciones (solo para usuarios autenticados) */}
-            {user && <NotificationBell />}
+            )}            
 
             {/* Ícono de Hamburguesa */}
             <button
@@ -206,6 +203,10 @@ const Header = () => {
                 )}
               </div>
             )}
+
+            {/* Notificaciones (solo para usuarios autenticados) */}
+            {user && <NotificationBell />}
+
           </div>
 
           {/* Menú Desplegable (Hamburguesa) */}
