@@ -161,7 +161,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-gray-eske-10 flex flex-col">
       {/* Top Bar - Mobile & Desktop */}
-      <header className="bg-white-eske border-b border-gray-eske-30 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-50 shadow-sm">
+      <header className="bg-white-eske border-b border-gray-eske-30 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-30 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Botón Hamburguesa - Solo Mobile */}

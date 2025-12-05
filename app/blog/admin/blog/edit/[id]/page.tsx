@@ -1,5 +1,4 @@
-//app/blog/admin/blog/edit/[id]/page.ts
-
+// app/blog/admin/blog/edit/[id]/page.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,13 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import { getPostData, updatePost, createPost } from "@/lib/client/posts.client";
 import { uploadFeaturedImage, uploadSecondaryImage } from "@/firebase/storageUtils";
 import { PostData } from "@/types/post.types";
-import { CATEGORIES } from "@/lib/constants/categories"; // ✅ Importar categorías
+import { CATEGORIES } from "@/lib/constants/categories";
+import TagInput from "@/app/blog/admin/components/TagInput";
 
 // Interfaces para los datos
 interface BasePostData {
-  title: string;  
+  title: string;
   content: string;
-  category: string; // ✅ NUEVO
+  category: string;
   tags?: string[];
   status: "draft" | "published";
   featureImage?: string;
@@ -24,14 +24,26 @@ interface BasePostData {
   keywords?: string[];
 }
 
+// ✅ NUEVA FUNCIÓN: Convertir texto a slug con acentos correctos
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD") // Descompone caracteres con acentos
+    .replace(/[\u0300-\u036f]/g, "") // Elimina los diacríticos (acentos)
+    .replace(/[^a-z0-9\s-]/g, "") // Elimina caracteres especiales excepto espacios y guiones
+    .trim()
+    .replace(/\s+/g, "-") // Reemplaza espacios por guiones
+    .replace(/-+/g, "-"); // Reemplaza múltiples guiones por uno solo
+}
+
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
 
   // Estados locales
   const [formData, setFormData] = useState<BasePostData>({
-    title: "",    
+    title: "",
     content: "",
-    category: "tactica", // ✅ Valor por defecto
+    category: "tactica",
     tags: [],
     status: "draft",
     featureImage: "",
@@ -60,8 +72,8 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
           setFormData({
             ...postData,
-            category: postData.category || "tactica", // ✅ Asegurar categoría
-            tags: postData.tags || [],            
+            category: postData.category || "tactica",
+            tags: postData.tags || [],
           });
         } catch (error) {
           console.error("Error al obtener los datos del post:", error);
@@ -86,17 +98,26 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       setFormData((prev) => ({
         ...prev,
         title: value,
-        slug: value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+        // ✅ Solo genera slug automáticamente si está vacío o es un post nuevo
+        slug: prev.slug === "" || id === "new" ? generateSlug(value) : prev.slug,
+      }));
+    } else if (name === "slug") {
+      // ✅ NUEVO: Permitir edición manual del slug
+      setFormData((prev) => ({
+        ...prev,
+        slug: generateSlug(value),
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // Manejar cambios en los tags
-  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const tags = e.target.value.split(",").map((tag) => tag.trim());
-    setFormData((prev) => ({ ...prev, tags: tags || [] }));
+  // ✅ NUEVA FUNCIÓN: Regenerar slug desde el título
+  const handleRegenerateSlug = () => {
+    setFormData((prev) => ({
+      ...prev,
+      slug: generateSlug(prev.title),
+    }));
   };
 
   // Manejar cambios en keywords
@@ -151,13 +172,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         title: formData.title,
         content: formData.content,
         slug: formData.slug,
-        category: formData.category, // ✅ Incluir categoría
+        category: formData.category,
         status: formData.status,
         author: {
           uid: user.uid,
           displayName: user.displayName || "Admin",
           email: user.email || "",
-        },        
+        },
         featureImage: formData.featureImage || undefined,
         tags: formData.tags || [],
         metaTitle: formData.metaTitle || formData.title,
@@ -199,35 +220,27 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   };
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bluegreen-eske mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      {/* Botón de Depuración */}
-      <div style={{ marginBottom: "20px" }}>
-        <button
-          type="button"
-          onClick={handleDebugToken}
-          style={{
-            padding: "10px 15px",
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Depurar Token del Usuario
-        </button>
-      </div>
+    <div className="max-w-4xl mx-auto p-6 bg-white-eske rounded-xl shadow-md">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        {id === "new" ? "Crear Nuevo Post" : "Editar Post"}
+      </h1>
 
-      {/* Formulario de edición */}
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
         {/* Título */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Título: <span style={{ color: "red" }}>*</span>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Título <span className="text-red-eske">*</span>
           </label>
           <input
             type="text"
@@ -235,31 +248,51 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             value={formData.title}
             onChange={handleChange}
             required
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+            placeholder="Título del post"
           />
         </div>
 
-        {/* ✅ NUEVO: Categoría */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Categoría: <span style={{ color: "red" }}>*</span>
+        {/* ✅ Slug (EDITABLE con botón de regenerar) */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Slug (URL) <span className="text-red-eske">*</span>
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              name="slug"
+              value={formData.slug}
+              onChange={handleChange}
+              required
+              className="flex-1 px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+              placeholder="slug-del-post"
+            />
+            <button
+              type="button"
+              onClick={handleRegenerateSlug}
+              className="px-4 py-2 bg-blue-eske text-white rounded-lg hover:bg-blue-eske-70 transition-colors font-semibold whitespace-nowrap"
+              title="Regenerar slug desde el título"
+            >
+              🔄 Regenerar
+            </button>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">
+            Se genera automáticamente desde el título, pero puedes editarlo manualmente
+          </p>
+        </div>
+
+        {/* Categoría */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Categoría <span className="text-red-eske">*</span>
           </label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
             required
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
           >
             {CATEGORIES.map((cat) => (
               <option key={cat.id} value={cat.id}>
@@ -267,166 +300,138 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               </option>
             ))}
           </select>
-        </div>        
+        </div>
 
         {/* Contenido */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Contenido: <span style={{ color: "red" }}>*</span>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Contenido <span className="text-red-eske">*</span>
           </label>
           <textarea
             name="content"
             value={formData.content}
             onChange={handleChange}
             required
-            style={{
-              width: "100%",
-              height: "150px",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            rows={12}
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent font-mono text-sm"
+            placeholder="Contenido en Markdown..."
           />
+          <p className="text-xs text-gray-600 mt-1">
+            Usa Markdown para formatear el contenido
+          </p>
         </div>
 
-        {/* Tags */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Tags (separados por comas):
+        {/* Tags con autocompletado */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Tags (Etiquetas)
           </label>
-          <input
-            type="text"
-            name="tags"
-            value={formData.tags?.join(", ") || ""}
-            onChange={handleTagsChange}
-            placeholder="Ej: mensaje, storytelling, compol"
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+          <TagInput
+            value={formData.tags || []}
+            onChange={(tags) => setFormData((prev) => ({ ...prev, tags }))}
           />
         </div>
 
-        {/* ✅ NUEVO: Keywords (palabras clave para SEO) */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Palabras clave (separadas por comas):
+        {/* Keywords */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Palabras clave (SEO)
           </label>
           <input
             type="text"
             name="keywords"
             value={formData.keywords?.join(", ") || ""}
             onChange={handleKeywordsChange}
-            placeholder="Ej: política, estrategia, campaña"
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            placeholder="política, estrategia, campaña"
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
           />
+          <p className="text-xs text-gray-600 mt-1">
+            Separadas por comas para SEO
+          </p>
         </div>
 
         {/* Meta Title */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Meta Title (SEO):
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Meta Title (SEO)
           </label>
           <input
             type="text"
             name="metaTitle"
             value={formData.metaTitle}
             onChange={handleChange}
-            placeholder="Título para SEO (opcional, por defecto usa el título del post)"
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            placeholder="Por defecto usa el título del post"
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
           />
         </div>
 
         {/* Meta Description */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Meta Description (SEO):
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Meta Description (SEO)
           </label>
           <textarea
             name="metaDescription"
             value={formData.metaDescription}
             onChange={handleChange}
-            placeholder="Descripción para SEO (opcional, max 160 caracteres)"
-            style={{
-              width: "100%",
-              height: "60px",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            rows={3}
+            maxLength={160}
+            placeholder="Descripción para SEO (max 160 caracteres)"
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
           />
+          <p className="text-xs text-gray-600 mt-1">
+            {formData.metaDescription?.length || 0}/160 caracteres
+          </p>
         </div>
 
         {/* Imagen Destacada */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Imagen Destacada:</label>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Imagen Destacada
+          </label>
           <input
             type="file"
             accept="image/*"
             onChange={handleFeatureImageUpload}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-bluegreen-eske file:text-white hover:file:bg-bluegreen-eske-70"
           />
           {formData.featureImage && (
-            <img
-              src={formData.featureImage}
-              alt="Imagen Destacada"
-              style={{
-                width: "150px",
-                height: "150px",
-                objectFit: "cover",
-                marginTop: "10px",
-                borderRadius: "4px",
-              }}
-            />
+            <div className="mt-3">
+              <img
+                src={formData.featureImage}
+                alt="Imagen Destacada"
+                className="w-full max-w-md h-48 object-cover rounded-lg shadow-md"
+              />
+            </div>
           )}
         </div>
 
         {/* Imágenes Secundarias */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Imágenes Secundarias:</label>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Imágenes Secundarias
+          </label>
           <input
             type="file"
             accept="image/*"
             onChange={handleSecondaryImageUpload}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-eske file:text-white hover:file:bg-blue-eske-70"
           />
+          <p className="text-xs text-gray-600 mt-1">
+            Se insertará en Markdown en el contenido
+          </p>
         </div>
 
-        {/* Estado (Draft/Published) */}
-        <div style={{ marginBottom: "15px" }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>Estado:</label>
+        {/* Estado */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Estado
+          </label>
           <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            style={{
-              width: "100%",
-              padding: "8px",
-              marginTop: "5px",
-              border: "1px solid #ddd",
-            }}
+            className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
           >
             <option value="draft">Borrador</option>
             <option value="published">Publicado</option>
@@ -434,37 +439,36 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         </div>
 
         {/* Botones */}
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div className="flex gap-4 pt-4 border-t border-gray-eske-30">
           <button
             type="button"
             onClick={handleSave}
             disabled={saving}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: saving ? "#ccc" : "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: saving ? "not-allowed" : "pointer",
-            }}
+            className="flex-1 px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold shadow-md"
           >
             {saving ? "Guardando..." : "Guardar Cambios"}
           </button>
           <button
             type="button"
             onClick={() => router.push("/blog/admin/blog")}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#6c757d",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
+            className="px-6 py-3 bg-gray-eske-40 text-gray-800 rounded-lg hover:bg-gray-eske-60 transition-colors font-semibold shadow-md"
           >
             Cancelar
           </button>
         </div>
+
+        {/* Botón Debug (opcional) */}
+        {typeof debugUserToken === "function" && (
+          <div className="pt-4 border-t border-gray-eske-30">
+            <button
+              type="button"
+              onClick={handleDebugToken}
+              className="w-full px-4 py-2 bg-green-eske text-white rounded-lg hover:bg-green-eske-70 transition-colors text-sm font-medium"
+            >
+              🔍 Depurar Token del Usuario
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

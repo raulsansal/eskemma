@@ -115,7 +115,7 @@ const Header = () => {
       )}
 
       {/* Encabezado */}
-      <header className="bg-white-eske text-black-eske py-5 px-6 sm:px-10 md:px-14 sticky top-0 z-50">
+      <header className="bg-white-eske text-black-eske py-5 px-6 sm:px-10 md:px-14 sticky top-0 z-[100]">
         <div className="w-full flex justify-between items-center">
           {/* Contenedor Izquierdo (Logo) */}
           <div>
@@ -178,7 +178,7 @@ const Header = () => {
 
                 {/* Menú Desplegable del Avatar */}
                 {isAvatarMenuOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-md rounded-lg overflow-hidden z-10 avatar-dropdown">
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-md rounded-lg overflow-hidden z-[110] avatar-dropdown">
                     <ul className="text-sm">
                       <li
                         className="px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold"
@@ -211,7 +211,7 @@ const Header = () => {
 
           {/* Menú Desplegable (Hamburguesa) */}
           <div
-            className={`absolute top-full right-0 bg-white-eske shadow-md mt-2 py-4 z-10 text-base max-sm:text-sm transition-all duration-300 menu-dropdown ${
+            className={`absolute top-full right-0 bg-white-eske shadow-md mt-2 py-4 z-[110] text-base max-sm:text-sm transition-all duration-300 menu-dropdown ${
               isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
             }`}
           >

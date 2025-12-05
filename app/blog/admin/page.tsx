@@ -7,6 +7,7 @@ import StatsCard from "./components/StatsCard";
 import PopularPostsList from "./components/PopularPostsList";
 import CategoryChart from "./components/CategoryChart";
 import QuickActions from "./components/QuickActions";
+import PopularTags from "./components/PopularTags";
 
 interface DashboardStats {
   totalPosts: number;
@@ -132,6 +133,9 @@ export default function AdminDashboard() {
         {/* Category Chart - 1 column */}
         <div className="lg:col-span-1">
           <CategoryChart />
+
+          {/* Popular Tags */}
+          <PopularTags />
         </div>
       </div>
     </div>
