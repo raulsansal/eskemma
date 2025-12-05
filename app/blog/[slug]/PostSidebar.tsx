@@ -25,21 +25,21 @@ export default function PostSidebar({
         {headings.length > 0 && <TableOfContents headings={headings} />}
 
         {/* 2. Newsletter */}
-        <NewsletterSignup />
+        <NewsletterSignup />        
 
-        {/* 3. Posts relacionados */}
-        {relatedPosts.length > 0 && (
-          <RelatedPostsSidebar
-            posts={relatedPosts}
-            currentCategory={currentCategory}
-          />
-        )}
-
-        {/* 4. Recursos descargables */}
+        {/* 3. Recursos descargables */}
         {resources.length > 0 && (
           <DownloadableResources
             resources={resources}
             category={currentCategory}
+          />
+        )}
+
+        {/* 4. Posts relacionados */}
+        {relatedPosts.length > 0 && (
+          <RelatedPostsSidebar
+            posts={relatedPosts}
+            currentCategory={currentCategory}
           />
         )}
       </div>

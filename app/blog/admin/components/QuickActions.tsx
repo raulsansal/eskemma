@@ -10,6 +10,7 @@ export default function QuickActions() {
       letter: "N",
       color: "bg-bluegreen-eske hover:bg-bluegreen-eske-70",
       gradient: "from-bluegreen-eske-80 to-bluegreen-eske-90",
+      disabled: false,
     },
     {
       title: "Ver Todos los Posts",
@@ -18,6 +19,7 @@ export default function QuickActions() {
       letter: "P",
       color: "bg-blue-eske hover:bg-blue-eske-70",
       gradient: "from-blue-eske-80 to-blue-eske-90",
+      disabled: false,
     },
     {
       title: "Ver Blog Público",
@@ -26,15 +28,16 @@ export default function QuickActions() {
       letter: "B",
       color: "bg-green-eske hover:bg-green-eske-70",
       gradient: "from-green-eske-80 to-green-eske-90",
+      disabled: false,
     },
     {
       title: "Comentarios",
-      description: "Próximamente disponible",
-      href: "#",
+      description: "Modera y gestiona comentarios", // ✅ Cambiar descripción
+      href: "/blog/admin/comments",
       letter: "C",
-      color: "bg-gray-eske-60 cursor-not-allowed",
-      gradient: "from-gray-eske-70 to-gray-eske-90",
-      disabled: true,
+      color: "bg-orange-eske hover:bg-orange-eske-70", // ✅ Color activo
+      gradient: "from-orange-eske-80 to-orange-eske-90", // ✅ Gradiente activo
+      disabled: false, // ✅ Habilitado
     },
   ];
 
@@ -45,12 +48,12 @@ export default function QuickActions() {
           key={action.title}
           href={action.disabled ? "#" : action.href}
           className={`${action.color} text-white rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 ${
-            action.disabled ? "opacity-50" : ""
+            action.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
           }`}
           onClick={(e) => action.disabled && e.preventDefault()}
         >
           <div className="flex items-start justify-between mb-4">
-            {/* ✅ Letra con gradiente oscuro y borde */}
+            {/* Letra con gradiente oscuro y borde */}
             <div className="relative">
               <div className={`w-12 h-12 bg-gradient-to-br ${action.gradient} rounded-2xl flex items-center justify-center shadow-lg border-2 border-white border-opacity-20`}>
                 <span className="text-2xl font-black text-white tracking-tight">{action.letter}</span>
