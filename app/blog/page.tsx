@@ -1,4 +1,5 @@
 // app/blog/page.tsx
+import { Metadata } from "next";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 import DOMPurify from "isomorphic-dompurify";
@@ -13,6 +14,89 @@ import FoucheHeroSection from "./FoucheHeroSection";
 import Pagination from "../components/componentsBlog/Pagination";
 import Sidebar from "../components/componentsBlog/Sidebar";
 import BlogContent from "./BlogContent";
+
+// ✅ Configuración de URLs (cambiar según entorno)
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+// ✅ Metadata estática para SEO
+export const metadata: Metadata = {
+  title: "El Baúl de Fouché - Blog de Comunicación Política | Eskemma",
+  description: "Artículos sobre estrategia electoral, comunicación política, análisis de datos y campañas políticas. Contenido profesional para consultores y equipos de campaña en México.",
+  keywords: [
+    "comunicación política",
+    "estrategia electoral", 
+    "campañas políticas",
+    "análisis electoral",
+    "consultoría política",
+    "marketing político",
+    "México",
+    "elecciones",
+    "propaganda política",
+    "estrategia de campaña",
+  ],
+  authors: [{ name: "Eskemma" }],
+  openGraph: {
+    title: "El Baúl de Fouché - Blog de Comunicación Política",
+    description: "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
+    url: `${SITE_URL}/blog`, // ✅ Dinámico según entorno
+    siteName: "El Baúl de Fouché - Eskemma",
+    images: [
+      {
+        url: `${SITE_URL}/images/blog-hero.jpg`, // ✅ Dinámico según entorno
+        width: 1200,
+        height: 630,
+        alt: "El Baúl de Fouché - Blog de Comunicación Política",
+      },
+    ],
+    locale: "es_MX",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "El Baúl de Fouché - Blog de Comunicación Política",
+    description: "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
+    images: [`${SITE_URL}/images/blog-hero.jpg`], // ✅ Dinámico según entorno
+    creator: "@eskemma", // ✅ TODO: Cambiar por tu handle real de Twitter/X en producción
+  },
+  alternates: {
+    canonical: `${SITE_URL}/blog`, // ✅ Dinámico según entorno
+  },
+};
+
+/* 🚀 PARA PRODUCCIÓN: Descomentar y ajustar estas líneas cuando publiques
+export const metadata: Metadata = {
+  title: "El Baúl de Fouché - Blog de Comunicación Política | Eskemma",
+  description: "Artículos sobre estrategia electoral, comunicación política, análisis de datos y campañas políticas. Contenido profesional para consultores y equipos de campaña en México.",
+  keywords: [...],
+  authors: [{ name: "Eskemma" }],
+  openGraph: {
+    title: "El Baúl de Fouché - Blog de Comunicación Política",
+    description: "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
+    url: "https://eskemma.com/blog",
+    siteName: "El Baúl de Fouché - Eskemma",
+    images: [
+      {
+        url: "https://eskemma.com/images/blog-hero.jpg",
+        width: 1200,
+        height: 630,
+        alt: "El Baúl de Fouché - Blog de Comunicación Política",
+      },
+    ],
+    locale: "es_MX",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "El Baúl de Fouché - Blog de Comunicación Política",
+    description: "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
+    images: ["https://eskemma.com/images/blog-hero.jpg"],
+    creator: "@tu_handle_real", // ✅ Cambiar por tu handle real
+  },
+  alternates: {
+    canonical: "https://eskemma.com/blog",
+  },
+};
+*/
 
 interface BlogPageProps {
   searchParams: Promise<{ 
@@ -125,7 +209,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Columna principal - Posts */}
               <div className="flex-1 lg:w-2/3">
-                {/* ✅ Componente cliente con ViewToggle */}
+                {/* Componente cliente con ViewToggle */}
                 <BlogContent posts={resolvedPosts} sortBy={sortBy} />
 
                 {/* Paginación */}
