@@ -2,7 +2,7 @@
 import TableOfContents from "./TableOfContents";
 import NewsletterSignup from "../../components/componentsBlog/NewsletterSignup";
 import RelatedPostsSidebar from "./RelatedPostsSidebar";
-import DownloadableResources from "./DownloadableResources";
+import ResourcesCard from "./ResourcesCard";
 import { RelatedPostSidebar, DownloadableResource } from "@/types/post.types";
 
 interface PostSidebarProps {
@@ -28,12 +28,10 @@ export default function PostSidebar({
         <NewsletterSignup />        
 
         {/* 3. Recursos descargables */}
-        {resources.length > 0 && (
-          <DownloadableResources
-            resources={resources}
-            category={currentCategory}
-          />
-        )}
+        <ResourcesCard
+          resources={resources}
+          category={currentCategory}
+        />
 
         {/* 4. Posts relacionados */}
         {relatedPosts.length > 0 && (

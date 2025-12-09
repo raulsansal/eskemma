@@ -1,5 +1,5 @@
 // app/blog/[slug]/page.tsx
-import { Metadata } from "next"; // ✅ NUEVO
+import { Metadata } from "next";
 import {
   getPostData,
   getAdjacentPosts,
@@ -8,7 +8,7 @@ import {
   getRelatedPosts,
 } from "@/lib/posts";
 import { getResourcesByCategory } from "@/lib/resources";
-import { generatePostSEO, generateArticleStructuredData } from "@/lib/seo"; // ✅ NUEVO
+import { generatePostSEO, generateArticleStructuredData } from "@/lib/seo";
 import Link from "next/link";
 import SanitizedContent from "../../components/componentsBlog/SanitizedContent";
 import { PostData } from "@/types/post.types";
@@ -22,8 +22,9 @@ import { getCategoryColor, getCategoryLabel } from "@/lib/constants/categories";
 import SaveForLater from "./SaveForLater";
 import CommentSection from "./CommentSection";
 import PostSidebar from "./PostSidebar";
+import ResourcesCard from "./ResourcesCard"; // ✅ NUEVO
 
-// ✅ NUEVO: Generar metadata dinámica para SEO
+// Generar metadata dinámica para SEO
 export async function generateMetadata({
   params,
 }: {
@@ -70,7 +71,7 @@ export async function generateMetadata({
       title: seoData.title,
       description: seoData.description,
       images: [seoData.image],
-      creator: "@eskemma", // ✅ Cambiar por tu handle de Twitter/X
+      creator: "@eskemma",
     },
     alternates: {
       canonical: seoData.url,
@@ -170,13 +171,13 @@ export default async function PostPage({
   const categoryColor = getCategoryColor(validatedPostData.category);
   const categoryLabel = getCategoryLabel(validatedPostData.category);
 
-  // ✅ NUEVO: Generar SEO data y structured data
+  // Generar SEO data y structured data
   const seoData = generatePostSEO(validatedPostData);
   const structuredData = generateArticleStructuredData(validatedPostData, seoData);
 
   return (
     <>
-      {/* ✅ NUEVO: JSON-LD Structured Data para SEO */}
+      {/* JSON-LD Structured Data para SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -342,6 +343,14 @@ export default async function PostPage({
                 />
               </article>
 
+              {/* ✅ NUEVO: Recursos descargables para MOBILE */}
+              <div className="lg:hidden mt-8">
+                <ResourcesCard
+                  resources={resources}
+                  category={validatedPostData.category}
+                />
+              </div>
+
               {/* Sistema de comentarios */}
               <CommentSection postId={validatedPostData.id} />
 
@@ -377,7 +386,7 @@ export default async function PostPage({
               </nav>
             </div>
 
-            {/* Sidebar unificado */}
+            {/* Sidebar unificado - DESKTOP */}
             <PostSidebar
               headings={headings}
               relatedPosts={relatedPosts}

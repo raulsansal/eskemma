@@ -10,6 +10,7 @@ import {
   Timestamp 
 } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
+import { SecondaryImage } from "@/types/post.types";
 
 // Interfaz para los datos necesarios al crear un post
 interface CreatePostData {
@@ -24,6 +25,7 @@ interface CreatePostData {
   metaTitle?: string;
   metaDescription?: string;
   keywords?: string[];
+  secondaryImages?: SecondaryImage[]; // ✅ NUEVO
 }
 
 // Interfaz para los datos necesarios al actualizar un post
@@ -54,6 +56,39 @@ interface PostData {
   metaTitle?: string;
   metaDescription?: string;
   keywords?: string[];
+  secondaryImages?: SecondaryImage[]; // ✅ NUEVO
+}
+
+// ✅ NUEVA: Función para convertir SecondaryImage[] a formato Firestore
+function convertSecondaryImagesToFirestore(images?: SecondaryImage[]) {
+  if (!images || images.length === 0) return [];
+  
+  return images.map(img => ({
+    id: img.id,
+    url: img.url,
+    filename: img.filename,
+    uploadedAt: img.uploadedAt instanceof Date 
+      ? Timestamp.fromDate(img.uploadedAt) 
+      : Timestamp.now(),
+    insertedInContent: img.insertedInContent || false,
+    size: img.size || 0,
+  }));
+}
+
+// ✅ NUEVA: Función para convertir formato Firestore a SecondaryImage[]
+function convertSecondaryImagesFromFirestore(firestoreImages?: any[]): SecondaryImage[] {
+  if (!firestoreImages || firestoreImages.length === 0) return [];
+  
+  return firestoreImages.map(img => ({
+    id: img.id || "",
+    url: img.url || "",
+    filename: img.filename || "",
+    uploadedAt: img.uploadedAt instanceof Timestamp 
+      ? img.uploadedAt.toDate() 
+      : new Date(),
+    insertedInContent: img.insertedInContent || false,
+    size: img.size || 0,
+  }));
 }
 
 // Función para crear un nuevo post
@@ -69,8 +104,8 @@ export async function createPost(newPostData: CreatePostData) {
       views: 0,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
-      // ❌ ELIMINADO: date: newPostData.date ? new Date(newPostData.date) : new Date(),
-      featureImage: newPostData.featureImage || null, 
+      featureImage: newPostData.featureImage || null,
+      secondaryImages: convertSecondaryImagesToFirestore(newPostData.secondaryImages), // ✅ NUEVO
     });
 
     return { id: newPostRef.id };
@@ -97,6 +132,11 @@ export async function updatePost(postId: string, updatedPostData: Partial<Update
     
     if (updatedPostData.featureImage !== undefined) {
       updateData.featureImage = updatedPostData.featureImage || null;
+    }
+
+    // ✅ NUEVO: Manejar secondaryImages
+    if (updatedPostData.secondaryImages !== undefined) {
+      updateData.secondaryImages = convertSecondaryImagesToFirestore(updatedPostData.secondaryImages);
     }
 
     await updateDoc(postRef, updateData);
@@ -160,6 +200,7 @@ export async function getPostData(postId: string): Promise<PostData | null> {
       metaTitle: data.metaTitle || data.title || "Sin título",
       metaDescription: data.metaDescription || data.content?.substring(0, 160) || "",
       keywords: data.keywords || data.tags || [],
+      secondaryImages: convertSecondaryImagesFromFirestore(data.secondaryImages), // ✅ NUEVO
     };
   } catch (error) {
     console.error("Error al obtener los datos del post:", error);
@@ -202,6 +243,7 @@ export async function getPosts(): Promise<PostData[]> {
         metaTitle: data.metaTitle || data.title || "Sin título",
         metaDescription: data.metaDescription || data.content?.substring(0, 160) || "",
         keywords: data.keywords || data.tags || [],
+        secondaryImages: convertSecondaryImagesFromFirestore(data.secondaryImages), // ✅ NUEVO
       });
     });
 

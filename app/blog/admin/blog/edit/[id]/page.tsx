@@ -6,10 +6,11 @@ import * as React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getPostData, updatePost, createPost } from "@/lib/client/posts.client";
 import { uploadFeaturedImage, uploadSecondaryImage } from "@/firebase/storageUtils";
-import { PostData } from "@/types/post.types";
+import { PostData, SecondaryImage } from "@/types/post.types";
 import { CATEGORIES } from "@/lib/constants/categories";
 import TagInput from "@/app/blog/admin/components/TagInput";
 import SEOPreview from "@/app/blog/admin/components/SEOPreview";
+import SecondaryImagesManager from "@/app/blog/admin/components/SecondaryImagesManager";
 
 // Interfaces para los datos
 interface BasePostData {
@@ -23,6 +24,7 @@ interface BasePostData {
   metaTitle?: string;
   metaDescription?: string;
   keywords?: string[];
+  secondaryImages?: SecondaryImage[];
 }
 
 // Convertir texto a slug con acentos correctos
@@ -35,6 +37,11 @@ function generateSlug(text: string): string {
     .trim()
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
+}
+
+// Generar ID único para imágenes
+function generateImageId(): string {
+  return `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
@@ -51,9 +58,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     metaTitle: "",
     metaDescription: "",
     keywords: [],
+    secondaryImages: [],
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingSecondary, setUploadingSecondary] = useState(false);
 
   const router = useRouter();
   const { user, debugUserToken } = useAuth();
@@ -74,6 +83,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             ...postData,
             category: postData.category || "tactica",
             tags: postData.tags || [],
+            secondaryImages: postData.secondaryImages || [],
           });
         } catch (error) {
           console.error("Error al obtener los datos del post:", error);
@@ -141,17 +151,55 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const handleSecondaryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
+    
     try {
+      setUploadingSecondary(true);
       const downloadURL = await uploadSecondaryImage(file, id);
-      const markdownImage = `![${file.name}](${downloadURL})`;
+      
+      // Crear objeto de imagen secundaria
+      const newImage: SecondaryImage = {
+        id: generateImageId(),
+        url: downloadURL,
+        filename: file.name,
+        uploadedAt: new Date(),
+        insertedInContent: false,
+        size: file.size,
+      };
+      
+      // Agregar a la lista de imágenes secundarias
       setFormData((prev) => ({
         ...prev,
-        content: `${prev.content}\n\n${markdownImage}`,
+        secondaryImages: [...(prev.secondaryImages || []), newImage],
       }));
+      
+      // Limpiar el input
+      e.target.value = "";
     } catch (error) {
       console.error("Error al subir la imagen secundaria:", error);
       alert("Ocurrió un error al subir la imagen secundaria.");
+    } finally {
+      setUploadingSecondary(false);
     }
+  };
+
+  // Insertar imagen en el contenido
+  const handleInsertImage = (imageUrl: string, filename: string) => {
+    const markdownImage = `![${filename}](${imageUrl})`;
+    setFormData((prev) => ({
+      ...prev,
+      content: `${prev.content}\n\n${markdownImage}`,
+      secondaryImages: prev.secondaryImages?.map(img =>
+        img.url === imageUrl ? { ...img, insertedInContent: true } : img
+      ),
+    }));
+  };
+
+  // Eliminar imagen secundaria
+  const handleDeleteSecondaryImage = (imageId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      secondaryImages: prev.secondaryImages?.filter(img => img.id !== imageId),
+    }));
   };
 
   // Guardar el post
@@ -182,6 +230,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         metaTitle: formData.metaTitle || formData.title,
         metaDescription: formData.metaDescription || "",
         keywords: formData.keywords || [],
+        secondaryImages: formData.secondaryImages || [],
       };
       if (id === "new") {
         await createPost(postBaseData);
@@ -229,14 +278,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6"> {/* ✅ Cambió de max-w-4xl a max-w-7xl */}
+    <div className="max-w-7xl mx-auto p-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
         {id === "new" ? "Crear Nuevo Post" : "Editar Post"}
       </h1>
 
-      {/* ✅ NUEVO: Layout de 2 columnas */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ✅ Columna principal - Formulario (2/3) */}
+        {/* Columna principal - Formulario (2/3) */}
         <div className="lg:col-span-2">
           <div className="bg-white-eske rounded-xl shadow-md p-6">
             <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
@@ -418,11 +466,25 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                   type="file"
                   accept="image/*"
                   onChange={handleSecondaryImageUpload}
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-eske file:text-white hover:file:bg-blue-eske-70"
+                  disabled={uploadingSecondary}
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-eske file:text-white hover:file:bg-blue-eske-70 disabled:opacity-50"
                 />
                 <p className="text-xs text-gray-600 mt-1">
-                  Se insertará en Markdown en el contenido
+                  {uploadingSecondary ? "Subiendo imagen..." : "Sube imágenes y luego insértalas en el contenido"}
                 </p>
+
+                {/* Manager de imágenes secundarias */}
+                {formData.secondaryImages && formData.secondaryImages.length > 0 && (
+                  <div className="mt-4">
+                    <SecondaryImagesManager
+                      images={formData.secondaryImages}
+                      content={formData.content}
+                      onImagesChange={(images) => setFormData(prev => ({ ...prev, secondaryImages: images }))}
+                      onInsertImage={handleInsertImage}
+                      onDeleteImage={handleDeleteSecondaryImage}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Estado */}
@@ -476,7 +538,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
 
-        {/* ✅ NUEVA: Columna lateral - SEO Preview (1/3) */}
+        {/* Columna lateral - SEO Preview (1/3) */}
         <div className="lg:col-span-1">
           <div className="sticky top-8 space-y-6">
             {/* SEO Preview */}

@@ -1,4 +1,20 @@
 // types/post.types.ts
+
+/**
+ * Interfaz para imágenes secundarias con metadata
+ */
+export interface SecondaryImage {
+  id: string; // ID único generado
+  url: string; // URL de Firebase Storage
+  filename: string; // Nombre original del archivo
+  uploadedAt: Date; // Fecha de subida
+  insertedInContent: boolean; // Si ya está en el markdown
+  size?: number; // Tamaño en bytes (opcional)
+}
+
+/**
+ * Interfaz base para crear/editar posts
+ */
 export interface BasePostData {
   title: string;
   content: string;
@@ -10,8 +26,12 @@ export interface BasePostData {
   metaTitle?: string;
   metaDescription?: string;
   keywords?: string[];
+  secondaryImages?: SecondaryImage[]; // Array de imágenes secundarias
 }
 
+/**
+ * Interfaz completa de un post (incluye metadata de Firestore)
+ */
 export interface PostData extends BasePostData {
   id: string;
   author: {
@@ -25,7 +45,9 @@ export interface PostData extends BasePostData {
   updatedAt: Date;
 }
 
-// ✅ Interfaz para la página principal del blog
+/**
+ * Interfaz para la página principal del blog
+ */
 export interface BlogPost {
   id: string;
   title: string;
@@ -42,8 +64,6 @@ export interface BlogPost {
   status: string;
   tags?: string[];
 }
-
-// ✅ NUEVAS INTERFACES PARA EL SIDEBAR
 
 /**
  * Interfaz para posts populares en el sidebar
@@ -103,13 +123,13 @@ export interface DownloadableResource {
   id: string;
   title: string;
   description: string;
-  category: string; // Relacionado con categoría del post
+  category: string;
   fileType: "pdf" | "xlsx" | "docx" | "zip" | "pptx";
-  fileSize: string; // "2.5 MB"
+  fileSize: string;
   thumbnail?: string;
-  fileStoragePath: string; // Ruta en Firebase Storage
-  isFree: boolean; // Si es $0.00
-  price?: number; // Precio si no es gratis
+  fileStoragePath: string;
+  isFree: boolean;
+  price?: number;
   accessLevel: Array<"user" | "basic" | "premium" | "grupal" | "admin">;
   downloadCount: number;
   createdAt: Date;
@@ -135,7 +155,7 @@ export interface RelatedPostSidebar {
 export interface CommentWithReplies extends Comment {
   replies?: CommentWithReplies[];
   parentId?: string | null;
-  isApproved?: boolean; // Para moderación
+  isApproved?: boolean;
   moderationStatus?: "pending" | "approved" | "rejected";
 }
 
@@ -143,7 +163,7 @@ export interface CommentWithReplies extends Comment {
  * Interfaz para recursos con posts relacionados manualmente
  */
 export interface DownloadableResourceExtended extends DownloadableResource {
-  relatedPosts?: string[]; // Array de postIds vinculados manualmente
+  relatedPosts?: string[];
 }
 
 /**
@@ -160,4 +180,3 @@ export interface Notification {
   isRead: boolean;
   createdAt: Date;
 }
-
