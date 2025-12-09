@@ -1,4 +1,7 @@
+//app/components/componentsHome/GuestContactModal.tsx
+
 import { useState } from "react";
+import Button from "../Button";
 
 interface GuestContactFormData {
   fullName: string;
@@ -9,13 +12,13 @@ interface GuestContactFormData {
 export default function GuestContactModal({
   isOpen,
   onClose,
-  onOpenLoginModal, // Función para abrir el modal de inicio de sesión
-  onOpenRegisterModal, // Función para abrir el modal de registro
+  onOpenLoginModal,
+  onOpenRegisterModal,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onOpenLoginModal: () => void; // Prop para abrir el modal de inicio de sesión
-  onOpenRegisterModal: () => void; // Prop para abrir el modal de registro
+  onOpenLoginModal: () => void;
+  onOpenRegisterModal: () => void;
 }) {
   const [formData, setFormData] = useState<GuestContactFormData>({
     fullName: "",
@@ -33,7 +36,7 @@ export default function GuestContactModal({
     // Validación específica para el campo 'fullName' (permite letras, acentos, diéresis, espacios y ñ)
     if (name === "fullName") {
       const isValid = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(value);
-      if (!isValid) return; // Si no es válido, no actualizamos el estado
+      if (!isValid) return;
     }
 
     // Limpiar errores previos mientras el usuario escribe
@@ -63,7 +66,7 @@ export default function GuestContactModal({
 
     // Aquí puedes agregar la lógica para enviar el mensaje al servidor
     console.log("Datos del formulario de contacto:", formData);
-    onClose(); // Cerrar el modal después de enviar
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -74,7 +77,7 @@ export default function GuestContactModal({
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
@@ -114,8 +117,8 @@ export default function GuestContactModal({
             className="text-bluegreen-eske underline focus:outline-none"
             onClick={(e) => {
               e.preventDefault();
-              onClose(); // Cerrar el modal de contacto
-              onOpenRegisterModal(); // Abrir el modal de registro
+              onClose();
+              onOpenRegisterModal();
             }}
           >
             Registrarme
@@ -159,7 +162,7 @@ export default function GuestContactModal({
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                onBlur={() => validateEmail(formData.email)} // Validar cuando el campo pierde el foco
+                onBlur={() => validateEmail(formData.email)}
                 required
                 title="Introduce un correo electrónico válido."
                 className={`w-full px-3 py-2 border ${
@@ -184,19 +187,19 @@ export default function GuestContactModal({
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
-                rows={4} // Altura inicial moderada
+                rows={4}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske resize-none" // Desactivar el resize manual
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske resize-none"
               />
             </div>
 
-            {/* Botón Enviar */}
-            <button
-              type="submit"
-              className="w-full bg-white-eske text-black-eske text-medium py-2 rounded border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske transition-colors duration-300 cursor-pointer"
-            >
-              ENVIAR
-            </button>
+            {/* Botón Enviar - ✅ CORREGIDO */}
+            <Button
+              label="ENVIAR"
+              variant="primary"
+              type="submit" // ✅ AGREGADO: type="submit"
+              // ✅ REMOVIDO: onClick={handleSubmit}
+            />
 
             {/* Separador */}
             <hr className="border-gray-300 my-4" />
@@ -208,8 +211,8 @@ export default function GuestContactModal({
                 className="text-bluegreen-eske underline focus:outline-none"
                 onClick={(e) => {
                   e.preventDefault();
-                  onClose(); // Cerrar el modal de contacto
-                  onOpenLoginModal(); // Abrir el modal de inicio de sesión
+                  onClose();
+                  onOpenLoginModal();
                 }}
               >
                 Inicia Sesión

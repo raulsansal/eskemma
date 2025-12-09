@@ -1,10 +1,10 @@
-"use client"; // Indica que este es un Client Component
-
+// app/components/componentsHome/ScheduleDate.tsx
+"use client";
 import { useState } from "react";
+import Button from "../Button";
 
-// Definir el tipo del estado de errores
 type Errors = {
-  [key: string]: string | undefined; // Permitir que los valores sean 'string' o 'undefined'
+  [key: string]: string | undefined;
 };
 
 interface FormData {
@@ -19,7 +19,7 @@ interface FormData {
 interface ScheduleDateProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmitSuccess: (data: { fullName: string; email: string; dateTime: string }) => void; // Tipar correctamente
+  onSubmitSuccess: (data: { fullName: string; email: string; dateTime: string }) => void;
 }
 
 export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: ScheduleDateProps) {
@@ -31,86 +31,65 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
     dateTime: "",
     file: null,
   });
-
   const [errors, setErrors] = useState<Errors>({});
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-
-    // Limpiar errores previos mientras el usuario escribe
     if (errors[name]) {
       setErrors({ ...errors, [name]: undefined });
     }
-
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setFormData((prev) => ({ ...prev, file }));
   };
-
   const validateForm = () => {
     const newErrors: Errors = {};
-
     if (!formData.fullName.trim()) {
       newErrors.fullName = "El nombre completo es requerido.";
     }
-
     if (!formData.email.trim()) {
       newErrors.email = "El correo electrónico es requerido.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Introduce un correo electrónico válido.";
     }
-
     if (!formData.phone.trim()) {
       newErrors.phone = "El teléfono de contacto es requerido.";
     } else if (!/^\+?[0-9]{7,15}$/.test(formData.phone)) {
       newErrors.phone =
         "Introduce un número de teléfono válido (mínimo 7 dígitos).";
     }
-
     if (!formData.topic.trim()) {
       newErrors.topic = "El tema de interés es requerido.";
     }
-
     if (!formData.dateTime.trim()) {
       newErrors.dateTime = "La fecha y hora son requeridas.";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (validateForm()) {
       console.log("Datos del formulario:", formData);
-
-      // Notificar al padre que el formulario fue enviado correctamente
       onSubmitSuccess({
         fullName: formData.fullName,
         email: formData.email,
         dateTime: formData.dateTime,
       });
-
-      // Cerrar el modal de agendar asesoría
       onClose();
     }
   };
-
   if (!isOpen) return null;
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
@@ -133,21 +112,17 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
             />
           </svg>
         </button>
-
         {/* Título */}
         <h2 className="text-[24px] font-bold text-bluegreen-eske text-center mb-6">
           Agendar asesoría
         </h2>
-
         {/* Descripción */}
         <p className="text-[16px] text-gray-700 font-semibold text-center mb-4">
           Sesión de 30 minutos de asesoría gratuita en línea.
         </p>
-
         <p className="text-[16px] text-gray-700 text-center mb-6">
           Para agendar, favor de llenar el siguiente formulario:
         </p>
-
         {/* Contenedor con scroll */}
         <div className="max-h-[calc(80vh-120px)] overflow-y-auto">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -174,7 +149,6 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                 <p className="text-[8px] text-red-60 mt-1">{errors.fullName}</p>
               )}
             </div>
-
             {/* Email */}
             <div>
               <label
@@ -198,7 +172,6 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                 <p className="text-[8px] text-red-60 mt-1">{errors.email}</p>
               )}
             </div>
-
             {/* Teléfono de contacto */}
             <div>
               <label
@@ -224,7 +197,6 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                 <p className="text-[8px] text-red-60 mt-1">{errors.phone}</p>
               )}
             </div>
-
             {/* Tema de interés */}
             <div>
               <label
@@ -248,7 +220,6 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                 <p className="text-[8px] text-red-60 mt-1">{errors.topic}</p>
               )}
             </div>
-
             {/* Fecha y hora */}
             <div>
               <label
@@ -272,7 +243,6 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                 <p className="text-[8px] text-red-60 mt-1">{errors.dateTime}</p>
               )}
             </div>
-
             {/* Adjuntar documento (opcional) */}
             <div>
               <label
@@ -307,21 +277,18 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                       d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L19 15"
                     />
                   </svg>
-                  <span className="text-10px text-gray-700">
+                  <span className="text-[10px] text-gray-700">
                     {formData.file ? formData.file.name : "Seleccionar archivo"}
                   </span>
                 </label>
               </div>
             </div>
-
             {/* Botón AGENDAR */}
-            <button
+            <Button
+              label="AGENDAR"
+              variant="primary"
               type="submit"
-              className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
-            >
-              AGENDAR
-            </button>
-
+            />
             {/* Términos y condiciones */}
             <p className="text-[14px] text-gray-700 text-center mt-4">
               Consultar{" "}
@@ -334,7 +301,6 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                 términos y condiciones de las asesorías en línea.
               </a>
             </p>
-
             {/* Condiciones de uso y política de privacidad */}
             <p className="text-[14px] text-gray-700 text-center mt-2">
               Al agendar la cita acepto las{" "}

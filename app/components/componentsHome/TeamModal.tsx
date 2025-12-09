@@ -2,6 +2,7 @@
 
 // components/TeamModal.tsx
 import { useState } from "react";
+import Button from "../Button";
 
 interface TeamMember {
   id: number;
@@ -23,7 +24,7 @@ const TeamModal = () => {
       role: "Especialista en comunicación política",
       bio: "Raúl es el fundador de Eskemma y tiene más de 20 años de experiencia en el sector público, legislativo y electoral. Politólogo, con especialidad en Opinión Pública, Comunicación Política y Marketing Electoral.",
       image:
-        "https://res.cloudinary.com/dngirajdx/image/upload/v1742071658/RSS_px_ma1vf8.jpg ",
+        "https://res.cloudinary.com/dngirajdx/image/upload/v1765314318/rss-gmni-4_rebbvk.jpg",
       contact: "raulsanchezs@eskemma.com",
     },
     {
@@ -31,7 +32,7 @@ const TeamModal = () => {
       name: "Alicia García Cortés",
       role: "Productora Audiovisual",
       bio: "Alicia es el motor creativo de Eskemma. Ha producido eventos y participado en producciones audiovisuales cinematográficas. Tiene amplia experiencia en proyectos públicos y privados.",
-      image: "https://i.pravatar.cc/150?img=38 ",
+      image: "https://i.pravatar.cc/150?img=38",
       contact: "aliciagarciac@eskemma.com",
     },
     {
@@ -39,7 +40,7 @@ const TeamModal = () => {
       name: "Yolanda Orozco López",
       role: "Administradora",
       bio: "Contadora de profesión y administradora por vocación, Yolanda combina su experiencia y creatividad para hacer posibles los proyectos de los clientes de Eskemma.",
-      image: "https://i.pravatar.cc/150?img=10 ",
+      image: "https://i.pravatar.cc/150?img=10",
       contact: "yolandaorozcol@eskemma.com",
     },
     {
@@ -47,7 +48,7 @@ const TeamModal = () => {
       name: "David Quezada Mendoza",
       role: "Consultor político",
       bio: "David ha participado en más de 50 proyectos de comunicación política en México y otros países latinoamericanos. Politólogo con especialidad en marketing electoral.",
-      image: "https://i.pravatar.cc/150?img=52 ",
+      image: "https://i.pravatar.cc/150?img=52",
       contact: "davidquezadac@eskemma.com",
     },
   ];
@@ -66,13 +67,14 @@ const TeamModal = () => {
 
   return (
     <>
-      {/* Enlace "Ver más" */}
-      <button
-        className="text-[18px] font-medium text-bluegreen-eske hover:text-bluegreen-80 focus:outline-none cursor-pointer"
-        onClick={() => setIsOpen(true)}
-      >
-        Conoce al equipo
-      </button>
+      {/* Botón "Conoce al equipo" */}
+      <div className="text-center max-w-[250px] mx-auto">
+        <Button
+          label="CONOCE AL EQUIPO"
+          variant="primary"
+          onClick={() => setIsOpen(true)}
+        />
+      </div>
 
       {/* Modal */}
       {isOpen && (
@@ -80,7 +82,7 @@ const TeamModal = () => {
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ backgroundColor: "rgba(0,0,0, 0.6)" }}
         >
-          <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-hidden">
+          <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-hidden">
             {/* Botón de Cierre */}
             <button
               className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"

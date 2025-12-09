@@ -7,7 +7,8 @@ import { auth } from "../../../firebase/firebaseConfig";
 import countries from "../../../app/data/countries.json";
 import { isUserNameAvailable } from "../../../utils/userUtils";
 import { generateAlternativeUserName } from "../../../utils/generateAlternativeUserName";
-import { calculateUserRole } from "../../../utils/roleUtils"; // ✅ IMPORTAR
+import { calculateUserRole } from "../../../utils/roleUtils";
+import Button from "../Button";
 
 interface RegisterFormData {
   name: string;
@@ -43,8 +44,7 @@ export default function RegisterModal({
   const [isUserNameValid, setIsUserNameValid] = useState(true);
   const [userNameError, setUserNameError] = useState("");
   const [suggestionMessage, setSuggestionMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // ✅ AGREGAR estado de loading
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     user,
     setUser,
@@ -54,7 +54,6 @@ export default function RegisterModal({
     setIsLoginModalOpen,
     setIsOnboardingModalOpen,
   } = useAuth();
-
   // Definir los países preferenciales
   const preferredCountries = [
     "México",
@@ -67,7 +66,6 @@ export default function RegisterModal({
     (country) => !preferredCountries.includes(country)
   );
   const sortedCountries = [...preferredCountries, ...allCountries];
-
   // Lista normalizada de intereses
   const interestsList = [
     "Análisis de Datos",
@@ -93,32 +91,26 @@ export default function RegisterModal({
     "Storytelling",
     "Técnicas de Análisis Político",
   ];
-
   const handleChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
     if (name === "name" || name === "lastName") {
       const isValid = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜçÇ\s´]*$/.test(value);
-
       if (!isValid) {
         return;
       }
-
       if (name === "name") {
         const baseUserName = value.toLowerCase().replace(/\s+/g, "");
         const available = await isUserNameAvailable(baseUserName);
         const finalUserName = available
           ? baseUserName
           : await generateAlternativeUserName(baseUserName);
-
         setFormData((prev) => ({
           ...prev,
           name: value,
           userName: finalUserName,
         }));
-
         if (!available) {
           setSuggestionMessage(
             `El nombre de usuario "${baseUserName}" no está disponible. Se ha sugerido "${finalUserName}".`
@@ -126,38 +118,30 @@ export default function RegisterModal({
         } else {
           setSuggestionMessage("");
         }
-
         setUserNameEdited(!available);
         return;
       }
-
       setFormData((prev) => ({ ...prev, lastName: value }));
       return;
     }
-
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleUserNameChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { value } = e.target;
-
     const isValid = /^[a-zA-ZñÑüÜçÇ\s]*$/.test(value);
     if (!isValid) {
       setUserNameError("Solo se permiten letras, espacios, ñ, ü, ç.");
       setIsUserNameValid(false);
       return;
     }
-
     setFormData((prev) => ({ ...prev, userName: value.toLowerCase() }));
     setUserNameEdited(true);
-
     if (value.trim().length > 0) {
       try {
         const available = await isUserNameAvailable(value.toLowerCase());
         setIsUserNameValid(available);
-
         if (!available) {
           const alternativeUserName = await generateAlternativeUserName(
             value.toLowerCase()
@@ -179,7 +163,6 @@ export default function RegisterModal({
       setUserNameError("");
     }
   };
-
   const handleRolesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     setFormData((prev) => ({
@@ -189,7 +172,6 @@ export default function RegisterModal({
         : prev.roles.filter((item) => item !== value),
     }));
   };
-
   const handleInterestsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     setFormData((prev) => ({
@@ -199,31 +181,23 @@ export default function RegisterModal({
         : prev.interests.filter((item) => item !== value),
     }));
   };
-
-  // ✅ FUNCIÓN handleSubmit ACTUALIZADA
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!isUserNameValid) {
       alert("Por favor, corrige el nombre de usuario antes de continuar.");
       return;
     }
-
     if (!user) {
       alert("No se detectó un usuario autenticado. Por favor, inicia sesión.");
       return;
     }
-
-    setIsSubmitting(true); // ✅ Activar loading
-
+    setIsSubmitting(true);
     try {
       console.log("📝 Iniciando proceso de completar registro...");
-
       const currentUser = auth.currentUser;
       if (!currentUser) throw new Error("Usuario no autenticado");
       await currentUser.reload();
       const emailVerified = currentUser.emailVerified;
-
       // Filtrar roles e intereses
       const finalRoles: string[] = formData.roles.includes("Otro")
         ? [
@@ -231,7 +205,6 @@ export default function RegisterModal({
             formData.otherRole || "",
           ].filter((role) => role !== "")
         : formData.roles;
-
       const finalInterests: string[] = formData.interests.includes("Otro")
         ? [
             ...new Set([
@@ -240,21 +213,15 @@ export default function RegisterModal({
             ]),
           ].filter((interest) => interest !== "")
         : [...new Set(formData.interests)];
-
-      // ✅ CALCULAR ROL CORRECTO
-      // Al completar el registro: emailVerified=true, profileCompleted=true → role="user"
       const calculatedRole = calculateUserRole({
         emailVerified: emailVerified,
-        profileCompleted: true, // ✅ Ahora sí está completo
+        profileCompleted: true,
         subscriptionPlan: user.subscriptionPlan || null,
         subscriptionStatus: user.subscriptionStatus || null,
         subscriptionEndDate: user.subscriptionEndDate || null,
         previousSubscription: user.previousSubscription || null,
       });
-
       console.log(`✅ Rol calculado después de completar registro: ${calculatedRole}`);
-
-      // ✅ PREPARAR DATOS CON EL ROL CORRECTO
       const userData = {
         uid: user.uid,
         email: user.email,
@@ -265,12 +232,11 @@ export default function RegisterModal({
         roles: finalRoles,
         interests: finalInterests,
         userName: formData.userName.toLowerCase(),
-        profileCompleted: true, // ✅ Marcar como completado
-        role: calculatedRole, // ✅ Usar el rol calculado
+        profileCompleted: true,
+        role: calculatedRole,
         emailVerified,
         createdAt: user.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        // ✅ Mantener campos de suscripción si existen
         subscriptionPlan: user.subscriptionPlan || null,
         subscriptionStatus: user.subscriptionStatus || null,
         subscriptionStartDate: user.subscriptionStartDate || null,
@@ -279,14 +245,9 @@ export default function RegisterModal({
         stripeCustomerId: user.stripeCustomerId || null,
         stripeSubscriptionId: user.stripeSubscriptionId || null,
       };
-
       console.log("📦 Datos preparados para guardar:", userData);
-
-      // ✅ GUARDAR EN FIRESTORE
       await saveUserData(userData);
       console.log("✅ Datos guardados correctamente en Firestore");
-
-      // ✅ ACTUALIZAR CUSTOM CLAIM
       await fetch("/api/setUserRole", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -296,8 +257,6 @@ export default function RegisterModal({
         }),
       });
       console.log("✅ Custom claim actualizado");
-
-      // ✅ ACTUALIZAR EL USUARIO EN EL CONTEXTO
       setUser({
         ...user,
         name: formData.name,
@@ -308,17 +267,12 @@ export default function RegisterModal({
         interests: finalInterests,
         userName: formData.userName.toLowerCase(),
         profileCompleted: true,
-        role: calculatedRole, // ✅ Actualizar con el rol correcto
+        role: calculatedRole,
         updatedAt: new Date().toISOString(),
       });
-
       console.log("✅ Usuario actualizado en el contexto");
-
-      // ✅ CERRAR MODALES DE REGISTRO
       setIsRegisterModalOpen(false);
       setIsCompleteRegisterModalOpen(false);
-
-      // ✅ MOSTRAR MODAL DE ONBOARDING SI CORRESPONDE
       if (user.showOnboardingModal) {
         console.log("🎯 Mostrando modal de onboarding");
         setIsOnboardingModalOpen(true);
@@ -326,8 +280,7 @@ export default function RegisterModal({
         console.log("✅ Registro completado - No se requiere onboarding");
         alert("¡Registro completado exitosamente!");
       }
-
-      console.log(`✅ Registro completado con éxito. Role final: ${calculatedRole}`);
+      console.log("✅ Registro completado con éxito. Role final: ${calculatedRole}");
     } catch (error: any) {
       console.error("❌ Error durante el registro:", error);
       alert(
@@ -336,10 +289,9 @@ export default function RegisterModal({
         }`
       );
     } finally {
-      setIsSubmitting(false); // ✅ Desactivar loading
+      setIsSubmitting(false);
     }
   };
-
   const handleLoginClick = () => {
     console.log("🔄 Cerrando registro y abriendo login...");
     setIsRegisterModalOpen(false);
@@ -348,22 +300,20 @@ export default function RegisterModal({
       console.log("✅ Modal de login abierto");
     }, 50);
   };
-
   if (!isOpen) return null;
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         <button
           className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
           onClick={onClose}
-          disabled={isSubmitting} // ✅ Deshabilitar mientras se envía
+          disabled={isSubmitting}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -380,11 +330,9 @@ export default function RegisterModal({
             />
           </svg>
         </button>
-
         <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
           Completar Registro
         </h2>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
@@ -396,11 +344,10 @@ export default function RegisterModal({
               value={formData.name}
               onChange={handleChange}
               required
-              disabled={isSubmitting} // ✅ Deshabilitar mientras se envía
+              disabled={isSubmitting}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
             />
           </div>
-
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
               Apellidos <span className="text-red-500">*</span>
@@ -415,7 +362,6 @@ export default function RegisterModal({
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
             />
           </div>
-
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
               Nombre de usuario <span className="text-red-500">*</span>
@@ -438,7 +384,6 @@ export default function RegisterModal({
               <p className="text-blue-500 text-sm mt-1">{suggestionMessage}</p>
             )}
           </div>
-
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
               Sexo <span className="text-red-500">*</span>
@@ -457,7 +402,6 @@ export default function RegisterModal({
               <option value="no-binario">No binario</option>
             </select>
           </div>
-
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
               País <span className="text-red-500">*</span>
@@ -478,7 +422,6 @@ export default function RegisterModal({
               ))}
             </select>
           </div>
-
           <div>
             <hr className="border-bluegreen-eske my-4" />
             <p className="text-[16px] font-medium text-bluegreen-eske text-center mb-6">
@@ -486,7 +429,6 @@ export default function RegisterModal({
               acorde con tu perfil e intereses.
             </p>
           </div>
-
           <div>
             <label className="block text-[16px] font-medium text-black-eske mb-1">
               Roles
@@ -527,7 +469,6 @@ export default function RegisterModal({
               )}
             </div>
           </div>
-
           <div>
             <hr className="border-bluegreen-eske my-4" />
             <label className="block text-[16px] font-medium text-black-eske mb-1">
@@ -573,15 +514,13 @@ export default function RegisterModal({
               )}
             </div>
           </div>
-
-          <button
-            type="submit"
+          
+          <Button
+            label={isSubmitting ? "COMPLETANDO REGISTRO..." : "COMPLETAR REGISTRO"}
+            variant="primary"
             disabled={isSubmitting}
-            className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-70 transition-colors duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? "COMPLETANDO REGISTRO..." : "COMPLETAR REGISTRO"}
-          </button>
-
+            type="submit"
+          />
           <p className="mt-4 text-[14px] text-black-eske text-center">
             Al registrarme acepto las{" "}
             <a
@@ -594,9 +533,7 @@ export default function RegisterModal({
             </a>{" "}
             de Eskemma.
           </p>
-
           <hr className="border-gray-300 my-4" />
-
           <p className="text-[14px] text-black-eske text-center">
             ¿Ya te has registrado?{" "}
             <button

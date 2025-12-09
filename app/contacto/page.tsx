@@ -217,7 +217,7 @@ export default function ContactoPage() {
                 alt="Consultoría Política"
                 width={60}
                 height={60}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Contratar Servicios
@@ -234,7 +234,7 @@ export default function ContactoPage() {
                 alt="Pedir Información"
                 width={60}
                 height={60}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Pedir Información
@@ -251,7 +251,7 @@ export default function ContactoPage() {
                 alt="Publicar en el Blog"
                 width={60}
                 height={60}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Publicar en el Blog
@@ -429,3 +429,4 @@ export default function ContactoPage() {
     </main>
   );
 }
+

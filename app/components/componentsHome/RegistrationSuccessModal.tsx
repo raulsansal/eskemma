@@ -1,6 +1,7 @@
 // components/componentsHome/RegistrationSuccessModal.tsx
 "use client";
 import { useAuth } from "../../../context/AuthContext";
+import Button from "../Button";
 
 export default function RegistrationSuccessModal({
   isOpen,
@@ -9,7 +10,7 @@ export default function RegistrationSuccessModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const { setIsLoginModalOpen } = useAuth(); // Función para abrir el modal de inicio de sesión
+  const { setIsLoginModalOpen } = useAuth();
 
   if (!isOpen) return null;
 
@@ -18,7 +19,7 @@ export default function RegistrationSuccessModal({
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
-      <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative">
         {/* Botón de Cierre */}
         <button
           className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
@@ -54,15 +55,14 @@ export default function RegistrationSuccessModal({
         </p>
 
         {/* Botón Iniciar Sesión */}
-        <button
+        <Button
+          label="INICIAR SESIÓN"
+          variant="primary"
           onClick={() => {
-            onClose(); // Cerrar el modal actual
-            setIsLoginModalOpen(true); // Abrir el modal de inicio de sesión
+            onClose();
+            setIsLoginModalOpen(true);
           }}
-          className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300"
-        >
-          INICIAR SESIÓN
-        </button>
+        />
       </div>
     </div>
   );

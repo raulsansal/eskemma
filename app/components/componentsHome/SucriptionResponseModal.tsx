@@ -1,10 +1,11 @@
-import Link from "next/link"; // Para manejar enlaces internos
+import Link from "next/link";
 import { useState } from "react";
+import Button from "../Button";
 
 interface SuscriptionResponseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userName: string; // Nombre del usuario
+  userName: string;
 }
 
 export default function SuscriptionResponseModal({
@@ -20,7 +21,7 @@ export default function SuscriptionResponseModal({
       style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
     >
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
@@ -49,7 +50,7 @@ export default function SuscriptionResponseModal({
           {/* Espacio para el logotipo */}
           <div className="flex justify-center mb-4">
             <img
-              src="/images/esk_log_csm.svg" // Ruta del logotipo
+              src="/images/esk_log_csm.svg"
               alt="Eskemma Logo"
               className="w-60 h-24 object-contain"
             />
@@ -101,12 +102,11 @@ export default function SuscriptionResponseModal({
           </p>
 
           {/* Botón CERRAR */}
-          <button
-            className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
+          <Button
+            label="CERRAR"
+            variant="primary"
             onClick={onClose}
-          >
-            CERRAR
-          </button>
+          />
 
           {/* Línea horizontal */}
           <hr className="border-gray-300 my-4" />

@@ -110,14 +110,14 @@ const BenefitsSection = () => {
                 flippedCards[index] ? 'rotate-y-180' : ''
               }`}>
                 {/* Frente de la tarjeta */}
-                <div className={`flip-card-front absolute w-full h-full rounded-lg shadow-lg flex items-center justify-center ${card.bg} ${card.text} backface-hidden`}>
+                <div className={`flip-card-front absolute w-full h-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex items-center justify-center ${card.bg} ${card.text} backface-hidden`}>
                   <p className="text-[20px] font-light text-center p-4">
                     {card.front}
                   </p>
                 </div>
                 
                 {/* Reverso de la tarjeta */}
-                <div className="flip-card-back absolute w-full h-full rounded-lg shadow-lg flex items-center justify-center bg-orange-eske text-white-eske backface-hidden rotate-y-180">
+                <div className="flip-card-back absolute w-full h-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex items-center justify-center bg-orange-eske text-white-eske backface-hidden rotate-y-180">
                   <p className="text-[18px] font-light text-center p-4">
                     {card.back}
                   </p>

@@ -1,11 +1,13 @@
-'use client'; // Indica que este es un Client Component
+// app/components/componentsHome/ResponseDate.tsx
+'use client';
+import Button from "../Button";
 
 interface ResponseDateProps {
   isOpen: boolean;
   onClose: () => void;
-  fullName: string; // Nombre del usuario
-  email: string; // Correo electrónico del usuario
-  dateTime: string; // Fecha y hora de la cita
+  fullName: string;
+  email: string;
+  dateTime: string;
 }
 
 export default function ResponseDate({
@@ -16,14 +18,13 @@ export default function ResponseDate({
   dateTime,
 }: ResponseDateProps) {
   if (!isOpen) return null;
-
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
     >
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: '20px' }}
       >
         {/* Botón de Cierre */}
@@ -46,28 +47,16 @@ export default function ResponseDate({
             />
           </svg>
         </button>
-
         {/* Contenido del Modal */}
         <div className="space-y-6 text-left">
-          {/* Espacio para el logotipo 
-          <div className="flex justify-center mb-4">
-            <img
-              src="images/esk_log_csm.svg" // Ruta del logotipo
-              alt="Eskemma Logo"
-              className="w-62 h-24 object-contain" // Ajusta el tamaño del logotipo
-            />
-          </div>*/}
-
           {/* Saludo personalizado */}
           <h2 className="mt-10 text-[24px] font-bold text-bluegreen-eske text-left mb-6">
             Hola, {fullName}:
           </h2>
-
           {/* Mensaje de agradecimiento */}
           <p className="text-[16px] font-normal text-black-eske">
             Gracias por agendar la asesoría gratuita.
           </p>
-
           {/* Detalles de la cita */}
           <div>
             <p className="text-[16px] font-bold text-bluegreen-eske mb-2">
@@ -75,10 +64,9 @@ export default function ResponseDate({
             </p>
             <p className="text-[14px] font-normal text-black-eske">{dateTime}</p>
           </div>
-
           {/* Confirmación de correo */}
           <p className="text-[16px] font-normal text-black-eske">
-            <span className="font-bold text-10px text-bluegreen-eske">
+            <span className="font-bold text-[10px] text-bluegreen-eske">
               Importante:
             </span>{' '}
             Hemos enviado un email de confirmación a tu cuenta de correo:{' '}
@@ -86,39 +74,36 @@ export default function ResponseDate({
             indicaciones importantes para concluir la agenda de la asesoría
             gratuita.
           </p>
-
           {/* Información del asesor */}
           <p className="text-[16px] font-normal text-black-eske">
             Para cualquier información sobre la reunión, favor de dirigirte con
             el asesor asignado para tu sesión de 30 minutos:
           </p>
           <div className="flex space-x-6">
-            {/* Avatar del asesor (con imagen cargada) */}
+            {/* Avatar del asesor */}
             <div className="mt-4 w-12 h-12 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
               <img
-                src="images/rss_px.jpg" // Ruta de la imagen del asesor
+                src="images/rss_px.jpg"
                 alt="Asesor Raúl Sánchez Salgado"
-                className="w-full h-full object-cover" // Ajusta la imagen al tamaño del contenedor
+                className="w-full h-full object-cover"
               />
             </div>
             {/* Datos del asesor */}
             <div className="space-y-1 ">
-              <p className="text-10px font-bold text-black-eske">Asesor:</p>
-              <p className="text-10px font-normal text-black-eske">
+              <p className="text-[10px] font-bold text-black-eske">Asesor:</p>
+              <p className="text-[10px] font-normal text-black-eske">
                 Raúl Sánchez Salgado
               </p>
-              <p className="text-10px font-normal text-black-eske">
+              <p className="text-[10px] font-normal text-black-eske">
                 raul.sanchezs@eskemma.com
               </p>
             </div>
           </div>
-
           {/* Instrucciones previas a la reunión */}
           <p className="text-[16px] font-normal text-black-eske">
             El día y hora acordados, favor de conectarte 5 minutos antes de la
             hora agendada.
           </p>
-
           {/* Enlaces con íconos */}
           <div className="space-y-2">
             {/* Enviar documentación */}
@@ -132,7 +117,6 @@ export default function ResponseDate({
                 .
               </p>
             </div>
-
             {/* Cancelar asesoría */}
             <div className="mt-6 flex items-center space-x-2">
               <p className="text-[16px] font-normal text-black-eske">
@@ -144,52 +128,32 @@ export default function ResponseDate({
               </p>
             </div>
           </div>
-
           {/* Agradecimiento final */}
           <p className="text-[16px] font-normal text-black-eske">
             Nuevamente, agradecemos tu interés.
           </p>
-
           {/* Botón CERRAR */}
-          <button
-            className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
+          <Button
+            label="CERRAR"
+            variant="primary"
             onClick={onClose}
-          >
-            CERRAR
-          </button>
-
+          />
           {/* Línea horizontal */}
           <hr className="border-gray-300 my-4" />
-
           {/* Links adicionales */}
           <p className="text-[14px] text-black-eske text-center">
             Consultar{' '}
-            <a
-              href="/terminos-y-condiciones"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-eske underline"
-            >
+            <a href="/terminos-y-condiciones" target="_blank" rel="noopener noreferrer" className="text-blue-eske underline">
               términos y condiciones de las asesorías en línea.
             </a>
           </p>
           <p className="text-[14px] text-black-eske text-center">
             Al agendar la cita acepto las{' '}
-            <a
-              href="/condiciones-de-uso"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-eske underline"
-            >
+            <a href="/condiciones-de-uso" target="_blank" rel="noopener noreferrer" className="text-blue-eske underline">
               condiciones de uso
             </a>{' '}
             y{' '}
-            <a
-              href="/politica-de-privacidad"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-eske underline"
-            >
+            <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer" className="text-blue-eske underline">
               política de privacidad
             </a>{' '}
             de Eskemma.

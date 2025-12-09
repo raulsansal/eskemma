@@ -57,11 +57,11 @@ export default function ServiciosPage() {
             {/* Servicio 1 */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Consultoria.svg" // Ícono de Consultoría
+                src="/icons/icon_Consultoria.svg"
                 alt="Consultoría Política"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Consultoría Política
@@ -74,11 +74,11 @@ export default function ServiciosPage() {
             {/* Servicio 2 */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Moddulo.svg" // Ícono de Moddulo
+                src="/icons/icon_Moddulo.svg"
                 alt="Herramientas Digitales"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Herramientas Digitales
@@ -91,11 +91,11 @@ export default function ServiciosPage() {
             {/* Servicio 3 */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Sefix.svg" // Ícono de Sefix
+                src="/icons/icon_Sefix.svg"
                 alt="Dashboards Interactivos"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Dashboards Interactivos
@@ -108,11 +108,11 @@ export default function ServiciosPage() {
             {/* Servicio 4: Cursos y Talleres */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Cursos.svg" // Ícono de Cursos
+                src="/icons/icon_Cursos.svg"
                 alt="Cursos y Talleres"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Cursos y Talleres
@@ -125,11 +125,11 @@ export default function ServiciosPage() {
             {/* Servicio 5: Monitoreo de Información */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Monitor.svg" // Ícono de Monitor
+                src="/icons/icon_Monitor.svg"
                 alt="Monitoreo de Información"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Monitoreo de Información
@@ -143,11 +143,11 @@ export default function ServiciosPage() {
              {/* Servicio 6: Capacitación */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Cursos.svg" // Ícono de Cursos (temporal)
+                src="/icons/icon_Cursos.svg"
                 alt="Capacitación"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Capacitación
@@ -161,11 +161,11 @@ export default function ServiciosPage() {
             {/* Servicio 7: Desarrollo de Software */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Software.svg" // Ícono de Blog (temporal)
+                src="/icons/icon_Software.svg"
                 alt="Desarrollo de Software"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Desarrollo de Software
@@ -178,11 +178,11 @@ export default function ServiciosPage() {
             {/* Servicio 8: Producción Audiovisual */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Producción.svg" // Ícono de Blog (temporal)
+                src="/icons/icon_Producción.svg"
                 alt="Producción Audiovisual"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Producción Audiovisual
@@ -195,11 +195,11 @@ export default function ServiciosPage() {
             {/* Servicio 9: Investigación Cuantitativa y Cualitativa */}
             <div className="flex flex-col items-center text-center">
               <Image
-                src="/icons/icon_Investigación.svg" // Ícono de Blog (temporal)
+                src="/icons/icon_Investigación.svg"
                 alt="Investigación Cuantitativa y Cualitativa"
                 width={80}
                 height={80}
-                className="mb-4"
+                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Investigación Cuantitativa y Cualitativa
@@ -214,7 +214,7 @@ export default function ServiciosPage() {
       </section>
 
       {/* Call to Action */}
-      <section className="bg-gray-eske-20  py-12 px-4 sm:px-6 md:px-8 text-center text-black-eske-90">
+      <section className="bg-gray-eske-20 py-12 px-4 sm:px-6 md:px-8 text-center text-black-eske-90">
         <div className="w-[90%] mx-auto max-w-screen-xl">
           <h2 className="text-2xl font-semibold mb-4">¿Comenzamos?</h2>
           <p className="text-lg font-light mb-8">

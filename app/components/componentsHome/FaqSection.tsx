@@ -1,23 +1,19 @@
 // app/components/componentsHome/FaqSection.tsx
-
 import { useState } from 'react';
-import Link from 'next/link'; 
+import Link from 'next/link';
 import Button from '../Button';
 
 const FaqSection = () => {
   // Estados para controlar qué dropdown está abierto
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
-
   // Estados para controlar la visibilidad de los modales
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
   // Función para alternar el estado del dropdown
   const toggleDropdown = (index: number) => {
     setOpenDropdown(openDropdown === index ? null : index);
   };
-
   return (
     <section className="bg-gray-eske-10 py-16 px-4 sm:px-6 md:px-8">
       <div className="w-[90%] mx-auto max-w-screen-xl">
@@ -25,11 +21,10 @@ const FaqSection = () => {
         <h2 className="text-3xl font-bold text-bluegreen-eske text-center mb-12">
           Preguntas frecuentes
         </h2>
-
         {/* Contenedor de las Tarjetas Dropdown */}
         <div className="space-y-6">
           {/* Dropdown 1 */}
-          <div className="bg-white-eske rounded-lg shadow-md p-6">
+          <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6">
             <button
               className="flex items-center justify-between w-full text-left focus:outline-none"
               onClick={() => toggleDropdown(1)}
@@ -66,9 +61,8 @@ const FaqSection = () => {
               </div>
             )}
           </div>
-
           {/* Dropdown 2 */}
-          <div className="bg-white-eske rounded-lg shadow-md p-6">
+          <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6">
             <button
               className="flex items-center justify-between w-full text-left focus:outline-none"
               onClick={() => toggleDropdown(2)}
@@ -103,9 +97,8 @@ const FaqSection = () => {
               </div>
             )}
           </div>
-
           {/* Dropdown 3 */}
-          <div className="bg-white-eske rounded-lg shadow-md p-6">
+          <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6">
             <button
               className="flex items-center justify-between w-full text-left focus:outline-none"
               onClick={() => toggleDropdown(3)}
@@ -140,9 +133,8 @@ const FaqSection = () => {
               </div>
             )}
           </div>
-
           {/* Dropdown 4 */}
-          <div className="bg-white-eske rounded-lg shadow-md p-6">
+          <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6">
             <button
               className="flex items-center justify-between w-full text-left focus:outline-none"
               onClick={() => toggleDropdown(4)}
@@ -178,9 +170,8 @@ const FaqSection = () => {
               </div>
             )}
           </div>
-
           {/* Dropdown 5 */}
-          <div className="bg-white-eske rounded-lg shadow-md p-6">
+          <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6">
             <button
               className="flex items-center justify-between w-full text-left focus:outline-none"
               onClick={() => toggleDropdown(5)}
@@ -210,22 +201,22 @@ const FaqSection = () => {
               <div className="mt-4 text-[16px] text-black-eske">
                 <p>
                   Los costos varían dependiendo del alcance y la naturaleza
-                  delproyecto. Ofrecemos planes personalizados para satisfacer
+                  del proyecto. Ofrecemos planes personalizados para satisfacer
                   tus necesidades.
                 </p>
               </div>
             )}
           </div>
         </div>
-
+        
         {/* Ver más FAQ */}
-        <div className="text-center mt-8">
-          <a
-            href="/faq"
-            className="text-bluegreen-eske hover:text-bluegreen-60 font-medium text-[18px]"
-          >
-            Ver más FAQ
-          </a>
+        <div className="text-center mt-8 max-w-[200px] mx-auto">
+          <Link href="/faq" passHref>
+            <Button
+              label="VER MÁS FAQ"
+              variant="primary"
+            />
+          </Link>
         </div>
 
         {/* Texto Adicional */}
@@ -237,21 +228,18 @@ const FaqSection = () => {
             Queremos ser tus aliados para impulsar tu proyecto.
           </p>
         </div>
-
         {/* Botón CONTACTAR CON ESKEMMA */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-8 max-w-[300px] mx-auto">
           <Link href="/contacto" passHref>
             <Button
               label="CONTACTAR CON ESKEMMA"
-              variant="primary"
+              variant="secondary"
             />
           </Link>
         </div>
-
-        
       </div>
     </section>
   );
 };
-
 export default FaqSection;
+

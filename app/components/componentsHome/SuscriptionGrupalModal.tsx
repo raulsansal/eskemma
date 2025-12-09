@@ -1,4 +1,5 @@
-import Link from "next/link"; // Para manejar enlaces internos
+import Link from "next/link";
+import Button from "../Button";
 
 interface SuscriptionGrupalModalProps {
   isOpen: boolean;
@@ -18,9 +19,8 @@ export default function SuscriptionGrupalModal({
       className="fixed inset-0 z-100 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
     >
-      {/* Contenido del modal */}
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
@@ -53,7 +53,7 @@ export default function SuscriptionGrupalModal({
           {/* Imagen */}
           <div className="flex justify-center">
             <img
-              src="https://plus.unsplash.com/premium_photo-1683120730432-b5ea74bd9047?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" // Ruta relativa a la carpeta public/
+              src="https://plus.unsplash.com/premium_photo-1683120730432-b5ea74bd9047?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Plan Grupal"
               className="w-150 h-70"
             />
@@ -109,21 +109,21 @@ export default function SuscriptionGrupalModal({
                 **** **** **** 1234
               </p>
             </div>
-            {/* Botón CAMBIAR */}
+            {/* Botón CAMBIAR - Mantener personalizado */}
             <button
-              className="text-10px font-medium text-gray-700 px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer"
+              type="button"
+              className="text-10px font-medium text-gray-700 px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300"
             >
               CAMBIAR
             </button>
           </div>
 
           {/* Botón PAGAR */}
-          <button
-            className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300 cursor-pointer"
+          <Button
+            label="PAGAR $20,000.ºº"
+            variant="primary"
             onClick={onPaymentSuccess}
-          >
-            PAGAR $20,000.ºº
-          </button>
+          />
 
           {/* Línea horizontal */}
           <hr className="border-gray-300 my-4" />

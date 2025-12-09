@@ -1,6 +1,7 @@
 // components/CompleteRegisterModal.tsx
 "use client";
 import { useAuth } from "../../../context/AuthContext";
+import Button from "../Button";
 
 export default function CompleteRegisterModal({
   isOpen,
@@ -14,12 +15,17 @@ export default function CompleteRegisterModal({
   // Usar tanto la prop isOpen como el estado del contexto
   if (!isOpen && !isCompleteRegisterModalOpen) return null;
 
+  const handleContinue = () => {
+    setIsRegisterModalOpen(true); // Abrir el modal RegisterModal
+    onClose(); // Cerrar el modal CompleteRegisterModal
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
-      <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative">
         {/* Botón de Cierre */}
         <button
           className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
@@ -55,15 +61,11 @@ export default function CompleteRegisterModal({
         </p>
 
         {/* Botón Continuar */}
-        <button
-          onClick={() => {
-            setIsRegisterModalOpen(true); // Abrir el modal RegisterModal
-            onClose(); // Cerrar el modal CompleteRegisterModal
-          }}
-          className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 cursor-pointer"
-        >
-          CONTINUAR
-        </button>
+        <Button
+          label="CONTINUAR"
+          variant="primary"
+          onClick={handleContinue}
+        />
       </div>
     </div>
   );

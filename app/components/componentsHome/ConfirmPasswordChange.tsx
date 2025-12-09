@@ -18,7 +18,7 @@ export default function ConfirmPasswordChange({
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
-      <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-4 relative">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-4 relative">
         {/* Botón de Cierre */}
         <button
           className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
@@ -48,9 +48,9 @@ export default function ConfirmPasswordChange({
         {/* Contenedor del Botón Centrado */}
         <div className="flex justify-center">
           <Button
-            label="Aceptar"
+            label="ACEPTAR"
             variant="secondary"
-            onClick={onClose} // Cierra el modal al hacer clic en "Aceptar"
+            onClick={onClose}
           />
         </div>
       </div>

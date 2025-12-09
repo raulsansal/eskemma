@@ -5,6 +5,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { sendEmailVerification } from "firebase/auth";
 import { auth, db } from "../../../firebase/firebaseConfig";
 import { doc, updateDoc } from "firebase/firestore";
+import Button from "../Button";
 
 export default function VerifyEmailModal({
   isOpen,
@@ -45,19 +46,12 @@ export default function VerifyEmailModal({
       if (!currentUser) return;
 
       try {
-        // Recargar el usuario para obtener el estado más reciente
         await currentUser.reload();
         
-        // Verificar si el correo ya fue verificado
         if (currentUser.emailVerified) {
-          // Actualizar emailVerified en Firestore
           await updateEmailVerifiedInFirestore(currentUser.uid);
-          
-          // Cerrar este modal
           setIsVerifyEmailModalOpen(false);
           onClose();
-          
-          // Abrir el modal de completar registro
           setIsCompleteRegisterModalOpen(true);
         }
       } catch (error) {
@@ -65,10 +59,7 @@ export default function VerifyEmailModal({
       }
     };
 
-    // Verificar cada 3 segundos
     const intervalId = setInterval(checkEmailVerification, 3000);
-
-    // Limpiar el intervalo cuando el modal se cierre
     return () => clearInterval(intervalId);
   }, [isOpen, isVerifyEmailModalOpen, onClose, setIsVerifyEmailModalOpen, setIsCompleteRegisterModalOpen]);
 
@@ -85,14 +76,9 @@ export default function VerifyEmailModal({
       await currentUser.reload();
       
       if (currentUser.emailVerified) {
-        // Actualizar emailVerified en Firestore
         await updateEmailVerifiedInFirestore(currentUser.uid);
-        
-        // Cerrar este modal
         setIsVerifyEmailModalOpen(false);
         onClose();
-        
-        // Abrir el modal de completar registro
         setIsCompleteRegisterModalOpen(true);
       } else {
         alert("Aún no hemos detectado la verificación. Por favor, revisa tu correo y haz clic en el enlace.");
@@ -137,7 +123,7 @@ export default function VerifyEmailModal({
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
-      <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative">
         {/* Botón de Cierre */}
         <button
           className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
@@ -182,29 +168,26 @@ export default function VerifyEmailModal({
         </div>
 
         {/* Botón para verificar manualmente */}
-        <button
+        <Button
+          label={isCheckingVerification ? "VERIFICANDO..." : "YA VERIFIQUÉ MI CORREO"}
+          variant="primary"
           onClick={handleCheckVerification}
           disabled={isCheckingVerification}
-          className={`w-full bg-bluegreen-eske text-white-eske py-2 rounded cursor-pointer hover:bg-bluegreen-eske-70 transition-colors duration-300 mb-3 ${
-            isCheckingVerification ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          {isCheckingVerification ? "VERIFICANDO..." : "YA VERIFIQUÉ MI CORREO"}
-        </button>
+          className="mb-3"
+        />
 
         {/* Botón para Reenviar Correo */}
-        <button
+        <Button
+          label={isResendingEmail ? "REENVIANDO..." : "REENVIAR CORREO"}
+          variant="secondary"
           onClick={handleResendVerificationEmail}
           disabled={isResendingEmail}
-          className={`w-full bg-blue-eske text-white-eske py-2 rounded cursor-pointer hover:bg-blue-eske-60 transition-colors duration-300 mb-3 ${
-            isResendingEmail ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          {isResendingEmail ? "Reenviando..." : "REENVIAR CORREO"}
-        </button>
+          className="mb-3"
+        />
 
-        {/* Botón Cerrar */}
+        {/* Botón Cerrar - Mantener gris */}
         <button
+          type="button"
           onClick={onClose}
           className="w-full bg-gray-300 text-black-eske py-2 rounded hover:bg-gray-400 transition-colors duration-300"
         >

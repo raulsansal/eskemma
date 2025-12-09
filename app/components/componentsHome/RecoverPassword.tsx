@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
+import Button from "../Button";
 
 export default function RecoverPassword() {
   const [email, setEmail] = useState("");
@@ -40,13 +41,13 @@ export default function RecoverPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
           Recuperar Contraseña
         </h2>
 
-        {message && <p className="text-green-500 text-sm text-center">{message}</p>}
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        {message && <p className="text-green-500 text-sm text-center mb-4">{message}</p>}
+        {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -59,19 +60,15 @@ export default function RecoverPassword() {
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
             />
           </div>
 
-          <button
-            type="submit"
+          <Button
+            label={loading ? "ENVIANDO..." : "ENVIAR MAIL DE RECUPERACIÓN"}
+            variant="primary"
             disabled={loading}
-            className={`w-full text-[18px] bg-bluegreen-eske text-white-eske py-2 rounded transition-colors duration-300 ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-bluegreen-eske-60"
-            }`}
-          >
-            {loading ? "Enviando..." : "Enviar mail de Recuperación"}
-          </button>
+          />
         </form>
       </div>
     </div>

@@ -2,43 +2,44 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "../Button";
 
 export default function OnboardingModal({
   isOpen,
   onClose,
-  userName, // Prop para recibir el nombre del usuario
+  userName,
 }: {
   isOpen: boolean;
-  onClose: (showOnLogin?: boolean) => void; // Ajustamos la firma para aceptar un argumento opcional
-  userName: string; // Nombre del usuario
+  onClose: (showOnLogin?: boolean) => void;
+  userName: string;
 }) {
-  const [showOnLogin, setShowOnLogin] = useState(true); // Estado para la casilla de verificación
-  const router = useRouter(); // Hook para manejar la navegación
+  const [showOnLogin, setShowOnLogin] = useState(true);
+  const router = useRouter();
 
   if (!isOpen) return null;
 
   // Funciones para manejar las acciones de los botones
   const handleExploreResources = () => {
     console.log("Navegando a recursos...");
-    onClose(showOnLogin); // Pasar el valor de showOnLogin al cerrar el modal
-    router.push("/recursos"); // Redirigir a la página de recursos
+    onClose(showOnLogin);
+    router.push("/recursos");
   };
 
   const handleScheduleConsultationSefix = () => {
     console.log("Navegando a Sefix...");
-    onClose(showOnLogin); // Pasar el valor de showOnLogin al cerrar el modal
-    router.push("/sefix"); // Redirigir a la página de Sefix
+    onClose(showOnLogin);
+    router.push("/sefix");
   };
 
   const handleConfigureProfile = () => {
     console.log("Configurando perfil...");
-    onClose(showOnLogin); // Pasar el valor de showOnLogin al cerrar el modal
-    router.push("/profile"); // Redirigir al usuario a la página de perfil
+    onClose(showOnLogin);
+    router.push("/profile");
   };
 
   // Manejar el cierre del modal con el botón de cierre
   const handleClose = () => {
-    onClose(showOnLogin); // Pasar el valor de showOnLogin al cerrar el modal
+    onClose(showOnLogin);
   };
 
   return (
@@ -46,10 +47,10 @@ export default function OnboardingModal({
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
-      <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative">
         {/* Botón de Cierre */}
         <button
-          onClick={handleClose} // Usar la función handleClose
+          onClick={handleClose}
           className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
         >
           <svg
@@ -88,24 +89,21 @@ export default function OnboardingModal({
 
         {/* Botones de Acción */}
         <div className="space-y-4">
-          <button
+          <Button
+            label="EXPLORAR RECURSOS"
+            variant="primary"
             onClick={handleExploreResources}
-            className="w-full bg-blue-eske-60 text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
-          >
-            Explorar recursos
-          </button>
-          <button
+          />
+          <Button
+            label="CONSULTAR ESTADÍSTICAS ELECTORALES"
+            variant="primary"
             onClick={handleScheduleConsultationSefix}
-            className="w-full bg-blue-eske-60 text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
-          >
-            Consultar estadísticas electorales
-          </button>
-          <button
+          />
+          <Button
+            label="CONFIGURAR PERFIL"
+            variant="primary"
             onClick={handleConfigureProfile}
-            className="w-full bg-blue-eske-60 text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300"
-          >
-            Configurar perfil
-          </button>
+          />
         </div>
 
         {/* Casilla de Verificación */}

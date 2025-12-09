@@ -1,5 +1,6 @@
-import Link from "next/link"; // Para manejar enlaces internos
+import Link from "next/link";
 import { useState } from "react";
+import Button from "../Button";
 
 interface SuscriptionBasicModalProps {
   isOpen: boolean;
@@ -16,7 +17,6 @@ export default function SuscriptionBasicModal({
 
   if (!isOpen) return null;
 
-  // Estilo personalizado CORREGIDO para los radio buttons
   const radioButtonStyle = `
     .custom-radio {
       -webkit-appearance: none;
@@ -54,7 +54,7 @@ export default function SuscriptionBasicModal({
       <style>{radioButtonStyle}</style>
       
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
@@ -87,7 +87,7 @@ export default function SuscriptionBasicModal({
           {/* Imagen */}
           <div className="flex justify-center">
             <img
-              src="https://images.unsplash.com/photo-1565350552203-b68085b104df?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" // Ruta relativa a la carpeta public/
+              src="https://images.unsplash.com/photo-1565350552203-b68085b104df?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Plan Básico"
               className="w-150 h-70"
             />
@@ -152,7 +152,6 @@ export default function SuscriptionBasicModal({
               />
               <span className="ml-2 text-[15px] font-normal text-black-eske">Monitor</span>
             </label>
-            {/* Repetir para otros servicios */}
           </div>
 
           {/* Método de pago */}
@@ -180,21 +179,21 @@ export default function SuscriptionBasicModal({
                 **** **** **** 1234
               </p>
             </div>
-            {/* Botón CAMBIAR */}
+            {/* Botón CAMBIAR - Mantener personalizado */}
             <button
-              className="text-10px font-medium text-black-eske px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer"
+              type="button"
+              className="text-10px font-medium text-black-eske px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300"
             >
               CAMBIAR
             </button>
           </div>
 
           {/* Botón PAGAR */}
-          <button
-            className="w-full bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-60 transition-colors duration-300 cursor-pointer"
+          <Button
+            label="PAGAR $ 2,000.ºº"
+            variant="primary"
             onClick={onPaymentSuccess}
-          >
-            PAGAR $ 2,000.ºº
-          </button>
+          />
 
           {/* Línea horizontal */}
           <hr className="border-gray-300 my-4" />

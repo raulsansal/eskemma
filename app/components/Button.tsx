@@ -1,32 +1,40 @@
-"use client"; // Indica que este es un Client Component
+// app/components/Button.tsx
+"use client";
 
 interface ButtonProps {
   label: string;
-  action?: string; // Identificador de la acción
+  action?: string;
   variant?: "primary" | "secondary";
-  className?: string; // Clases personalizadas (opcional)
-  onClick?: () => void; // Función personalizada para manejar clics
+  className?: string;
+  onClick?: () => void;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
 export default function Button({
   label,
   action,
   variant = "primary",
-  className = "", // Valor predeterminado para evitar errores si no se pasa
-  onClick, // Desestructurar la propiedad onClick
+  className = "",
+  onClick,
+  disabled = false,
+  type = "button",
 }: ButtonProps) {
-  const baseStyles = "px-8 py-4 uppercase rounded transition duration-200 cursor-pointer";
+  const baseStyles = "block text-center w-full py-2 rounded-lg font-medium transition-all duration-300 text-[14px]";
+  
   const variants = {
-    primary: "inline-block bg-bluegreen-eske text-white-eske text-10px font-bold rounded-lg shadow-md hover:bg-bluegreen-eske-60 transition-all duration-300 ease-in-out",
-    secondary: "inline-block bg-orange-eske text-white-eske text-10px font-bold rounded-lg shadow-md hover:bg-orange-eske-60 transition-all duration-300 ease-in-out",
+    primary: "bg-bluegreen-eske text-white-eske hover:bg-bluegreen-eske-70",
+    secondary: "bg-orange-eske text-white-eske hover:bg-orange-eske-70",
   };
 
+  const disabledStyles = disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer";
+
   const handleClick = () => {
+    if (disabled) return;
+    
     if (action === "alert") {
       alert("¡Botón clickeado!");
     }
-    // Ejecutar la función personalizada si existe
     if (onClick) {
       onClick();
     }
@@ -34,8 +42,10 @@ export default function Button({
 
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${className}`} // Priorizar las clases personalizadas
-      onClick={handleClick}
+      type={type}
+      className={`${baseStyles} ${variants[variant]} ${disabledStyles} ${className}`}
+      onClick={type === "button" ? handleClick : undefined}
+      disabled={disabled}
     >
       {label}
     </button>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "../../../context/AuthContext";
+import Button from "../Button";
 
 interface LoginFormData {
   username: string;
@@ -67,7 +68,6 @@ export default function LoginModal({
     }
   };
 
-  // ✅ FUNCIÓN CORREGIDA - Sin async, sin setLoading antes del popup
   const handleGoogleSignIn = () => {
     setError(null);
     
@@ -90,7 +90,7 @@ export default function LoginModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]">
         {/* Botón de Cierre */}
         <button
           className="absolute top-4 right-4 text-gray-700 hover:text-red-500 transition-colors duration-300"
@@ -159,13 +159,11 @@ export default function LoginModal({
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           {/* Botón de inicio de sesión */}
-          <button
-            type="submit"
+          <Button
+            label={loading ? "CARGANDO..." : "INICIAR SESIÓN"}
+            variant="primary"
             disabled={loading}
-            className="w-full text-[18px] bg-bluegreen-eske text-white py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 cursor-pointer"
-          >
-            {loading ? "Cargando..." : "INICIAR SESIÓN"}
-          </button>
+          />
         </form>
 
         {/* Separador */}
@@ -188,7 +186,7 @@ export default function LoginModal({
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full text-[18px] bg-red-500 text-white py-2 rounded hover:bg-red-600 transition-colors duration-300 cursor-pointer"
+          className="w-full text-[18px] bg-red-500 text-white py-2 rounded-lg font-medium hover:bg-red-600 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           INICIAR SESIÓN CON GOOGLE
         </button>

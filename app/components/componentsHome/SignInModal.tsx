@@ -1,42 +1,40 @@
 // components/componentsHome/SignInModal.tsx
 "use client";
-import { useState, useEffect } from "react"; // Importar useEffect para manejar el ciclo de vida
-import { useAuth } from "../../../context/AuthContext"; // Importar el contexto de autenticación
-import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth"; // Importar servicios de Firebase
+import { useState, useEffect } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 import VerifyEmailModal from "./VerifyEmailModal";
+import Button from "../Button";
 
 interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenLoginModal: () => void; // ← AGREGAR esta prop
+  onOpenLoginModal: () => void;
 }
 
 export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignInModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Obtener funciones y estados del contexto
   const {
     registerUser,
     signInWithGoogle,
     isVerifyEmailModalOpen,
     setIsVerifyEmailModalOpen,
-    setIsSignInModalOpen, // Añadimos esta función para cerrar el modal inicial
+    setIsSignInModalOpen,
   } = useAuth();
 
-  // Función para verificar si el correo ya está registrado
   const isEmailAlreadyRegistered = async (email: string): Promise<boolean> => {
     const auth = getAuth();
     try {
       const methods = await fetchSignInMethodsForEmail(auth, email);
-      return methods.length > 0; // Retorna true si el correo ya está registrado
+      return methods.length > 0;
     } catch (error) {
       console.error("Error al verificar el correo:", error);
       return false;
     }
   };
 
-  // Validaciones del formulario
   const validateForm = async () => {
     if (!email.includes("@")) {
       alert("Por favor, ingresa un correo electrónico válido.");
@@ -48,7 +46,6 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
       return false;
     }
 
-    // Verificar si el correo ya está registrado
     const isRegistered = await isEmailAlreadyRegistered(email);
     if (isRegistered) {
       alert("Este correo ya está registrado. Intenta iniciar sesión.");
@@ -58,15 +55,14 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
     return true;
   };
 
-  // Manejar el registro con correo y contraseña
   const handleRegisterWithEmail = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!(await validateForm())) return;
 
     try {
-      await registerUser(email, password); // Usar la función del contexto
-      onClose(); // Cerrar el modal de registro
+      await registerUser(email, password);
+      onClose();
     } catch (error: any) {
       console.error("Error al registrar usuario:", error.message);
 
@@ -78,17 +74,15 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
     }
   };
 
-  // Función para manejar el clic en "Inicia sesión"
   const handleLoginClick = () => {
-    onClose(); // Cerrar el modal de registro
-    onOpenLoginModal(); // Abrir el modal de login
+    onClose();
+    onOpenLoginModal();
   };
 
-  // Reiniciar los estados del formulario cuando el modal se cierra
   useEffect(() => {
     if (!isOpen) {
-      setEmail(""); // Limpiar el campo de correo
-      setPassword(""); // Limpiar el campo de contraseña
+      setEmail("");
+      setPassword("");
     }
   }, [isOpen]);
 
@@ -104,7 +98,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
         style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
       >
         <div
-          className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+          className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
           style={{ marginTop: "20px" }}
         >
           {/* Botón de Cierre */}
@@ -135,11 +129,11 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
 
           {/* Contenedor con scroll */}
           <div className="max-h-[calc(80vh-120px)] overflow-y-auto">
-            {/* Botón de Google */}
+            {/* Botón de Google - Mantener estilo personalizado */}
             <button
               onClick={() => {
-                setIsSignInModalOpen(false); // Cerrar el modal inicial
-                signInWithGoogle(); // Iniciar sesión con Google
+                setIsSignInModalOpen(false);
+                signInWithGoogle();
               }}
               className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300"
             >
@@ -186,12 +180,11 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
               </div>
 
               {/* Botón Registrar */}
-              <button
+              <Button
+                label="REGISTRARME"
+                variant="primary"
                 type="submit"
-                className="w-full text-[18px] bg-bluegreen-eske text-white-eske py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 cursor-pointer"
-              >
-                REGISTRARME
-              </button>
+              />
 
               {/* Condiciones de uso */}
               <p className="mt-8 text-[16px] text-black-eske text-center">

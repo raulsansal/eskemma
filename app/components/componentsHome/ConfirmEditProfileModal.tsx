@@ -1,7 +1,7 @@
 // components/componentsHome/ConfirmEditProfileModal.tsx
 "use client";
 import { useRouter } from "next/navigation";
-import Button from "../Button"; // Importamos el componente Button
+import Button from "../Button";
 
 export default function ConfirmEditProfileModal({
   isOpen,
@@ -26,7 +26,7 @@ export default function ConfirmEditProfileModal({
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
     >
-      <div className="bg-white-eske rounded-lg shadow-lg w-full max-w-md p-4 relative">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-4 relative">
         {/* Botón de Cierre */}
         <button
           className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
@@ -56,9 +56,9 @@ export default function ConfirmEditProfileModal({
         {/* Contenedor del Botón Centrado */}
         <div className="flex justify-center">
           <Button
-            label="Aceptar"
+            label="ACEPTAR"
             variant="primary"
-            onClick={handleAccept} // Pasamos la función handleAccept como prop
+            onClick={handleAccept}
           />
         </div>
       </div>

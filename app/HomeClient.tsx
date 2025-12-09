@@ -88,8 +88,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {blogPosts.map((post) => (
                 <div
                   key={post.id}
-                  className="flex flex-col items-center text-center bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6"
+                  className="flex flex-col items-center text-center bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 min-h-full"
                 >
+                  {/* Imagen */}
                   {post.featureImage && (
                     <img
                       src={post.featureImage}
@@ -98,14 +99,17 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                     />
                   )}
 
-                  <h3 className="text-xl text-bluegreen-eske-60 font-semibold mb-2 hover:text-bluegreen-eske transition-colors duration-300">
+                  {/* Título - con flex-grow para ocupar espacio variable */}
+                  <h3 className="text-xl text-bluegreen-eske-60 font-semibold mb-2 hover:text-bluegreen-eske transition-colors duration-300 flex-grow-0">
                     <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                   </h3>
 
-                  <p className="text-[16px] font-light text-gray-eske-90 mb-4 line-clamp-3">
+                  {/* Contenido - con flex-grow para ocupar espacio variable */}
+                  <p className="text-[16px] font-light text-gray-eske-90 mb-4 line-clamp-3 flex-grow">
                     {post.content.substring(0, 160)}...
                   </p>
 
+                  {/* Fecha y autor */}
                   <div className="flex justify-between w-full text-sm text-gray-700 mb-4 px-2">
                     <small className="text-gray-eske-60">
                       {post.updatedAt.toLocaleDateString("es-ES", {
@@ -119,12 +123,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                     </small>
                   </div>
 
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
-                  >
-                    Leer completo →
-                  </Link>
+                  {/* Botón - con mt-auto para empujarlo al fondo */}
+                  <div className="mt-auto w-full max-w-[200px]">
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
+                    >
+                      Leer completo →
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
@@ -140,7 +147,8 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            <div className="flex flex-col items-center text-center">
+            {/* Card 1 */}
+            <div className="flex flex-col items-center text-center min-h-full">
               <Image
                 src="/images/part_comparativa_circuns.gif"
                 alt="Gráfica 1"
@@ -149,19 +157,24 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 className="w-full h-auto object-contain rounded-lg mb-4"
                 unoptimized={true}
               />
-              <p className="text-[16px] text-gray mb-4">
+              <p className="text-[16px] text-gray mb-4 flex-grow">
                 Participación electoral por circunscripción <br />
                 en las elecciones federales de México 2006-2021
               </p>
-              <a
-                href="/monitor"
-                className="text-blue-eske hover:text-blue-eske-70 font-medium text-[14px]"
-              >
-                Consultar información
-              </a>
+
+              {/* Wrapper del botón con mt-auto para empujarlo al fondo */}
+              <div className="mt-auto w-full max-w-[250px]">
+                <Link
+                  href="/monitor"
+                  className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
+                >
+                  Consultar información →
+                </Link>
+              </div>
             </div>
 
-            <div className="flex flex-col items-center text-center">
+            {/* Card 2 */}
+            <div className="flex flex-col items-center text-center min-h-full">
               <Image
                 src="/images/part_tipo_eleccion.gif"
                 alt="Gráfica 2"
@@ -170,16 +183,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 className="w-full h-auto object-contain rounded-lg mb-4"
                 unoptimized={true}
               />
-              <p className="text-[16px] text-gray mb-4">
+              <p className="text-[16px] text-gray mb-4 flex-grow">
                 ¿Por qué la participación electoral aumenta en las <br />
                 elecciones presidenciales en México?
               </p>
-              <a
-                href="/monitor"
-                className="text-blue-eske hover:text-blue-eske-70 font-medium text-[14px]"
-              >
-                Consultar información
-              </a>
+
+              {/* Wrapper del botón con mt-auto para empujarlo al fondo */}
+              <div className="mt-auto w-full max-w-[250px]">
+                <Link
+                  href="/monitor"
+                  className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
+                >
+                  Consultar información →
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -245,31 +262,22 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           </p>
 
           {/* Botón "AGENDAR ASESORÍA GRATUITA" */}
-          <div className="text-center">
+          <div className="text-center max-w-[300px] mx-auto">
             <Button
               label="AGENDAR ASESORÍA GRATUITA"
               variant="secondary"
-              action="openScheduleModal"
-              onClick={() => setIsScheduleModalOpen(true)} // Función personalizada
+              onClick={() => setIsScheduleModalOpen(true)}
             />
           </div>
-
-          {/* Botón "AGENDAR ASESORÍA GRATUITA" 
-          <button
-            onClick={() => setIsScheduleModalOpen(true)}
-            className="inline-block bg-orange-eske text-white-eske text-10px font-bold uppercase px-8 py-4 rounded-lg shadow-md hover:bg-orange-70 transition-all duration-300 ease-in-out cursor-pointer"
-          >
-            AGENDAR ASESORÍA GRATUITA
-          </button>*/}
 
           {/* Modal de Agendar Asesoría */}
           <ScheduleDate
             isOpen={isScheduleModalOpen}
             onClose={() => setIsScheduleModalOpen(false)}
             onSubmitSuccess={(data) => {
-              setFormData(data); // Almacenar los datos del formulario
-              setIsScheduleModalOpen(false); // Cerrar el modal de agendamiento
-              setIsResponseModalOpen(true); // Abrir el modal de confirmación
+              setFormData(data);
+              setIsScheduleModalOpen(false);
+              setIsResponseModalOpen(true);
             }}
           />
 
@@ -299,13 +307,13 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {/* Avatar (Primera Columna) */}
               <div className="w-16 h-16 rounded-full bg-blue-60 flex items-center justify-center overflow-hidden">
                 <img
-                  src="https://untitledui.com/images/avatars/brianna-ware " // Ruta de la imagen del usuario
+                  src="https://untitledui.com/images/avatars/brianna-ware"
                   alt="Usuario 1"
                   className="w-full h-full object-cover"
                 />
               </div>
               {/* Texto (Segunda Columna) */}
-              <blockquote className="text-12px text-black-eske font-light max-w-[70%]">
+              <blockquote className="text-[16px] text-black-eske font-light max-w-[70%]">
                 "Cuando pensé que no había nada más que hacer en mi candidatura
                 decidí utilizar el <i>Moddulo</i> de Eskemma. Descubrí que había
                 muchas opciones para competir con fuerza."
@@ -315,7 +323,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             {/* Testimonio 2 */}
             <div className="flex items-center justify-end space-x-8">
               {/* Texto (Primera Columna) */}
-              <blockquote className="text-12px text-black-eske font-light max-w-[70%] text-right">
+              <blockquote className="text-[16px] text-black-eske font-light max-w-[70%] text-right">
                 "En los cursos de comunicación política siempre hablan de
                 estrategia, pero hasta ahora sé cómo hacerlo en territorio, no
                 sólo en teoría."
@@ -323,7 +331,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {/* Avatar (Segunda Columna) */}
               <div className="w-16 h-16 rounded-full bg-orange-60 flex items-center justify-center overflow-hidden">
                 <img
-                  src="https://untitledui.com/images/avatars/drew-cano " // Ruta de la imagen del usuario
+                  src="https://untitledui.com/images/avatars/drew-cano"
                   alt="Usuario 2"
                   className="w-full h-full object-cover"
                 />
@@ -335,13 +343,13 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {/* Avatar (Primera Columna) */}
               <div className="w-16 h-16 rounded-full bg-green-60 flex items-center justify-center overflow-hidden">
                 <img
-                  src="https://untitledui.com/images/avatars/ethan-valdez " // Ruta de la imagen del usuario
+                  src="https://untitledui.com/images/avatars/ethan-valdez"
                   alt="Usuario 3"
                   className="w-full h-full object-cover"
                 />
               </div>
               {/* Texto (Segunda Columna) */}
-              <blockquote className="text-12px text-black-eske font-light max-w-[70%]">
+              <blockquote className="text-[16px] text-black-eske font-light max-w-[70%]">
                 "Con su ayuda logré analizar mejor la información y saber cómo
                 aventajar a los otros partidos. Lo mejor es que lo hice yo mismo
                 y me ahorré una lana."
@@ -351,7 +359,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             {/* Testimonio 4 */}
             <div className="flex items-center justify-end space-x-8">
               {/* Texto (Primera Columna) */}
-              <blockquote className="text-12px text-black-eske font-light max-w-[70%] text-right">
+              <blockquote className="text-[16px] text-black-eske font-light max-w-[70%] text-right">
                 "Pensé que estos servicios sólo eran para grandes campañas.
                 Participé en una elección local en 2024 y pude utilizar mucha de
                 la ayuda que me brindaron."
@@ -359,7 +367,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {/* Avatar (Segunda Columna) */}
               <div className="w-16 h-16 rounded-full bg-red-60 flex items-center justify-center overflow-hidden">
                 <img
-                  src="https://untitledui.com/images/avatars/ava-bentley " // Ruta de la imagen del usuario
+                  src="https://untitledui.com/images/avatars/ava-bentley"
                   alt="Usuario 4"
                   className="w-full h-full object-cover"
                 />
@@ -370,10 +378,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Sección - Planes de suscripción */}
-      <section
-        className="bg-white-eske min-h-[800px] py-18 px-4 sm:px-6 md:px-8"
-        style={{ backgroundColor: "var(--White-eske)" }}
-      >
+      <section className="bg-white-eske min-h-[800px] py-18 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Título de la Sección */}
           <h2 className="text-3xl font-bold text-center text-bluegreen-eske mb-6">
@@ -390,10 +395,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           {/* Contenedor de las Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Card 1 - Sólo un producto (Plan Básico) */}
-            <div className="bg-white-10 rounded-lg shadow-lg p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-2 sm:order-none">
+            <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-2 sm:order-none">
               {/* Encabezado con fondo white-eske */}
               <div
-                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 py-2 border border-bluegreen-eske text-black-eske text-10px font-medium z-10 whitespace-nowrap"
+                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 py-2 border border-bluegreen-eske text-black-eske text-[14px] font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
               >
                 Sólo un producto
@@ -410,7 +415,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 <div className="text-left text-[16px] text-black-eske space-y-2 flex-grow">
                   <p>Mensual</p>
                   <p>Para 1 persona</p>
-                  <p className="mt-4 text-10px">
+                  <p className="mt-4 text-[10px]">
                     <strong>Obtienes:</strong>
                   </p>
                   <p>
@@ -426,7 +431,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   {/* Bandera */}
                   <div className="w-8 h-8 rounded-full bg-gray-20 flex items-center justify-center mr-4">
                     <img
-                      src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp "
+                      src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp"
                       alt="Bandera de México"
                       className="w-full h-full object-cover rounded-full"
                     />
@@ -438,20 +443,21 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 </div>
 
                 {/* Botón Suscribirme */}
-                <button
-                  onClick={() => setIsBasicSuscriptionModalOpen(true)}
-                  className="mt-auto w-full bg-white-eske text-gray text-10px font-bold uppercase py-3 rounded-lg shadow-md border border-bluegreen-eske hover:bg-bluegreen-eske hover:text-white-eske transition-all duration-300 ease-in-out cursor-pointer"
-                >
-                  SUSCRIBIRME
-                </button>
+                <div className="mt-auto">
+                  <Button
+                    label="SUSCRIBIRME"
+                    variant="primary"
+                    onClick={() => setIsBasicSuscriptionModalOpen(true)}
+                  />
+                </div>
               </div>
             </div>
 
             {/* Card 2 - Todo Eskemma (Plan Premium) */}
-            <div className="bg-white-10 rounded-lg shadow-lg p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-1 sm:order-none">
+            <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-1 sm:order-none">
               {/* Encabezado con fondo black-eske */}
               <div
-                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-black-eske px-6 py-2 border border-bluegreen-eske text-white-eske text-10px font-medium z-10 whitespace-nowrap"
+                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-black-eske px-6 py-2 border border-bluegreen-eske text-white-eske text-[14px] font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
               >
                 Todo Eskemma
@@ -481,7 +487,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   {/* Bandera */}
                   <div className="w-8 h-8 rounded-full bg-gray-20 flex items-center justify-center mr-4">
                     <img
-                      src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp "
+                      src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp"
                       alt="Bandera de México"
                       className="w-full h-full object-cover rounded-full"
                     />
@@ -493,20 +499,21 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 </div>
 
                 {/* Botón Suscribirme */}
-                <button
-                  onClick={() => setIsPremiumSuscriptionModalOpen(true)}
-                  className="mt-auto w-full bg-orange-eske text-white-eske text-10px font-bold uppercase py-3 rounded-lg shadow-md border border-bluegreen-eske hover:bg-bluegreen-eske hover:text-white-eske transition-all duration-300 ease-in-out cursor-pointer"
-                >
-                  SUSCRIBIRME
-                </button>
+                <div className="mt-auto">
+                  <Button
+                    label="SUSCRIBIRME"
+                    variant="secondary"
+                    onClick={() => setIsPremiumSuscriptionModalOpen(true)}
+                  />
+                </div>
               </div>
             </div>
 
             {/* Card 3 - Trabajo colaborativo (Plan Grupal) */}
-            <div className="bg-white-10 rounded-lg shadow-lg p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-3 sm:order-none">
+            <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-3 sm:order-none">
               {/* Encabezado con fondo white-eske */}
               <div
-                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 py-2 border border-bluegreen-eske text-black text-10px font-medium z-10 whitespace-nowrap"
+                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 py-2 border border-bluegreen-eske text-black text-[14px] font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
               >
                 Trabajo Colaborativo
@@ -536,7 +543,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   {/* Bandera */}
                   <div className="w-8 h-8 rounded-full bg-gray-20 flex items-center justify-center mr-4">
                     <img
-                      src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp "
+                      src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp"
                       alt="Bandera de México"
                       className="w-full h-full object-cover rounded-full"
                     />
@@ -548,12 +555,13 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 </div>
 
                 {/* Botón Suscribirme */}
-                <button
-                  onClick={() => setIsGrupalSuscriptionModalOpen(true)}
-                  className="mt-auto w-full bg-white-eske text-gray text-10px font-bold uppercase py-3 rounded-lg shadow-md border border-bluegreen-eske hover:bg-bluegreen-eske hover:text-white-eske transition-all duration-300 ease-in-out cursor-pointer"
-                >
-                  SUSCRIBIRME
-                </button>
+                <div className="mt-auto">
+                  <Button
+                    label="SUSCRIBIRME"
+                    variant="primary"
+                    onClick={() => setIsGrupalSuscriptionModalOpen(true)}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -566,8 +574,8 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         isOpen={isBasicSuscriptionModalOpen}
         onClose={() => setIsBasicSuscriptionModalOpen(false)}
         onPaymentSuccess={() => {
-          setIsBasicSuscriptionModalOpen(false); // Cerrar el modal de suscripción
-          setIsResponseSuscriptionModalOpen(true); // Abrir el modal de respuesta
+          setIsBasicSuscriptionModalOpen(false);
+          setIsResponseSuscriptionModalOpen(true);
         }}
       />
 
@@ -576,8 +584,8 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         isOpen={isPremiumSuscriptionModalOpen}
         onClose={() => setIsPremiumSuscriptionModalOpen(false)}
         onPaymentSuccess={() => {
-          setIsPremiumSuscriptionModalOpen(false); // Cerrar el modal de suscripción
-          setIsResponseSuscriptionModalOpen(true); // Abrir el modal de respuesta
+          setIsPremiumSuscriptionModalOpen(false);
+          setIsResponseSuscriptionModalOpen(true);
         }}
       />
 
@@ -586,8 +594,8 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         isOpen={isGrupalSuscriptionModalOpen}
         onClose={() => setIsGrupalSuscriptionModalOpen(false)}
         onPaymentSuccess={() => {
-          setIsGrupalSuscriptionModalOpen(false); // Cerrar el modal de suscripción
-          setIsResponseSuscriptionModalOpen(true); // Abrir el modal de respuesta
+          setIsGrupalSuscriptionModalOpen(false);
+          setIsResponseSuscriptionModalOpen(true);
         }}
       />
 
@@ -595,17 +603,14 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       <SuscriptionResponseModal
         isOpen={isResponseSuscriptionModalOpen}
         onClose={() => setIsResponseSuscriptionModalOpen(false)}
-        userName={userName} // Pasar el nombre del usuario (valor estático por ahora)
+        userName={userName}
       />
 
       {/* Sección - FAQ */}
       <FaqSection />
 
       {/* Enlaces Rápidos Section */}
-      <section
-        className="bg-white-eske min-h-[500px] py-16 px-4 sm:px-6 md:px-8"
-        style={{ backgroundColor: "var(--white-eske)" }}
-      >
+      <section className="bg-white-eske min-h-[500px] py-16 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl">
           <h2 className="text-3xl font-bold text-center text-bluegreen-eske mb-14">
             Enlaces rápidos
