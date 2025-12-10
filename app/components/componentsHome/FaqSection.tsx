@@ -1,7 +1,7 @@
 // app/components/componentsHome/FaqSection.tsx
-import { useState } from 'react';
-import Link from 'next/link';
-import Button from '../Button';
+import { useState } from "react";
+import Link from "next/link";
+import Button from "../Button";
 
 const FaqSection = () => {
   // Estados para controlar qué dropdown está abierto
@@ -34,7 +34,7 @@ const FaqSection = () => {
               </span>
               <svg
                 className={`w-6 h-6 text-bluegreen-eske transform transition-transform duration-300 ease-in-out ${
-                  openDropdown === 1 ? 'rotate-180' : ''
+                  openDropdown === 1 ? "rotate-180" : ""
                 }`}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -72,7 +72,7 @@ const FaqSection = () => {
               </span>
               <svg
                 className={`w-6 h-6 text-bluegreen-eske transform transition-transform duration-300 ease-in-out ${
-                  openDropdown === 2 ? 'rotate-180' : ''
+                  openDropdown === 2 ? "rotate-180" : ""
                 }`}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -108,7 +108,7 @@ const FaqSection = () => {
               </span>
               <svg
                 className={`w-6 h-6 text-bluegreen-eske transform transition-transform duration-300 ease-in-out ${
-                  openDropdown === 3 ? 'rotate-180' : ''
+                  openDropdown === 3 ? "rotate-180" : ""
                 }`}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -144,7 +144,7 @@ const FaqSection = () => {
               </span>
               <svg
                 className={`w-6 h-6 text-bluegreen-eske transform transition-transform duration-300 ease-in-out ${
-                  openDropdown === 4 ? 'rotate-180' : ''
+                  openDropdown === 4 ? "rotate-180" : ""
                 }`}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -181,7 +181,7 @@ const FaqSection = () => {
               </span>
               <svg
                 className={`w-6 h-6 text-bluegreen-eske transform transition-transform duration-300 ease-in-out ${
-                  openDropdown === 5 ? 'rotate-180' : ''
+                  openDropdown === 5 ? "rotate-180" : ""
                 }`}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -200,22 +200,22 @@ const FaqSection = () => {
             {openDropdown === 5 && (
               <div className="mt-4 text-[16px] text-black-eske">
                 <p>
-                  Los costos varían dependiendo del alcance y la naturaleza
-                  del proyecto. Ofrecemos planes personalizados para satisfacer
-                  tus necesidades.
+                  Los costos varían dependiendo del alcance y la naturaleza del
+                  proyecto. Ofrecemos planes personalizados para satisfacer tus
+                  necesidades.
                 </p>
               </div>
             )}
           </div>
         </div>
-        
+
         {/* Ver más FAQ */}
         <div className="text-center mt-8 max-w-[200px] mx-auto">
-          <Link href="/faq" passHref>
-            <Button
-              label="VER MÁS FAQ"
-              variant="primary"
-            />
+          <Link
+            href="/faq"
+            className="block text-center w-full py-2 rounded-lg font-medium transition-all duration-300 text-[14px] bg-bluegreen-eske text-white-eske hover:bg-bluegreen-eske-70"
+          >
+            VER MÁS FAQ
           </Link>
         </div>
 
@@ -231,10 +231,7 @@ const FaqSection = () => {
         {/* Botón CONTACTAR CON ESKEMMA */}
         <div className="text-center mt-8 max-w-[300px] mx-auto">
           <Link href="/contacto" passHref>
-            <Button
-              label="CONTACTAR CON ESKEMMA"
-              variant="secondary"
-            />
+            <Button label="CONTACTAR CON ESKEMMA" variant="secondary" />
           </Link>
         </div>
       </div>
@@ -242,4 +239,3 @@ const FaqSection = () => {
   );
 };
 export default FaqSection;
-

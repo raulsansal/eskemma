@@ -378,7 +378,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Sección - Planes de suscripción */}
-      <section className="bg-white-eske min-h-[800px] py-18 px-4 sm:px-6 md:px-8">
+      <section 
+        id="suscripciones"
+        className="bg-white-eske min-h-[800px] py-18 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Título de la Sección */}
           <h2 className="text-3xl font-bold text-center text-bluegreen-eske mb-6">
