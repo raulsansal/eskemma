@@ -1,9 +1,11 @@
 // components/componentsHome/SignInModal.tsx
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useAuth } from "../../../context/AuthContext";
 import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 import VerifyEmailModal from "./VerifyEmailModal";
+import AcceptTermsModal from "./AcceptTermsModal";
 import Button from "../Button";
 
 interface SignInModalProps {
@@ -15,6 +17,8 @@ interface SignInModalProps {
 export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignInModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isAcceptTermsModalOpen, setIsAcceptTermsModalOpen] = useState(false); // NUEVO: Estado para modal de términos
 
   const {
     registerUser,
@@ -46,6 +50,12 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
       return false;
     }
 
+    // Validar aceptación de términos - AHORA con modal
+    if (!acceptedTerms) {
+      setIsAcceptTermsModalOpen(true); // Mostrar modal en lugar de alert
+      return false;
+    }
+
     const isRegistered = await isEmailAlreadyRegistered(email);
     if (isRegistered) {
       alert("Este correo ya está registrado. Intenta iniciar sesión.");
@@ -74,6 +84,22 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    // Validar aceptación de términos antes de Google Sign In - AHORA con modal
+    if (!acceptedTerms) {
+      setIsAcceptTermsModalOpen(true); // Mostrar modal en lugar de alert
+      return;
+    }
+
+    try {
+      setIsSignInModalOpen(false);
+      await signInWithGoogle();
+    } catch (error: any) {
+      console.error("Error al registrar con Google:", error.message);
+      alert("Error al registrar con Google. Inténtalo de nuevo.");
+    }
+  };
+
   const handleLoginClick = () => {
     onClose();
     onOpenLoginModal();
@@ -83,6 +109,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
     if (!isOpen) {
       setEmail("");
       setPassword("");
+      setAcceptedTerms(false);
     }
   }, [isOpen]);
 
@@ -129,12 +156,9 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
 
           {/* Contenedor con scroll */}
           <div className="max-h-[calc(80vh-120px)] overflow-y-auto">
-            {/* Botón de Google - Mantener estilo personalizado */}
+            {/* Botón de Google */}
             <button
-              onClick={() => {
-                setIsSignInModalOpen(false);
-                signInWithGoogle();
-              }}
+              onClick={handleGoogleSignIn}
               className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300"
             >
               REGISTRARME CON GOOGLE
@@ -179,26 +203,45 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
                 />
               </div>
 
+              {/* Checkbox de aceptación de términos */}
+              <div className="flex items-start gap-2 mt-4">
+                <input
+                  type="checkbox"
+                  id="acceptTermsSignIn"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-1 accent-bluegreen-eske"
+                  required
+                />
+                <label htmlFor="acceptTermsSignIn" className="text-[14px] text-black-eske">
+                  Acepto las{" "}
+                  <Link
+                    href="/condiciones-de-uso"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70"
+                  >
+                    Condiciones de Uso
+                  </Link>
+                  {" "}y la{" "}
+                  <Link
+                    href="/politica-de-privacidad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70"
+                  >
+                    Política de Privacidad
+                  </Link>
+                </label>
+              </div>
+
               {/* Botón Registrar */}
               <Button
                 label="REGISTRARME"
                 variant="primary"
                 type="submit"
+                disabled={!acceptedTerms}
               />
-
-              {/* Condiciones de uso */}
-              <p className="mt-8 text-[16px] text-black-eske text-center">
-                Al registrarme acepto las{" "}
-                <a
-                  href="/politica-de-privacidad"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-bluegreen-eske-60 underline cursor-pointer"
-                >
-                  condiciones de uso y política de privacidad
-                </a>{" "}
-                de Eskemma.
-              </p>
 
               {/* Separador */}
               <hr className="border-gray-300 my-4" />
@@ -223,6 +266,12 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
       <VerifyEmailModal
         isOpen={isVerifyEmailModalOpen}
         onClose={() => setIsVerifyEmailModalOpen(false)}
+      />
+
+      {/* NUEVO: Modal de Aceptación de Términos */}
+      <AcceptTermsModal
+        isOpen={isAcceptTermsModalOpen}
+        onClose={() => setIsAcceptTermsModalOpen(false)}
       />
     </>
   );

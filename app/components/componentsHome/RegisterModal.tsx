@@ -9,6 +9,7 @@ import { isUserNameAvailable } from "../../../utils/userUtils";
 import { generateAlternativeUserName } from "../../../utils/generateAlternativeUserName";
 import { calculateUserRole } from "../../../utils/roleUtils";
 import Button from "../Button";
+import Link from "next/link";
 
 interface RegisterFormData {
   name: string;
@@ -221,7 +222,9 @@ export default function RegisterModal({
         subscriptionEndDate: user.subscriptionEndDate || null,
         previousSubscription: user.previousSubscription || null,
       });
-      console.log(`✅ Rol calculado después de completar registro: ${calculatedRole}`);
+      console.log(
+        `✅ Rol calculado después de completar registro: ${calculatedRole}`
+      );
       const userData = {
         uid: user.uid,
         email: user.email,
@@ -280,7 +283,9 @@ export default function RegisterModal({
         console.log("✅ Registro completado - No se requiere onboarding");
         alert("¡Registro completado exitosamente!");
       }
-      console.log("✅ Registro completado con éxito. Role final: ${calculatedRole}");
+      console.log(
+        "✅ Registro completado con éxito. Role final: ${calculatedRole}"
+      );
     } catch (error: any) {
       console.error("❌ Error durante el registro:", error);
       alert(
@@ -514,25 +519,37 @@ export default function RegisterModal({
               )}
             </div>
           </div>
-          
+
           <Button
-            label={isSubmitting ? "COMPLETANDO REGISTRO..." : "COMPLETAR REGISTRO"}
+            label={
+              isSubmitting ? "COMPLETANDO REGISTRO..." : "COMPLETAR REGISTRO"
+            }
             variant="primary"
             disabled={isSubmitting}
             type="submit"
           />
           <p className="mt-4 text-[14px] text-black-eske text-center">
             Al registrarme acepto las{" "}
-            <a
+            <Link
+              href="/condiciones-de-uso"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline cursor-pointer"
+            >
+              condiciones de uso
+            </Link>{" "}
+            y la{" "}
+            <Link
               href="/politica-de-privacidad"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske-60 underline cursor-pointer"
+              className="text-blue-600 underline cursor-pointer"
             >
-              condiciones de uso y política de privacidad
-            </a>{" "}
+              política de privacidad
+            </Link>{" "}
             de Eskemma.
           </p>
+
           <hr className="border-gray-300 my-4" />
           <p className="text-[14px] text-black-eske text-center">
             ¿Ya te has registrado?{" "}

@@ -1,10 +1,11 @@
+// app/components/Footer.tsx
 import Link from "next/link";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   return (
     <footer>
-      {/* Primera sección: Fondo blue-eske */}
+      {/* Primera sección: Fondo bluegreen-eske */}
       <div className="bg-bluegreen-eske text-white-eske py-12 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Contenedor para Logotipo e Íconos de Redes Sociales */}
@@ -20,7 +21,7 @@ const Footer = () => {
             {/* Íconos de redes sociales */}
             <div className="flex space-x-4 mt-4 md:mt-0">
               <a
-                href="https://twitter.com/eskemma "
+                href="https://twitter.com/eskemma"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -28,7 +29,7 @@ const Footer = () => {
                 <img src="/icons/twitter.svg" alt="Twitter" className="w-12 h-12" />
               </a>
               <a
-                href="https://linkedin.com/company/eskemma "
+                href="https://linkedin.com/company/eskemma"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -36,7 +37,7 @@ const Footer = () => {
                 <img src="/icons/linkedin.svg" alt="LinkedIn" className="w-12 h-12" />
               </a>
               <a
-                href="https://www.youtube.com/ @eskemma"
+                href="https://www.youtube.com/@eskemma"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -44,7 +45,7 @@ const Footer = () => {
                 <img src="/icons/youtube.svg" alt="YouTube" className="w-12 h-12" />
               </a>
               <a
-                href="https://www.tiktok.com/ @eskemma"
+                href="https://www.tiktok.com/@eskemma"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -52,7 +53,7 @@ const Footer = () => {
                 <img src="/icons/tiktok.svg" alt="TikTok" className="w-12 h-12" />
               </a>
               <a
-                href="https://www.facebook.com/eskemma "
+                href="https://www.facebook.com/eskemma"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -60,7 +61,7 @@ const Footer = () => {
                 <img src="/icons/facebook.svg" alt="Facebook" className="w-12 h-12" />
               </a>
               <a
-                href="https://www.instagram.com/eskemma "
+                href="https://www.instagram.com/eskemma"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -71,12 +72,12 @@ const Footer = () => {
           </div>
           {/* Línea divisoria después de redes sociales (móvil) */}
           <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-6" />
-          {/* Contenedor de dos columnas */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mx-auto max-w-screen-xl">
+          {/* Contenedor de columnas */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mx-auto max-w-screen-xl">
             {/* Columna 1: Navegación */}
             <div>
               <h3 className="text-14px font-medium mb-4 max-sm:text-center">Navegación</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-2">
                 <ul className="space-y-2">
                   <li>
                     <Link href="/" className="hover:text-blue-eske-10 transition-colors duration-300">
@@ -103,8 +104,6 @@ const Footer = () => {
                       Sefix
                     </Link>
                   </li>
-                </ul>
-                <ul className="space-y-2">
                   <li>
                     <Link href="/cursos" className="hover:text-blue-eske-10 transition-colors duration-300">
                       Cursos
@@ -121,13 +120,8 @@ const Footer = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/terminos-y-condiciones" className="hover:text-blue-eske-10 transition-colors duration-300">
-                      Términos y condiciones
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/politica-de-privacidad" className="hover:text-blue-eske-10 transition-colors duration-300">
-                      Política de privacidad
+                    <Link href="/faq" className="hover:text-blue-eske-10 transition-colors duration-300">
+                      Preguntas frecuentes
                     </Link>
                   </li>
                 </ul>
@@ -135,14 +129,44 @@ const Footer = () => {
             </div>
             {/* Línea divisoria después de Navegación (móvil) */}
             <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-6" />
-            {/* Columna 2: Sitios de interés */}
+            
+            {/* Columna 2: Legal (NUEVA) */}
+            <div>
+              <h3 className="text-14px font-medium mb-4 max-sm:text-center">Legal</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/politica-de-privacidad" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    Política de Privacidad
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/condiciones-de-uso" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    Condiciones de Uso
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/politica-de-cookies" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    Política de Cookies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/condiciones-asesorias-gratuitas" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    Condiciones de Asesorías
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            {/* Línea divisoria después de Legal (móvil) */}
+            <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-6" />
+            
+            {/* Columna 3: Sitios de interés */}
             <div>
               <h3 className="text-14px font-medium mb-4 max-sm:text-center">Sitios de interés</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-2">
                 <ul className="space-y-2">
                   <li>
                     <a
-                      href="https://ine.mx "
+                      href="https://ine.mx"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -152,7 +176,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <a
-                      href="https://www.inegi.org.mx "
+                      href="https://www.inegi.org.mx"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -162,7 +186,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <a
-                      href="https://www.scjn.gob.mx "
+                      href="https://www.scjn.gob.mx"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -172,7 +196,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <a
-                      href="https://www.te.gob.mx/ "
+                      href="https://www.te.gob.mx/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -180,11 +204,9 @@ const Footer = () => {
                       TEPJF
                     </a>
                   </li>
-                </ul>
-                <ul className="space-y-2">
                   <li>
                     <a
-                      href="https://www.diputados.gob.mx "
+                      href="https://www.diputados.gob.mx"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -194,7 +216,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <a
-                      href="https://www.senado.gob.mx "
+                      href="https://www.senado.gob.mx"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -204,7 +226,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <a
-                      href="https://biblioteca.colmex.mx/ "
+                      href="https://biblioteca.colmex.mx/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -214,7 +236,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <a
-                      href="https://www.bidi.unam.mx/ "
+                      href="https://www.bidi.unam.mx/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-blue-eske-10 transition-colors duration-300"
@@ -228,7 +250,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      {/* Segunda sección: Fondo bluegreen-eske */}
+      {/* Segunda sección: Fondo bluegreen-eske-80 */}
       <div className="bg-bluegreen-eske-80 text-white-eske py-6 px-4 sm:px-6 md:px-8 text-center font-light text-8px">
         <div className="w-[90%] mx-auto max-w-screen-xl">
           <p>
@@ -241,8 +263,8 @@ const Footer = () => {
               Política de cookies
             </Link>{" "}
             |{" "}
-            <Link href="/declaracion-de-accesibilidad" className="hover:text-blue-eske-10 transition-colors duration-300">
-              Declaración de accesibilidad
+            <Link href="/politica-de-privacidad" className="hover:text-blue-eske-10 transition-colors duration-300">
+              Política de privacidad
             </Link>
           </p>
         </div>

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Arimo, PT_Sans, Philosopher } from "next/font/google";
 import "./globals.css";
 import Layout from "./components/Layout";
+import CookieBanner from "./components/legal/CookieBanner";
 
 // Configura Arimo como fuente primaria
 const arimo = Arimo({
@@ -40,7 +41,9 @@ export default function RootLayout({
       <body className={`${arimo.variable} ${ptSans.variable} ${philosopher.variable} min-h-screen`}>
         {/* Usar el layout compartido */}
         <Layout>{children}</Layout>
+        <CookieBanner /> {/* CookieBanner */}
       </body>
     </html>
   );
 }
+

@@ -47,10 +47,7 @@ export default function ServiciosPage() {
 
       {/* Sección de Servicios Detallados */}
       <section className="bg-white-eske py-2 px-4 sm:px-6 md:px-8">
-        <div className="w-[90%] mx-auto max-w-screen-xl mb-12">
-          <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-12">
-            Nuestros servicios
-          </h2>
+        <div className="w-[90%] mx-auto max-w-screen-xl mb-12">         
 
           {/* Grilla de Servicios */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
