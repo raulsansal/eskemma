@@ -76,7 +76,7 @@ const Footer = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mx-auto max-w-screen-xl">
             {/* Columna 1: Navegación */}
             <div>
-              <h3 className="text-14px font-medium mb-4 max-sm:text-center">Navegación</h3>
+              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">Navegación</h3>
               <div className="grid grid-cols-1 gap-2">
                 <ul className="space-y-2">
                   <li>
@@ -92,6 +92,11 @@ const Footer = () => {
                   <li>
                     <Link href="/blog" className="hover:text-blue-eske-10 transition-colors duration-300">
                       El Baúl de Fouché
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/servicios" className="hover:text-blue-eske-10 transition-colors duration-300">
+                      Servicios
                     </Link>
                   </li>
                   <li>
@@ -132,7 +137,7 @@ const Footer = () => {
             
             {/* Columna 2: Legal (NUEVA) */}
             <div>
-              <h3 className="text-14px font-medium mb-4 max-sm:text-center">Legal</h3>
+              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">Legal</h3>
               <ul className="space-y-2">
                 <li>
                   <Link href="/politica-de-privacidad" className="hover:text-blue-eske-10 transition-colors duration-300">
@@ -141,17 +146,17 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link href="/condiciones-de-uso" className="hover:text-blue-eske-10 transition-colors duration-300">
-                    Condiciones de Uso
+                    Condiciones de uso
                   </Link>
                 </li>
                 <li>
                   <Link href="/politica-de-cookies" className="hover:text-blue-eske-10 transition-colors duration-300">
-                    Política de Cookies
+                    Política de cookies
                   </Link>
                 </li>
                 <li>
                   <Link href="/condiciones-asesorias-gratuitas" className="hover:text-blue-eske-10 transition-colors duration-300">
-                    Condiciones de Asesorías
+                    Condiciones de uso para asesorías gratuitas
                   </Link>
                 </li>
               </ul>
@@ -161,7 +166,7 @@ const Footer = () => {
             
             {/* Columna 3: Sitios de interés */}
             <div>
-              <h3 className="text-14px font-medium mb-4 max-sm:text-center">Sitios de interés</h3>
+              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">Sitios de interés</h3>
               <div className="grid grid-cols-1 gap-2">
                 <ul className="space-y-2">
                   <li>

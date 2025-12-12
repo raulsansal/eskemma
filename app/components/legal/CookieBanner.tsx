@@ -79,7 +79,7 @@ export default function CookieBanner() {
     }));
   };
 
-  // No mostrar nada si ya se dio consentimiento o si el banner está oculto
+  // No mostrar nada si ya se dio consentimiento
   if (!showBanner) return null;
 
   return (
@@ -335,6 +335,21 @@ export default function CookieBanner() {
 
         .animate-slide-up {
           animation: slide-up 0.4s ease-out;
+        }
+
+        @keyframes modal-appear {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-modal-appear {
+          animation: modal-appear 0.3s ease-out;
         }
       `}</style>
     </>

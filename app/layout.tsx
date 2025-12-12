@@ -3,26 +3,26 @@ import type { Metadata } from "next";
 import { Arimo, PT_Sans, Philosopher } from "next/font/google";
 import "./globals.css";
 import Layout from "./components/Layout";
-import CookieBanner from "./components/legal/CookieBanner";
+import ClientOnlyBanner from "./components/legal/ClientOnlyBanner";
 
 // Configura Arimo como fuente primaria
 const arimo = Arimo({
   subsets: ["latin"],
-  weight: ["400", "700"], // Normal y negrita para versatilidad
+  weight: ["400", "700"],
   variable: "--font-arimo",
 });
 
 // Configura PT Sans para captions
 const ptSans = PT_Sans({
   subsets: ["latin"],
-  weight: ["400"], // Solo normal para texto pequeño
+  weight: ["400"],
   variable: "--font-pt-sans",
 });
 
 // Configura Philosopher para títulos de posts en el blog
 const philosopher = Philosopher({
   subsets: ["latin"],
-  weight: ["400", "700"], // Normal y negrita para títulos
+  weight: ["400", "700"],
   variable: "--font-philosopher",
 });
 
@@ -37,13 +37,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${arimo.variable} ${ptSans.variable} ${philosopher.variable} min-h-screen`}>
-        {/* Usar el layout compartido */}
-        <Layout>{children}</Layout>
-        <CookieBanner /> {/* CookieBanner */}
-      </body>
-    </html>
+    <html lang="es"><body className={`${arimo.variable} ${ptSans.variable} ${philosopher.variable} min-h-screen`}>
+      <Layout>{children}</Layout>
+      <ClientOnlyBanner />
+    </body></html>
   );
 }
-
