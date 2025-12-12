@@ -1,44 +1,54 @@
 // app/components/legal/LegalSection.tsx
-"use client";
+import { ReactNode } from "react";
 
+/**
+ * Interfaz para las props del componente LegalSection
+ */
 interface LegalSectionProps {
-  id: string;                    // Ej: "que-datos-recopilamos" (para anclas)
-  title: string;                 // Ej: "2. ¿Qué Datos Recopilamos?"
-  children: React.ReactNode;     // Contenido de la sección
-  level?: 1 | 2 | 3;            // H2, H3, H4 (default: 1 = H2)
-  className?: string;            // Clases adicionales opcionales
+  id: string; // ID único para la sección (para navegación con TableOfContents)
+  title: string; // Título de la sección
+  icon?: string; // Emoji o icono opcional (ej: "🍪", "📊")
+  level?: 1 | 2; // Nivel de anidación (1 = principal, 2 = subsección)
+  children: ReactNode; // Contenido de la sección
+  className?: string; // Clases adicionales de Tailwind
 }
 
-export default function LegalSection({ 
-  id, 
-  title, 
-  children, 
+/**
+ * Componente para secciones legales reutilizables
+ * Se usa en páginas como Política de Privacidad, Condiciones de Uso, etc.
+ */
+export default function LegalSection({
+  id,
+  title,
+  icon,
   level = 1,
-  className = "" 
+  children,
+  className = "",
 }: LegalSectionProps) {
-  
-  // Estilos según el nivel de encabezado
-  const headingStyles = {
-    1: "text-3xl max-sm:text-2xl font-bold text-black-eske mb-4",       // H2
-    2: "text-2xl max-sm:text-xl font-semibold text-black-eske-20 mb-3", // H3
-    3: "text-xl max-sm:text-lg font-medium text-black-eske-30 mb-2",    // H4
+  // Estilos según el nivel
+  const titleStyles = {
+    1: "text-2xl md:text-3xl font-bold text-bluegreen-eske mb-4",
+    2: "text-xl md:text-2xl font-bold text-bluegreen-eske-70 mb-3",
   };
 
-  // Componente de encabezado dinámico
-  const HeadingTag = level === 1 ? 'h2' : level === 2 ? 'h3' : 'h4';
+  const containerStyles = {
+    1: "mb-12 scroll-mt-24",
+    2: "mb-8 pl-4 border-l-4 border-bluegreen-eske-20 scroll-mt-24",
+  };
 
   return (
-    <section 
-      id={id} 
-      className={`scroll-mt-20 mb-8 ${className}`}
-      // scroll-mt-20: Margen superior al hacer scroll para compensar header fixed
+    <section
+      id={id}
+      className={`${containerStyles[level]} ${className}`}
     >
-      <HeadingTag className={headingStyles[level]}>
+      {/* Título de la sección */}
+      <h2 className={titleStyles[level]}>
+        {icon && <span className="mr-2">{icon}</span>}
         {title}
-      </HeadingTag>
-      
+      </h2>
+
       {/* Contenido de la sección */}
-      <div className="text-[16px] max-sm:text-[14px] text-black-eske-10 leading-relaxed space-y-4">
+      <div className="text-[15px] text-black-eske leading-relaxed space-y-4">
         {children}
       </div>
     </section>
