@@ -26,7 +26,11 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
               >
-                <img src="/icons/twitter.svg" alt="Twitter" className="w-12 h-12" />
+                <img
+                  src="/icons/twitter.svg"
+                  alt="Twitter"
+                  className="w-12 h-12"
+                />
               </a>
               <a
                 href="https://linkedin.com/company/eskemma"
@@ -34,7 +38,11 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
               >
-                <img src="/icons/linkedin.svg" alt="LinkedIn" className="w-12 h-12" />
+                <img
+                  src="/icons/linkedin.svg"
+                  alt="LinkedIn"
+                  className="w-12 h-12"
+                />
               </a>
               <a
                 href="https://www.youtube.com/@eskemma"
@@ -42,7 +50,11 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
               >
-                <img src="/icons/youtube.svg" alt="YouTube" className="w-12 h-12" />
+                <img
+                  src="/icons/youtube.svg"
+                  alt="YouTube"
+                  className="w-12 h-12"
+                />
               </a>
               <a
                 href="https://www.tiktok.com/@eskemma"
@@ -50,7 +62,11 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
               >
-                <img src="/icons/tiktok.svg" alt="TikTok" className="w-12 h-12" />
+                <img
+                  src="/icons/tiktok.svg"
+                  alt="TikTok"
+                  className="w-12 h-12"
+                />
               </a>
               <a
                 href="https://www.facebook.com/eskemma"
@@ -58,7 +74,11 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
               >
-                <img src="/icons/facebook.svg" alt="Facebook" className="w-12 h-12" />
+                <img
+                  src="/icons/facebook.svg"
+                  alt="Facebook"
+                  className="w-12 h-12"
+                />
               </a>
               <a
                 href="https://www.instagram.com/eskemma"
@@ -66,7 +86,11 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="hover:text-blue-eske-10 transition-colors duration-300"
               >
-                <img src="/icons/instagram.svg" alt="Instagram" className="w-12 h-12" />
+                <img
+                  src="/icons/instagram.svg"
+                  alt="Instagram"
+                  className="w-12 h-12"
+                />
               </a>
             </div>
           </div>
@@ -76,56 +100,88 @@ const Footer = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mx-auto max-w-screen-xl">
             {/* Columna 1: Navegación */}
             <div>
-              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">Navegación</h3>
+              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">
+                Navegación
+              </h3>
               <div className="grid grid-cols-1 gap-2">
                 <ul className="space-y-2">
                   <li>
-                    <Link href="/" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Inicio
                     </Link>
                   </li>
                   <li>
-                    <Link href="/recursos" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/recursos"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Recursos
                     </Link>
                   </li>
                   <li>
-                    <Link href="/blog" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/blog"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       El Baúl de Fouché
                     </Link>
                   </li>
                   <li>
-                    <Link href="/servicios" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/servicios"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Servicios
                     </Link>
                   </li>
                   <li>
-                    <Link href="/moddulo" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/moddulo"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Moddulo
                     </Link>
                   </li>
                   <li>
-                    <Link href="/sefix" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/sefix"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Sefix
                     </Link>
                   </li>
                   <li>
-                    <Link href="/cursos" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/cursos"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Cursos
                     </Link>
                   </li>
                   <li>
-                    <Link href="/monitor" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/monitor"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Monitor
                     </Link>
                   </li>
                   <li>
-                    <Link href="/contacto" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/contacto"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Contacto
                     </Link>
                   </li>
                   <li>
-                    <Link href="/faq" className="hover:text-blue-eske-10 transition-colors duration-300">
+                    <Link
+                      href="/faq"
+                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                    >
                       Preguntas frecuentes
                     </Link>
                   </li>
@@ -134,28 +190,42 @@ const Footer = () => {
             </div>
             {/* Línea divisoria después de Navegación (móvil) */}
             <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-6" />
-            
+
             {/* Columna 2: Legal (NUEVA) */}
             <div>
-              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">Legal</h3>
+              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">
+                Legal
+              </h3>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/politica-de-privacidad" className="hover:text-blue-eske-10 transition-colors duration-300">
+                  <Link
+                    href="/politica-de-privacidad"
+                    className="hover:text-blue-eske-10 transition-colors duration-300"
+                  >
                     Política de Privacidad
                   </Link>
                 </li>
                 <li>
-                  <Link href="/condiciones-de-uso" className="hover:text-blue-eske-10 transition-colors duration-300">
+                  <Link
+                    href="/condiciones-de-uso"
+                    className="hover:text-blue-eske-10 transition-colors duration-300"
+                  >
                     Condiciones de uso
                   </Link>
                 </li>
                 <li>
-                  <Link href="/politica-de-cookies" className="hover:text-blue-eske-10 transition-colors duration-300">
+                  <Link
+                    href="/politica-de-cookies"
+                    className="hover:text-blue-eske-10 transition-colors duration-300"
+                  >
                     Política de cookies
                   </Link>
                 </li>
                 <li>
-                  <Link href="/condiciones-asesorias-gratuitas" className="hover:text-blue-eske-10 transition-colors duration-300">
+                  <Link
+                    href="/condiciones-asesorias-gratuitas"
+                    className="hover:text-blue-eske-10 transition-colors duration-300"
+                  >
                     Condiciones de uso para asesorías gratuitas
                   </Link>
                 </li>
@@ -163,10 +233,12 @@ const Footer = () => {
             </div>
             {/* Línea divisoria después de Legal (móvil) */}
             <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-6" />
-            
+
             {/* Columna 3: Sitios de interés */}
             <div>
-              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">Sitios de interés</h3>
+              <h3 className="text-14px font-semibold mb-4 max-sm:text-center">
+                Sitios de interés
+              </h3>
               <div className="grid grid-cols-1 gap-2">
                 <ul className="space-y-2">
                   <li>
@@ -260,16 +332,29 @@ const Footer = () => {
         <div className="w-[90%] mx-auto max-w-screen-xl">
           <p>
             Eskemma | {currentYear} | © Todos los derechos reservados |{" "}
-            <Link href="/condiciones-de-uso" className="hover:text-blue-eske-10 transition-colors duration-300">
+            <Link
+              href="/condiciones-de-uso"
+              className="hover:text-blue-eske-10 transition-colors duration-300"
+            >
               Condiciones de uso
             </Link>{" "}
             |{" "}
-            <Link href="/politica-de-cookies" className="hover:text-blue-eske-10 transition-colors duration-300">
+            <Link
+              href="/politica-de-cookies"
+              className="hover:text-blue-eske-10 transition-colors duration-300"
+            >
               Política de cookies
             </Link>{" "}
             |{" "}
-            <Link href="/politica-de-privacidad" className="hover:text-blue-eske-10 transition-colors duration-300">
+            <Link
+              href="/politica-de-privacidad"
+              className="hover:text-blue-eske-10 transition-colors duration-300"
+            >
               Política de privacidad
+            </Link>{" "}
+            |{" "}
+            <Link href="/condiciones-asesorias-gratuitas">
+              Condiciones de uso para Asesorías Gratuitas
             </Link>
           </p>
         </div>

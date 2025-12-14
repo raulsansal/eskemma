@@ -544,8 +544,8 @@ export default function PoliticaPrivacidad() {
             </LegalSection>
 
             {/* CTA Final */}
-            <div className="mt-12 mb-8 bg-blue-eske-10 rounded-lg p-8 text-center">
-              <h3 className="text-2xl font-bold text-bluegreen-eske mb-4">
+            <div className="mt-12 p-6 bg-gray-eske-30 rounded-lg text-white-eske text-center">
+              <h3 className="text-2xl font-bold text-black-eske mb-4">
                 ¿Tienes dudas sobre tu privacidad?
               </h3>
               <p className="text-[16px] text-black-eske mb-6">

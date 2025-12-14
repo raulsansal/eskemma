@@ -795,11 +795,11 @@ export default function PoliticaDeCookiesPage() {
             </LegalSection>
 
             {/* Call to Action Final */}
-            <div className="mt-12 p-6 bg-gradient-to-t from-bluegreen-eske-20 to-bluegreen-eske-70 rounded-lg text-white-eske text-center">
-              <h3 className="text-2xl font-bold mb-3">
+            <div className="mt-12 p-6 bg-gray-eske-30 rounded-lg text-white-eske text-center">
+              <h3 className="text-2xl font-bold text-black-eske mb-3">
                 ¿Quieres gestionar tus cookies?
               </h3>
-              <p className="text-[16px] mb-6 opacity-90">
+              <p className="text-[16px] text-black-eske mb-6">
                 Configura tus preferencias en cualquier momento con un solo clic
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">

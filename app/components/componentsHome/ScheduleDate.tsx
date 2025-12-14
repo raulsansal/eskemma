@@ -293,12 +293,12 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
             <p className="text-[14px] text-gray-700 text-center mt-4">
               Consultar{" "}
               <a
-                href="/terminos-y-condiciones"
+                href="/condiciones-asesorias-gratuitas"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-eske underline"
               >
-                términos y condiciones de las asesorías en línea.
+                Condiciones de Uso para las Asesorías Gratuitas.
               </a>
             </p>
             {/* Condiciones de uso y política de privacidad */}
