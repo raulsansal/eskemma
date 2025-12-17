@@ -2,6 +2,8 @@
 "use client";
 import Link from "next/link";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface AcceptTermsModalProps {
   isOpen: boolean;
@@ -9,18 +11,33 @@ interface AcceptTermsModalProps {
 }
 
 export default function AcceptTermsModal({ isOpen, onClose }: AcceptTermsModalProps) {
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative">
+      <div 
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="accept-terms-title"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative"
+      >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar modal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +56,7 @@ export default function AcceptTermsModal({ isOpen, onClose }: AcceptTermsModalPr
         </button>
 
         {/* Título */}
-        <h2 className="text-xl font-bold text-orange-eske text-center mb-6">
+        <h2 id="accept-terms-title" className="text-xl font-bold text-orange-eske text-center mb-6">
           Aceptación de términos requerida
         </h2>
 
@@ -50,18 +67,20 @@ export default function AcceptTermsModal({ isOpen, onClose }: AcceptTermsModalPr
             href="/condiciones-de-uso"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 font-medium"
+            className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 font-medium focus-ring-primary rounded"
           >
             Condiciones de Uso
+            <span className="sr-only"> (se abre en nueva ventana)</span>
           </Link>
           {" "}y la{" "}
           <Link
             href="/politica-de-privacidad"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 font-medium"
+            className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 font-medium focus-ring-primary rounded"
           >
             Política de Privacidad
+            <span className="sr-only"> (se abre en nueva ventana)</span>
           </Link>{" "}
           de Eskemma.
         </p>

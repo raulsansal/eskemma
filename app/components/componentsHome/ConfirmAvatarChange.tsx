@@ -3,6 +3,8 @@
 
 import { useRouter } from "next/navigation";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export default function ConfirmAvatarChange({
   isOpen,
@@ -13,18 +15,33 @@ export default function ConfirmAvatarChange({
 }) {
   const router = useRouter();
 
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-4 relative">
+      <div 
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-avatar-title"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-4 relative"
+      >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar modal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +60,7 @@ export default function ConfirmAvatarChange({
         </button>
 
         {/* Contenido del Modal */}
-        <h2 className="text-xl font-medium text-bluegreen-eske text-center mb-6">
+        <h2 id="confirm-avatar-title" className="text-xl font-medium text-bluegreen-eske text-center mb-6">
           Avatar actualizado correctamente
         </h2>
 

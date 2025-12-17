@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Arimo, PT_Sans, Philosopher } from "next/font/google";
 import "./globals.css";
@@ -37,9 +36,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es"><body className={`${arimo.variable} ${ptSans.variable} ${philosopher.variable} min-h-screen`}>
-      <Layout>{children}</Layout>
-      <ClientOnlyBanner />
-    </body></html>
+    <html lang="es">
+      <body
+        className={`${arimo.variable} ${ptSans.variable} ${philosopher.variable} min-h-screen`}
+      >
+        {/* NUEVO: Skip Link para accesibilidad */}
+        <a
+          href="#main-content"
+          className="sr-only-focusable bg-bluegreen-eske text-white-eske px-6 py-3 rounded-lg font-semibold shadow-lg"
+          style={{
+            top: "5rem",
+            left: "50%",
+            transform: "translateX(-50%)",
+          }}
+        >
+          Saltar al contenido principal
+        </a>
+
+        <Layout>{children}</Layout>
+        <ClientOnlyBanner />
+      </body>
+    </html>
   );
 }

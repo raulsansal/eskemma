@@ -10,18 +10,19 @@ interface LegalHeroProps {
 export default function LegalHero({ title, subtitle, lastUpdated }: LegalHeroProps) {
   return (
     <section className="relative min-h-[200px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
-      {/* Imagen de fondo */}
+      {/* Imagen de fondo decorativa */}
       <Image
         src="/images/yanmin_yang.jpg"
-        alt="Hero Background"
+        alt=""
         fill
         style={{ objectFit: "cover" }}
         className="object-cover"
         priority
+        aria-hidden="true"
       />
 
-      {/* Overlay con transparencia azul */}
-      <div className="absolute inset-0 bg-bluegreen-eske opacity-75"></div>
+      {/* Overlay con transparencia azul mejorada para contraste */}
+      <div className="absolute inset-0 bg-bluegreen-eske opacity-85"></div>
 
       {/* Contenido del Hero */}
       <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full">
@@ -40,3 +41,4 @@ export default function LegalHero({ title, subtitle, lastUpdated }: LegalHeroPro
     </section>
   );
 }
+

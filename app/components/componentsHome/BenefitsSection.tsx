@@ -65,12 +65,19 @@ const BenefitsSection = () => {
     },
   ];
 
-  const toggleCard = (index: number, e: React.MouseEvent) => {
+  const toggleCard = (index: number, e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
     setFlippedCards(prev => {
       const newState = prev.map((_, i) => i === index ? !prev[i] : false);
       return newState;
     });
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleCard(index, e);
+    }
   };
 
   useEffect(() => {
@@ -101,29 +108,38 @@ const BenefitsSection = () => {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {cards.map((card, index) => (
-            <div 
+            <button
               key={index}
               className="flip-card h-48 w-full perspective-1000"
               onClick={(e) => toggleCard(index, e)}
+              onKeyDown={(e) => handleKeyDown(index, e)}
+              aria-label={`${card.front}. Presiona Enter para ver más detalles.`}
+              aria-pressed={flippedCards[index]}
             >
               <div className={`flip-card-inner relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${
                 flippedCards[index] ? 'rotate-y-180' : ''
               }`}>
                 {/* Frente de la tarjeta */}
-                <div className={`flip-card-front absolute w-full h-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex items-center justify-center ${card.bg} ${card.text} backface-hidden`}>
+                <div 
+                  className={`flip-card-front absolute w-full h-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex items-center justify-center ${card.bg} ${card.text} backface-hidden`}
+                  aria-hidden={flippedCards[index]}
+                >
                   <p className="text-[20px] font-light text-center p-4">
                     {card.front}
                   </p>
                 </div>
                 
                 {/* Reverso de la tarjeta */}
-                <div className="flip-card-back absolute w-full h-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex items-center justify-center bg-orange-eske text-white-eske backface-hidden rotate-y-180">
+                <div 
+                  className="flip-card-back absolute w-full h-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex items-center justify-center bg-orange-eske text-white-eske backface-hidden rotate-y-180"
+                  aria-hidden={!flippedCards[index]}
+                >
                   <p className="text-[18px] font-light text-center p-4">
                     {card.back}
                   </p>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -144,6 +160,19 @@ const BenefitsSection = () => {
         }
         .flip-card {
           cursor: pointer;
+          border: none;
+          background: transparent;
+          padding: 0;
+          outline: none;
+        }
+        /* Solo mostrar borde cuando se navega con teclado, NO con mouse */
+        .flip-card:focus {
+          outline: none;
+        }
+        .flip-card:focus-visible {
+          outline: 2px solid white;
+          outline-offset: 4px;
+          border-radius: 0.5rem;
         }
         .flip-card-inner {
           position: relative;

@@ -23,9 +23,14 @@ export interface Post {
   updatedAt: Date;
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+// ✅ CORREGIDO: params ahora es Promise en Next.js 15
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = params;
+    // ✅ CORREGIDO: await params antes de destructurar
+    const { id } = await context.params;
     const body: Partial<Post> = await request.json();
     const { title, content, category, featureImage, tags, status } = body;
 

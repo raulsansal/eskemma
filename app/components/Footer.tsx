@@ -19,87 +19,113 @@ const Footer = () => {
               />
             </div>
             {/* Íconos de redes sociales */}
-            <div className="flex space-x-4 mt-4 md:mt-0">
-              <a
-                href="https://twitter.com/eskemma"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-eske-10 transition-colors duration-300"
-              >
-                <img
-                  src="/icons/twitter.svg"
-                  alt="Twitter"
-                  className="w-12 h-12"
-                />
-              </a>
-              <a
-                href="https://linkedin.com/company/eskemma"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-eske-10 transition-colors duration-300"
-              >
-                <img
-                  src="/icons/linkedin.svg"
-                  alt="LinkedIn"
-                  className="w-12 h-12"
-                />
-              </a>
-              <a
-                href="https://www.youtube.com/@eskemma"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-eske-10 transition-colors duration-300"
-              >
-                <img
-                  src="/icons/youtube.svg"
-                  alt="YouTube"
-                  className="w-12 h-12"
-                />
-              </a>
-              <a
-                href="https://www.tiktok.com/@eskemma"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-eske-10 transition-colors duration-300"
-              >
-                <img
-                  src="/icons/tiktok.svg"
-                  alt="TikTok"
-                  className="w-12 h-12"
-                />
-              </a>
-              <a
-                href="https://www.facebook.com/eskemma"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-eske-10 transition-colors duration-300"
-              >
-                <img
-                  src="/icons/facebook.svg"
-                  alt="Facebook"
-                  className="w-12 h-12"
-                />
-              </a>
-              <a
-                href="https://www.instagram.com/eskemma"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-blue-eske-10 transition-colors duration-300"
-              >
-                <img
-                  src="/icons/instagram.svg"
-                  alt="Instagram"
-                  className="w-12 h-12"
-                />
-              </a>
-            </div>
+            <nav aria-label="Redes sociales de Eskemma">
+              <ul className="flex space-x-4 mt-4 md:mt-0">
+                <li>
+                  <a
+                    href="https://twitter.com/eskemma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
+                    aria-label="Visitar nuestro Twitter (se abre en nueva ventana)"
+                  >
+                    <img
+                      src="/icons/twitter.svg"
+                      alt=""
+                      className="w-12 h-12"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://linkedin.com/company/eskemma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
+                    aria-label="Visitar nuestro LinkedIn (se abre en nueva ventana)"
+                  >
+                    <img
+                      src="/icons/linkedin.svg"
+                      alt=""
+                      className="w-12 h-12"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.youtube.com/@eskemma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
+                    aria-label="Visitar nuestro YouTube (se abre en nueva ventana)"
+                  >
+                    <img
+                      src="/icons/youtube.svg"
+                      alt=""
+                      className="w-12 h-12"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.tiktok.com/@eskemma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
+                    aria-label="Visitar nuestro TikTok (se abre en nueva ventana)"
+                  >
+                    <img
+                      src="/icons/tiktok.svg"
+                      alt=""
+                      className="w-12 h-12"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.facebook.com/eskemma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
+                    aria-label="Visitar nuestro Facebook (se abre en nueva ventana)"
+                  >
+                    <img
+                      src="/icons/facebook.svg"
+                      alt=""
+                      className="w-12 h-12"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://www.instagram.com/eskemma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
+                    aria-label="Visitar nuestro Instagram (se abre en nueva ventana)"
+                  >
+                    <img
+                      src="/icons/instagram.svg"
+                      alt=""
+                      className="w-12 h-12"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
           {/* Línea divisoria después de redes sociales (móvil) */}
           <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-6" />
           {/* Contenedor de columnas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mx-auto max-w-screen-xl">
             {/* Columna 1: Navegación */}
-            <div>
+            <nav aria-label="Navegación principal del sitio">
               <h3 className="text-14px font-semibold mb-4 max-sm:text-center">
                 Navegación
               </h3>
@@ -108,7 +134,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Inicio
                     </Link>
@@ -116,7 +142,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/recursos"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Recursos
                     </Link>
@@ -124,7 +150,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/blog"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       El Baúl de Fouché
                     </Link>
@@ -132,7 +158,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/servicios"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Servicios
                     </Link>
@@ -140,7 +166,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/moddulo"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Moddulo
                     </Link>
@@ -148,7 +174,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/sefix"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Sefix
                     </Link>
@@ -156,7 +182,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/cursos"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Cursos
                     </Link>
@@ -164,7 +190,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/monitor"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Monitor
                     </Link>
@@ -172,7 +198,7 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/contacto"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Contacto
                     </Link>
@@ -180,19 +206,19 @@ const Footer = () => {
                   <li>
                     <Link
                       href="/faq"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Preguntas frecuentes
                     </Link>
                   </li>
                 </ul>
               </div>
-            </div>
+            </nav>
             {/* Línea divisoria después de Navegación (móvil) */}
             <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-6" />
 
-            {/* Columna 2: Legal (NUEVA) */}
-            <div>
+            {/* Columna 2: Legal */}
+            <nav aria-label="Enlaces legales">
               <h3 className="text-14px font-semibold mb-4 max-sm:text-center">
                 Legal
               </h3>
@@ -200,7 +226,7 @@ const Footer = () => {
                 <li>
                   <Link
                     href="/politica-de-privacidad"
-                    className="hover:text-blue-eske-10 transition-colors duration-300"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                   >
                     Política de Privacidad
                   </Link>
@@ -208,7 +234,7 @@ const Footer = () => {
                 <li>
                   <Link
                     href="/condiciones-de-uso"
-                    className="hover:text-blue-eske-10 transition-colors duration-300"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                   >
                     Condiciones de uso
                   </Link>
@@ -216,7 +242,7 @@ const Footer = () => {
                 <li>
                   <Link
                     href="/politica-de-cookies"
-                    className="hover:text-blue-eske-10 transition-colors duration-300"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                   >
                     Política de cookies
                   </Link>
@@ -224,18 +250,18 @@ const Footer = () => {
                 <li>
                   <Link
                     href="/condiciones-asesorias-gratuitas"
-                    className="hover:text-blue-eske-10 transition-colors duration-300"
+                    className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                   >
                     Condiciones de uso para asesorías gratuitas
                   </Link>
                 </li>
               </ul>
-            </div>
+            </nav>
             {/* Línea divisoria después de Legal (móvil) */}
             <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-6" />
 
             {/* Columna 3: Sitios de interés */}
-            <div>
+            <nav aria-label="Sitios de interés recomendados">
               <h3 className="text-14px font-semibold mb-4 max-sm:text-center">
                 Sitios de interés
               </h3>
@@ -246,9 +272,10 @@ const Footer = () => {
                       href="https://ine.mx"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       INE
+                      <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
                   <li>
@@ -256,9 +283,10 @@ const Footer = () => {
                       href="https://www.inegi.org.mx"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       INEGI
+                      <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
                   <li>
@@ -266,9 +294,10 @@ const Footer = () => {
                       href="https://www.scjn.gob.mx"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       SCJN
+                      <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
                   <li>
@@ -276,9 +305,10 @@ const Footer = () => {
                       href="https://www.te.gob.mx/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       TEPJF
+                      <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
                   <li>
@@ -286,9 +316,10 @@ const Footer = () => {
                       href="https://www.diputados.gob.mx"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       H. Cámara de Diputados
+                      <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
                   <li>
@@ -296,9 +327,10 @@ const Footer = () => {
                       href="https://www.senado.gob.mx"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Senado de la República
+                      <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
                   <li>
@@ -306,9 +338,10 @@ const Footer = () => {
                       href="https://biblioteca.colmex.mx/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Biblioteca del COLMEX
+                      <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
                   <li>
@@ -316,14 +349,15 @@ const Footer = () => {
                       href="https://www.bidi.unam.mx/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-blue-eske-10 transition-colors duration-300"
+                      className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
                     >
                       Biblioteca Digital UNAM
+                      <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
                 </ul>
               </div>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
@@ -334,26 +368,29 @@ const Footer = () => {
             Eskemma | {currentYear} | © Todos los derechos reservados |{" "}
             <Link
               href="/condiciones-de-uso"
-              className="hover:text-blue-eske-10 transition-colors duration-300"
+              className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
             >
               Condiciones de uso
             </Link>{" "}
             |{" "}
             <Link
               href="/politica-de-cookies"
-              className="hover:text-blue-eske-10 transition-colors duration-300"
+              className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
             >
               Política de cookies
             </Link>{" "}
             |{" "}
             <Link
               href="/politica-de-privacidad"
-              className="hover:text-blue-eske-10 transition-colors duration-300"
+              className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
             >
               Política de privacidad
             </Link>{" "}
             |{" "}
-            <Link href="/condiciones-asesorias-gratuitas">
+            <Link 
+              href="/condiciones-asesorias-gratuitas"
+              className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
+            >
               Condiciones de uso para Asesorías Gratuitas
             </Link>
           </p>

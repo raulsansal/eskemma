@@ -1,4 +1,4 @@
-// components/componentsHome/SignInModal.tsx
+// app/components/componentsHome/SignInModal.tsx
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -7,6 +7,8 @@ import { getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
 import VerifyEmailModal from "./VerifyEmailModal";
 import AcceptTermsModal from "./AcceptTermsModal";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -18,7 +20,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [isAcceptTermsModalOpen, setIsAcceptTermsModalOpen] = useState(false); // NUEVO: Estado para modal de términos
+  const [isAcceptTermsModalOpen, setIsAcceptTermsModalOpen] = useState(false);
 
   const {
     registerUser,
@@ -27,6 +29,10 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
     setIsVerifyEmailModalOpen,
     setIsSignInModalOpen,
   } = useAuth();
+
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
 
   const isEmailAlreadyRegistered = async (email: string): Promise<boolean> => {
     const auth = getAuth();
@@ -50,9 +56,8 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
       return false;
     }
 
-    // Validar aceptación de términos - AHORA con modal
     if (!acceptedTerms) {
-      setIsAcceptTermsModalOpen(true); // Mostrar modal en lugar de alert
+      setIsAcceptTermsModalOpen(true);
       return false;
     }
 
@@ -85,9 +90,8 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
   };
 
   const handleGoogleSignIn = async () => {
-    // Validar aceptación de términos antes de Google Sign In - AHORA con modal
     if (!acceptedTerms) {
-      setIsAcceptTermsModalOpen(true); // Mostrar modal en lugar de alert
+      setIsAcceptTermsModalOpen(true);
       return;
     }
 
@@ -123,15 +127,24 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
           isOpen ? "" : "hidden"
         }`}
         style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+        role="presentation"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
       >
         <div
+          ref={modalRef as React.RefObject<HTMLDivElement>}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signin-modal-title"
           className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
           style={{ marginTop: "20px" }}
         >
           {/* Botón de Cierre */}
           <button
-            className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
+            className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
             onClick={onClose}
+            aria-label="Cerrar modal de registro"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +163,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
           </button>
 
           {/* Título */}
-          <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+          <h2 id="signin-modal-title" className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
             Registro
           </h2>
 
@@ -159,7 +172,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
             {/* Botón de Google */}
             <button
               onClick={handleGoogleSignIn}
-              className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300"
+              className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300 focus-ring-primary"
             >
               REGISTRARME CON GOOGLE
             </button>
@@ -174,32 +187,34 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
             <form onSubmit={handleRegisterWithEmail} className="space-y-4">
               {/* Correo Electrónico */}
               <div>
-                <label className="block text-[16px] font-medium text-black-eske mb-1">
+                <label htmlFor="register-email" className="block text-[16px] font-medium text-black-eske mb-1">
                   Correo electrónico
                 </label>
                 <input
                   type="email"
+                  id="register-email"
                   name="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary"
                 />
               </div>
 
               {/* Contraseña */}
               <div>
-                <label className="block text-[16px] font-medium text-black-eske mb-1">
+                <label htmlFor="register-password" className="block text-[16px] font-medium text-black-eske mb-1">
                   Contraseña
                 </label>
                 <input
                   type="password"
+                  id="register-password"
                   name="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   minLength={8}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary"
                 />
               </div>
 
@@ -210,7 +225,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
                   id="acceptTermsSignIn"
                   checked={acceptedTerms}
                   onChange={(e) => setAcceptedTerms(e.target.checked)}
-                  className="mt-1 accent-bluegreen-eske"
+                  className="mt-1 accent-bluegreen-eske focus-ring-primary"
                   required
                 />
                 <label htmlFor="acceptTermsSignIn" className="text-[14px] text-black-eske">
@@ -219,18 +234,20 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
                     href="/condiciones-de-uso"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70"
+                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                   >
                     Condiciones de Uso
+                    <span className="sr-only"> (se abre en nueva ventana)</span>
                   </Link>
                   {" "}y la{" "}
                   <Link
                     href="/politica-de-privacidad"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70"
+                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                   >
                     Política de Privacidad
+                    <span className="sr-only"> (se abre en nueva ventana)</span>
                   </Link>
                 </label>
               </div>
@@ -252,7 +269,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
                 <button
                   type="button"
                   onClick={handleLoginClick}
-                  className="text-bluegreen-eske-60 underline cursor-pointer bg-transparent border-none p-0 hover:text-bluegreen-eske"
+                  className="text-bluegreen-eske-60 underline cursor-pointer bg-transparent border-none p-0 hover:text-bluegreen-eske focus-ring-primary rounded"
                 >
                   Inicia sesión
                 </button>
@@ -268,7 +285,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
         onClose={() => setIsVerifyEmailModalOpen(false)}
       />
 
-      {/* NUEVO: Modal de Aceptación de Términos */}
+      {/* Modal de Aceptación de Términos */}
       <AcceptTermsModal
         isOpen={isAcceptTermsModalOpen}
         onClose={() => setIsAcceptTermsModalOpen(false)}

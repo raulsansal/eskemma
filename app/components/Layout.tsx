@@ -11,7 +11,9 @@ import { useAuth } from "../../context/AuthContext"; // Importa el hook useAuth
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider> {/* Envuelve toda la aplicación */}
+    <AuthProvider>
+      {" "}
+      {/* Envuelve toda la aplicación */}
       <InnerLayout>{children}</InnerLayout>
     </AuthProvider>
   );
@@ -35,7 +37,9 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Contenido Principal con Padding */}
-      <main className="pt-[80px]">{children}</main>
+      <main id="main-content" className="pt-[80px]" tabIndex={-1}>
+        {children}
+      </main>
 
       {/* Pie de Página */}
       <Footer />

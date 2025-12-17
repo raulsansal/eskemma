@@ -126,8 +126,11 @@ export default function TableOfContents({
       <div className={`lg:hidden mb-8 ${className}`} suppressHydrationWarning>
         <button
           onClick={toggleMobileMenu}
-          className="w-full flex items-center justify-between bg-bluegreen-eske-10 p-4 rounded-lg border-2 border-bluegreen-eske hover:bg-bluegreen-eske-20 transition-colors duration-300"
+          className="w-full flex items-center justify-between bg-bluegreen-eske-10 p-4 rounded-lg border-2 border-bluegreen-eske hover:bg-bluegreen-eske-20 transition-colors duration-300 focus-ring-primary"
           suppressHydrationWarning
+          aria-expanded={isMobileOpen}
+          aria-controls="toc-mobile-menu"
+          aria-label={`Tabla de contenidos: ${title}`}
         >
           <div className="flex items-center gap-2">
             <svg
@@ -136,6 +139,7 @@ export default function TableOfContents({
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -156,6 +160,7 @@ export default function TableOfContents({
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -168,15 +173,20 @@ export default function TableOfContents({
 
         {/* Mobile Menu Dropdown */}
         {isMobileOpen && (
-          <nav className="mt-2 bg-white-eske border-2 border-bluegreen-eske rounded-lg p-4 shadow-lg animate-slide-down">
+          <nav 
+            id="toc-mobile-menu"
+            className="mt-2 bg-white-eske border-2 border-bluegreen-eske rounded-lg p-4 shadow-lg animate-slide-down"
+            aria-label="Tabla de contenidos"
+          >
             <ul className="space-y-2">
               {items.map((item) => (
                 <li key={item.id}>
                   <a
                     href={`#${item.id}`}
                     onClick={(e) => handleClick(e, item.id)}
+                    aria-current={activeSection === item.id ? "location" : undefined}
                     className={`
-                      block px-3 py-2 rounded-lg text-[14px] transition-all duration-300
+                      block px-3 py-2 rounded-lg text-[14px] transition-all duration-300 focus-ring-primary
                       ${item.level === 2 ? "pl-6" : ""}
                       ${
                         activeSection === item.id
@@ -185,6 +195,9 @@ export default function TableOfContents({
                       }
                     `}
                   >
+                    {activeSection === item.id && (
+                      <span className="sr-only">(sección actual) </span>
+                    )}
                     {item.title}
                   </a>
                 </li>
@@ -198,6 +211,7 @@ export default function TableOfContents({
       <aside
         className={`hidden lg:block sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto ${className}`}
         suppressHydrationWarning
+        aria-label="Tabla de contenidos"
       >
         <nav className="bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg p-6 shadow-md">
           {/* Título */}
@@ -208,6 +222,7 @@ export default function TableOfContents({
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -228,8 +243,9 @@ export default function TableOfContents({
                 <a
                   href={`#${item.id}`}
                   onClick={(e) => handleClick(e, item.id)}
+                  aria-current={activeSection === item.id ? "location" : undefined}
                   className={`
-                    group block px-3 py-2 rounded-lg text-[14px] transition-all duration-300 relative
+                    group block px-3 py-2 rounded-lg text-[14px] transition-all duration-300 relative focus-ring-primary
                     ${item.level === 2 ? "pl-6 text-[13px]" : ""}
                     ${
                       activeSection === item.id
@@ -240,11 +256,16 @@ export default function TableOfContents({
                 >
                   {/* Indicador de sección activa */}
                   {activeSection === item.id && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white-eske rounded-r-full"></span>
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white-eske rounded-r-full" aria-hidden="true"></span>
                   )}
 
                   {/* Título de la sección */}
-                  <span className="relative z-10">{item.title}</span>
+                  <span className="relative z-10">
+                    {activeSection === item.id && (
+                      <span className="sr-only">(sección actual) </span>
+                    )}
+                    {item.title}
+                  </span>
                 </a>
               </li>
             ))}

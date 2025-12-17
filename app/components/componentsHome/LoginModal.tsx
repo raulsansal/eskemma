@@ -1,9 +1,11 @@
-// components/componentsHome/LoginModal.tsx
+// app/components/componentsHome/LoginModal.tsx
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "../../../context/AuthContext";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface LoginFormData {
   username: string;
@@ -26,6 +28,10 @@ export default function LoginModal({
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
 
   useEffect(() => {
     if (isOpen) {
@@ -89,16 +95,27 @@ export default function LoginModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]">
+      <div 
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-modal-title"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+      >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={() => {
             onClose();
             setError(null);
             setFormData({ username: "", password: "" });
           }}
+          aria-label="Cerrar modal de inicio de sesión"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -117,48 +134,58 @@ export default function LoginModal({
         </button>
 
         {/* Título */}
-        <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+        <h2 id="login-modal-title" className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
           Iniciar sesión
         </h2>
 
         {/* Formulario de inicio de sesión */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[16px] font-medium text-black-eske mb-1">
+            <label htmlFor="login-username" className="block text-[16px] font-medium text-black-eske mb-1">
               Usuario
             </label>
             <input
               type="text"
+              id="login-username"
               name="username"
               value={formData.username}
               onChange={handleChange}
               required
               disabled={loading}
               placeholder="Correo o nombre de usuario"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary"
             />
           </div>
 
           <div>
-            <label className="block text-[16px] font-medium text-black-eske mb-1">
+            <label htmlFor="login-password" className="block text-[16px] font-medium text-black-eske mb-1">
               Contraseña
             </label>
             <input
               type="password"
+              id="login-password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
               disabled={loading}
               placeholder="Contraseña"
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary"
             />
           </div>
 
-          {/* Mensaje de error */}
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {/* Mensaje de error con role="alert" */}
+          {error && (
+            <div 
+              role="alert" 
+              aria-live="assertive"
+              className="text-red-500 text-sm p-3 bg-red-50 border border-red-200 rounded"
+            >
+              <p>{error}</p>
+            </div>
+          )}
 
-          {/* Botón de inicio de sesión - CORREGIDO: agregado type="submit" */}
+          {/* Botón de inicio de sesión */}
           <Button
             label={loading ? "CARGANDO..." : "INICIAR SESIÓN"}
             variant="primary"
@@ -187,7 +214,7 @@ export default function LoginModal({
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full text-[16px] bg-red-500 text-white py-2 rounded-lg font-medium hover:bg-red-600 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full text-[16px] bg-red-500 text-white py-2 rounded-lg font-medium hover:bg-red-600 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-ring-primary"
         >
           INICIAR SESIÓN CON GOOGLE
         </button>
@@ -199,18 +226,20 @@ export default function LoginModal({
             href="/condiciones-de-uso"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-bluegreen-eske underline hover:text-bluegreen-eske-70"
+            className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
           >
             condiciones de uso
+            <span className="sr-only"> (se abre en nueva ventana)</span>
           </Link>{" "}
           y{" "}
           <Link
             href="/politica-de-privacidad"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-bluegreen-eske underline hover:text-bluegreen-eske-70"
+            className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
           >
             políticas de privacidad
+            <span className="sr-only"> (se abre en nueva ventana)</span>
           </Link>{" "}
           de Eskemma.
         </p>
@@ -220,8 +249,9 @@ export default function LoginModal({
 
         <p className="text-[14px] text-black-eske text-center">
           ¿Aún no te has registrado?{" "}
-          <span
-            className="text-bluegreen-eske underline cursor-pointer hover:text-bluegreen-eske-70"
+          <button
+            type="button"
+            className="text-bluegreen-eske underline cursor-pointer hover:text-bluegreen-eske-70 bg-transparent border-none p-0 focus-ring-primary rounded"
             onClick={() => {
               onClose();
               onOpenRegisterModal();
@@ -230,7 +260,7 @@ export default function LoginModal({
             }}
           >
             Registrarme
-          </span>
+          </button>
         </p>
 
         {/* Enlace para recuperar contraseña */}
@@ -241,7 +271,7 @@ export default function LoginModal({
               onClose();
               window.location.href = "/recover-password";
             }}
-            className="text-bluegreen-eske underline cursor-pointer hover:text-bluegreen-eske-70 bg-transparent border-none p-0"
+            className="text-bluegreen-eske underline cursor-pointer hover:text-bluegreen-eske-70 bg-transparent border-none p-0 focus-ring-primary rounded"
           >
             Recuperar contraseña
           </button>

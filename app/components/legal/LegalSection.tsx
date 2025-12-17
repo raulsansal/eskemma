@@ -36,16 +36,23 @@ export default function LegalSection({
     2: "mb-8 pl-4 border-l-4 border-bluegreen-eske-20 scroll-mt-24",
   };
 
+  // Usar el heading correcto según el nivel jerárquico
+  const HeadingTag = level === 1 ? "h2" : "h3";
+
   return (
     <section
       id={id}
       className={`${containerStyles[level]} ${className}`}
     >
-      {/* Título de la sección */}
-      <h2 className={titleStyles[level]}>
-        {icon && <span className="mr-2">{icon}</span>}
+      {/* Título de la sección con heading jerárquico correcto */}
+      <HeadingTag className={titleStyles[level]}>
+        {icon && (
+          <span className="mr-2" role="img" aria-hidden="true">
+            {icon}
+          </span>
+        )}
         {title}
-      </h2>
+      </HeadingTag>
 
       {/* Contenido de la sección */}
       <div className="text-[15px] text-black-eske leading-relaxed space-y-4">

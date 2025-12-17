@@ -1,8 +1,10 @@
-//app/components/componentsHome/OnboardingModal.tsx
-
+// app/components/componentsHome/OnboardingModal.tsx
+"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export default function OnboardingModal({
   isOpen,
@@ -15,6 +17,10 @@ export default function OnboardingModal({
 }) {
   const [showOnLogin, setShowOnLogin] = useState(true);
   const router = useRouter();
+
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, () => onClose(showOnLogin));
 
   if (!isOpen) return null;
 
@@ -46,12 +52,23 @@ export default function OnboardingModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
     >
-      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative">
+      <div 
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="onboarding-modal-title"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative"
+      >
         {/* Botón de Cierre */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          aria-label="Cerrar modal de bienvenida"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +87,7 @@ export default function OnboardingModal({
         </button>
 
         {/* Título Personalizado */}
-        <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+        <h2 id="onboarding-modal-title" className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
           ¡Hola, {userName}!
         </h2>
 
@@ -106,19 +123,23 @@ export default function OnboardingModal({
           />
         </div>
 
-        {/* Casilla de Verificación */}
+        {/* Casilla de Verificación con descripción mejorada */}
         <div className="mt-4 flex items-center justify-center">
           <input
             type="checkbox"
             id="showOnLogin"
             checked={showOnLogin}
             onChange={(e) => setShowOnLogin(e.target.checked)}
-            className="mr-2"
+            className="mr-2 focus-ring-primary"
+            aria-describedby="show-onboarding-description"
           />
           <label htmlFor="showOnLogin" className="text-[14px] text-black-eske">
-            Volver a mostrar
+            Mostrar este mensaje al iniciar sesión
           </label>
         </div>
+        <p id="show-onboarding-description" className="sr-only">
+          Si está marcado, este mensaje de bienvenida se mostrará cada vez que inicies sesión
+        </p>
       </div>
     </div>
   );
