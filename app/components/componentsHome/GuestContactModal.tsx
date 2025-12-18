@@ -1,226 +1,221 @@
-//app/components/componentsHome/GuestContactModal.tsx
+// components/PropAnimation.tsx
+import React from 'react';
 
-import { useState } from "react";
-import Button from "../Button";
-
-interface GuestContactFormData {
-  fullName: string;
-  email: string;
-  message: string;
+interface PropAnimationProps {
+  width?: string | number;
+  height?: string | number;
+  className?: string;
 }
 
-export default function GuestContactModal({
-  isOpen,
-  onClose,
-  onOpenLoginModal,
-  onOpenRegisterModal,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onOpenLoginModal: () => void;
-  onOpenRegisterModal: () => void;
-}) {
-  const [formData, setFormData] = useState<GuestContactFormData>({
-    fullName: "",
-    email: "",
-    message: "",
-  });
-
-  const [errors, setErrors] = useState<{ email?: string }>({});
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-
-    // Validación específica para el campo 'fullName' (permite letras, acentos, diéresis, espacios y ñ)
-    if (name === "fullName") {
-      const isValid = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(value);
-      if (!isValid) return;
-    }
-
-    // Limpiar errores previos mientras el usuario escribe
-    if (name === "email" && errors.email) {
-      setErrors({ ...errors, email: undefined });
-    }
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const validateEmail = (email: string) => {
-    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!isValid) {
-      setErrors({ ...errors, email: "Introduce un correo electrónico válido." });
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validar el correo electrónico antes de enviar el formulario
-    if (!validateEmail(formData.email)) {
-      return;
-    }
-
-    // Aquí puedes agregar la lógica para enviar el mensaje al servidor
-    console.log("Datos del formulario de contacto:", formData);
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
+const PropAnimation: React.FC<PropAnimationProps> = ({
+  width = '100%',
+  height = '100%',
+  className,
+}) => {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+    <svg
+      viewBox="-256 -256 1024 1024"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      width={width}
+      height={height}
+      className={className}
+      role="img"
+      aria-label="Animación de reloj de arena indicando carga"
     >
-      <div
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
-        style={{ marginTop: "20px" }}
-      >
-        {/* Botón de Cierre */}
-        <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
-          onClick={onClose}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+      <title>Cargando</title>
+      <style>
+        {`
+          .st0 { fill: white; stroke: black; stroke-width: 2; }
+          .st1 { fill: #FF924D; }
+          .sand-particle { fill: #FF924D; }
+        `}
+      </style>
+
+      {/* Círculo delimitador */}
+      <circle cx="256" cy="256" r="500" fill="none" stroke="white" strokeWidth="2" />
+
+      {/* Grupo contenedor para rotación */}
+      <g id="hourglass">
+        {/* Definición de clips */}
+        <defs>
+          <clipPath id="upper-bulb">
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
+              d="M386.609,82.09c-0.011,7.239-2.291,14.316-6.709,20.471l-82.752,115.13
+                c-5.698,7.922-8.813,17.41-8.813,27.124v0 H223.666v0
+                c0-9.714-3.115-19.202-8.824-27.124L132.1,102.561
+                c-4.417-6.155-6.708-13.232-6.708-20.471V50.743h261.216V82.09z"
             />
-          </svg>
-        </button>
+          </clipPath>
+          <clipPath id="lower-bulb">
+            <path
+              d="M315.883,280.84c-2.963-4.136-4.482-8.857-4.482-13.665v0 H200.599v0
+                c-0.011,4.808-1.52,9.53-4.483,13.665l-82.752,115.141c-7.154,9.942-11.039,21.783-11.039,33.918v18.358
+                h286.033V429.9c0-12.135-3.887-23.976-11.039-33.918L315.883,280.84z"
+            />
+          </clipPath>
+          <clipPath id="neck">
+            <rect x="200.599" y="184.815" width="110.802" height="245.085" />
+          </clipPath>
+        </defs>
 
-        {/* Título */}
-        <h2 className="text-3xl font-bold text-bluegreen-eske text-center mb-6">
-          Contacto
-        </h2>
-
-        {/* Texto de invitación */}
-        <p className="text-[16px] text-black-eske text-center mb-4">
-          Te invitamos a registrarte en la comunidad de Eskemma
-        </p>
-
-        {/* Enlace "Registrarme" */}
-        <p className="text-center mb-6 text-[16px]">
-          <button
-            className="text-bluegreen-eske underline focus:outline-none"
-            onClick={(e) => {
-              e.preventDefault();
-              onClose();
-              onOpenRegisterModal();
-            }}
+        {/* Arena en bulbo superior */}
+        <g clipPath="url(#upper-bulb)">
+          <rect
+            className="st1"
+            x="132.1"
+            y="50.743"
+            width="247.8"
+            height="103.125"
+            id="upper-sand"
           >
-            Registrarme
-          </button>
-        </p>
-
-        {/* Contenedor con scroll */}
-        <div className="max-h-[calc(80vh-120px)] overflow-y-auto">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Nombre completo */}
-            <div>
-              <label
-                className="block text-[16px] font-medium text-black-eske mb-1"
-                htmlFor="fullName"
-              >
-                Nombre completo
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                required
-                title="Introduce tu nombre completo, incluyendo acentos y espacios."
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label
-                className="block text-[16px] font-medium text-black-eske mb-1"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                onBlur={() => validateEmail(formData.email)}
-                required
-                title="Introduce un correo electrónico válido."
-                className={`w-full px-3 py-2 border ${
-                  errors.email ? "border-red-60" : "border-gray-300"
-                } rounded focus:outline-none focus:border-blue-eske`}
-              />
-              {errors.email && (
-                <p className="text-8px text-red-60 mt-1">{errors.email}</p>
-              )}
-            </div>
-
-            {/* Mensaje */}
-            <div>
-              <label
-                className="block text-[16px] font-medium text-black-eske mb-1"
-                htmlFor="message"
-              >
-                Mensaje
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                rows={4}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske resize-none"
-              />
-            </div>
-
-            {/* Botón Enviar - ✅ CORREGIDO */}
-            <Button
-              label="ENVIAR"
-              variant="primary"
-              type="submit" // ✅ AGREGADO: type="submit"
-              // ✅ REMOVIDO: onClick={handleSubmit}
+            <animate
+              attributeName="height"
+              values="103.125;20.625;20.625;103.125"
+              keyTimes="0;0.8;0.999;1"
+              dur="5s"
+              repeatCount="indefinite"
             />
+            <animate
+              attributeName="y"
+              values="50.743;195.118;195.118;50.743"
+              keyTimes="0;0.8;0.999;1"
+              dur="5s"
+              repeatCount="indefinite"
+            />
+          </rect>
+        </g>
 
-            {/* Separador */}
-            <hr className="border-gray-300 my-4" />
+        {/* Arena en bulbo inferior */}
+        <g clipPath="url(#lower-bulb)">
+          <rect
+            className="st1"
+            x="132.1"
+            y="392.65"
+            width="247.8"
+            height="37.25"
+            id="lower-sand"
+          >
+            <animate
+              attributeName="height"
+              values="37.25;93.125;93.125;37.25"
+              keyTimes="0;0.8;0.999;1"
+              dur="5s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="y"
+              values="392.65;336.775;336.775;392.65"
+              keyTimes="0;0.8;0.999;1"
+              dur="5s"
+              repeatCount="indefinite"
+            />
+          </rect>
+        </g>
 
-            {/* Enlace "¿Ya te has registrado?" */}
-            <p className="text-[14px] text-black-eske text-center">
-              ¿Ya te has registrado?{" "}
-              <button
-                className="text-bluegreen-eske underline focus:outline-none"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onClose();
-                  onOpenLoginModal();
-                }}
-              >
-                Inicia Sesión
-              </button>
-            </p>
-          </form>
-        </div>
-      </div>
-    </div>
+        {/* Contorno principal */}
+        <path
+          className="st0"
+          d="M315.883,231.15l82.752-115.13c7.152-9.942,11.039-21.784,11.039-33.93V46.13h23.911V0H78.415v46.13h23.912
+            v35.96c0,12.145,3.886,23.988,11.039,33.93l82.752,115.13c2.963,4.136,4.472,8.857,4.483,13.665v22.36
+            c-0.011,4.808-1.52,9.53-4.483,13.665l-82.752,115.141c-7.154,9.942-11.039,21.783-11.039,33.918v35.971H78.415V512h355.169
+            v-46.129h-23.911V429.9c0-12.135-3.887-23.976-11.039-33.918L315.883,280.84c-2.963-4.136-4.482-8.857-4.482-13.665v-22.36
+            C311.401,240.007,312.92,235.286,315.883,231.15z M386.609,461.257H125.393V429.9c0-7.229,2.291-14.317,6.696-20.46l82.753-115.141
+            c5.708-7.934,8.824-17.41,8.824-27.124v-22.36c0-9.714-3.115-19.202-8.824-27.124L132.1,102.561
+            c-4.417-6.155-6.708-13.232-6.708-20.471V50.743h261.216V82.09c-0.011,7.239-2.291,14.316-6.709,20.471l-82.752,115.13
+            c-5.698,7.922-8.813,17.41-8.813,27.124v22.36c0,9.714,3.114,19.19,8.813,27.124l82.763,115.141
+            c4.407,6.143,6.686,13.231,6.698,20.46V461.257z"
+        />
+
+        {/* Partículas de arena */}
+        <g clipPath="url(#neck)">
+          <circle className="sand-particle" cx="255.632" cy="190" r="3">
+            <animate
+              attributeName="cy"
+              values="190;430"
+              dur="0.5s"
+              begin="0s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle className="sand-particle" cx="255.632" cy="180" r="3">
+            <animate
+              attributeName="cy"
+              values="180;420"
+              dur="0.5s"
+              begin="0.1s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle className="sand-particle" cx="250.632" cy="200" r="3">
+            <animate
+              attributeName="cy"
+              values="200;440"
+              dur="0.5s"
+              begin="0.2s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle className="sand-particle" cx="260.632" cy="210" r="3">
+            <animate
+              attributeName="cy"
+              values="210;450"
+              dur="0.5s"
+              begin="0.3s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle className="sand-particle" cx="252.632" cy="220" r="3">
+            <animate
+              attributeName="cy"
+              values="220;460"
+              dur="0.5s"
+              begin="0.4s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle className="sand-particle" cx="258.632" cy="185" r="3">
+            <animate
+              attributeName="cy"
+              values="185;425"
+              dur="0.5s"
+              begin="0.5s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle className="sand-particle" cx="251.632" cy="195" r="3">
+            <animate
+              attributeName="cy"
+              values="195;435"
+              dur="0.5s"
+              begin="0.6s"
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle className="sand-particle" cx="259.632" cy="205" r="3">
+            <animate
+              attributeName="cy"
+              values="205;445"
+              dur="0.5s"
+              begin="0.7s"
+              repeatCount="indefinite"
+            />
+          </circle>
+        </g>
+      </g>
+
+      {/* Animación de rotación */}
+      <animateTransform
+        xlinkHref="#hourglass"
+        attributeName="transform"
+        type="rotate"
+        values="0 256 256;0 256 256;180 256 256"
+        keyTimes="0;0.8;1"
+        dur="5s"
+        repeatCount="indefinite"
+      />
+    </svg>
   );
-}
+};
+
+export default PropAnimation;

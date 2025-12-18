@@ -12,7 +12,19 @@ const CookieBanner = dynamic(() => import("./CookieBanner"), {
 
 /**
  * Wrapper que asegura que CookieBanner solo se renderice en el cliente
- * Soluciona problemas de hidratación con localStorage
+ * 
+ * PROPÓSITO:
+ * - Evita problemas de hidratación con localStorage
+ * - Previene discrepancias entre servidor y cliente
+ * - Asegura que las preferencias de cookies solo se lean del lado del cliente
+ * 
+ * ACCESIBILIDAD:
+ * - No afecta la accesibilidad directamente (solo es un wrapper técnico)
+ * - El CookieBanner renderizado incluye todas las mejoras de accesibilidad:
+ *   * Focus trap cuando está abierto
+ *   * Navegación por teclado
+ *   * ARIA labels y roles apropiados
+ *   * Anuncios para screen readers
  */
 export default function ClientOnlyBanner() {
   const [isMounted, setIsMounted] = useState(false);
@@ -21,7 +33,8 @@ export default function ClientOnlyBanner() {
     setIsMounted(true);
   }, []);
 
-  // Solo renderizar después de que el componente esté montado
+  // Solo renderizar después de que el componente esté montado en el cliente
+  // Esto evita problemas de hidratación con localStorage
   if (!isMounted) {
     return null;
   }

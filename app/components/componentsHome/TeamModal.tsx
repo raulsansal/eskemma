@@ -3,6 +3,8 @@
 // components/TeamModal.tsx
 import { useState } from "react";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface TeamMember {
   id: number;
@@ -16,6 +18,10 @@ interface TeamMember {
 const TeamModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, () => setIsOpen(false));
 
   const teamMembers: TeamMember[] = [
     {
@@ -63,6 +69,17 @@ const TeamModal = () => {
       prevIndex === 0 ? teamMembers.length - 1 : prevIndex - 1
     );
 
+  const handleKeyDown = (e: React.KeyboardEvent, action: 'prev' | 'next') => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (action === 'prev') {
+        prevMember();
+      } else {
+        nextMember();
+      }
+    }
+  };
+
   const currentMember = teamMembers[currentIndex];
 
   return (
@@ -81,12 +98,24 @@ const TeamModal = () => {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ backgroundColor: "rgba(0,0,0, 0.6)" }}
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsOpen(false);
+          }}
         >
-          <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-hidden">
+          <div 
+            ref={modalRef as React.RefObject<HTMLDivElement>}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="team-member-name"
+            aria-describedby="team-member-bio"
+            className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-hidden"
+          >
             {/* Botón de Cierre */}
             <button
-              className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
+              className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
               onClick={() => setIsOpen(false)}
+              aria-label="Cerrar modal del equipo"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +134,7 @@ const TeamModal = () => {
             </button>
 
             {/* Encabezado */}
-            <h3 className="text-2xl font-medium text-bluegreen-eske mb-1 text-center">
+            <h3 id="team-member-name" className="text-2xl font-medium text-bluegreen-eske mb-1 text-center">
               {currentMember.name}
             </h3>
             <p className="text-xl text-orange-eske mb-8 text-center">
@@ -118,14 +147,14 @@ const TeamModal = () => {
               <div className="w-36 h-36 rounded-full bg-bluegreen-eske border-blue-eske p-0.5 overflow-hidden flex items-center justify-center">
                 <img
                   src={currentMember.image}
-                  alt={currentMember.name}
+                  alt={`${currentMember.name}, ${currentMember.role}`}
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
 
               {/* Biografía */}
               <div className="mt-2 text-center">
-                <p className="text-10px text-gray-700">{currentMember.bio}</p>
+                <p id="team-member-bio" className="text-10px text-gray-700">{currentMember.bio}</p>
               </div>
             </div>
 
@@ -133,8 +162,10 @@ const TeamModal = () => {
             <div className="flex justify-between mt-6">
               {/* Botón Anterior */}
               <button
-                className="text-gray-700 hover:text-blue-eske transition-colors duration-300"
+                className="text-gray-700 hover:text-blue-eske transition-colors duration-300 focus-ring-primary rounded"
                 onClick={prevMember}
+                onKeyDown={(e) => handleKeyDown(e, 'prev')}
+                aria-label="Ver miembro anterior del equipo"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -153,11 +184,15 @@ const TeamModal = () => {
               </button>
 
               {/* Indicadores de Carrusel */}
-              <div className="flex gap-2">
-                {teamMembers.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`h-2 w-2 rounded-full ${
+              <div className="flex gap-2" role="tablist" aria-label="Miembros del equipo">
+                {teamMembers.map((member, index) => (
+                  <button
+                    key={member.id}
+                    role="tab"
+                    aria-selected={index === currentIndex}
+                    aria-label={`Ver ${member.name}`}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`h-2 w-2 rounded-full focus-ring-primary ${
                       index === currentIndex ? "bg-orange-eske" : "bg-gray-300"
                     }`}
                   />
@@ -166,8 +201,10 @@ const TeamModal = () => {
 
               {/* Botón Siguiente */}
               <button
-                className="text-gray-700 hover:text-blue-eske transition-colors duration-300"
+                className="text-gray-700 hover:text-blue-eske transition-colors duration-300 focus-ring-primary rounded"
                 onClick={nextMember}
+                onKeyDown={(e) => handleKeyDown(e, 'next')}
+                aria-label="Ver siguiente miembro del equipo"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -185,6 +222,11 @@ const TeamModal = () => {
                 </svg>
               </button>
             </div>
+
+            {/* Información de contacto visualmente oculta pero accesible */}
+            <p className="sr-only">
+              Contacto: {currentMember.contact}
+            </p>
           </div>
         </div>
       )}
@@ -193,3 +235,4 @@ const TeamModal = () => {
 };
 
 export default TeamModal;
+

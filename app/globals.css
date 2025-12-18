@@ -255,22 +255,26 @@
   border-radius: 0.375rem;
 }
 
-/* Focus indicators globales consistentes */
+/* ========================================
+   FOCUS INDICATORS - V2 CORREGIDO
+   Solo se muestran con navegación por teclado
+   ======================================== */
 @layer utilities {
+  /* CORREGIDO: focus → focus-visible para evitar anillos al hacer clic con mouse */
   .focus-ring-primary {
-    @apply focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:ring-offset-2;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske focus-visible:ring-offset-2;
   }
 
   .focus-ring-secondary {
-    @apply focus:outline-none focus:ring-2 focus:ring-orange-eske focus:ring-offset-2;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-eske focus-visible:ring-offset-2;
   }
 
   .focus-ring-light {
-    @apply focus:outline-none focus:ring-2 focus:ring-white-eske focus:ring-offset-2 focus:ring-offset-bluegreen-eske;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-white-eske focus-visible:ring-offset-2 focus-visible:ring-offset-bluegreen-eske;
   }
 
   .focus-ring-dark {
-    @apply focus:outline-none focus:ring-2 focus:ring-black-eske focus:ring-offset-2;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-black-eske focus-visible:ring-offset-2;
   }
 }
 
@@ -289,5 +293,3 @@ textarea:focus-visible,
 @theme {
   --color-gray-eske-60: #9a9a9a; /* Cambiado de #b8b8b8 para mejor contraste (4.6:1) */
 }
-
-

@@ -47,22 +47,23 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       <section className="relative min-h-[650px] max-sm:min-h-[50vh] w-full flex items-center justify-center overflow-hidden bg-bluegreen-eske">
         <Image
           src="/images/hero2.webp"
-          alt="Hero Background"
+          alt=""
           fill
           style={{ objectFit: "cover" }}
           className="object-cover max-sm:object-contain"
           priority
+          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-bluegreen-eske opacity-20"></div>
+        <div className="absolute inset-0 bg-bluegreen-eske opacity-20" aria-hidden="true"></div>
         <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full">
           <h1 className="text-[48px] max-sm:text-2xl leading-tight font-bold">
             Consultoría política
           </h1>
-          <h2 className="mt-8 max-sm:mt-4 text-[32px] max-sm:text-xl leading-[1.25] font-light">
+          <p className="mt-8 max-sm:mt-4 text-[32px] max-sm:text-xl leading-[1.25] font-light">
             <span>Un ecosistema digital</span>
             <br />
             <span>para tu proyecto político</span>
-          </h2>
+          </p>
           <div className="mt-[10vh] max-sm:mt-6 space-y-4 max-sm:space-y-1 text-[18px] max-sm:text-base leading-[1.15] font-normal">
             <p>Descubre tus ventajas competitivas.</p>
             <p>Te acompañamos con tecnología y datos.</p>
@@ -71,9 +72,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Blog Section */}
-      <section className="bg-gray-eske-10 min-h-[580px] py-12 px-4 sm:px-6 md:px-8">
+      <section className="bg-gray-eske-10 min-h-[580px] py-12 px-4 sm:px-6 md:px-8" aria-labelledby="blog-heading">
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-12">
+          <h2 id="blog-heading" className="text-3xl font-semibold text-center text-bluegreen-eske mb-12">
             Hoy en Eskemma
           </h2>
 
@@ -86,7 +87,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {blogPosts.map((post) => (
-                <div
+                <article
                   key={post.id}
                   className="flex flex-col items-center text-center bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 min-h-full"
                 >
@@ -94,14 +95,14 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   {post.featureImage && (
                     <img
                       src={post.featureImage}
-                      alt={post.title}
+                      alt={`Imagen destacada: ${post.title}`}
                       className="w-full h-48 object-cover rounded-lg mb-4"
                     />
                   )}
 
                   {/* Título - con flex-grow para ocupar espacio variable */}
                   <h3 className="text-xl text-bluegreen-eske-60 font-semibold mb-2 hover:text-bluegreen-eske transition-colors duration-300 flex-grow-0">
-                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                    <Link href={`/blog/${post.slug}`} className="focus-ring-primary rounded">{post.title}</Link>
                   </h3>
 
                   {/* Contenido - con flex-grow para ocupar espacio variable */}
@@ -111,28 +112,28 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                   {/* Fecha y autor */}
                   <div className="flex justify-between w-full text-sm text-gray-700 mb-4 px-2">
-                    <small className="text-gray-eske-60">
+                    <time className="text-gray-eske-60" dateTime={post.updatedAt.toISOString()}>
                       {post.updatedAt.toLocaleDateString("es-ES", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
                       })}
-                    </small>
-                    <small className="text-bluegreen-eske font-medium">
+                    </time>
+                    <span className="text-bluegreen-eske font-medium">
                       {post.author?.displayName || "Desconocido"}
-                    </small>
+                    </span>
                   </div>
 
                   {/* Botón - con mt-auto para empujarlo al fondo */}
                   <div className="mt-auto w-full max-w-[200px]">
                     <Link
                       href={`/blog/${post.slug}`}
-                      className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
+                      className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px] focus-ring-light"
                     >
                       Leer completo →
                     </Link>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           )}
@@ -140,9 +141,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Información Relevante Section */}
-      <section className="bg-white-eske min-h-[500px] py-12 px-4 sm:px-6 md:px-8">
+      <section className="bg-white-eske min-h-[500px] py-12 px-4 sm:px-6 md:px-8" aria-labelledby="info-heading">
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-12">
+          <h2 id="info-heading" className="text-3xl font-semibold text-center text-bluegreen-eske mb-12">
             Información relevante
           </h2>
 
@@ -151,7 +152,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             <div className="flex flex-col items-center text-center min-h-full">
               <Image
                 src="/images/part_comparativa_circuns.gif"
-                alt="Gráfica 1"
+                alt="Gráfica animada de participación electoral por circunscripción en México 2006-2021"
                 width={600}
                 height={338}
                 className="w-full h-auto object-contain rounded-lg mb-4"
@@ -166,7 +167,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               <div className="mt-auto w-full max-w-[250px]">
                 <Link
                   href="/monitor"
-                  className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
+                  className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px] focus-ring-light"
                 >
                   Consultar información →
                 </Link>
@@ -177,7 +178,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             <div className="flex flex-col items-center text-center min-h-full">
               <Image
                 src="/images/part_tipo_eleccion.gif"
-                alt="Gráfica 2"
+                alt="Gráfica animada de participación electoral por tipo de elección en México"
                 width={600}
                 height={338}
                 className="w-full h-auto object-contain rounded-lg mb-4"
@@ -192,7 +193,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               <div className="mt-auto w-full max-w-[250px]">
                 <Link
                   href="/monitor"
-                  className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
+                  className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px] focus-ring-light"
                 >
                   Consultar información →
                 </Link>
@@ -203,14 +204,14 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Propuesta Section */}
-      <section className="bg-bluegreen-eske min-h-[500px] py-18 px-4 sm:px-6 md:px-8">
+      <section className="bg-bluegreen-eske min-h-[500px] py-18 px-4 sm:px-6 md:px-8" aria-labelledby="propuesta-heading">
         <div className="w-[90%] mx-auto max-w-screen-xl flex flex-col md:flex-row items-center justify-between">
           <div className="w-full md:w-1/3 flex justify-center">
             <PropAnimation />
           </div>
 
           <div className="w-full md:w-1/2 text-center text-white-eske mt-8 md:mt-0">
-            <h2 className="text-[24px] block mb-10">
+            <h2 id="propuesta-heading" className="text-[24px] block mb-10">
               El tiempo es el recurso más valioso.
             </h2>
             <p className="text-[18px] font-light mb-4 leading-relaxed">
@@ -226,10 +227,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Sobre Nosotros Section */}
-      <section className="bg-white-eske py-12 px-4 sm:px-6 md:px-8">
+      <section className="bg-white-eske py-12 px-4 sm:px-6 md:px-8" aria-labelledby="about-heading">
         <div className="w-[90%] mx-auto max-w-screen-xl text-center">
           {/* Subtítulo */}
-          <h2 className="text-3xl font-bold text-bluegreen-eske mb-6">
+          <h2 id="about-heading" className="text-3xl font-bold text-bluegreen-eske mb-6">
             Sobre nosotros
           </h2>
 
@@ -244,7 +245,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             <div className="relative md:aspect-video md:h-auto h-56 sm:h-64">
               <iframe
                 src="https://drive.google.com/file/d/1b8qZHWHYyID5Q-PN26pEbhCUySrilivE/preview"
-                title="Video sobre nosotros"
+                title="Video de presentación de Eskemma - Sobre nosotros"
                 className="absolute top-0 left-0 w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -298,81 +299,83 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       <BenefitsSection />
 
       {/* Sección - Testimonios */}
-      <section className="bg-gray-eske-10 min-h-[600px] py-20 px-4 sm:px-6 md:px-8">
+      <section className="bg-gray-eske-10 min-h-[600px] py-20 px-4 sm:px-6 md:px-8" aria-labelledby="testimonials-heading">
         <div className="w-[90%] mx-auto max-w-screen-xl">
+          <h2 id="testimonials-heading" className="sr-only">Testimonios de clientes</h2>
+          
           {/* Contenedor de Testimonios */}
           <div className="space-y-12">
             {/* Testimonio 1 */}
-            <div className="flex items-center space-x-8">
+            <figure className="flex items-center space-x-8">
               {/* Avatar (Primera Columna) */}
-              <div className="w-16 h-16 rounded-full bg-blue-60 flex items-center justify-center overflow-hidden">
+              <div className="w-16 h-16 rounded-full bg-blue-60 flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img
                   src="https://untitledui.com/images/avatars/brianna-ware"
-                  alt="Usuario 1"
+                  alt=""
                   className="w-full h-full object-cover"
                 />
               </div>
               {/* Texto (Segunda Columna) */}
               <blockquote className="text-[16px] text-black-eske font-light max-w-[70%]">
-                "Cuando pensé que no había nada más que hacer en mi candidatura
-                decidí utilizar el <i>Moddulo</i> de Eskemma. Descubrí que había
-                muchas opciones para competir con fuerza."
+                <p>"Cuando pensé que no había nada más que hacer en mi candidatura
+                decidí utilizar el <em>Moddulo</em> de Eskemma. Descubrí que había
+                muchas opciones para competir con fuerza."</p>
               </blockquote>
-            </div>
+            </figure>
 
             {/* Testimonio 2 */}
-            <div className="flex items-center justify-end space-x-8">
+            <figure className="flex items-center justify-end space-x-8">
               {/* Texto (Primera Columna) */}
               <blockquote className="text-[16px] text-black-eske font-light max-w-[70%] text-right">
-                "En los cursos de comunicación política siempre hablan de
+                <p>"En los cursos de comunicación política siempre hablan de
                 estrategia, pero hasta ahora sé cómo hacerlo en territorio, no
-                sólo en teoría."
+                sólo en teoría."</p>
               </blockquote>
               {/* Avatar (Segunda Columna) */}
-              <div className="w-16 h-16 rounded-full bg-orange-60 flex items-center justify-center overflow-hidden">
+              <div className="w-16 h-16 rounded-full bg-orange-60 flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img
                   src="https://untitledui.com/images/avatars/drew-cano"
-                  alt="Usuario 2"
+                  alt=""
                   className="w-full h-full object-cover"
                 />
               </div>
-            </div>
+            </figure>
 
             {/* Testimonio 3 */}
-            <div className="flex items-center space-x-8">
+            <figure className="flex items-center space-x-8">
               {/* Avatar (Primera Columna) */}
-              <div className="w-16 h-16 rounded-full bg-green-60 flex items-center justify-center overflow-hidden">
+              <div className="w-16 h-16 rounded-full bg-green-60 flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img
                   src="https://untitledui.com/images/avatars/ethan-valdez"
-                  alt="Usuario 3"
+                  alt=""
                   className="w-full h-full object-cover"
                 />
               </div>
               {/* Texto (Segunda Columna) */}
               <blockquote className="text-[16px] text-black-eske font-light max-w-[70%]">
-                "Con su ayuda logré analizar mejor la información y saber cómo
+                <p>"Con su ayuda logré analizar mejor la información y saber cómo
                 aventajar a los otros partidos. Lo mejor es que lo hice yo mismo
-                y me ahorré una lana."
+                y me ahorré una lana."</p>
               </blockquote>
-            </div>
+            </figure>
 
             {/* Testimonio 4 */}
-            <div className="flex items-center justify-end space-x-8">
+            <figure className="flex items-center justify-end space-x-8">
               {/* Texto (Primera Columna) */}
               <blockquote className="text-[16px] text-black-eske font-light max-w-[70%] text-right">
-                "Pensé que estos servicios sólo eran para grandes campañas.
+                <p>"Pensé que estos servicios sólo eran para grandes campañas.
                 Participé en una elección local en 2024 y pude utilizar mucha de
-                la ayuda que me brindaron."
+                la ayuda que me brindaron."</p>
               </blockquote>
               {/* Avatar (Segunda Columna) */}
-              <div className="w-16 h-16 rounded-full bg-red-60 flex items-center justify-center overflow-hidden">
+              <div className="w-16 h-16 rounded-full bg-red-60 flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img
                   src="https://untitledui.com/images/avatars/ava-bentley"
-                  alt="Usuario 4"
+                  alt=""
                   className="w-full h-full object-cover"
                 />
               </div>
-            </div>
+            </figure>
           </div>
         </div>
       </section>
@@ -380,10 +383,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       {/* Sección - Planes de suscripción */}
       <section 
         id="suscripciones"
-        className="bg-white-eske min-h-[800px] py-18 px-4 sm:px-6 md:px-8">
+        className="bg-white-eske min-h-[800px] py-18 px-4 sm:px-6 md:px-8"
+        aria-labelledby="subscriptions-heading"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Título de la Sección */}
-          <h2 className="text-3xl font-bold text-center text-bluegreen-eske mb-6">
+          <h2 id="subscriptions-heading" className="text-3xl font-bold text-center text-bluegreen-eske mb-6">
             Selecciona el mejor plan para tu proyecto político
           </h2>
 
@@ -397,11 +402,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           {/* Contenedor de las Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Card 1 - Sólo un producto (Plan Básico) */}
-            <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-2 sm:order-none">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-2 sm:order-none">
               {/* Encabezado con fondo white-eske */}
               <div
                 className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 py-2 border border-bluegreen-eske text-black-eske text-[14px] font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
+                aria-hidden="true"
               >
                 Sólo un producto
               </div>
@@ -434,7 +440,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   <div className="w-8 h-8 rounded-full bg-gray-20 flex items-center justify-center mr-4">
                     <img
                       src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp"
-                      alt="Bandera de México"
+                      alt="México"
                       className="w-full h-full object-cover rounded-full"
                     />
                   </div>
@@ -453,14 +459,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   />
                 </div>
               </div>
-            </div>
+            </article>
 
             {/* Card 2 - Todo Eskemma (Plan Premium) */}
-            <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-1 sm:order-none">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-1 sm:order-none">
               {/* Encabezado con fondo black-eske */}
               <div
                 className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-black-eske px-6 py-2 border border-bluegreen-eske text-white-eske text-[14px] font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
+                aria-hidden="true"
               >
                 Todo Eskemma
               </div>
@@ -490,7 +497,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   <div className="w-8 h-8 rounded-full bg-gray-20 flex items-center justify-center mr-4">
                     <img
                       src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp"
-                      alt="Bandera de México"
+                      alt="México"
                       className="w-full h-full object-cover rounded-full"
                     />
                   </div>
@@ -509,14 +516,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   />
                 </div>
               </div>
-            </div>
+            </article>
 
             {/* Card 3 - Trabajo colaborativo (Plan Grupal) */}
-            <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-3 sm:order-none">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-3 sm:order-none">
               {/* Encabezado con fondo white-eske */}
               <div
                 className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 py-2 border border-bluegreen-eske text-black text-[14px] font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
+                aria-hidden="true"
               >
                 Trabajo Colaborativo
               </div>
@@ -546,7 +554,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   <div className="w-8 h-8 rounded-full bg-gray-20 flex items-center justify-center mr-4">
                     <img
                       src="https://www.banderas-mundo.es/data/flags/w1160/mx.webp"
-                      alt="Bandera de México"
+                      alt="México"
                       className="w-full h-full object-cover rounded-full"
                     />
                   </div>
@@ -565,7 +573,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   />
                 </div>
               </div>
-            </div>
+            </article>
           </div>
         </div>
       </section>
@@ -612,20 +620,21 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       <FaqSection />
 
       {/* Enlaces Rápidos Section */}
-      <section className="bg-white-eske min-h-[500px] py-16 px-4 sm:px-6 md:px-8">
+      <section className="bg-white-eske min-h-[500px] py-16 px-4 sm:px-6 md:px-8" aria-labelledby="quick-links-heading">
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 className="text-3xl font-bold text-center text-bluegreen-eske mb-14">
+          <h2 id="quick-links-heading" className="text-3xl font-bold text-center text-bluegreen-eske mb-14">
             Enlaces rápidos
           </h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <nav className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-8" aria-label="Enlaces rápidos a secciones principales">
             <Link
               href="/moddulo"
-              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-60 transition-all duration-300 ease-in-out h-full"
+              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-60 transition-all duration-300 ease-in-out h-full focus-ring-primary rounded"
             >
               <img
                 src="/icons/icon_Moddulo.svg"
-                alt="Moddulo"
+                alt=""
+                aria-hidden="true"
                 className="w-32 h-32 mb-4 transition-transform duration-300 ease-in-out hover:scale-110"
               />
               <span className="text-xl text-bluegreen-eske font-medium hover:text-bluegreen-60">
@@ -635,11 +644,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
             <Link
               href="/sefix"
-              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-80 transition-all duration-300 ease-in-out h-full"
+              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-80 transition-all duration-300 ease-in-out h-full focus-ring-primary rounded"
             >
               <img
                 src="/icons/icon_Sefix.svg"
-                alt="Sefix"
+                alt=""
+                aria-hidden="true"
                 className="w-32 h-32 mb-4 transition-transform duration-300 ease-in-out hover:scale-110"
               />
               <span className="text-xl text-bluegreen-eske font-medium hover:text-bluegreen-60">
@@ -649,11 +659,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
             <Link
               href="/servicios"
-              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-80 transition-all duration-300 ease-in-out h-full"
+              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-80 transition-all duration-300 ease-in-out h-full focus-ring-primary rounded"
             >
               <img
                 src="/icons/icon_Consultoria.svg"
-                alt="Consultoría"
+                alt=""
+                aria-hidden="true"
                 className="w-32 h-32 mb-4 transition-transform duration-300 ease-in-out hover:scale-110"
               />
               <span className="text-xl text-bluegreen-eske font-medium hover:text-bluegreen-60">
@@ -663,11 +674,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
             <Link
               href="/cursos"
-              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-80 transition-all duration-300 ease-in-out h-full"
+              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-80 transition-all duration-300 ease-in-out h-full focus-ring-primary rounded"
             >
               <img
                 src="/icons/icon_Cursos.svg"
-                alt="Cursos"
+                alt=""
+                aria-hidden="true"
                 className="w-32 h-32 mb-4 transition-transform duration-300 ease-in-out hover:scale-110"
               />
               <span className="text-xl text-bluegreen-eske font-medium hover:text-bluegreen-60">
@@ -677,11 +689,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
             <Link
               href="/monitor"
-              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-80 transition-all duration-300 ease-in-out h-full"
+              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-80 transition-all duration-300 ease-in-out h-full focus-ring-primary rounded"
             >
               <img
                 src="/icons/icon_Monitor.svg"
-                alt="Monitor"
+                alt=""
+                aria-hidden="true"
                 className="w-32 h-32 mb-4 transition-transform duration-300 ease-in-out hover:scale-110"
               />
               <span className="text-xl text-bluegreen-eske font-medium hover:text-bluegreen-80">
@@ -691,18 +704,19 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
             <Link
               href="/blog"
-              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-60 transition-all duration-300 ease-in-out h-full"
+              className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-60 transition-all duration-300 ease-in-out h-full focus-ring-primary rounded"
             >
               <img
                 src="/icons/icon_Blog.svg"
-                alt="Software"
+                alt=""
+                aria-hidden="true"
                 className="w-32 h-32 mb-4 transition-transform duration-300 ease-in-out hover:scale-110"
               />
               <span className="text-xl text-bluegreen-eske font-medium hover:text-bluegreen-60">
                 El baúl de Fouché
               </span>
             </Link>
-          </div>
+          </nav>
         </div>
       </section>
     </main>

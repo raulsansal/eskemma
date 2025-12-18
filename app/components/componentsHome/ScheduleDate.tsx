@@ -2,6 +2,8 @@
 "use client";
 import { useState } from "react";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 type Errors = {
   [key: string]: string | undefined;
@@ -32,6 +34,11 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
     file: null,
   });
   const [errors, setErrors] = useState<Errors>({});
+
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -41,10 +48,12 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setFormData((prev) => ({ ...prev, file }));
   };
+
   const validateForm = () => {
     const newErrors: Errors = {};
     if (!formData.fullName.trim()) {
@@ -70,6 +79,7 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
@@ -82,20 +92,31 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
       onClose();
     }
   };
+
   if (!isOpen) return null;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="schedule-date-title"
         className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar formulario de agendamiento"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -113,7 +134,7 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
           </svg>
         </button>
         {/* Título */}
-        <h2 className="text-[24px] font-bold text-bluegreen-eske text-center mb-6">
+        <h2 id="schedule-date-title" className="text-[24px] font-bold text-bluegreen-eske text-center mb-6">
           Agendar asesoría
         </h2>
         {/* Descripción */}
@@ -130,138 +151,155 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
             <div>
               <label
                 className="block text-left text-[16px] font-medium text-gray-700 mb-1"
-                htmlFor="fullName"
+                htmlFor="schedule-fullName"
               >
                 Nombre completo
               </label>
               <input
                 type="text"
-                id="fullName"
+                id="schedule-fullName"
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
                 required
+                aria-invalid={!!errors.fullName}
+                aria-describedby={errors.fullName ? "fullName-error" : undefined}
                 className={`w-full px-3 py-2 border ${
                   errors.fullName ? "border-red-60" : "border-gray-300"
-                } rounded focus:outline-none focus:border-blue-eske`}
+                } rounded focus-ring-primary`}
               />
               {errors.fullName && (
-                <p className="text-[8px] text-red-60 mt-1">{errors.fullName}</p>
+                <p id="fullName-error" className="text-[8px] text-red-60 mt-1" role="alert">{errors.fullName}</p>
               )}
             </div>
             {/* Email */}
             <div>
               <label
                 className="block text-left text-[16px] font-medium text-gray-700 mb-1"
-                htmlFor="email"
+                htmlFor="schedule-email"
               >
                 Email
               </label>
               <input
                 type="email"
-                id="email"
+                id="schedule-email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
                 className={`w-full px-3 py-2 border ${
                   errors.email ? "border-red-60" : "border-gray-300"
-                } rounded focus:outline-none focus:border-blue-eske`}
+                } rounded focus-ring-primary`}
               />
               {errors.email && (
-                <p className="text-[8px] text-red-60 mt-1">{errors.email}</p>
+                <p id="email-error" className="text-[8px] text-red-60 mt-1" role="alert">{errors.email}</p>
               )}
             </div>
             {/* Teléfono de contacto */}
             <div>
               <label
                 className="block text-left text-[16px] font-medium text-gray-700 mb-1"
-                htmlFor="phone"
+                htmlFor="schedule-phone"
               >
                 Teléfono de contacto
               </label>
               <input
                 type="tel"
-                id="phone"
+                id="schedule-phone"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 required
                 pattern="^\+?[0-9]{7,15}$"
                 title="Introduce un número de teléfono válido (mínimo 7 dígitos)."
+                aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
                 className={`w-full px-3 py-2 border ${
                   errors.phone ? "border-red-60" : "border-gray-300"
-                } rounded focus:outline-none focus:border-blue-eske`}
+                } rounded focus-ring-primary`}
               />
               {errors.phone && (
-                <p className="text-[8px] text-red-60 mt-1">{errors.phone}</p>
+                <p id="phone-error" className="text-[8px] text-red-60 mt-1" role="alert">{errors.phone}</p>
               )}
             </div>
             {/* Tema de interés */}
             <div>
               <label
                 className="block text-left text-[16px] font-medium text-gray-700 mb-1"
-                htmlFor="topic"
+                htmlFor="schedule-topic"
               >
                 Tema de interés
               </label>
               <textarea
-                id="topic"
+                id="schedule-topic"
                 name="topic"
                 value={formData.topic}
                 onChange={handleChange}
                 rows={4}
                 required
+                aria-invalid={!!errors.topic}
+                aria-describedby={errors.topic ? "topic-error" : undefined}
                 className={`w-full px-3 py-2 border ${
                   errors.topic ? "border-red-60" : "border-gray-300"
-                } rounded focus:outline-none focus:border-blue-eske resize-none`}
+                } rounded focus-ring-primary resize-none`}
               />
               {errors.topic && (
-                <p className="text-[8px] text-red-60 mt-1">{errors.topic}</p>
+                <p id="topic-error" className="text-[8px] text-red-60 mt-1" role="alert">{errors.topic}</p>
               )}
             </div>
             {/* Fecha y hora */}
             <div>
               <label
                 className="block text-left text-[16px] font-medium text-gray-700 mb-1"
-                htmlFor="dateTime"
+                htmlFor="schedule-dateTime"
               >
                 Seleccionar fecha y hora
               </label>
               <div className="flex items-center space-x-2">
                 <input
                   type="datetime-local"
-                  id="dateTime"
+                  id="schedule-dateTime"
                   name="dateTime"
                   value={formData.dateTime}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske"
+                  aria-invalid={!!errors.dateTime}
+                  aria-describedby={errors.dateTime ? "dateTime-error" : undefined}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary"
                 />
               </div>
               {errors.dateTime && (
-                <p className="text-[8px] text-red-60 mt-1">{errors.dateTime}</p>
+                <p id="dateTime-error" className="text-[8px] text-red-60 mt-1" role="alert">{errors.dateTime}</p>
               )}
             </div>
             {/* Adjuntar documento (opcional) */}
             <div>
               <label
                 className="block text-left text-[16px] font-medium text-gray-700 mb-1"
-                htmlFor="file"
+                htmlFor="schedule-file"
               >
                 Adjuntar documento (opcional)
               </label>
               <div className="flex items-center space-x-2">
                 <input
                   type="file"
-                  id="file"
+                  id="schedule-file"
                   name="file"
                   onChange={handleFileChange}
                   className="hidden"
                 />
                 <label
-                  htmlFor="file"
-                  className="flex items-center space-x-2 cursor-pointer bg-gray-100 px-3 py-2 rounded border border-gray-300 hover:bg-gray-200 transition-colors duration-300"
+                  htmlFor="schedule-file"
+                  className="flex items-center space-x-2 cursor-pointer bg-gray-100 px-3 py-2 rounded border border-gray-300 hover:bg-gray-200 transition-colors duration-300 focus-ring-primary"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      document.getElementById('schedule-file')?.click();
+                    }
+                  }}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -269,6 +307,7 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -296,10 +335,12 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                 href="/condiciones-asesorias-gratuitas"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-eske underline"
+                className="text-blue-eske underline focus-ring-primary rounded"
               >
-                Condiciones de Uso para las Asesorías Gratuitas.
+                Condiciones de Uso para las Asesorías Gratuitas
+                <span className="sr-only"> (se abre en nueva ventana)</span>
               </a>
+              .
             </p>
             {/* Condiciones de uso y política de privacidad */}
             <p className="text-[14px] text-gray-700 text-center mt-2">
@@ -308,18 +349,20 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
                 href="/condiciones-de-uso"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-eske underline"
+                className="text-blue-eske underline focus-ring-primary rounded"
               >
                 condiciones de uso
+                <span className="sr-only"> (se abre en nueva ventana)</span>
               </a>{" "}
               y{" "}
               <a
                 href="/politica-de-privacidad"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-eske underline"
+                className="text-blue-eske underline focus-ring-primary rounded"
               >
                 política de privacidad
+                <span className="sr-only"> (se abre en nueva ventana)</span>
               </a>{" "}
               de Eskemma.
             </p>
@@ -329,3 +372,4 @@ export default function ScheduleDate({ isOpen, onClose, onSubmitSuccess }: Sched
     </div>
   );
 }
+

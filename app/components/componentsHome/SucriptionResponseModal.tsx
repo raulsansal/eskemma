@@ -1,6 +1,10 @@
+//app/components/componentsHome/SuscriptionResponseModal.tsx
+
 import Link from "next/link";
 import { useState } from "react";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface SuscriptionResponseModalProps {
   isOpen: boolean;
@@ -13,21 +17,34 @@ export default function SuscriptionResponseModal({
   onClose,
   userName,
 }: SuscriptionResponseModalProps) {
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="subscription-response-title"
         className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar confirmación de suscripción"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -51,13 +68,13 @@ export default function SuscriptionResponseModal({
           <div className="flex justify-center mb-4">
             <img
               src="/images/esk_log_csm.svg"
-              alt="Eskemma Logo"
+              alt="Eskemma - Logotipo"
               className="w-60 h-24 object-contain"
             />
           </div>
 
           {/* Saludo personalizado */}
-          <p className="text-xl font-bold text-bluegreen-eske">
+          <p id="subscription-response-title" className="text-xl font-bold text-bluegreen-eske">
             Hola, {userName}
           </p>
 
@@ -79,7 +96,12 @@ export default function SuscriptionResponseModal({
           {/* Contacto */}
           <p className="text-[16px] font-normal text-black-eske">
             Para cualquier información sobre tu compra contacta con nosotros al correo:{" "}
-            <span className="font-bold text-bluegreen-eske">clientes@eskemma.com</span>
+            <a 
+              href="mailto:clientes@eskemma.com"
+              className="font-bold text-bluegreen-eske focus-ring-primary rounded"
+            >
+              clientes@eskemma.com
+            </a>
           </p>
 
           {/* Invitación a explorar recursos */}
@@ -89,9 +111,10 @@ export default function SuscriptionResponseModal({
               href="/recursos"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske-60 underline"
+              className="text-blue-eske-60 underline focus-ring-primary rounded"
             >
               sección de recursos
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>
             .
           </p>
@@ -118,18 +141,20 @@ export default function SuscriptionResponseModal({
               href="/terminos-y-condiciones-uso"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske-60 underline"
+              className="text-blue-eske-60 underline focus-ring-primary rounded"
             >
               términos y condiciones de uso
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>{" "}
             y{" "}
             <Link
               href="/politica-de-privacidad"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske-60 underline"
+              className="text-blue-eske-60 underline focus-ring-primary rounded"
             >
               política de privacidad
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>{" "}
             de Eskemma.
           </p>
@@ -138,3 +163,4 @@ export default function SuscriptionResponseModal({
     </div>
   );
 }
+

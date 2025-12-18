@@ -1,6 +1,8 @@
 // app/components/componentsHome/ResponseDate.tsx
 'use client';
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface ResponseDateProps {
   isOpen: boolean;
@@ -17,20 +19,34 @@ export default function ResponseDate({
   email,
   dateTime,
 }: ResponseDateProps) {
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="response-date-title"
         className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: '20px' }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar confirmación de asesoría"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +66,7 @@ export default function ResponseDate({
         {/* Contenido del Modal */}
         <div className="space-y-6 text-left">
           {/* Saludo personalizado */}
-          <h2 className="mt-10 text-[24px] font-bold text-bluegreen-eske text-left mb-6">
+          <h2 id="response-date-title" className="mt-10 text-[24px] font-bold text-bluegreen-eske text-left mb-6">
             Hola, {fullName}:
           </h2>
           {/* Mensaje de agradecimiento */}
@@ -84,18 +100,23 @@ export default function ResponseDate({
             <div className="mt-4 w-12 h-12 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
               <img
                 src="images/rss_px.jpg"
-                alt="Asesor Raúl Sánchez Salgado"
+                alt="Raúl Sánchez Salgado, asesor"
                 className="w-full h-full object-cover"
               />
             </div>
             {/* Datos del asesor */}
-            <div className="space-y-1 ">
+            <div className="space-y-1">
               <p className="text-[10px] font-bold text-black-eske">Asesor:</p>
               <p className="text-[10px] font-normal text-black-eske">
                 Raúl Sánchez Salgado
               </p>
               <p className="text-[10px] font-normal text-black-eske">
-                raul.sanchezs@eskemma.com
+                <a 
+                  href="mailto:raul.sanchezs@eskemma.com"
+                  className="text-blue-eske underline focus-ring-primary rounded"
+                >
+                  raul.sanchezs@eskemma.com
+                </a>
               </p>
             </div>
           </div>
@@ -111,7 +132,7 @@ export default function ResponseDate({
               <p className="text-[16px] font-normal text-black-eske">
                 Si deseas enviar con anterioridad algún documento que consideres
                 útil para la sesión de asesoría, favor de hacer clic{' '}
-                <a href="#" className="text-blue-eske underline">
+                <a href="#" className="text-blue-eske underline focus-ring-primary rounded">
                   aquí (enviar documento)
                 </a>
                 .
@@ -121,7 +142,7 @@ export default function ResponseDate({
             <div className="mt-6 flex items-center space-x-2">
               <p className="text-[16px] font-normal text-black-eske">
                 Si deseas cancelar la asesoría, haz clic{' '}
-                <a href="#" className="text-blue-eske underline">
+                <a href="#" className="text-blue-eske underline focus-ring-primary rounded">
                   aquí (cancelar asesoría)
                 </a>
                 .
@@ -143,18 +164,37 @@ export default function ResponseDate({
           {/* Links adicionales */}
           <p className="text-[14px] text-black-eske text-center">
             Consultar{' '}
-            <a href="/terminos-y-condiciones" target="_blank" rel="noopener noreferrer" className="text-blue-eske underline">
-              términos y condiciones de las asesorías en línea.
+            <a 
+              href="/terminos-y-condiciones" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-eske underline focus-ring-primary rounded"
+            >
+              términos y condiciones de las asesorías en línea
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </a>
+            .
           </p>
           <p className="text-[14px] text-black-eske text-center">
             Al agendar la cita acepto las{' '}
-            <a href="/condiciones-de-uso" target="_blank" rel="noopener noreferrer" className="text-blue-eske underline">
+            <a 
+              href="/condiciones-de-uso" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-eske underline focus-ring-primary rounded"
+            >
               condiciones de uso
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </a>{' '}
             y{' '}
-            <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer" className="text-blue-eske underline">
+            <a 
+              href="/politica-de-privacidad" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-blue-eske underline focus-ring-primary rounded"
+            >
               política de privacidad
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </a>{' '}
             de Eskemma.
           </p>
@@ -163,3 +203,4 @@ export default function ResponseDate({
     </div>
   );
 }
+

@@ -1,5 +1,9 @@
-import Link from "next/link";
+ //app/components/componentsHome/SuscriptionGrupalModal.tsx
+
+ import Link from "next/link";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface SuscriptionGrupalModalProps {
   isOpen: boolean;
@@ -12,21 +16,34 @@ export default function SuscriptionGrupalModal({
   onClose,
   onPaymentSuccess,
 }: SuscriptionGrupalModalProps) {
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-100 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="subscription-grupal-title"
         className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar modal de suscripción grupal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +63,7 @@ export default function SuscriptionGrupalModal({
 
         <div className="space-y-6 text-left">
           {/* Título del Modal */}
-          <h2 className="text-3xl font-bold text-bluegreen-eske text-center">
+          <h2 id="subscription-grupal-title" className="text-3xl font-bold text-bluegreen-eske text-center">
             Suscripción
           </h2>
 
@@ -54,7 +71,7 @@ export default function SuscriptionGrupalModal({
           <div className="flex justify-center">
             <img
               src="https://plus.unsplash.com/premium_photo-1683120730432-b5ea74bd9047?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="Plan Grupal"
+              alt="Plan Grupal - Equipo trabajando en colaboración"
               className="w-150 h-70"
             />
           </div>
@@ -97,6 +114,7 @@ export default function SuscriptionGrupalModal({
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -112,7 +130,8 @@ export default function SuscriptionGrupalModal({
             {/* Botón CAMBIAR - Mantener personalizado */}
             <button
               type="button"
-              className="text-10px font-medium text-gray-700 px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300"
+              className="text-10px font-medium text-gray-700 px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300 focus-ring-primary"
+              aria-label="Cambiar método de pago"
             >
               CAMBIAR
             </button>
@@ -135,9 +154,10 @@ export default function SuscriptionGrupalModal({
               href="/terminos-y-condiciones-suscripciones"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske underline"
+              className="text-blue-eske underline focus-ring-primary rounded"
             >
               términos y condiciones de suscripciones
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>
           </p>
           <p className="text-[14px] text-black-eske text-center">
@@ -146,18 +166,20 @@ export default function SuscriptionGrupalModal({
               href="/condiciones-de-uso"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske-60 underline"
+              className="text-blue-eske-60 underline focus-ring-primary rounded"
             >
               condiciones de uso
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>{" "}
             y{" "}
             <Link
               href="/politica-de-privacidad"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske-60 underline"
+              className="text-blue-eske-60 underline focus-ring-primary rounded"
             >
               política de privacidad
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>{" "}
             de Eskemma.
           </p>

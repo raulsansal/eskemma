@@ -1,6 +1,10 @@
+ //app/components/componentsHome/SuscriptionBasicModal.tsx
+
 import Link from "next/link";
 import { useState } from "react";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface SuscriptionBasicModalProps {
   isOpen: boolean;
@@ -14,6 +18,10 @@ export default function SuscriptionBasicModal({
   onPaymentSuccess,
 }: SuscriptionBasicModalProps) {
   const [selectedService, setSelectedService] = useState<string>("Moddulo");
+
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -50,17 +58,26 @@ export default function SuscriptionBasicModal({
     <div
       className="fixed inset-0 z-70 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <style>{radioButtonStyle}</style>
       
       <div
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="subscription-basic-title"
         className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar modal de suscripción básica"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +97,7 @@ export default function SuscriptionBasicModal({
 
         <div className="space-y-6 text-left">
           {/* Título del Modal */}
-          <h2 className="text-3xl font-bold text-bluegreen-eske text-center">
+          <h2 id="subscription-basic-title" className="text-3xl font-bold text-bluegreen-eske text-center">
             Suscripción
           </h2>
 
@@ -88,7 +105,7 @@ export default function SuscriptionBasicModal({
           <div className="flex justify-center">
             <img
               src="https://images.unsplash.com/photo-1565350552203-b68085b104df?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="Plan Básico"
+              alt="Plan Básico - Ilustración de escritorio con computadora"
               className="w-150 h-70"
             />
           </div>
@@ -104,13 +121,14 @@ export default function SuscriptionBasicModal({
           </p>
 
           {/* Bloque de texto con la descripción */}
-          <div className="space-y-2">
-            <p className="text-[16px] font-normal text-black-eske">
+          <fieldset className="space-y-2">
+            <legend className="text-[16px] font-normal text-black-eske mb-2">
               Selecciona un servicio:
-            </p>
-            <label className="flex items-center space-x-2 ml-4 cursor-pointer">
+            </legend>
+            <label htmlFor="service-moddulo" className="flex items-center space-x-2 ml-4 cursor-pointer">
               <input
                 type="radio"
+                id="service-moddulo"
                 name="service"
                 value="Moddulo"
                 checked={selectedService === "Moddulo"}
@@ -119,9 +137,10 @@ export default function SuscriptionBasicModal({
               />
               <span className="ml-2 text-[16px] font-normal text-black-eske">Moddulo</span>
             </label>
-            <label className="flex items-center space-x-2 ml-4 cursor-pointer">
+            <label htmlFor="service-sefix" className="flex items-center space-x-2 ml-4 cursor-pointer">
               <input
                 type="radio"
+                id="service-sefix"
                 name="service"
                 value="Sefix"
                 checked={selectedService === "Sefix"}
@@ -130,9 +149,10 @@ export default function SuscriptionBasicModal({
               />
               <span className="ml-2 text-[16px] font-normal text-black-eske">Sefix</span>
             </label>
-            <label className="flex items-center space-x-2 ml-4 cursor-pointer">
+            <label htmlFor="service-cursos" className="flex items-center space-x-2 ml-4 cursor-pointer">
               <input
                 type="radio"
+                id="service-cursos"
                 name="service"
                 value="Cursos"
                 checked={selectedService === "Cursos"}
@@ -141,9 +161,10 @@ export default function SuscriptionBasicModal({
               />
               <span className="ml-2 text-[16px] font-normal text-black-eske">Cursos online</span>
             </label>
-            <label className="flex items-center space-x-2 ml-4 cursor-pointer">
+            <label htmlFor="service-monitor" className="flex items-center space-x-2 ml-4 cursor-pointer">
               <input
                 type="radio"
+                id="service-monitor"
                 name="service"
                 value="Monitor"
                 checked={selectedService === "Monitor"}
@@ -152,7 +173,7 @@ export default function SuscriptionBasicModal({
               />
               <span className="ml-2 text-[15px] font-normal text-black-eske">Monitor</span>
             </label>
-          </div>
+          </fieldset>
 
           {/* Método de pago */}
           <p className="text-[16px] font-semibold text-bluegreen-eske">
@@ -167,6 +188,7 @@ export default function SuscriptionBasicModal({
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -182,7 +204,8 @@ export default function SuscriptionBasicModal({
             {/* Botón CAMBIAR - Mantener personalizado */}
             <button
               type="button"
-              className="text-10px font-medium text-black-eske px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300"
+              className="text-10px font-medium text-black-eske px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300 focus-ring-primary"
+              aria-label="Cambiar método de pago"
             >
               CAMBIAR
             </button>
@@ -205,9 +228,10 @@ export default function SuscriptionBasicModal({
               href="/terminos-y-condiciones-suscripciones"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske underline"
+              className="text-blue-eske underline focus-ring-primary rounded"
             >
               términos y condiciones de suscripciones
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>
           </p>
           <p className="text-[14px] text-black-eske text-center">
@@ -216,18 +240,20 @@ export default function SuscriptionBasicModal({
               href="/condiciones-de-uso"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske underline"
+              className="text-blue-eske underline focus-ring-primary rounded"
             >
               condiciones de uso
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>{" "}
             y{" "}
             <Link
               href="/politica-de-privacidad"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-eske underline"
+              className="text-blue-eske underline focus-ring-primary rounded"
             >
               política de privacidad
+              <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>{" "}
             de Eskemma.
           </p>
@@ -236,3 +262,4 @@ export default function SuscriptionBasicModal({
     </div>
   );
 }
+

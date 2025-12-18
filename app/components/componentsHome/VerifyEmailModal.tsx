@@ -6,6 +6,8 @@ import { sendEmailVerification } from "firebase/auth";
 import { auth, db } from "../../../firebase/firebaseConfig";
 import { doc, updateDoc } from "firebase/firestore";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export default function VerifyEmailModal({
   isOpen,
@@ -22,6 +24,10 @@ export default function VerifyEmailModal({
   } = useAuth();
   const [isResendingEmail, setIsResendingEmail] = useState(false);
   const [isCheckingVerification, setIsCheckingVerification] = useState(false);
+
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen || isVerifyEmailModalOpen);
+  useEscapeKey(isOpen || isVerifyEmailModalOpen, onClose);
 
   // Función para actualizar emailVerified en Firestore
   const updateEmailVerifiedInFirestore = async (uid: string) => {
@@ -122,12 +128,23 @@ export default function VerifyEmailModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative">
+      <div 
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="verify-email-title"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative"
+      >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar modal de verificación de email"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +163,7 @@ export default function VerifyEmailModal({
         </button>
 
         {/* Título */}
-        <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+        <h2 id="verify-email-title" className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
           ¡Registro exitoso!
         </h2>
 
@@ -161,9 +178,13 @@ export default function VerifyEmailModal({
         </p>
 
         {/* Indicador de verificación automática */}
-        <div className="bg-blue-100 border-l-4 border-blue-eske p-3 mb-4">
+        <div 
+          className="bg-blue-100 border-l-4 border-blue-eske p-3 mb-4"
+          role="status"
+          aria-live="polite"
+        >
           <p className="text-sm text-blue-800">
-            🔄 Verificando automáticamente cada 3 segundos...
+            <span role="img" aria-label="Cargando">🔄</span> Verificando automáticamente cada 3 segundos...
           </p>
         </div>
 
@@ -189,7 +210,7 @@ export default function VerifyEmailModal({
         <button
           type="button"
           onClick={onClose}
-          className="w-full bg-gray-300 text-black-eske py-2 rounded hover:bg-gray-400 transition-colors duration-300"
+          className="w-full bg-gray-300 text-black-eske py-2 rounded hover:bg-gray-400 transition-colors duration-300 focus-ring-primary"
         >
           CERRAR
         </button>
@@ -197,3 +218,4 @@ export default function VerifyEmailModal({
     </div>
   );
 }
+

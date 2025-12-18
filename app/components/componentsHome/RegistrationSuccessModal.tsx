@@ -2,6 +2,8 @@
 "use client";
 import { useAuth } from "../../../context/AuthContext";
 import Button from "../Button";
+import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 export default function RegistrationSuccessModal({
   isOpen,
@@ -12,18 +14,33 @@ export default function RegistrationSuccessModal({
 }) {
   const { setIsLoginModalOpen } = useAuth();
 
+  // Hooks de accesibilidad
+  const modalRef = useFocusTrap(isOpen);
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative">
+      <div 
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="registration-success-title"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative"
+      >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
+          aria-label="Cerrar modal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -42,7 +59,7 @@ export default function RegistrationSuccessModal({
         </button>
 
         {/* Título */}
-        <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+        <h2 id="registration-success-title" className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
           ¡Registro completado con éxito!
         </h2>
 
@@ -67,3 +84,4 @@ export default function RegistrationSuccessModal({
     </div>
   );
 }
+

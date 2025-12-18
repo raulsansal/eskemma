@@ -42,25 +42,37 @@ export default function RecoverPassword() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+        <h1 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
           Recuperar Contraseña
-        </h2>
+        </h1>
 
-        {message && <p className="text-green-500 text-sm text-center mb-4">{message}</p>}
-        {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
+        {message && (
+          <p className="text-green-500 text-sm text-center mb-4" role="alert">
+            {message}
+          </p>
+        )}
+        {error && (
+          <p className="text-red-500 text-sm text-center mb-4" role="alert">
+            {error}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[18px] font-medium text-black-eske mb-1">
+            <label 
+              htmlFor="recover-email"
+              className="block text-[18px] font-medium text-black-eske mb-1"
+            >
               Email Address
             </label>
             <input
               type="email"
+              id="recover-email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100"
             />
           </div>
 
@@ -68,6 +80,7 @@ export default function RecoverPassword() {
             label={loading ? "ENVIANDO..." : "ENVIAR MAIL DE RECUPERACIÓN"}
             variant="primary"
             disabled={loading}
+            type="submit"
           />
         </form>
       </div>
