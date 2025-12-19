@@ -33,14 +33,25 @@ export default function ViewToggle({ onViewChange }: ViewToggleProps) {
   // Evitar hidratación incorrecta
   if (!mounted) {
     return (
-      <div className="flex items-center gap-2 bg-white-eske rounded-lg p-1 border border-gray-300">
-        <div className="w-20 h-9 bg-gray-eske-10 rounded animate-pulse"></div>
+      <div
+        className="flex items-center gap-2 bg-white-eske rounded-lg p-1 border border-gray-300"
+        role="status"
+        aria-label="Cargando selector de vista"
+      >
+        <div
+          className="w-20 h-9 bg-gray-eske-10 rounded animate-pulse"
+          aria-hidden="true"
+        ></div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2 bg-white-eske rounded-lg p-1 border border-gray-300 shadow-sm">
+    <div
+      className="flex items-center gap-2 bg-white-eske rounded-lg p-1 border border-gray-300 shadow-sm"
+      role="group"
+      aria-label="Selector de vista del blog"
+    >
       {/* Botón Grid */}
       <button
         onClick={() => handleViewChange("grid")}
@@ -48,14 +59,14 @@ export default function ViewToggle({ onViewChange }: ViewToggleProps) {
           flex items-center justify-center gap-2
           px-3 py-2 rounded-md
           text-sm font-medium
-          transition-all duration-200
+          transition-all duration-200 focus-ring-primary
           ${
             viewMode === "grid"
               ? "bg-bluegreen-eske text-white-eske shadow-sm"
               : "text-gray-700 hover:bg-gray-eske-10"
           }
         `}
-        aria-label="Vista en cuadrícula"
+        aria-label="Cambiar a vista en cuadrícula"
         aria-pressed={viewMode === "grid"}
       >
         <svg
@@ -63,6 +74,7 @@ export default function ViewToggle({ onViewChange }: ViewToggleProps) {
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -81,14 +93,14 @@ export default function ViewToggle({ onViewChange }: ViewToggleProps) {
           flex items-center justify-center gap-2
           px-3 py-2 rounded-md
           text-sm font-medium
-          transition-all duration-200
+          transition-all duration-200 focus-ring-primary
           ${
             viewMode === "list"
               ? "bg-bluegreen-eske text-white-eske shadow-sm"
               : "text-gray-700 hover:bg-gray-eske-10"
           }
         `}
-        aria-label="Vista en lista"
+        aria-label="Cambiar a vista en lista"
         aria-pressed={viewMode === "list"}
       >
         <svg
@@ -96,6 +108,7 @@ export default function ViewToggle({ onViewChange }: ViewToggleProps) {
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"

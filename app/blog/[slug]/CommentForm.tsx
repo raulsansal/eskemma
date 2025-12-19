@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { auth } from "@/firebase/firebaseConfig"; // ✅ AGREGAR IMPORT
+import { auth } from "@/firebase/firebaseConfig";
 import { Comment } from "@/types/post.types";
 
 interface CommentFormProps {
@@ -55,7 +55,6 @@ export default function CommentForm({
     setError("");
 
     try {
-      // ✅ CORRECCIÓN: Obtener token del objeto auth de Firebase
       const currentUser = auth.currentUser;
       if (!currentUser) {
         setError("Sesión expirada. Por favor, inicia sesión nuevamente.");
@@ -99,15 +98,19 @@ export default function CommentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-8">
+    <form
+      onSubmit={handleSubmit}
+      className="mb-8"
+      aria-label="Formulario para añadir un comentario"
+    >
       <div className="bg-white-eske border border-gray-eske-30 rounded-lg p-6">
         <div className="flex items-start gap-4">
           {/* Avatar del usuario */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0" aria-hidden="true">
             {user?.avatarUrl ? (
               <img
                 src={user.avatarUrl}
-                alt={user.name || "Usuario"}
+                alt=""
                 className="w-10 h-10 rounded-full object-cover"
               />
             ) : (
@@ -119,23 +122,32 @@ export default function CommentForm({
 
           {/* Formulario */}
           <div className="flex-1">
+            <label htmlFor="comment-textarea" className="sr-only">
+              Escribe tu comentario
+            </label>
             <textarea
+              id="comment-textarea"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Escribe tu comentario..."
-              className="w-full p-3 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske resize-none"
+              className="w-full p-3 border border-gray-eske-30 rounded-lg focus-ring-primary resize-none"
               rows={4}
               maxLength={maxLength}
               disabled={isSubmitting}
+              aria-label="Contenido del comentario"
+              aria-describedby="char-count"
             />
 
             <div className="flex items-center justify-between mt-2">
               <span
+                id="char-count"
                 className={`text-sm ${
                   remainingChars < 50
                     ? "text-red-500 font-semibold"
                     : "text-gray-600"
                 }`}
+                role="status"
+                aria-live="polite"
               >
                 {remainingChars} caracteres restantes
               </span>
@@ -143,21 +155,31 @@ export default function CommentForm({
               <button
                 type="submit"
                 disabled={isSubmitting || !content.trim()}
-                className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 focus-ring-primary ${
                   isSubmitting || !content.trim()
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-bluegreen-eske text-white hover:bg-bluegreen-eske-70"
                 }`}
+                aria-label={
+                  isSubmitting ? "Publicando comentario" : "Publicar comentario"
+                }
               >
                 {isSubmitting ? "Publicando..." : "Publicar comentario"}
               </button>
             </div>
 
-            {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+            {error && (
+              <p
+                className="mt-2 text-sm text-red-500"
+                role="alert"
+                aria-live="assertive"
+              >
+                {error}
+              </p>
+            )}
           </div>
         </div>
       </div>
     </form>
   );
 }
-

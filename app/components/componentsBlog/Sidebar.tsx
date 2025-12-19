@@ -11,9 +11,16 @@ interface SidebarProps {
   tags: TagItem[];
 }
 
-export default function Sidebar({ popularPosts, categoryCounts, tags }: SidebarProps) {
+export default function Sidebar({
+  popularPosts,
+  categoryCounts,
+  tags,
+}: SidebarProps) {
   return (
-    <aside className="space-y-6">
+    <aside
+      className="space-y-6"
+      aria-label="Barra lateral del blog con contenido complementario"
+    >
       <PopularPosts posts={popularPosts} />
       <CategoryList categoryCounts={categoryCounts} />
       <TagCloud tags={tags} />

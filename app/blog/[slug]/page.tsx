@@ -22,7 +22,7 @@ import { getCategoryColor, getCategoryLabel } from "@/lib/constants/categories";
 import SaveForLater from "./SaveForLater";
 import CommentSection from "./CommentSection";
 import PostSidebar from "./PostSidebar";
-import ResourcesCard from "./ResourcesCard"; // ✅ NUEVO
+import ResourcesCard from "./ResourcesCard";
 
 // Generar metadata dinámica para SEO
 export async function generateMetadata({
@@ -92,7 +92,11 @@ export default async function PostPage({
 
   if (!postData) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-eske-10">
+      <div
+        className="min-h-screen flex flex-col items-center justify-center bg-gray-eske-10"
+        role="alert"
+        aria-live="assertive"
+      >
         <h1 className="text-3xl font-bold text-red-500 mb-4">
           Post no encontrado
         </h1>
@@ -101,7 +105,8 @@ export default async function PostPage({
         </p>
         <Link
           href="/blog"
-          className="mt-6 px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-semibold"
+          className="mt-6 px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-semibold focus-ring-primary"
+          aria-label="Volver a la página principal del blog"
         >
           Volver al blog
         </Link>
@@ -173,7 +178,10 @@ export default async function PostPage({
 
   // Generar SEO data y structured data
   const seoData = generatePostSEO(validatedPostData);
-  const structuredData = generateArticleStructuredData(validatedPostData, seoData);
+  const structuredData = generateArticleStructuredData(
+    validatedPostData,
+    seoData
+  );
 
   return (
     <>
@@ -183,7 +191,7 @@ export default async function PostPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <div className="min-h-screen bg-gray-eske-10 py-8 px-4 sm:px-6 lg:px-8">
+      <main className="min-h-screen bg-gray-eske-10 py-8 px-4 sm:px-6 lg:px-8">
         <ViewCounter
           postId={validatedPostData.id}
           slug={validatedPostData.slug}
@@ -195,30 +203,43 @@ export default async function PostPage({
             <div className="flex-1 lg:w-2/3">
               <BackToButton />
 
-              <article className="bg-white-eske rounded-lg shadow-md p-6 sm:p-8">
+              <article
+                className="bg-white-eske rounded-lg shadow-md p-6 sm:p-8"
+                aria-labelledby="post-title"
+              >
                 {/* Categoría */}
                 <div className="mb-4">
                   <span
                     className="inline-block px-3 py-1 text-sm font-semibold rounded-full text-white"
                     style={{ backgroundColor: categoryColor }}
+                    role="text"
+                    aria-label={`Categoría: ${categoryLabel}`}
                   >
                     {categoryLabel}
                   </span>
                 </div>
 
                 {/* Título */}
-                <h1 className="text-3xl sm:text-4xl font-bold text-bluegreen-eske mb-6">
+                <h1
+                  id="post-title"
+                  className="text-3xl sm:text-4xl font-bold text-bluegreen-eske mb-6"
+                >
                   {validatedPostData.title}
                 </h1>
 
                 {/* Fecha, Autor y Metadata */}
-                <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-gray-600 pb-6 border-b border-gray-eske-20">
-                  <div className="flex items-center gap-2">
+                <div
+                  className="mb-6 flex flex-wrap items-center gap-4 text-sm text-gray-600 pb-6 border-b border-gray-eske-20"
+                  role="list"
+                  aria-label="Información del artículo"
+                >
+                  <div className="flex items-center gap-2" role="listitem">
                     <svg
                       className="w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -227,15 +248,18 @@ export default async function PostPage({
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    <span>{formattedDate}</span>
+                    <time dateTime={validatedPostData.updatedAt.toISOString()}>
+                      {formattedDate}
+                    </time>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" role="listitem">
                     <svg
                       className="w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -249,12 +273,13 @@ export default async function PostPage({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2" role="listitem">
                     <svg
                       className="w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -269,7 +294,10 @@ export default async function PostPage({
                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                       />
                     </svg>
-                    <span>{validatedPostData.views} vistas</span>
+                    <span>
+                      {validatedPostData.views}{" "}
+                      {validatedPostData.views === 1 ? "vista" : "vistas"}
+                    </span>
                   </div>
 
                   <ReadingTime minutes={readingTime} />
@@ -282,7 +310,7 @@ export default async function PostPage({
                 {validatedPostData.featureImage && (
                   <img
                     src={validatedPostData.featureImage}
-                    alt={`Imagen destacada para ${validatedPostData.title}`}
+                    alt={`Imagen destacada del artículo: ${validatedPostData.title}`}
                     className="w-full h-auto max-h-[500px] object-cover rounded-lg mb-8 shadow-lg"
                   />
                 )}
@@ -296,26 +324,45 @@ export default async function PostPage({
                 </div>
 
                 {/* Tags si existen */}
-                {validatedPostData.tags && validatedPostData.tags.length > 0 && (
-                  <div className="mt-12 pt-8 border-t border-gray-eske-20">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-4">
-                      Etiquetas:
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-eske-90">
-                      {validatedPostData.tags.map((tag, index) => (
-                        <span key={tag} className="flex items-center">
-                          {index > 0 && <span className="mr-2">|</span>}
-                          <Link
-                            href={`/blog?search=${encodeURIComponent(tag)}`}
-                            className="hover:text-bluegreen-eske transition-colors"
+                {validatedPostData.tags &&
+                  validatedPostData.tags.length > 0 && (
+                    <nav
+                      className="mt-12 pt-8 border-t border-gray-eske-20"
+                      aria-labelledby="tags-heading"
+                    >
+                      <h3
+                        id="tags-heading"
+                        className="text-sm font-semibold text-gray-700 mb-4"
+                      >
+                        Etiquetas:
+                      </h3>
+                      <div
+                        className="flex flex-wrap items-center gap-2 text-sm text-gray-eske-90"
+                        role="list"
+                      >
+                        {validatedPostData.tags.map((tag, index) => (
+                          <span
+                            key={tag}
+                            className="flex items-center"
+                            role="listitem"
                           >
-                            {tag}
-                          </Link>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                            {index > 0 && (
+                              <span className="mr-2" aria-hidden="true">
+                                |
+                              </span>
+                            )}
+                            <Link
+                              href={`/blog?search=${encodeURIComponent(tag)}`}
+                              className="hover:text-bluegreen-eske transition-colors focus-ring-primary rounded"
+                              aria-label={`Ver artículos con la etiqueta ${tag}`}
+                            >
+                              {tag}
+                            </Link>
+                          </span>
+                        ))}
+                      </div>
+                    </nav>
+                  )}
 
                 {/* Botones compartir + Me gusta en la misma línea */}
                 <div className="mt-8 pt-6 border-t border-gray-eske-20">
@@ -330,7 +377,10 @@ export default async function PostPage({
 
                     {/* Compartir (derecha) */}
                     <div className="w-full sm:w-auto">
-                      <ShareButtons title={validatedPostData.title} slug={slug} />
+                      <ShareButtons
+                        title={validatedPostData.title}
+                        slug={slug}
+                      />
                     </div>
                   </div>
                 </div>
@@ -343,33 +393,40 @@ export default async function PostPage({
                 />
               </article>
 
-              {/* ✅ NUEVO: Recursos descargables para MOBILE */}
-              <div className="lg:hidden mt-8">
-                <ResourcesCard
-                  resources={resources}
-                  category={validatedPostData.category}
-                />
-              </div>
+              {/* Recursos descargables para MOBILE */}
+              {resources.length > 0 && (
+                <div className="lg:hidden mt-8">
+                  <ResourcesCard
+                    resources={resources}
+                    category={validatedPostData.category}
+                  />
+                </div>
+              )}
 
               {/* Sistema de comentarios */}
               <CommentSection postId={validatedPostData.id} />
 
               {/* Navegación entre posts */}
-              <nav className="mt-16 pt-8 border-t border-gray-eske-30">
+              <nav
+                className="mt-16 pt-8 border-t border-gray-eske-30"
+                aria-label="Navegación entre artículos"
+              >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h2 className="text-lg font-semibold text-gray-800">
                     Continuar leyendo
-                  </h3>
+                  </h2>
 
                   <Link
                     href="/blog"
-                    className="inline-flex items-center gap-2 text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors duration-200 font-medium text-sm"
+                    className="inline-flex items-center gap-2 text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors duration-200 font-medium text-sm focus-ring-primary rounded"
+                    aria-label="Volver a la lista de artículos del blog"
                   >
                     <svg
                       className="w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
@@ -395,7 +452,7 @@ export default async function PostPage({
             />
           </div>
         </div>
-      </div>
+      </main>
     </>
   );
 }

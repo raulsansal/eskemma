@@ -34,12 +34,13 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
 
       {/* Posts en modo Grid o Lista */}
       {posts.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12" role="status" aria-live="polite">
           <svg
             className="mx-auto h-24 w-24 text-gray-400 mb-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -56,7 +57,8 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
           </p>
           <Link
             href="/blog"
-            className="inline-block px-6 py-2 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors duration-300"
+            className="inline-block px-6 py-2 bg-bluegreen-eske text-white-eske rounded-lg hover:bg-bluegreen-eske-70 transition-colors duration-300 focus-ring-primary"
+            aria-label="Limpiar todos los filtros y volver al blog"
           >
             Limpiar filtros
           </Link>
@@ -65,7 +67,11 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
         <>
           {/* Vista Grid (2 columnas en desktop, 1 en móvil - siempre centrado) */}
           {viewMode === "grid" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+              role="list"
+              aria-label="Publicaciones del blog en vista de cuadrícula"
+            >
               {posts.map(
                 ({
                   id,
@@ -78,20 +84,32 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                   views,
                   category,
                 }) => (
-                  <div
+                  <article
                     key={id}
                     className="flex flex-col items-center text-center bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6"
+                    role="listitem"
                   >
                     {featureImage && (
-                      <img
-                        src={featureImage}
-                        alt={`Imagen destacada para ${title}`}
-                        className="w-full h-48 object-cover rounded-lg mb-4"
-                      />
+                      <Link
+                        href={`/blog/${slug}`}
+                        className="focus-ring-primary rounded-lg block w-full"
+                        aria-label={`Ver imagen de ${title}`}
+                      >
+                        <img
+                          src={featureImage}
+                          alt={`Imagen destacada: ${title}`}
+                          className="w-full h-48 object-cover rounded-lg mb-4"
+                        />
+                      </Link>
                     )}
 
                     <h3 className="text-xl text-bluegreen-eske-60 font-semibold mb-2 hover:text-bluegreen-eske transition-colors duration-300">
-                      <Link href={`/blog/${slug}`}>{title}</Link>
+                      <Link
+                        href={`/blog/${slug}`}
+                        className="focus-ring-primary rounded"
+                      >
+                        {title}
+                      </Link>
                     </h3>
 
                     <div
@@ -100,13 +118,16 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                     />
 
                     <div className="flex justify-between w-full text-sm text-gray-700 mb-4 px-2">
-                      <small className="text-gray-eske-60">
+                      <time
+                        className="text-gray-eske-60 text-sm"
+                        dateTime={date.toISOString()}
+                      >
                         {date.toLocaleDateString("es-ES", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
                         })}
-                      </small>
+                      </time>
                       <small className="text-bluegreen-eske font-medium">
                         {author}
                       </small>
@@ -119,6 +140,7 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -133,17 +155,20 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                           />
                         </svg>
-                        {views} {views === 1 ? "vista" : "vistas"}
+                        <span>
+                          {views} {views === 1 ? "vista" : "vistas"}
+                        </span>
                       </div>
                     )}
 
                     <Link
                       href={`/blog/${slug}`}
-                      className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px]"
+                      className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px] focus-ring-primary"
+                      aria-label={`Leer el artículo completo: ${title}`}
                     >
                       Leer completo →
                     </Link>
-                  </div>
+                  </article>
                 )
               )}
             </div>
@@ -151,7 +176,11 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
 
           {/* Vista Lista (1 columna - layout horizontal en móvil y desktop) */}
           {viewMode === "list" && (
-            <div className="space-y-6 mb-8">
+            <div
+              className="space-y-6 mb-8"
+              role="list"
+              aria-label="Publicaciones del blog en vista de lista"
+            >
               {posts.map((post) => (
                 <PostCardList key={post.id} {...post} />
               ))}

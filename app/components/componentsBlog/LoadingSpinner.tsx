@@ -7,10 +7,10 @@ interface LoadingSpinnerProps {
   fullScreen?: boolean;
 }
 
-export default function LoadingSpinner({ 
-  size = "md", 
+export default function LoadingSpinner({
+  size = "md",
   text = "Cargando...",
-  fullScreen = false 
+  fullScreen = false,
 }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: "w-6 h-6 border-2",
@@ -25,7 +25,12 @@ export default function LoadingSpinner({
   };
 
   const spinner = (
-    <div className="flex flex-col items-center justify-center gap-4">
+    <div
+      className="flex flex-col items-center justify-center gap-4"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
       {/* Spinner animado */}
       <div
         className={`
@@ -35,30 +40,32 @@ export default function LoadingSpinner({
           rounded-full
           animate-spin
         `}
-        role="status"
-        aria-label="Cargando"
+        aria-hidden="true"
       ></div>
-      
-      {/* Texto opcional */}
-      {text && (
-        <p className={`${textSizeClasses[size]} text-gray-eske-70 font-medium animate-pulse`}>
-          {text}
-        </p>
-      )}
+
+      {/* Texto para screen readers y visible */}
+      <p
+        className={`${textSizeClasses[size]} text-gray-eske-70 font-medium animate-pulse`}
+      >
+        {text}
+      </p>
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-white-eske bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50">
+      <div
+        className="fixed inset-0 bg-white-eske bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Cargando contenido"
+      >
         {spinner}
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center py-12">
-      {spinner}
-    </div>
+    <div className="flex items-center justify-center py-12">{spinner}</div>
   );
 }

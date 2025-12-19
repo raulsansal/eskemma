@@ -9,7 +9,7 @@ interface CommentListProps {
   postId: string;
   currentUserId?: string;
   onCommentDeleted: (commentId: string) => void;
-  onReply?: (parentId: string, content: string) => void; // ✅ NUEVO
+  onReply?: (parentId: string, content: string) => void;
 }
 
 export default function CommentList({
@@ -20,7 +20,11 @@ export default function CommentList({
   onReply,
 }: CommentListProps) {
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      role="list"
+      aria-label={`Lista de ${comments.length} comentario${comments.length !== 1 ? "s" : ""}`}
+    >
       {comments.map((comment) => (
         <CommentItem
           key={comment.id}
@@ -34,4 +38,3 @@ export default function CommentList({
     </div>
   );
 }
-

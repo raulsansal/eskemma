@@ -12,7 +12,7 @@ export default function CategoryFilter() {
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCategory = e.target.value;
-    
+
     // Construir nueva URL con la categoría seleccionada (resetear a página 1)
     if (selectedCategory === "todos") {
       router.push("/blog");
@@ -33,7 +33,8 @@ export default function CategoryFilter() {
         id="category-filter"
         value={currentCategory}
         onChange={handleCategoryChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent bg-white text-gray-700 cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus-ring-primary bg-white text-gray-700 cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
+        aria-label="Filtrar publicaciones por categoría"
       >
         <option value="todos">Todas las categorías</option>
         {CATEGORIES.map((category) => (

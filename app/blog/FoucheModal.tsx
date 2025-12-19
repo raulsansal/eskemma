@@ -1,6 +1,7 @@
 // app/blog/FoucheModal.tsx
 "use client";
 import Image from "next/image";
+import { useEffect } from "react";
 
 export default function FoucheModal({
   isOpen,
@@ -9,6 +10,26 @@ export default function FoucheModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  // Manejar cierre con tecla Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+      // Prevenir scroll del body cuando modal está abierto
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -16,15 +37,18 @@ export default function FoucheModal({
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="fouche-modal-title"
     >
       <div
         className="bg-white-eske rounded-lg shadow-lg w-full max-w-2xl p-8 relative overflow-y-auto max-h-[85vh] m-4"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300"
+          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
-          aria-label="Cerrar modal"
+          aria-label="Cerrar modal de información sobre Joseph Fouché"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -32,6 +56,7 @@ export default function FoucheModal({
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -42,7 +67,10 @@ export default function FoucheModal({
           </svg>
         </button>
 
-        <h2 className="text-2xl font-bold text-bluegreen-eske mb-6 text-center">
+        <h2 
+          id="fouche-modal-title"
+          className="text-2xl font-bold text-bluegreen-eske mb-6 text-center"
+        >
           ¿Quién fue Joseph Fouché?
         </h2>
 
@@ -50,7 +78,7 @@ export default function FoucheModal({
           <div className="relative w-48 h-64">
             <Image
               src="/images/fouche.jpg"
-              alt="Joseph Fouché"
+              alt="Retrato de Joseph Fouché, político francés del siglo XVIII"
               fill
               style={{ objectFit: "cover" }}
               className="rounded-lg shadow-md"
@@ -83,7 +111,11 @@ export default function FoucheModal({
             estratégicamente para mantener su poder e influencia.
           </p>
 
-          <div className="bg-gray-eske-20 border-l-4 border-bluegreen-eske p-4 rounded">
+          <div 
+            className="bg-gray-eske-20 border-l-4 border-bluegreen-eske p-4 rounded"
+            role="note"
+            aria-label="Información sobre el nombre del blog"
+          >
             <h3 className="text-lg font-semibold text-bluegreen-eske mb-2">
               ¿Por qué "El Baúl de Fouché"?
             </h3>
@@ -98,16 +130,17 @@ export default function FoucheModal({
             </p>
           </div>
 
-          <p className="text-[14px] italic text-center text-bluegreen-eske-60 mt-6">
+          <blockquote className="text-[14px] italic text-center text-bluegreen-eske-60 mt-6">
             "Un hombre que no sabe nada puede ser útil, pero un hombre que lo
             sabe todo es peligroso." — Joseph Fouché
-          </p>
+          </blockquote>
         </div>
 
         <div className="mt-8 text-center">
           <button
             onClick={onClose}
-            className="bg-bluegreen-eske text-white-eske px-8 py-3 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300"
+            className="bg-bluegreen-eske text-white-eske px-8 py-3 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 focus-ring-primary"
+            aria-label="Cerrar información sobre Joseph Fouché"
           >
             Cerrar
           </button>

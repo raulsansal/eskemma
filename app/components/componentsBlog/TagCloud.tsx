@@ -21,13 +21,20 @@ export default function TagCloud({ tags, maxTags = 15 }: TagCloudProps) {
   };
 
   return (
-    <div className="bg-white-eske rounded-lg shadow-sm p-6 mb-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+    <aside
+      className="bg-white-eske rounded-lg shadow-sm p-6 mb-6"
+      aria-labelledby="tagcloud-title"
+    >
+      <h3
+        id="tagcloud-title"
+        className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+      >
         <svg
           className="w-5 h-5 text-bluegreen-eske"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -38,21 +45,24 @@ export default function TagCloud({ tags, maxTags = 15 }: TagCloudProps) {
         </svg>
         Etiquetas
       </h3>
-      <div className="flex flex-wrap gap-2">
-        {displayTags.map((tag) => (
-          <Link
-            key={tag.tag}
-            href={`/blog?search=${encodeURIComponent(tag.tag)}`}
-            className="inline-block px-3 py-1 bg-gray-100 hover:bg-bluegreen-eske hover:text-white-eske text-gray-700 rounded-full transition-colors duration-200"
-            style={{
-              fontSize: `${getFontSize(tag.count)}rem`,
-            }}
-            title={`${tag.count} ${tag.count === 1 ? "artículo" : "artículos"}`}
-          >
-            {tag.tag}
-          </Link>
-        ))}
-      </div>
-    </div>
+      <nav aria-label="Nube de etiquetas del blog">
+        <div className="flex flex-wrap gap-2" role="list">
+          {displayTags.map((tag) => (
+            <Link
+              key={tag.tag}
+              href={`/blog?search=${encodeURIComponent(tag.tag)}`}
+              className="inline-block px-3 py-1 bg-gray-100 hover:bg-bluegreen-eske hover:text-white-eske text-gray-700 rounded-full transition-colors duration-200 focus-ring-primary"
+              style={{
+                fontSize: `${getFontSize(tag.count)}rem`,
+              }}
+              role="listitem"
+              aria-label={`Buscar artículos con la etiqueta ${tag.tag}, ${tag.count} ${tag.count === 1 ? "artículo" : "artículos"}`}
+            >
+              {tag.tag}
+            </Link>
+          ))}
+        </div>
+      </nav>
+    </aside>
   );
 }

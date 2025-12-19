@@ -3,11 +3,11 @@ import { Metadata } from "next";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 import DOMPurify from "isomorphic-dompurify";
-import { 
-  getFilteredPosts, 
-  getPopularPosts, 
-  getCategoryCounts, 
-  getAllTags 
+import {
+  getFilteredPosts,
+  getPopularPosts,
+  getCategoryCounts,
+  getAllTags,
 } from "@/lib/posts";
 import { PopularPostItem } from "@/types/post.types";
 import FoucheHeroSection from "./FoucheHeroSection";
@@ -21,10 +21,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 // ✅ Metadata estática para SEO
 export const metadata: Metadata = {
   title: "El Baúl de Fouché - Blog de Comunicación Política | Eskemma",
-  description: "Artículos sobre estrategia electoral, comunicación política, análisis de datos y campañas políticas. Contenido profesional para consultores y equipos de campaña en México.",
+  description:
+    "Artículos sobre estrategia electoral, comunicación política, análisis de datos y campañas políticas. Contenido profesional para consultores y equipos de campaña en México.",
   keywords: [
     "comunicación política",
-    "estrategia electoral", 
+    "estrategia electoral",
     "campañas políticas",
     "análisis electoral",
     "consultoría política",
@@ -37,12 +38,13 @@ export const metadata: Metadata = {
   authors: [{ name: "Eskemma" }],
   openGraph: {
     title: "El Baúl de Fouché - Blog de Comunicación Política",
-    description: "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
-    url: `${SITE_URL}/blog`, // ✅ Dinámico según entorno
+    description:
+      "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
+    url: `${SITE_URL}/blog`,
     siteName: "El Baúl de Fouché - Eskemma",
     images: [
       {
-        url: `${SITE_URL}/images/blog-hero.jpg`, // ✅ Dinámico según entorno
+        url: `${SITE_URL}/images/blog-hero.jpg`,
         width: 1200,
         height: 630,
         alt: "El Baúl de Fouché - Blog de Comunicación Política",
@@ -54,12 +56,13 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "El Baúl de Fouché - Blog de Comunicación Política",
-    description: "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
-    images: [`${SITE_URL}/images/blog-hero.jpg`], // ✅ Dinámico según entorno
-    creator: "@eskemma", // ✅ TODO: Cambiar por tu handle real de Twitter/X en producción
+    description:
+      "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
+    images: [`${SITE_URL}/images/blog-hero.jpg`],
+    creator: "@eskemma",
   },
   alternates: {
-    canonical: `${SITE_URL}/blog`, // ✅ Dinámico según entorno
+    canonical: `${SITE_URL}/blog`,
   },
 };
 
@@ -90,7 +93,7 @@ export const metadata: Metadata = {
     title: "El Baúl de Fouché - Blog de Comunicación Política",
     description: "Artículos profesionales sobre estrategia electoral y comunicación política en México.",
     images: ["https://eskemma.com/images/blog-hero.jpg"],
-    creator: "@tu_handle_real", // ✅ Cambiar por tu handle real
+    creator: "@tu_handle_real",
   },
   alternates: {
     canonical: "https://eskemma.com/blog",
@@ -99,8 +102,8 @@ export const metadata: Metadata = {
 */
 
 interface BlogPageProps {
-  searchParams: Promise<{ 
-    page?: string; 
+  searchParams: Promise<{
+    page?: string;
     category?: string;
     search?: string;
     sort?: string;
@@ -113,11 +116,15 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     const currentPage = Number(params.page) || 1;
     const selectedCategory = params.category || "todos";
     const searchTerm = params.search || "";
-    const sortBy = (params.sort as 'newest' | 'oldest' | 'popular') || "newest";
+    const sortBy = (params.sort as "newest" | "oldest" | "popular") || "newest";
     const postsPerPage = 6;
 
     // Obtener posts con todos los filtros aplicados
-    const { posts: sortedPosts, totalPages, totalPosts } = await getFilteredPosts(
+    const {
+      posts: sortedPosts,
+      totalPages,
+      totalPosts,
+    } = await getFilteredPosts(
       currentPage,
       postsPerPage,
       selectedCategory === "todos" ? null : selectedCategory,
@@ -175,15 +182,22 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         <FoucheHeroSection />
 
         {/* Sección de Posts */}
-        <section className="bg-gray-eske-10 min-h-[580px] py-12 px-4 sm:px-6 md:px-8">
+        <section
+          className="bg-gray-eske-10 min-h-[580px] py-12 px-4 sm:px-6 md:px-8"
+          aria-labelledby="posts-section-title"
+        >
           <div className="w-[90%] mx-auto max-w-screen-xl">
+            <h2 id="posts-section-title" className="sr-only">
+              Artículos del blog
+            </h2>
+
             <p className="text-center text-black-eske-80 mb-8 text-lg">
-              Explora nuestros artículos sobre estrategia, análisis
-              electoral y comunicación política.
+              Explora nuestros artículos sobre estrategia, análisis electoral y
+              comunicación política.
             </p>
 
             {/* Contador de posts */}
-            <div className="mb-8 text-center">
+            <div className="mb-8 text-center" role="status" aria-live="polite">
               {totalPosts === 0 ? (
                 <p className="text-gray-600 text-sm">
                   No se encontraron artículos con los filtros seleccionados
@@ -198,7 +212,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   {searchTerm && (
                     <span className="text-gray-700">
                       {" "}
-                      para <span className="font-medium">&quot;{searchTerm}&quot;</span>
+                      para{" "}
+                      <span className="font-medium">
+                        &quot;{searchTerm}&quot;
+                      </span>
                     </span>
                   )}
                 </p>
@@ -223,13 +240,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </div>
 
               {/* Sidebar - Desktop */}
-              <aside className="hidden lg:block lg:w-1/3">
+              <div className="hidden lg:block lg:w-1/3">
                 <Sidebar
                   popularPosts={popularPosts}
                   categoryCounts={categoryCounts}
                   tags={allTags}
                 />
-              </aside>
+              </div>
             </div>
 
             {/* Sidebar - Móvil */}
@@ -247,7 +264,11 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   } catch (error) {
     console.error("Error al obtener los posts:", error);
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-eske-10">
+      <div
+        className="min-h-screen flex items-center justify-center bg-gray-eske-10"
+        role="alert"
+        aria-live="assertive"
+      >
         <div className="text-center">
           <p className="text-xl text-red-500 mb-4">
             Ocurrió un error al cargar los posts.

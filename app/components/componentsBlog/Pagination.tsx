@@ -22,9 +22,9 @@ export default function Pagination({
   // Construir URL manteniendo TODOS los filtros
   const buildUrl = (page: number) => {
     const params = new URLSearchParams();
-    
+
     params.set("page", page.toString());
-    
+
     if (categoryFilter && categoryFilter !== "todos") {
       params.set("category", categoryFilter);
     }
@@ -76,25 +76,41 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <nav className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8 flex-wrap">
+    <nav
+      className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8 flex-wrap"
+      role="navigation"
+      aria-label="Paginación de publicaciones del blog"
+    >
       {/* Botón: Primera página */}
       <Link
         href={buildUrl(1)}
         className={`
           hidden sm:flex items-center justify-center
           px-3 py-2 rounded-lg text-sm font-medium
-          transition-all duration-200
+          transition-all duration-200 focus-ring-primary
           ${
             currentPage === 1
               ? "bg-gray-200 text-gray-400 cursor-not-allowed"
               : "bg-white-eske text-bluegreen-eske border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske hover:border-bluegreen-eske"
           }
         `}
+        aria-label="Ir a la primera página"
         aria-disabled={currentPage === 1}
         tabIndex={currentPage === 1 ? -1 : 0}
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+          />
         </svg>
         <span className="ml-1 hidden md:inline">Primera</span>
       </Link>
@@ -105,18 +121,30 @@ export default function Pagination({
         className={`
           flex items-center justify-center
           px-3 py-2 rounded-lg text-sm font-medium
-          transition-all duration-200
+          transition-all duration-200 focus-ring-primary
           ${
             currentPage === 1
               ? "bg-gray-200 text-gray-400 cursor-not-allowed"
               : "bg-white-eske text-bluegreen-eske border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske hover:border-bluegreen-eske"
           }
         `}
+        aria-label="Ir a la página anterior"
         aria-disabled={currentPage === 1}
         tabIndex={currentPage === 1 ? -1 : 0}
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         <span className="ml-1 hidden xs:inline">Anterior</span>
       </Link>
@@ -129,6 +157,7 @@ export default function Pagination({
               <span
                 key={`dots-${idx}`}
                 className="px-2 py-2 text-gray-500 text-sm"
+                aria-hidden="true"
               >
                 •••
               </span>
@@ -145,13 +174,14 @@ export default function Pagination({
                 flex items-center justify-center
                 min-w-[36px] sm:min-w-[40px] h-9 sm:h-10
                 rounded-lg text-sm font-medium
-                transition-all duration-200
+                transition-all duration-200 focus-ring-primary
                 ${
                   isActive
                     ? "bg-bluegreen-eske text-white-eske shadow-md scale-105"
                     : "bg-white-eske text-gray-700 border border-gray-300 hover:bg-bluegreen-eske-10 hover:border-bluegreen-eske"
                 }
               `}
+              aria-label={`${isActive ? "Página actual, " : ""}Ir a la página ${pageNum}`}
               aria-current={isActive ? "page" : undefined}
             >
               {pageNum}
@@ -166,19 +196,31 @@ export default function Pagination({
         className={`
           flex items-center justify-center
           px-3 py-2 rounded-lg text-sm font-medium
-          transition-all duration-200
+          transition-all duration-200 focus-ring-primary
           ${
             currentPage === totalPages
               ? "bg-gray-200 text-gray-400 cursor-not-allowed"
               : "bg-white-eske text-bluegreen-eske border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske hover:border-bluegreen-eske"
           }
         `}
+        aria-label="Ir a la página siguiente"
         aria-disabled={currentPage === totalPages}
         tabIndex={currentPage === totalPages ? -1 : 0}
       >
         <span className="mr-1 hidden xs:inline">Siguiente</span>
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
+          />
         </svg>
       </Link>
 
@@ -188,24 +230,40 @@ export default function Pagination({
         className={`
           hidden sm:flex items-center justify-center
           px-3 py-2 rounded-lg text-sm font-medium
-          transition-all duration-200
+          transition-all duration-200 focus-ring-primary
           ${
             currentPage === totalPages
               ? "bg-gray-200 text-gray-400 cursor-not-allowed"
               : "bg-white-eske text-bluegreen-eske border border-gray-300 hover:bg-bluegreen-eske hover:text-white-eske hover:border-bluegreen-eske"
           }
         `}
+        aria-label="Ir a la última página"
         aria-disabled={currentPage === totalPages}
         tabIndex={currentPage === totalPages ? -1 : 0}
       >
         <span className="mr-1 hidden md:inline">Última</span>
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 5l7 7-7 7M5 5l7 7-7 7"
+          />
         </svg>
       </Link>
 
       {/* Indicador móvil de página actual */}
-      <div className="flex sm:hidden items-center justify-center px-3 py-2 bg-gray-100 rounded-lg text-xs text-gray-600 ml-2">
+      <div
+        className="flex sm:hidden items-center justify-center px-3 py-2 bg-gray-100 rounded-lg text-xs text-gray-600 ml-2"
+        role="status"
+        aria-label={`Página ${currentPage} de ${totalPages}`}
+      >
         Pág. {currentPage}/{totalPages}
       </div>
     </nav>

@@ -76,12 +76,42 @@ export default function SubscriptionBadge() {
     return null;
   };
 
+  // Generar texto accesible para screen readers
+  const getAriaLabel = () => {
+    const roleName = getRoleName(user.role);
+
+    if (
+      ["basic", "premium", "grupal"].includes(user.role) &&
+      daysRemaining > 0
+    ) {
+      return `Suscripción ${roleName}, ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""} restante${daysRemaining !== 1 ? "s" : ""}`;
+    }
+
+    if (user.role === "expired") {
+      return `Suscripción expirada el ${expirationDate}`;
+    }
+
+    if (
+      [
+        "unsubscribed-basic",
+        "unsubscribed-premium",
+        "unsubscribed-grupal",
+      ].includes(user.role)
+    ) {
+      return `Suscripción ${roleName} cancelada`;
+    }
+
+    return `Estado de cuenta: ${roleName}`;
+  };
+
   return (
     <div
       className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${getBadgeColor()} shadow-sm`}
+      role="status"
+      aria-label={getAriaLabel()}
     >
-      <span>{getRoleName(user.role)}</span>
-      {showExtraInfo()}
+      <span aria-hidden="true">{getRoleName(user.role)}</span>
+      <span aria-hidden="true">{showExtraInfo()}</span>
     </div>
   );
 }

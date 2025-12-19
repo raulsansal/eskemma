@@ -33,10 +33,11 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       const formattedComments = data.comments.map((comment: any) => ({
         ...comment,
         createdAt: new Date(comment.createdAt),
-        replies: comment.replies?.map((reply: any) => ({
-          ...reply,
-          createdAt: new Date(reply.createdAt),
-        })) || [],
+        replies:
+          comment.replies?.map((reply: any) => ({
+            ...reply,
+            createdAt: new Date(reply.createdAt),
+          })) || [],
       }));
 
       setComments(formattedComments);
@@ -53,7 +54,9 @@ export default function CommentSection({ postId }: CommentSectionProps) {
 
   const handleCommentDeleted = (commentId: string) => {
     // Filtrar tanto comentarios principales como respuestas
-    const filterComments = (comments: CommentWithReplies[]): CommentWithReplies[] => {
+    const filterComments = (
+      comments: CommentWithReplies[]
+    ): CommentWithReplies[] => {
       return comments
         .filter((c) => c.id !== commentId)
         .map((c) => ({
@@ -65,7 +68,6 @@ export default function CommentSection({ postId }: CommentSectionProps) {
     setComments(filterComments(comments));
   };
 
-  // ✅ NUEVO: Manejar respuestas
   const handleReply = async (parentId: string, content: string) => {
     if (!user) {
       setIsLoginModalOpen(true);
@@ -90,7 +92,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
         body: JSON.stringify({
           postId,
           content: content.trim(),
-          parentId, // ✅ Enviar parentId
+          parentId,
         }),
       });
 
@@ -106,7 +108,9 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       };
 
       // Agregar respuesta al comentario padre
-      const addReplyToComment = (comments: CommentWithReplies[]): CommentWithReplies[] => {
+      const addReplyToComment = (
+        comments: CommentWithReplies[]
+      ): CommentWithReplies[] => {
         return comments.map((comment) => {
           if (comment.id === parentId) {
             return {
@@ -141,8 +145,11 @@ export default function CommentSection({ postId }: CommentSectionProps) {
   const totalComments = countComments(comments);
 
   return (
-    <section className="mt-16 pt-8 border-t border-gray-eske-30">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+    <section
+      className="mt-16 pt-8 border-t border-gray-eske-30"
+      aria-labelledby="comments-title"
+    >
+      <h2 id="comments-title" className="text-2xl font-bold text-gray-800 mb-6">
         Comentarios ({totalComments})
       </h2>
 
@@ -150,13 +157,17 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       {user ? (
         <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
       ) : (
-        <div className="bg-gray-eske-10 border border-gray-eske-30 rounded-lg p-6 mb-8 text-center">
+        <div
+          className="bg-gray-eske-10 border border-gray-eske-30 rounded-lg p-6 mb-8 text-center"
+          role="status"
+        >
           <p className="text-gray-700 mb-4">
             Inicia sesión para dejar un comentario
           </p>
           <button
             onClick={() => setIsLoginModalOpen(true)}
-            className="px-6 py-2 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-semibold"
+            className="px-6 py-2 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-semibold focus-ring-primary"
+            aria-label="Iniciar sesión para comentar"
           >
             Iniciar sesión
           </button>
@@ -165,11 +176,11 @@ export default function CommentSection({ postId }: CommentSectionProps) {
 
       {/* Lista de comentarios */}
       {isLoading ? (
-        <div className="text-center py-8">
+        <div className="text-center py-8" role="status" aria-live="polite">
           <p className="text-gray-600">Cargando comentarios...</p>
         </div>
       ) : comments.length === 0 ? (
-        <div className="text-center py-8 text-gray-600">
+        <div className="text-center py-8 text-gray-600" role="status">
           <p>Sé el primero en comentar</p>
         </div>
       ) : (

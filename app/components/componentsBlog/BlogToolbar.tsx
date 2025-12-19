@@ -13,11 +13,11 @@ interface BlogToolbarProps {
 export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const currentCategory = searchParams.get("category") || "todos";
   const currentSort = searchParams.get("sort") || "newest";
   const currentSearch = searchParams.get("search") || "";
-  
+
   const [searchInput, setSearchInput] = useState(currentSearch);
 
   // Sincronizar searchInput con URL cuando cambia
@@ -32,7 +32,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
     sort?: string;
   }) => {
     const urlParams = new URLSearchParams();
-    
+
     const category = params.category ?? currentCategory;
     const search = params.search ?? currentSearch;
     const sort = params.sort ?? currentSort;
@@ -101,7 +101,8 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
             id="category-filter"
             value={currentCategory}
             onChange={handleCategoryChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent bg-white text-gray-700 cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus-ring-primary bg-white text-gray-700 cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
+            aria-label="Filtrar publicaciones por categoría"
           >
             <option value="todos">Todas las categorías</option>
             {CATEGORIES.map((category) => (
@@ -127,20 +128,22 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Título, contenido o autor..."
-              className="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent bg-white text-gray-700 transition-all duration-200 hover:border-bluegreen-eske"
+              className="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus-ring-primary bg-white text-gray-700 transition-all duration-200 hover:border-bluegreen-eske"
+              aria-label="Buscar publicaciones por título, contenido o autor"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                title="Limpiar búsqueda"
+                className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus-ring-primary rounded"
+                aria-label="Limpiar búsqueda"
               >
                 <svg
                   className="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -153,14 +156,15 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
             )}
             <button
               type="submit"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors"
-              title="Buscar"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors focus-ring-primary rounded"
+              aria-label="Buscar publicaciones"
             >
               <svg
                 className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -185,7 +189,8 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
             id="sort-posts"
             value={currentSort}
             onChange={handleSortChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent bg-white text-gray-700 cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus-ring-primary bg-white text-gray-700 cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
+            aria-label="Ordenar publicaciones"
           >
             <option value="newest">Más recientes</option>
             <option value="oldest">Más antiguos</option>
@@ -195,16 +200,25 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
       </div>
 
       {/* Indicadores de filtros activos */}
-      {(currentCategory !== "todos" || currentSearch || currentSort !== "newest") && (
-        <div className="mt-4 flex flex-wrap gap-2 items-center">
+      {(currentCategory !== "todos" ||
+        currentSearch ||
+        currentSort !== "newest") && (
+        <div
+          className="mt-4 flex flex-wrap gap-2 items-center"
+          role="status"
+          aria-live="polite"
+          aria-label="Filtros activos"
+        >
           <span className="text-sm text-gray-600">Filtros activos:</span>
-          
+
           {currentCategory !== "todos" && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-bluegreen-eske text-white-eske">
-              {CATEGORIES.find(c => c.id === currentCategory)?.label || currentCategory}
+              {CATEGORIES.find((c) => c.id === currentCategory)?.label ||
+                currentCategory}
               <button
                 onClick={() => router.push(buildUrl({ category: "todos" }))}
-                className="ml-2 hover:text-gray-200"
+                className="ml-2 hover:text-gray-200 focus-ring-primary rounded"
+                aria-label={`Quitar filtro de categoría ${CATEGORIES.find((c) => c.id === currentCategory)?.label || currentCategory}`}
               >
                 ×
               </button>
@@ -216,7 +230,8 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
               Búsqueda: &quot;{currentSearch}&quot;
               <button
                 onClick={handleClearSearch}
-                className="ml-2 hover:text-blue-600"
+                className="ml-2 hover:text-blue-600 focus-ring-primary rounded"
+                aria-label={`Quitar filtro de búsqueda ${currentSearch}`}
               >
                 ×
               </button>
@@ -228,7 +243,8 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
               {currentSort === "oldest" ? "Más antiguos" : "Más populares"}
               <button
                 onClick={() => router.push(buildUrl({ sort: "newest" }))}
-                className="ml-2 hover:text-purple-600"
+                className="ml-2 hover:text-purple-600 focus-ring-primary rounded"
+                aria-label={`Quitar ordenamiento por ${currentSort === "oldest" ? "más antiguos" : "más populares"}`}
               >
                 ×
               </button>
@@ -237,7 +253,8 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
 
           <button
             onClick={() => router.push("/blog")}
-            className="text-xs text-gray-600 hover:text-bluegreen-eske underline"
+            className="text-xs text-gray-600 hover:text-bluegreen-eske underline focus-ring-primary rounded"
+            aria-label="Limpiar todos los filtros"
           >
             Limpiar todos
           </button>
