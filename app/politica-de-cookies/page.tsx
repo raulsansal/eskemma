@@ -546,14 +546,18 @@ export default function PoliticaDeCookiesPage() {
                       </li>
                       <li>Elige tu preferencia de cookies</li>
                     </ol>
-                    <p className="mt-3 text-[13px] text-blue-600">
+                    <p className="mt-3 text-[13px]">
                       <a
                         href="https://support.google.com/chrome/answer/95647"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="underline hover:text-blue-800"
+                        className="text-blue-600 underline hover:text-blue-800 focus-ring-primary rounded"
                       >
                         Ver guía completa de Google →
+                        <span className="sr-only">
+                          {" "}
+                          (se abre en nueva ventana)
+                        </span>
                       </a>
                     </p>
                   </div>
@@ -581,14 +585,18 @@ export default function PoliticaDeCookiesPage() {
                       </li>
                       <li>Configura tus preferencias</li>
                     </ol>
-                    <p className="mt-3 text-[13px] text-blue-600">
+                    <p className="mt-3 text-[13px]">
                       <a
                         href="https://support.mozilla.org/es/kb/cookies-informacion-que-los-sitios-web-guardan-en-"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="underline hover:text-blue-800"
+                        className="text-blue-600 underline hover:text-blue-800 focus-ring-primary rounded"
                       >
                         Ver guía completa de Firefox →
+                        <span className="sr-only">
+                          {" "}
+                          (se abre en nueva ventana)
+                        </span>
                       </a>
                     </p>
                   </div>
@@ -612,14 +620,18 @@ export default function PoliticaDeCookiesPage() {
                       </li>
                       <li>Configura "Cookies y datos de sitios web"</li>
                     </ol>
-                    <p className="mt-3 text-[13px] text-blue-600">
+                    <p className="mt-3 text-[13px]">
                       <a
                         href="https://support.apple.com/es-es/guide/safari/sfri11471/mac"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="underline hover:text-blue-800"
+                        className="text-blue-600 underline hover:text-blue-800 focus-ring-primary rounded"
                       >
                         Ver guía completa de Apple →
+                        <span className="sr-only">
+                          {" "}
+                          (se abre en nueva ventana)
+                        </span>
                       </a>
                     </p>
                   </div>
@@ -646,14 +658,18 @@ export default function PoliticaDeCookiesPage() {
                       </li>
                       <li>Configura tus preferencias</li>
                     </ol>
-                    <p className="mt-3 text-[13px] text-blue-600">
+                    <p className="mt-3 text-[13px]">
                       <a
                         href="https://support.microsoft.com/es-es/microsoft-edge/eliminar-las-cookies-en-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="underline hover:text-blue-800"
+                        className="text-blue-600 underline hover:text-blue-800 focus-ring-primary rounded"
                       >
                         Ver guía completa de Microsoft →
+                        <span className="sr-only">
+                          {" "}
+                          (se abre en nueva ventana)
+                        </span>
                       </a>
                     </p>
                   </div>
@@ -760,7 +776,7 @@ export default function PoliticaDeCookiesPage() {
                     </p>
                     <a
                       href="mailto:privacidad@eskemma.com"
-                      className="text-[15px] font-semibold text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors"
+                      className="text-[15px] font-semibold text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors focus-ring-primary rounded"
                     >
                       privacidad@eskemma.com
                     </a>
@@ -768,9 +784,7 @@ export default function PoliticaDeCookiesPage() {
                 </div>
 
                 <div className="flex items-center gap-3 p-3 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
-                  {" "}
                   <div>
-                    {" "}
                     <p className="text-[13px] text-black-eske-30 mb-1">
                       Dirección postal
                     </p>
