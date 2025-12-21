@@ -16,11 +16,30 @@ export default function SaveForLater({
   postTitle,
   postSlug,
 }: SaveForLaterProps) {
-  const { user, setIsLoginModalOpen } = useAuth(); // ✅ AGREGAR setIsLoginModalOpen
+  const { user, setIsLoginModalOpen } = useAuth();
   const [isSaved, setIsSaved] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false); // ✅ NUEVO ESTADO
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
+  // Manejo de Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showLoginPrompt) {
+        setShowLoginPrompt(false);
+      }
+    };
+
+    if (showLoginPrompt) {
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [showLoginPrompt]);
 
   // Verificar si el post está guardado al montar el componente
   useEffect(() => {
@@ -59,7 +78,6 @@ export default function SaveForLater({
   }, [user, postId]);
 
   const handleSave = async () => {
-    // ✅ MOSTRAR MODAL SI NO HAY USUARIO
     if (!user) {
       setShowLoginPrompt(true);
       return;
@@ -107,13 +125,19 @@ export default function SaveForLater({
 
   if (isCheckingStatus) {
     return (
-      <div className="flex items-center justify-center py-4">
+      <div 
+        className="flex items-center justify-center py-4"
+        role="status"
+        aria-live="polite"
+        aria-label="Verificando estado de guardado"
+      >
         <div className="animate-pulse flex items-center gap-2 text-gray-600">
           <svg
             className="w-5 h-5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -130,12 +154,15 @@ export default function SaveForLater({
 
   return (
     <>
-      {/* ✅ MODAL DE LOGIN PROMPT */}
+      {/* MODAL DE LOGIN PROMPT */}
       {showLoginPrompt && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }} // ✅ OPACIDAD 60%
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
           onClick={() => setShowLoginPrompt(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="save-login-modal-title"
         >
           <div
             className="bg-white rounded-lg shadow-lg w-full max-w-md p-8 relative"
@@ -143,8 +170,9 @@ export default function SaveForLater({
           >
             {/* Botón de cierre */}
             <button
-              className="absolute top-4 right-4 text-gray-700 hover:text-red-500 transition-colors"
+              className="absolute top-4 right-4 text-gray-700 hover:text-red-500 transition-colors focus-ring-primary rounded"
               onClick={() => setShowLoginPrompt(false)}
+              aria-label="Cerrar modal de inicio de sesión"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -152,6 +180,7 @@ export default function SaveForLater({
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -165,12 +194,13 @@ export default function SaveForLater({
             {/* Contenido */}
             <div className="text-center">
               {/* Icono */}
-              <div className="mb-4 flex justify-center">
+              <div className="mb-4 flex justify-center" aria-hidden="true">
                 <svg
                   className="w-16 h-16 text-bluegreen-eske"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -181,7 +211,10 @@ export default function SaveForLater({
                 </svg>
               </div>
 
-              <h3 className="text-xl font-bold text-black-eske mb-4">
+              <h3 
+                id="save-login-modal-title"
+                className="text-xl font-bold text-black-eske mb-4"
+              >
                 Debes iniciar sesión para guardar posts
               </h3>
 
@@ -195,7 +228,8 @@ export default function SaveForLater({
                   setShowLoginPrompt(false);
                   setIsLoginModalOpen(true);
                 }}
-                className="w-full px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-semibold"
+                className="w-full px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-semibold focus-ring-primary"
+                aria-label="Iniciar sesión para guardar artículos"
               >
                 Iniciar sesión
               </button>
@@ -209,11 +243,13 @@ export default function SaveForLater({
         <button
           onClick={handleSave}
           disabled={isLoading}
-          className={`flex items-center gap-3 px-6 py-3 rounded-lg border-2 transition-all duration-300 ${
+          className={`flex items-center gap-3 px-6 py-3 rounded-lg border-2 transition-all duration-300 focus-ring-primary ${
             isSaved
               ? "bg-bluegreen-eske text-white border-bluegreen-eske hover:bg-bluegreen-eske-70"
               : "bg-white-eske border-gray-eske-30 text-gray-700 hover:border-bluegreen-eske hover:text-bluegreen-eske"
           } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+          aria-label={isSaved ? "Artículo guardado. Clic para quitar de guardados" : "Guardar artículo para leer después"}
+          aria-pressed={isSaved}
         >
           <svg
             className={`w-6 h-6 transition-transform duration-300 ${
@@ -222,6 +258,7 @@ export default function SaveForLater({
             fill={isSaved ? "currentColor" : "none"}
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"

@@ -10,7 +10,12 @@ export const metadata = {
 export default function UnsubscribePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div 
+        className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center"
+        role="status"
+        aria-live="polite"
+        aria-label="Cargando página de cancelación de suscripción"
+      >
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-bluegreen-eske"></div>
       </div>
     }>

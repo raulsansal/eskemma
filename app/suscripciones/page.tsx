@@ -100,10 +100,10 @@ export default function SuscripcionesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
+        <header className="text-center mb-12">
           <h1 className="text-4xl font-bold text-bluegreen-eske mb-4">
             Planes de Suscripción
           </h1>
@@ -120,187 +120,219 @@ export default function SuscripcionesPage() {
           )}
 
           {hasActiveSubscription && (
-            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+            <div 
+              className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto"
+              role="status"
+              aria-live="polite"
+            >
               <p className="text-sm text-blue-800">
                 <strong>Plan actual:</strong> {getPlanName(user.subscriptionPlan || null)}
               </p>
               {daysRemaining > 0 && (
                 <p className="text-sm text-blue-600 mt-1">
-                  Expira el {expirationDate} ({daysRemaining} días restantes)
+                  Expira el {expirationDate} ({daysRemaining} día{daysRemaining !== 1 ? 's' : ''} restante{daysRemaining !== 1 ? 's' : ''})
                 </p>
               )}
             </div>
           )}
-        </div>
+        </header>
 
         {/* Planes */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {/* Plan Básico */}
-          <div
-            className={`bg-white rounded-lg shadow-lg p-8 border-2 transition-all duration-300 ${
-              selectedPlan === "basic"
-                ? "border-blue-500 transform scale-105"
-                : "border-gray-200 hover:border-blue-300"
-            }`}
+        <section aria-labelledby="plans-title">
+          <h2 id="plans-title" className="sr-only">Planes disponibles</h2>
+          <div 
+            className="grid md:grid-cols-3 gap-8 mb-12"
+            role="list"
+            aria-label="3 planes de suscripción disponibles"
           >
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Plan Básico
-              </h3>
-              <div className="text-4xl font-bold text-blue-600 mb-2">
-                ${SUBSCRIPTION_PRICES.basic}
-                <span className="text-lg text-gray-500">/mes</span>
+            {/* Plan Básico */}
+            <article
+              className={`bg-white rounded-lg shadow-lg p-8 border-2 transition-all duration-300 ${
+                selectedPlan === "basic"
+                  ? "border-blue-500 transform scale-105"
+                  : "border-gray-200 hover:border-blue-300"
+              }`}
+              role="listitem"
+            >
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Plan Básico
+                </h3>
+                <div className="text-4xl font-bold text-blue-600 mb-2">
+                  ${SUBSCRIPTION_PRICES.basic}
+                  <span className="text-lg text-gray-500">/mes</span>
+                </div>
+                <p className="text-gray-600">Ideal para comenzar</p>
               </div>
-              <p className="text-gray-600">Ideal para comenzar</p>
-            </div>
 
-            <ul className="space-y-3 mb-8">
-              {PLAN_FEATURES.basic.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span className="text-gray-700 text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
+              <ul 
+                className="space-y-3 mb-8"
+                role="list"
+                aria-label="Características del plan básico"
+              >
+                {PLAN_FEATURES.basic.map((feature, index) => (
+                  <li key={index} className="flex items-start" role="listitem">
+                    <svg
+                      className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-gray-700 text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
 
-            <Button
-              label={
-                user.subscriptionPlan === "basic"
-                  ? "Plan Actual"
-                  : selectedPlan === "basic"
-                  ? "Seleccionado"
-                  : "Seleccionar"
-              }
-              variant={selectedPlan === "basic" ? "primary" : "secondary"}
-              onClick={() => handleSelectPlan("basic")}
-              disabled={user.subscriptionPlan === "basic"}
-            />
-          </div>
+              <Button
+                label={
+                  user.subscriptionPlan === "basic"
+                    ? "Plan Actual"
+                    : selectedPlan === "basic"
+                    ? "Seleccionado"
+                    : "Seleccionar"
+                }
+                variant={selectedPlan === "basic" ? "primary" : "secondary"}
+                onClick={() => handleSelectPlan("basic")}
+                disabled={user.subscriptionPlan === "basic"}
+              />
+            </article>
 
-          {/* Plan Premium */}
-          <div
-            className={`bg-white rounded-lg shadow-lg p-8 border-2 transition-all duration-300 relative ${
-              selectedPlan === "premium"
-                ? "border-purple-500 transform scale-105"
-                : "border-purple-300 hover:border-purple-400"
-            }`}
-          >
-            {/* Badge "Más Popular" */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <span className="bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                Más Popular
-              </span>
-            </div>
-
-            <div className="text-center mb-6 mt-4">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Plan Premium
-              </h3>
-              <div className="text-4xl font-bold text-purple-600 mb-2">
-                ${SUBSCRIPTION_PRICES.premium}
-                <span className="text-lg text-gray-500">/mes</span>
+            {/* Plan Premium */}
+            <article
+              className={`bg-white rounded-lg shadow-lg p-8 border-2 transition-all duration-300 relative ${
+                selectedPlan === "premium"
+                  ? "border-purple-500 transform scale-105"
+                  : "border-purple-300 hover:border-purple-400"
+              }`}
+              role="listitem"
+            >
+              {/* Badge "Más Popular" */}
+              <div 
+                className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                aria-label="Plan más popular"
+              >
+                <span className="bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                  Más Popular
+                </span>
               </div>
-              <p className="text-gray-600">Para profesionales</p>
-            </div>
 
-            <ul className="space-y-3 mb-8">
-              {PLAN_FEATURES.premium.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span className="text-gray-700 text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <Button
-              label={
-                user.subscriptionPlan === "premium"
-                  ? "Plan Actual"
-                  : selectedPlan === "premium"
-                  ? "Seleccionado"
-                  : "Seleccionar"
-              }
-              variant={selectedPlan === "premium" ? "primary" : "secondary"}
-              onClick={() => handleSelectPlan("premium")}
-              disabled={user.subscriptionPlan === "premium"}
-            />
-          </div>
-
-          {/* Plan Grupal */}
-          <div
-            className={`bg-white rounded-lg shadow-lg p-8 border-2 transition-all duration-300 ${
-              selectedPlan === "grupal"
-                ? "border-green-500 transform scale-105"
-                : "border-gray-200 hover:border-green-300"
-            }`}
-          >
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Plan Grupal
-              </h3>
-              <div className="text-4xl font-bold text-green-600 mb-2">
-                ${SUBSCRIPTION_PRICES.grupal}
-                <span className="text-lg text-gray-500">/mes</span>
+              <div className="text-center mb-6 mt-4">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Plan Premium
+                </h3>
+                <div className="text-4xl font-bold text-purple-600 mb-2">
+                  ${SUBSCRIPTION_PRICES.premium}
+                  <span className="text-lg text-gray-500">/mes</span>
+                </div>
+                <p className="text-gray-600">Para profesionales</p>
               </div>
-              <p className="text-gray-600">Para equipos y empresas</p>
-            </div>
 
-            <ul className="space-y-3 mb-8">
-              {PLAN_FEATURES.grupal.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span className="text-gray-700 text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
+              <ul 
+                className="space-y-3 mb-8"
+                role="list"
+                aria-label="Características del plan premium"
+              >
+                {PLAN_FEATURES.premium.map((feature, index) => (
+                  <li key={index} className="flex items-start" role="listitem">
+                    <svg
+                      className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-gray-700 text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
 
-            <Button
-              label={
-                user.subscriptionPlan === "grupal"
-                  ? "Plan Actual"
-                  : selectedPlan === "grupal"
-                  ? "Seleccionado"
-                  : "Seleccionar"
-              }
-              variant={selectedPlan === "grupal" ? "primary" : "secondary"}
-              onClick={() => handleSelectPlan("grupal")}
-              disabled={user.subscriptionPlan === "grupal"}
-            />
+              <Button
+                label={
+                  user.subscriptionPlan === "premium"
+                    ? "Plan Actual"
+                    : selectedPlan === "premium"
+                    ? "Seleccionado"
+                    : "Seleccionar"
+                }
+                variant={selectedPlan === "premium" ? "primary" : "secondary"}
+                onClick={() => handleSelectPlan("premium")}
+                disabled={user.subscriptionPlan === "premium"}
+              />
+            </article>
+
+            {/* Plan Grupal */}
+            <article
+              className={`bg-white rounded-lg shadow-lg p-8 border-2 transition-all duration-300 ${
+                selectedPlan === "grupal"
+                  ? "border-green-500 transform scale-105"
+                  : "border-gray-200 hover:border-green-300"
+              }`}
+              role="listitem"
+            >
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Plan Grupal
+                </h3>
+                <div className="text-4xl font-bold text-green-600 mb-2">
+                  ${SUBSCRIPTION_PRICES.grupal}
+                  <span className="text-lg text-gray-500">/mes</span>
+                </div>
+                <p className="text-gray-600">Para equipos y empresas</p>
+              </div>
+
+              <ul 
+                className="space-y-3 mb-8"
+                role="list"
+                aria-label="Características del plan grupal"
+              >
+                {PLAN_FEATURES.grupal.map((feature, index) => (
+                  <li key={index} className="flex items-start" role="listitem">
+                    <svg
+                      className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-gray-700 text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Button
+                label={
+                  user.subscriptionPlan === "grupal"
+                    ? "Plan Actual"
+                    : selectedPlan === "grupal"
+                    ? "Seleccionado"
+                    : "Seleccionar"
+                }
+                variant={selectedPlan === "grupal" ? "primary" : "secondary"}
+                onClick={() => handleSelectPlan("grupal")}
+                disabled={user.subscriptionPlan === "grupal"}
+              />
+            </article>
           </div>
-        </div>
+        </section>
 
         {/* Botones de acción */}
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4" role="group" aria-label="Acciones de suscripción">
           {selectedPlan && !hasActiveSubscription && (
             <Button
               label={isProcessing ? "Procesando..." : "Confirmar Suscripción"}
@@ -321,12 +353,20 @@ export default function SuscripcionesPage() {
         </div>
 
         {/* Nota sobre integración futura */}
-        <div className="mt-12 bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-3xl mx-auto">
-          <h4 className="font-semibold text-yellow-800 mb-2 flex items-center">
+        <aside 
+          className="mt-12 bg-yellow-50 border border-yellow-200 rounded-lg p-6 max-w-3xl mx-auto"
+          role="note"
+          aria-labelledby="integration-note-title"
+        >
+          <h4 
+            id="integration-note-title"
+            className="font-semibold text-yellow-800 mb-2 flex items-center"
+          >
             <svg
               className="w-5 h-5 mr-2"
               fill="currentColor"
               viewBox="0 0 20 20"
+              aria-hidden="true"
             >
               <path
                 fillRule="evenodd"
@@ -342,8 +382,9 @@ export default function SuscripcionesPage() {
             próximamente. Por ahora, puedes activar cualquier plan para probar
             las funcionalidades.
           </p>
-        </div>
+        </aside>
       </div>
-    </div>
+    </main>
   );
 }
+

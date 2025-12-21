@@ -8,6 +8,12 @@ interface ViewCounterProps {
   slug: string;
 }
 
+/**
+ * Componente invisible que incrementa el contador de vistas del post
+ * después de 2 segundos de permanencia en la página.
+ * No renderiza ningún elemento visual, por lo que no requiere mejoras de accesibilidad en UI.
+ * Usa localStorage para evitar contar múltiples vistas en la misma sesión.
+ */
 export default function ViewCounter({ postId, slug }: ViewCounterProps) {
   const hasIncremented = useRef(false);
 
@@ -55,5 +61,7 @@ export default function ViewCounter({ postId, slug }: ViewCounterProps) {
     return () => clearTimeout(timer);
   }, [postId, slug]);
 
-  return null; // No renderiza nada visible
+  // No renderiza nada visible - Componente puramente funcional
+  return null;
 }
+

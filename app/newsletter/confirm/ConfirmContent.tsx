@@ -9,7 +9,7 @@ export default function ConfirmContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
-  const [countdown, setCountdown] = useState(20); // ✅ Countdown de 20 segundos
+  const [countdown, setCountdown] = useState(20);
   const hasConfirmed = useRef(false);
 
   useEffect(() => {
@@ -27,19 +27,19 @@ export default function ConfirmContent() {
     confirmSubscription(token);
   }, [searchParams]);
 
-  // ✅ Countdown y cierre automático
+  // Countdown y cierre automático
   useEffect(() => {
     if (status === "success") {
       const timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            window.close(); // ✅ Cerrar ventana
+            window.close();
             return 0;
           }
           return prev - 1;
         });
-      }, 5000);
+      }, 1000);
 
       return () => clearInterval(timer);
     }
@@ -73,20 +73,26 @@ export default function ConfirmContent() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
         {/* LOADING */}
         {status === "loading" && (
-          <>
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-bluegreen-eske mx-auto mb-6"></div>
+          <div role="status" aria-live="polite">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-bluegreen-eske mx-auto mb-6" aria-hidden="true"></div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
               Confirmando suscripción...
             </h1>
             <p className="text-gray-600">Por favor, espera un momento</p>
-          </>
+          </div>
         )}
 
         {/* SUCCESS */}
         {status === "success" && (
-          <>
-            <div className="mb-6">
-              <svg className="w-20 h-20 text-green-eske mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div role="status" aria-live="polite">
+            <div className="mb-6" aria-hidden="true">
+              <svg 
+                className="w-20 h-20 text-green-eske mx-auto" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -108,31 +114,45 @@ export default function ConfirmContent() {
               </p>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div 
+              className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
+              role="note"
+            >
               <p className="text-sm text-gray-700">
                 <strong>Revisa tu bandeja de entrada</strong> para ver el email de bienvenida con más detalles sobre lo que puedes esperar.
               </p>
             </div>
 
             <div className="space-y-3">
-              <p className="text-sm text-gray-500">
-                Esta ventana se cerrará automáticamente en <strong>{countdown}</strong> segundos...
+              <p 
+                className="text-sm text-gray-500"
+                role="timer"
+                aria-live="polite"
+              >
+                Esta ventana se cerrará automáticamente en <strong>{countdown}</strong> segundo{countdown !== 1 ? 's' : ''}...
               </p>
               <button
                 onClick={() => window.close()}
-                className="text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium text-sm underline transition-colors"
+                className="text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium text-sm underline transition-colors focus-ring-primary rounded"
+                aria-label="Cerrar ventana ahora"
               >
                 Cerrar ahora
               </button>
             </div>
-          </>
+          </div>
         )}
 
         {/* ERROR */}
         {status === "error" && (
-          <>
-            <div className="mb-6">
-              <svg className="w-20 h-20 text-red-eske mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div role="alert" aria-live="assertive">
+            <div className="mb-6" aria-hidden="true">
+              <svg 
+                className="w-20 h-20 text-red-eske mx-auto" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -145,7 +165,10 @@ export default function ConfirmContent() {
               {message}
             </p>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div 
+              className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6"
+              role="note"
+            >
               <p className="text-sm text-yellow-800">
                 <strong>¿Qué puedo hacer?</strong><br/>
                 El enlace puede haber expirado o ya fue usado. Intenta suscribirte de nuevo desde el blog.
@@ -155,19 +178,21 @@ export default function ConfirmContent() {
             <div className="space-y-3">
               <Link 
                 href="/blog" 
-                className="inline-block px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-medium shadow-md hover:shadow-lg"
+                className="inline-block px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors font-medium shadow-md hover:shadow-lg focus-ring-primary"
+                aria-label="Ir al blog de Eskemma"
               >
                 Ir al blog
               </Link>
-              <p className="text-sm text-gray-500">o</p>
+              <p className="text-sm text-gray-500" aria-hidden="true">o</p>
               <button
                 onClick={() => window.close()}
-                className="text-gray-600 hover:text-gray-800 font-medium text-sm underline transition-colors"
+                className="text-gray-600 hover:text-gray-800 font-medium text-sm underline transition-colors focus-ring-primary rounded"
+                aria-label="Cerrar esta ventana"
               >
                 Cerrar esta ventana
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </main>

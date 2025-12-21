@@ -7,12 +7,17 @@ interface ReadingTimeProps {
 
 export default function ReadingTime({ minutes }: ReadingTimeProps) {
   return (
-    <div className="flex items-center gap-2 text-sm text-gray-600">
+    <div 
+      className="flex items-center gap-2 text-sm text-gray-600"
+      role="text"
+      aria-label={`Tiempo estimado de lectura: ${minutes} minuto${minutes !== 1 ? 's' : ''}`}
+    >
       <svg
         className="w-4 h-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
+        aria-hidden="true"
       >
         <path
           strokeLinecap="round"

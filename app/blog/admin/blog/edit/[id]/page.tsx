@@ -268,9 +268,14 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div 
+        className="flex items-center justify-center min-h-screen"
+        role="status"
+        aria-live="polite"
+        aria-label="Cargando datos del post"
+      >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bluegreen-eske mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bluegreen-eske mx-auto" aria-hidden="true"></div>
           <p className="mt-4 text-gray-600">Cargando...</p>
         </div>
       </div>
@@ -287,63 +292,87 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         {/* Columna principal - Formulario (2/3) */}
         <div className="lg:col-span-2">
           <div className="bg-white-eske rounded-xl shadow-md p-6">
-            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+            <form 
+              onSubmit={(e) => e.preventDefault()} 
+              className="space-y-6"
+              aria-label="Formulario para crear o editar post del blog"
+            >
               {/* Título */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Título <span className="text-red-eske">*</span>
+                <label 
+                  htmlFor="title"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Título <span className="text-red-eske" aria-label="campo requerido">*</span>
                 </label>
                 <input
                   type="text"
+                  id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
                   placeholder="Título del post"
+                  aria-required="true"
                 />
               </div>
 
               {/* Slug */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Slug (URL) <span className="text-red-eske">*</span>
+                <label 
+                  htmlFor="slug"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Slug (URL) <span className="text-red-eske" aria-label="campo requerido">*</span>
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
+                    id="slug"
                     name="slug"
                     value={formData.slug}
                     onChange={handleChange}
                     required
-                    className="flex-1 px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+                    className="flex-1 px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
                     placeholder="slug-del-post"
+                    aria-required="true"
+                    aria-describedby="slug-hint"
                   />
                   <button
                     type="button"
                     onClick={handleRegenerateSlug}
-                    className="px-4 py-2 bg-blue-eske text-white rounded-lg hover:bg-blue-eske-70 transition-colors font-semibold whitespace-nowrap"
+                    className="px-4 py-2 bg-blue-eske text-white rounded-lg hover:bg-blue-eske-70 transition-colors font-semibold whitespace-nowrap focus-ring-primary"
                     title="Regenerar slug desde el título"
+                    aria-label="Regenerar slug desde el título"
                   >
                     🔄 Regenerar
                   </button>
                 </div>
-                <p className="text-xs text-gray-600 mt-1">
+                <p 
+                  id="slug-hint"
+                  className="text-xs text-gray-600 mt-1"
+                >
                   Se genera automáticamente desde el título, pero puedes editarlo manualmente
                 </p>
               </div>
 
               {/* Categoría */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Categoría <span className="text-red-eske">*</span>
+                <label 
+                  htmlFor="category"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Categoría <span className="text-red-eske" aria-label="campo requerido">*</span>
                 </label>
                 <select
+                  id="category"
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
+                  aria-required="true"
                 >
                   {CATEGORIES.map((cat) => (
                     <option key={cat.id} value={cat.id}>
@@ -355,26 +384,39 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
               {/* Contenido */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Contenido <span className="text-red-eske">*</span>
+                <label 
+                  htmlFor="content"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Contenido <span className="text-red-eske" aria-label="campo requerido">*</span>
                 </label>
                 <textarea
+                  id="content"
                   name="content"
                   value={formData.content}
                   onChange={handleChange}
                   required
                   rows={12}
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent font-mono text-sm"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary font-mono text-sm"
                   placeholder="Contenido en Markdown..."
+                  aria-required="true"
+                  aria-describedby="content-hint"
                 />
-                <p className="text-xs text-gray-600 mt-1">
+                <p 
+                  id="content-hint"
+                  className="text-xs text-gray-600 mt-1"
+                >
                   Usa Markdown para formatear el contenido
                 </p>
               </div>
 
+              {/* Continúa en parte 2... */}
               {/* Tags */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label 
+                  htmlFor="tags-input"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Tags (Etiquetas)
                 </label>
                 <TagInput
@@ -385,72 +427,110 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
               {/* Keywords */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label 
+                  htmlFor="keywords"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Palabras clave (SEO)
                 </label>
                 <input
                   type="text"
+                  id="keywords"
                   name="keywords"
                   value={formData.keywords?.join(", ") || ""}
                   onChange={handleKeywordsChange}
                   placeholder="política, estrategia, campaña"
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
+                  aria-describedby="keywords-hint"
                 />
-                <p className="text-xs text-gray-600 mt-1">
+                <p 
+                  id="keywords-hint"
+                  className="text-xs text-gray-600 mt-1"
+                >
                   Separadas por comas para SEO
                 </p>
               </div>
 
               {/* Meta Title */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label 
+                  htmlFor="metaTitle"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Meta Title (SEO)
                 </label>
                 <input
                   type="text"
+                  id="metaTitle"
                   name="metaTitle"
                   value={formData.metaTitle}
                   onChange={handleChange}
                   placeholder="Por defecto usa el título del post"
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
+                  aria-describedby="metaTitle-hint"
                 />
+                <p 
+                  id="metaTitle-hint"
+                  className="text-xs text-gray-600 mt-1"
+                >
+                  Usa el título del post si se deja vacío
+                </p>
               </div>
 
               {/* Meta Description */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label 
+                  htmlFor="metaDescription"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Meta Description (SEO)
                 </label>
                 <textarea
+                  id="metaDescription"
                   name="metaDescription"
                   value={formData.metaDescription}
                   onChange={handleChange}
                   rows={3}
                   maxLength={160}
                   placeholder="Descripción para SEO (max 160 caracteres)"
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
+                  aria-describedby="metaDescription-hint"
                 />
-                <p className="text-xs text-gray-600 mt-1">
+                <p 
+                  id="metaDescription-hint"
+                  className="text-xs text-gray-600 mt-1"
+                >
                   {formData.metaDescription?.length || 0}/160 caracteres
                 </p>
               </div>
 
               {/* Imagen Destacada */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label 
+                  htmlFor="featureImage"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Imagen Destacada
                 </label>
                 <input
                   type="file"
+                  id="featureImage"
                   accept="image/*"
                   onChange={handleFeatureImageUpload}
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-bluegreen-eske file:text-white hover:file:bg-bluegreen-eske-70"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-bluegreen-eske file:text-white hover:file:bg-bluegreen-eske-70 file:cursor-pointer"
+                  aria-describedby="featureImage-hint"
                 />
+                <p 
+                  id="featureImage-hint"
+                  className="text-xs text-gray-600 mt-1"
+                >
+                  Imagen principal del post (recomendado: 1200x630px)
+                </p>
                 {formData.featureImage && (
                   <div className="mt-3">
                     <img
                       src={formData.featureImage}
-                      alt="Imagen Destacada"
+                      alt="Vista previa de imagen destacada del post"
                       className="w-full max-w-md h-48 object-cover rounded-lg shadow-md"
                     />
                   </div>
@@ -459,17 +539,25 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
               {/* Imágenes Secundarias */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label 
+                  htmlFor="secondaryImages"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Imágenes Secundarias
                 </label>
                 <input
                   type="file"
+                  id="secondaryImages"
                   accept="image/*"
                   onChange={handleSecondaryImageUpload}
                   disabled={uploadingSecondary}
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-eske file:text-white hover:file:bg-blue-eske-70 disabled:opacity-50"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-eske file:text-white hover:file:bg-blue-eske-70 disabled:opacity-50 file:cursor-pointer"
+                  aria-describedby="secondaryImages-hint"
                 />
-                <p className="text-xs text-gray-600 mt-1">
+                <p 
+                  id="secondaryImages-hint"
+                  className="text-xs text-gray-600 mt-1"
+                >
                   {uploadingSecondary ? "Subiendo imagen..." : "Sube imágenes y luego insértalas en el contenido"}
                 </p>
 
@@ -489,14 +577,18 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
               {/* Estado */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label 
+                  htmlFor="status"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
                   Estado
                 </label>
                 <select
+                  id="status"
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
                 >
                   <option value="draft">Borrador</option>
                   <option value="published">Publicado</option>
@@ -509,14 +601,16 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="flex-1 px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold shadow-md"
+                  className="flex-1 px-6 py-3 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold shadow-md focus-ring-primary"
+                  aria-label={saving ? "Guardando cambios del post" : "Guardar cambios del post"}
                 >
                   {saving ? "Guardando..." : "Guardar Cambios"}
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push("/blog/admin/blog")}
-                  className="px-6 py-3 bg-gray-eske-40 text-gray-800 rounded-lg hover:bg-gray-eske-60 transition-colors font-semibold shadow-md"
+                  className="px-6 py-3 bg-gray-eske-40 text-gray-800 rounded-lg hover:bg-gray-eske-60 transition-colors font-semibold shadow-md focus-ring-primary"
+                  aria-label="Cancelar edición y volver a lista de posts"
                 >
                   Cancelar
                 </button>
@@ -528,7 +622,8 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                   <button
                     type="button"
                     onClick={handleDebugToken}
-                    className="w-full px-4 py-2 bg-green-eske text-white rounded-lg hover:bg-green-eske-70 transition-colors text-sm font-medium"
+                    className="w-full px-4 py-2 bg-green-eske text-white rounded-lg hover:bg-green-eske-70 transition-colors text-sm font-medium focus-ring-primary"
+                    aria-label="Depurar token de autenticación del usuario"
                   >
                     🔍 Depurar Token del Usuario
                   </button>
@@ -539,49 +634,71 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         </div>
 
         {/* Columna lateral - SEO Preview (1/3) */}
-        <div className="lg:col-span-1">
+        <aside 
+          className="lg:col-span-1"
+          aria-labelledby="seo-preview-title"
+        >
           <div className="sticky top-8 space-y-6">
             {/* SEO Preview */}
-            <SEOPreview
-              title={formData.metaTitle || formData.title}
-              description={formData.metaDescription || formData.content.substring(0, 160)}
-              imageUrl={formData.featureImage}
-              slug={formData.slug}
-            />
+            <section aria-labelledby="seo-preview-title">
+              <h2 id="seo-preview-title" className="sr-only">Vista previa de SEO</h2>
+              <SEOPreview
+                title={formData.metaTitle || formData.title}
+                description={formData.metaDescription || formData.content.substring(0, 160)}
+                imageUrl={formData.featureImage}
+                slug={formData.slug}
+              />
+            </section>
 
             {/* Tips de SEO */}
-            <div className="bg-blue-eske-10 rounded-xl p-4 border border-blue-eske-30">
-              <h4 className="text-sm font-bold text-blue-eske mb-3 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <section 
+              className="bg-blue-eske-10 rounded-xl p-4 border border-blue-eske-30"
+              role="note"
+              aria-labelledby="seo-tips-title"
+            >
+              <h3 
+                id="seo-tips-title"
+                className="text-sm font-bold text-blue-eske mb-3 flex items-center gap-2"
+              >
+                <svg 
+                  className="w-4 h-4" 
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 Tips de SEO
-              </h4>
-              <ul className="space-y-2 text-xs text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-bluegreen-eske mt-0.5">•</span>
+              </h3>
+              <ul 
+                className="space-y-2 text-xs text-gray-700"
+                role="list"
+                aria-label="5 consejos de SEO"
+              >
+                <li className="flex items-start gap-2" role="listitem">
+                  <span className="text-bluegreen-eske mt-0.5" aria-hidden="true">•</span>
                   <span>Usa títulos descriptivos de 50-60 caracteres</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-bluegreen-eske mt-0.5">•</span>
+                <li className="flex items-start gap-2" role="listitem">
+                  <span className="text-bluegreen-eske mt-0.5" aria-hidden="true">•</span>
                   <span>Meta descripción ideal: 150-160 caracteres</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-bluegreen-eske mt-0.5">•</span>
+                <li className="flex items-start gap-2" role="listitem">
+                  <span className="text-bluegreen-eske mt-0.5" aria-hidden="true">•</span>
                   <span>Incluye palabras clave en título y descripción</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-bluegreen-eske mt-0.5">•</span>
+                <li className="flex items-start gap-2" role="listitem">
+                  <span className="text-bluegreen-eske mt-0.5" aria-hidden="true">•</span>
                   <span>La imagen destacada debe ser 1200x630px para redes</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-bluegreen-eske mt-0.5">•</span>
+                <li className="flex items-start gap-2" role="listitem">
+                  <span className="text-bluegreen-eske mt-0.5" aria-hidden="true">•</span>
                   <span>Slug debe ser corto, descriptivo y sin acentos</span>
                 </li>
               </ul>
-            </div>
+            </section>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

@@ -20,8 +20,9 @@ export default function ResourcesCard({
   if (resources.length === 0) return null;
 
   return (
-    <div className={className}>
+    <div className={className} role="region" aria-label="Recursos descargables relacionados">
       <DownloadableResources resources={resources} category={category} />
     </div>
   );
 }
+

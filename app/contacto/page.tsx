@@ -158,27 +158,31 @@ export default function ContactoPage() {
   return (
     <main className="min-h-screen bg-white-eske">
       {/* Hero Section - Responsiva */}
-      <section className="relative h-[250px] sm:h-[200px] md:h-[200px] w-full flex items-center bg-bluegreen-eske overflow-hidden">
+      <section 
+        className="relative h-[250px] sm:h-[200px] md:h-[200px] w-full flex items-center bg-bluegreen-eske overflow-hidden"
+        aria-labelledby="hero-title"
+      >
         {/* Imagen de Fondo */}
         <Image
           src="/images/yanmin_yang.jpg"
-          alt="Hero Background"
+          alt=""
           fill
           style={{ objectFit: "cover" }}
           className="absolute inset-0 z-0"
           priority
+          aria-hidden="true"
         />
 
         {/* Overlay con opacidad */}
-        <div className="absolute inset-0 bg-bluegreen-eske opacity-75 z-10"></div>
+        <div className="absolute inset-0 bg-bluegreen-eske opacity-75 z-10" aria-hidden="true"></div>
 
         {/* Contenedor Principal */}
         <div className="relative z-20 w-full max-w-screen-xl mx-auto flex items-center h-full">
           {/* Imagen de Persona Sonriendo (Izquierda) - Solo en desktop */}
-          <div className="hidden md:block md:w-1/2 relative h-full">
+          <div className="hidden md:block md:w-1/2 relative h-full" aria-hidden="true">
             <Image
               src="/images/womanContact.jpg"
-              alt="Persona Sonriendo"
+              alt=""
               fill
               style={{
                 objectFit: "contain",
@@ -190,7 +194,10 @@ export default function ContactoPage() {
 
           {/* Contenido del Hero (Derecha en desktop, centrado en móvil) */}
           <div className="w-full md:w-1/2 px-4 sm:px-6 md:px-8 flex flex-col justify-center text-center md:text-left py-4">
-            <h1 className="text-2xl sm:text-[26px] md:text-[28px] leading-tight font-bold text-white-eske">
+            <h1 
+              id="hero-title"
+              className="text-2xl sm:text-[26px] md:text-[28px] leading-tight font-bold text-white-eske"
+            >
               Estamos aquí para escucharte
             </h1>
             <p className="mt-2 text-sm sm:text-[15px] md:text-[16px] leading-relaxed font-light text-white-eske">
@@ -204,20 +211,31 @@ export default function ContactoPage() {
       </section>
 
       {/* Sección: ¿Para qué puedes contactarnos? */}
-      <section className="bg-gray-eske-10 py-12 px-4 sm:px-6 md:px-8">
+      <section 
+        className="bg-gray-eske-10 py-12 px-4 sm:px-6 md:px-8"
+        aria-labelledby="contact-reasons-title"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-8">
+          <h2 
+            id="contact-reasons-title"
+            className="text-3xl font-semibold text-center text-bluegreen-eske mb-8"
+          >
             ¿Para qué puedes contactarnos?
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            role="list"
+            aria-label="Razones para contactarnos"
+          >
             {/* Item 1 */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <img
                 src="/icons/icon_Consultoria.svg"
-                alt="Consultoría Política"
+                alt=""
                 width={60}
                 height={60}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Contratar Servicios
@@ -225,16 +243,17 @@ export default function ContactoPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Si deseas contratar nuestros servicios.
               </p>
-            </div>
+            </article>
 
             {/* Item 2 */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <img
                 src="/icons/icon_Info.svg"
-                alt="Pedir Información"
+                alt=""
                 width={60}
                 height={60}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Pedir Información
@@ -242,16 +261,17 @@ export default function ContactoPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Para resolver dudas sobre nuestros productos o servicios.
               </p>
-            </div>
+            </article>
 
             {/* Item 3 */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <img
                 src="/icons/icon_Blog.svg"
-                alt="Publicar en el Blog"
+                alt=""
                 width={60}
                 height={60}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Publicar en el Blog
@@ -259,27 +279,45 @@ export default function ContactoPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Si tienes contenido relevante para nuestro blog.
               </p>
-            </div>
+            </article>
           </div>
         </div>
       </section>
 
       {/* Sección: ¿Cómo puedes contactarnos? */}
-      <section className="bg-white-eske py-12 px-4 sm:px-6 md:px-8">
+      <section 
+        className="bg-white-eske py-12 px-4 sm:px-6 md:px-8"
+        aria-labelledby="contact-methods-title"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-8">
+          <h2 
+            id="contact-methods-title"
+            className="text-3xl font-semibold text-center text-bluegreen-eske mb-8"
+          >
             ¿Cómo puedes contactarnos?
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             {/* Datos de Contacto */}
-            <div className="space-y-4">
+            <div className="space-y-4" role="region" aria-label="Información de contacto">
               <p className="text-lg font-light text-black-eske">
                 <span className="font-bold text-bluegreen-eske">Teléfono:</span>{" "}
-                +52 55 5555 5555
+                <a 
+                  href="tel:+525555555555"
+                  className="hover:text-bluegreen-eske transition-colors focus-ring-primary rounded"
+                  aria-label="Llamar al teléfono +52 55 5555 5555"
+                >
+                  +52 55 5555 5555
+                </a>
               </p>
               <p className="text-lg font-light text-black-eske">
                 <span className="font-bold text-bluegreen-eske">Email:</span>{" "}
-                contacto@eskemma.com
+                <a 
+                  href="mailto:contacto@eskemma.com"
+                  className="hover:text-bluegreen-eske transition-colors focus-ring-primary rounded"
+                  aria-label="Enviar correo a contacto@eskemma.com"
+                >
+                  contacto@eskemma.com
+                </a>
               </p>
               <p className="text-lg font-light text-black-eske">
                 <span className="font-bold text-bluegreen-eske">
@@ -291,7 +329,7 @@ export default function ContactoPage() {
                 <span className="font-bold text-bluegreen-eske">
                   Horario de Atención:
                 </span>{" "}
-                Lunes a Viernes, 9:00 - 18:00
+                <time>Lunes a Viernes, 9:00 - 18:00</time>
               </p>
               <p className="text-lg font-light text-black-eske">
                 <span className="font-bold text-bluegreen-eske">
@@ -303,7 +341,11 @@ export default function ContactoPage() {
 
             {/* Formulario */}
             <div>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form 
+                onSubmit={handleSubmit} 
+                className="space-y-4"
+                aria-label="Formulario de contacto"
+              >
                 <h3 className="text-2xl font-semibold text-bluegreen-eske mb-4">
                   Escríbenos
                 </h3>
@@ -316,6 +358,8 @@ export default function ContactoPage() {
                         ? "bg-green-50 border border-green-200 text-green-800"
                         : "bg-red-50 border border-red-200 text-red-800"
                     }`}
+                    role={submitStatus.type === "error" ? "alert" : "status"}
+                    aria-live={submitStatus.type === "error" ? "assertive" : "polite"}
                   >
                     <p className="text-sm font-medium">
                       {submitStatus.message}
@@ -329,7 +373,7 @@ export default function ContactoPage() {
                     htmlFor="name"
                     className="block text-black-eske font-medium mb-1"
                   >
-                    Nombre <span className="text-red-500">*</span>
+                    Nombre <span className="text-red-500" aria-label="campo requerido">*</span>
                   </label>
                   <input
                     type="text"
@@ -338,12 +382,17 @@ export default function ContactoPage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-bluegreen-eske focus:ring focus:ring-bluegreen-eske-20 px-3 py-2 transition-colors bg-white"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus-ring-primary px-3 py-2 transition-colors bg-white"
                     placeholder="Tu nombre completo"
+                    aria-describedby={isAuthenticatedUser && formData.name ? "name-hint" : undefined}
                   />
                   {/* ✅ Mensaje informativo para usuarios autenticados */}
                   {isAuthenticatedUser && formData.name && (
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p 
+                      id="name-hint"
+                      className="text-xs text-gray-400 mt-1"
+                      role="status"
+                    >
                       ℹ️ Prellenado con tu información de perfil (puedes
                       editarlo)
                     </p>
@@ -356,7 +405,7 @@ export default function ContactoPage() {
                     htmlFor="email"
                     className="block text-black-eske font-medium mb-1"
                   >
-                    Email <span className="text-red-500">*</span>
+                    Email <span className="text-red-500" aria-label="campo requerido">*</span>
                   </label>
                   <input
                     type="email"
@@ -365,12 +414,17 @@ export default function ContactoPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-bluegreen-eske focus:ring focus:ring-bluegreen-eske-20 px-3 py-2 transition-colors bg-white"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus-ring-primary px-3 py-2 transition-colors bg-white"
                     placeholder="tu@email.com"
+                    aria-describedby={isAuthenticatedUser && formData.email ? "email-hint" : undefined}
                   />
                   {/* ✅ Mensaje informativo para usuarios autenticados */}
                   {isAuthenticatedUser && formData.email && (
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p 
+                      id="email-hint"
+                      className="text-xs text-gray-400 mt-1"
+                      role="status"
+                    >
                       ℹ️ Prellenado con tu información de perfil (puedes
                       editarlo)
                     </p>
@@ -383,7 +437,7 @@ export default function ContactoPage() {
                     htmlFor="message"
                     className="block text-black-eske font-medium mb-1"
                   >
-                    Mensaje <span className="text-red-500">*</span>
+                    Mensaje <span className="text-red-500" aria-label="campo requerido">*</span>
                   </label>
                   <textarea
                     id="message"
@@ -392,20 +446,24 @@ export default function ContactoPage() {
                     onChange={handleChange}
                     rows={4}
                     required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-bluegreen-eske focus:ring focus:ring-bluegreen-eske-20 px-3 py-2"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus-ring-primary px-3 py-2"
                     placeholder="Escribe tu mensaje aquí..."
                   ></textarea>
                 </div>
 
                 {/* ✅ Mensaje para usuarios NO autenticados */}
                 {!isAuthenticatedUser && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-center">
+                  <div 
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-center"
+                    role="note"
+                  >
                     <p className="text-sm text-blue-800">
                       ¿No tienes cuenta?{" "}
                       <button
                         type="button"
                         onClick={handleOpenSignUp}
-                        className="text-bluegreen-eske font-semibold underline hover:text-bluegreen-eske-70 transition-colors"
+                        className="text-bluegreen-eske font-semibold underline hover:text-bluegreen-eske-70 transition-colors focus-ring-primary rounded"
+                        aria-label="Abrir formulario de registro"
                       >
                         Regístrate aquí
                       </button>
@@ -417,7 +475,8 @@ export default function ContactoPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-orange-eske text-white-eske px-6 py-3 rounded-lg font-medium hover:bg-orange-eske-70 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-orange-eske text-white-eske px-6 py-3 rounded-lg font-medium hover:bg-orange-eske-70 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus-ring-primary"
+                  aria-label={isSubmitting ? "Enviando mensaje" : "Enviar mensaje"}
                 >
                   {isSubmitting ? "ENVIANDO..." : "ENVIAR MENSAJE"}
                 </button>

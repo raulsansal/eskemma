@@ -19,7 +19,10 @@ export default function PostSidebar({
   currentCategory,
 }: PostSidebarProps) {
   return (
-    <aside className="hidden lg:block lg:w-1/3">
+    <aside 
+      className="hidden lg:block lg:w-1/3"
+      aria-label="Barra lateral con contenido complementario del artículo"
+    >
       <div className="sticky top-24 space-y-6">
         {/* 1. Tabla de contenidos */}
         {headings.length > 0 && <TableOfContents headings={headings} />}
@@ -28,10 +31,12 @@ export default function PostSidebar({
         <NewsletterSignup />        
 
         {/* 3. Recursos descargables */}
-        <ResourcesCard
-          resources={resources}
-          category={currentCategory}
-        />
+        {resources.length > 0 && (
+          <ResourcesCard
+            resources={resources}
+            category={currentCategory}
+          />
+        )}
 
         {/* 4. Posts relacionados */}
         {relatedPosts.length > 0 && (

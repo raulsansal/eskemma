@@ -132,7 +132,7 @@ const ProfilePage = () => {
     }
   }, [user]);
 
-  // ✅ NUEVA FUNCIÓN: Manejar cancelación
+  // NUEVA FUNCIÓN: Manejar cancelación
   const handleCancel = () => {
     // Confirmar si el usuario desea descartar cambios
     const hasChanges =
@@ -258,7 +258,6 @@ const ProfilePage = () => {
     }
 
     try {
-      // ✅ USAR LA FUNCIÓN DE UTILIDAD EN VEZ DE QUERY DIRECTA
       const available = await isUserNameAvailable(userName.toLowerCase());
 
       if (!available) {
@@ -496,26 +495,36 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-3xl font-bold text-bluegreen-eske text-center mb-8">
+    <main className="max-w-2xl mx-auto p-6">
+      <h1 className="text-3xl font-bold text-bluegreen-eske text-center mb-8">
         Editar Perfil
-      </h2>
+      </h1>
 
       {/* SECCIÓN: Avatar */}
-      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+      <section 
+        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        aria-labelledby="avatar-section-title"
+      >
+        <h2 
+          id="avatar-section-title"
+          className="text-xl font-semibold text-bluegreen-eske mb-4"
+        >
           Foto de Perfil
-        </h3>
+        </h2>
         <div className="flex items-center gap-6">
           <div className="flex-shrink-0">
             {avatarPreview ? (
               <img
                 src={avatarPreview}
-                alt="Avatar"
+                alt={`Foto de perfil de ${formData.name || 'usuario'}`}
                 className="w-32 h-32 rounded-full object-cover border-4 border-bluegreen-eske"
               />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300">
+              <div 
+                className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300"
+                role="img"
+                aria-label="Sin foto de perfil"
+              >
                 <span className="text-gray-400 text-sm text-center px-2">
                   Sin foto
                 </span>
@@ -525,7 +534,14 @@ const ProfilePage = () => {
           <div className="flex-1">
             <label
               htmlFor="avatar-upload"
-              className="cursor-pointer inline-block bg-bluegreen-eske text-white px-6 py-3 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300"
+              className="cursor-pointer inline-block bg-bluegreen-eske text-white px-6 py-3 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 focus-ring-primary"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  document.getElementById('avatar-upload')?.click();
+                }
+              }}
             >
               {isUploadingAvatar ? "Subiendo..." : "Cambiar foto"}
             </label>
@@ -536,303 +552,518 @@ const ProfilePage = () => {
               onChange={handleAvatarUpload}
               disabled={isUploadingAvatar}
               className="hidden"
+              aria-label="Seleccionar archivo de imagen para foto de perfil"
             />
             <p className="text-sm text-gray-500 mt-2">
               Tamaño máximo: 2 MB. Formatos: JPG, PNG, GIF
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* SECCIÓN: Información Personal */}
-      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+      <section 
+        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        aria-labelledby="personal-info-title"
+      >
+        <h2 
+          id="personal-info-title"
+          className="text-xl font-semibold text-bluegreen-eske mb-4"
+        >
           Información Personal
-        </h3>
+        </h2>
 
-        {/* Nombre */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border ${
-              errors.name ? "border-red-500" : "border-gray-300"
-            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-          )}
-        </div>
-
-        {/* Apellidos */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Apellidos <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border ${
-              errors.lastName ? "border-red-500" : "border-gray-300"
-            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
-          />
-          {errors.lastName && (
-            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-          )}
-        </div>
-
-        {/* Nombre de Usuario */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre de Usuario <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="userName"
-            value={formData.userName}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border ${
-              !isUserNameValid ? "border-red-500" : "border-gray-300"
-            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
-          />
-          {!isUserNameValid && (
-            <p className="text-red-500 text-sm mt-1">{userNameError}</p>
-          )}
-          {suggestionMessage && (
-            <p className="text-blue-500 text-sm mt-1">{suggestionMessage}</p>
-          )}
-        </div>
-
-        {/* Sexo */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Sexo <span className="text-red-500">*</span>
-          </label>
-          <select
-            name="sex"
-            value={formData.sex}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border ${
-              errors.sex ? "border-red-500" : "border-gray-300"
-            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
-          >
-            <option value="">Selecciona una opción</option>
-            <option value="hombre">Hombre</option>
-            <option value="mujer">Mujer</option>
-            <option value="no-binario">No binario</option>
-          </select>
-          {errors.sex && (
-            <p className="text-red-500 text-sm mt-1">{errors.sex}</p>
-          )}
-        </div>
-
-        {/* País */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            País <span className="text-red-500">*</span>
-          </label>
-          <select
-            name="country"
-            value={formData.country}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border ${
-              errors.country ? "border-red-500" : "border-gray-300"
-            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
-          >
-            <option value="">Selecciona una opción</option>
-            {sortedCountries.map((country) => (
-              <option key={country} value={country}>
-                {country}
-              </option>
-            ))}
-          </select>
-          {errors.country && (
-            <p className="text-red-500 text-sm mt-1">{errors.country}</p>
-          )}
-        </div>
-
-        {/* Email */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Correo Electrónico <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 border ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            } rounded-md focus:outline-none focus:border-bluegreen-eske`}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            ⚠️ Este es tu correo de autenticación. Cambiarlo requerirá
-            verificación y afectará tu inicio de sesión.
-          </p>
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
-        </div>
-      </div>
-
-      {/* SECCIÓN: Roles */}
-      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
-          Roles Profesionales
-        </h3>
-        <div className="space-y-2">
-          {[
-            "Candidatura",
-            "Consultoría o Asesoría",
-            "Integrante de equipo de campaña",
-            "Integrante de partido político",
-            "Servicio público",
-            "Academia",
-            "Otro",
-          ].map((role) => (
-            <label key={role} className="flex items-center">
-              <input
-                type="checkbox"
-                value={role}
-                checked={formData.roles.includes(role)}
-                onChange={handleRolesChange}
-                className="mr-2 accent-bluegreen-eske"
-              />
-              <span className="text-gray-700">{role}</span>
+        <form aria-label="Formulario de información personal">
+          {/* Nombre */}
+          <div className="mb-4">
+            <label 
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Nombre <span className="text-red-500" aria-label="campo requerido">*</span>
             </label>
-          ))}
-          {formData.roles.includes("Otro") && (
             <input
               type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 border ${
+                errors.name ? "border-red-500" : "border-gray-300"
+              } rounded-md focus-ring-primary`}
+              aria-required="true"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
+            />
+            {errors.name && (
+              <p 
+                id="name-error"
+                className="text-red-500 text-sm mt-1"
+                role="alert"
+              >
+                {errors.name}
+              </p>
+            )}
+          </div>
+
+          {/* Apellidos */}
+          <div className="mb-4">
+            <label 
+              htmlFor="lastName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Apellidos <span className="text-red-500" aria-label="campo requerido">*</span>
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 border ${
+                errors.lastName ? "border-red-500" : "border-gray-300"
+              } rounded-md focus-ring-primary`}
+              aria-required="true"
+              aria-invalid={!!errors.lastName}
+              aria-describedby={errors.lastName ? "lastName-error" : undefined}
+            />
+            {errors.lastName && (
+              <p 
+                id="lastName-error"
+                className="text-red-500 text-sm mt-1"
+                role="alert"
+              >
+                {errors.lastName}
+              </p>
+            )}
+          </div>
+
+          {/* Nombre de Usuario */}
+          <div className="mb-4">
+            <label 
+              htmlFor="userName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Nombre de Usuario <span className="text-red-500" aria-label="campo requerido">*</span>
+            </label>
+            <input
+              type="text"
+              id="userName"
+              name="userName"
+              value={formData.userName}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 border ${
+                !isUserNameValid ? "border-red-500" : "border-gray-300"
+              } rounded-md focus-ring-primary`}
+              aria-required="true"
+              aria-invalid={!isUserNameValid}
+              aria-describedby={!isUserNameValid || suggestionMessage ? "userName-error userName-suggestion" : undefined}
+            />
+            {!isUserNameValid && (
+              <p 
+                id="userName-error"
+                className="text-red-500 text-sm mt-1"
+                role="alert"
+              >
+                {userNameError}
+              </p>
+            )}
+            {suggestionMessage && (
+              <p 
+                id="userName-suggestion"
+                className="text-blue-500 text-sm mt-1"
+                role="status"
+                aria-live="polite"
+              >
+                {suggestionMessage}
+              </p>
+            )}
+          </div>
+
+          {/* Sexo */}
+          <div className="mb-4">
+            <label 
+              htmlFor="sex"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Sexo <span className="text-red-500" aria-label="campo requerido">*</span>
+            </label>
+            <select
+              id="sex"
+              name="sex"
+              value={formData.sex}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 border ${
+                errors.sex ? "border-red-500" : "border-gray-300"
+              } rounded-md focus-ring-primary`}
+              aria-required="true"
+              aria-invalid={!!errors.sex}
+              aria-describedby={errors.sex ? "sex-error" : undefined}
+            >
+              <option value="">Selecciona una opción</option>
+              <option value="hombre">Hombre</option>
+              <option value="mujer">Mujer</option>
+              <option value="no-binario">No binario</option>
+            </select>
+            {errors.sex && (
+              <p 
+                id="sex-error"
+                className="text-red-500 text-sm mt-1"
+                role="alert"
+              >
+                {errors.sex}
+              </p>
+            )}
+          </div>
+
+          {/* País */}
+          <div className="mb-4">
+            <label 
+              htmlFor="country"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              País <span className="text-red-500" aria-label="campo requerido">*</span>
+            </label>
+            <select
+              id="country"
+              name="country"
+              value={formData.country}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 border ${
+                errors.country ? "border-red-500" : "border-gray-300"
+              } rounded-md focus-ring-primary`}
+              aria-required="true"
+              aria-invalid={!!errors.country}
+              aria-describedby={errors.country ? "country-error" : undefined}
+            >
+              <option value="">Selecciona una opción</option>
+              {sortedCountries.map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </select>
+            {errors.country && (
+              <p 
+                id="country-error"
+                className="text-red-500 text-sm mt-1"
+                role="alert"
+              >
+                {errors.country}
+              </p>
+            )}
+          </div>
+
+          {/* Email */}
+          <div className="mb-4">
+            <label 
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Correo Electrónico <span className="text-red-500" aria-label="campo requerido">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 border ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              } rounded-md focus-ring-primary`}
+              aria-required="true"
+              aria-invalid={!!errors.email}
+              aria-describedby="email-hint email-error"
+            />
+            <p 
+              id="email-hint"
+              className="text-xs text-gray-500 mt-1"
+            >
+              ⚠️ Este es tu correo de autenticación. Cambiarlo requerirá
+              verificación y afectará tu inicio de sesión.
+            </p>
+            {errors.email && (
+              <p 
+                id="email-error"
+                className="text-red-500 text-sm mt-1"
+                role="alert"
+              >
+                {errors.email}
+              </p>
+            )}
+          </div>
+        </form>
+      </section>
+
+      {/* Continúa en parte 2... */}
+      {/* SECCIÓN: Roles */}
+      <section 
+        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        aria-labelledby="roles-section-title"
+      >
+        <h2 
+          id="roles-section-title"
+          className="text-xl font-semibold text-bluegreen-eske mb-4"
+        >
+          Roles Profesionales
+        </h2>
+        <fieldset>
+          <legend className="sr-only">Selecciona tus roles profesionales</legend>
+          <div 
+            className="space-y-2"
+            role="group"
+            aria-label="Lista de roles profesionales"
+          >
+            {[
+              "Candidatura",
+              "Consultoría o Asesoría",
+              "Integrante de equipo de campaña",
+              "Integrante de partido político",
+              "Servicio público",
+              "Academia",
+              "Otro",
+            ].map((role) => (
+              <label key={role} className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+                <input
+                  type="checkbox"
+                  value={role}
+                  checked={formData.roles.includes(role)}
+                  onChange={handleRolesChange}
+                  className="mr-2 accent-bluegreen-eske focus-ring-primary rounded"
+                  aria-label={role}
+                />
+                <span className="text-gray-700">{role}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        {formData.roles.includes("Otro") && (
+          <div className="mt-4">
+            <label 
+              htmlFor="otherRole"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Especifica tu otro rol
+            </label>
+            <input
+              type="text"
+              id="otherRole"
               name="otherRole"
               value={formData.otherRole}
               onChange={handleInputChange}
               placeholder="Especifica tu rol"
-              className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-bluegreen-eske"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus-ring-primary"
+              aria-describedby="otherRole-hint"
             />
-          )}
-        </div>
-      </div>
+            <p 
+              id="otherRole-hint"
+              className="text-xs text-gray-500 mt-1"
+            >
+              Describe tu rol profesional si no está en la lista
+            </p>
+          </div>
+        )}
+      </section>
 
       {/* SECCIÓN: Intereses */}
-      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+      <section 
+        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        aria-labelledby="interests-section-title"
+      >
+        <h2 
+          id="interests-section-title"
+          className="text-xl font-semibold text-bluegreen-eske mb-4"
+        >
           Temas de Interés
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {interestsList.map((interest) => (
-            <label key={interest} className="flex items-center">
+        </h2>
+        <fieldset>
+          <legend className="sr-only">Selecciona tus temas de interés</legend>
+          <div 
+            className="grid grid-cols-1 md:grid-cols-2 gap-2"
+            role="group"
+            aria-label="Lista de temas de interés"
+          >
+            {interestsList.map((interest) => (
+              <label 
+                key={interest} 
+                className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  value={interest}
+                  checked={formData.interests.includes(interest)}
+                  onChange={handleInterestsChange}
+                  className="mr-2 accent-bluegreen-eske focus-ring-primary rounded"
+                  aria-label={interest}
+                />
+                <span className="text-gray-700 text-sm">{interest}</span>
+              </label>
+            ))}
+            <label className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
               <input
                 type="checkbox"
-                value={interest}
-                checked={formData.interests.includes(interest)}
+                value="Otro"
+                checked={formData.interests.includes("Otro")}
                 onChange={handleInterestsChange}
-                className="mr-2 accent-bluegreen-eske"
+                className="mr-2 accent-bluegreen-eske focus-ring-primary rounded"
+                aria-label="Otro interés"
               />
-              <span className="text-gray-700 text-sm">{interest}</span>
+              <span className="text-gray-700 text-sm">Otro</span>
             </label>
-          ))}
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              value="Otro"
-              checked={formData.interests.includes("Otro")}
-              onChange={handleInterestsChange}
-              className="mr-2 accent-bluegreen-eske"
-            />
-            <span className="text-gray-700 text-sm">Otro</span>
-          </label>
-        </div>
+          </div>
+        </fieldset>
         {formData.interests.includes("Otro") && (
-          <input
-            type="text"
-            name="otherInterest"
-            value={formData.otherInterest}
-            onChange={handleInputChange}
-            placeholder="Especifica tu interés"
-            className="mt-4 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-bluegreen-eske"
-          />
+          <div className="mt-4">
+            <label 
+              htmlFor="otherInterest"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Especifica tu otro interés
+            </label>
+            <input
+              type="text"
+              id="otherInterest"
+              name="otherInterest"
+              value={formData.otherInterest}
+              onChange={handleInputChange}
+              placeholder="Especifica tu interés"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus-ring-primary"
+              aria-describedby="otherInterest-hint"
+            />
+            <p 
+              id="otherInterest-hint"
+              className="text-xs text-gray-500 mt-1"
+            >
+              Describe tu tema de interés si no está en la lista
+            </p>
+          </div>
         )}
-      </div>
+      </section>
 
       {/* SECCIÓN: Cambiar Contraseña */}
-      <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-bluegreen-eske mb-4">
+      <section 
+        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        aria-labelledby="security-section-title"
+      >
+        <h2 
+          id="security-section-title"
+          className="text-xl font-semibold text-bluegreen-eske mb-4"
+        >
           Seguridad
-        </h3>
+        </h2>
 
         {!showPasswordSection ? (
           <button
             onClick={() => setShowPasswordSection(true)}
-            className="text-bluegreen-eske hover:underline cursor-pointer"
+            className="text-bluegreen-eske hover:underline cursor-pointer focus-ring-primary rounded"
+            aria-label="Mostrar formulario para cambiar contraseña"
           >
             Cambiar contraseña
           </button>
         ) : (
-          <div className="space-y-4">
+          <form 
+            className="space-y-4"
+            aria-label="Formulario para cambiar contraseña"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleChangePassword();
+            }}
+          >
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña Actual <span className="text-red-500">*</span>
+              <label 
+                htmlFor="currentPassword"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Contraseña Actual <span className="text-red-500" aria-label="campo requerido">*</span>
               </label>
               <input
                 type="password"
+                id="currentPassword"
                 name="currentPassword"
                 value={passwordData.currentPassword}
                 onChange={handlePasswordChange}
                 className={`w-full px-4 py-2 border ${
                   errors.currentPassword ? "border-red-500" : "border-gray-300"
-                } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+                } rounded-md focus-ring-primary`}
+                aria-required="true"
+                aria-invalid={!!errors.currentPassword}
+                aria-describedby={errors.currentPassword ? "currentPassword-error" : undefined}
               />
               {errors.currentPassword && (
-                <p className="text-red-500 text-sm mt-1">
+                <p 
+                  id="currentPassword-error"
+                  className="text-red-500 text-sm mt-1"
+                  role="alert"
+                >
                   {errors.currentPassword}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nueva Contraseña <span className="text-red-500">*</span>
+              <label 
+                htmlFor="newPassword"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Nueva Contraseña <span className="text-red-500" aria-label="campo requerido">*</span>
               </label>
               <input
                 type="password"
+                id="newPassword"
                 name="newPassword"
                 value={passwordData.newPassword}
                 onChange={handlePasswordChange}
                 className={`w-full px-4 py-2 border ${
                   errors.newPassword ? "border-red-500" : "border-gray-300"
-                } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+                } rounded-md focus-ring-primary`}
+                aria-required="true"
+                aria-invalid={!!errors.newPassword}
+                aria-describedby="newPassword-hint newPassword-error"
               />
+              <p 
+                id="newPassword-hint"
+                className="text-xs text-gray-500 mt-1"
+              >
+                Mínimo 6 caracteres
+              </p>
               {errors.newPassword && (
-                <p className="text-red-500 text-sm mt-1">
+                <p 
+                  id="newPassword-error"
+                  className="text-red-500 text-sm mt-1"
+                  role="alert"
+                >
                   {errors.newPassword}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label 
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Confirmar Nueva Contraseña{" "}
-                <span className="text-red-500">*</span>
+                <span className="text-red-500" aria-label="campo requerido">*</span>
               </label>
               <input
                 type="password"
+                id="confirmPassword"
                 name="confirmPassword"
                 value={passwordData.confirmPassword}
                 onChange={handlePasswordChange}
                 className={`w-full px-4 py-2 border ${
                   errors.confirmPassword ? "border-red-500" : "border-gray-300"
-                } rounded-md focus:outline-none focus:border-bluegreen-eske`}
+                } rounded-md focus-ring-primary`}
+                aria-required="true"
+                aria-invalid={!!errors.confirmPassword}
+                aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">
+                <p 
+                  id="confirmPassword-error"
+                  className="text-red-500 text-sm mt-1"
+                  role="alert"
+                >
                   {errors.confirmPassword}
                 </p>
               )}
@@ -840,12 +1071,14 @@ const ProfilePage = () => {
 
             <div className="flex gap-4">
               <button
-                onClick={handleChangePassword}
-                className="bg-bluegreen-eske text-white px-6 py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300"
+                type="submit"
+                className="bg-bluegreen-eske text-white px-6 py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 focus-ring-primary"
+                aria-label="Confirmar cambio de contraseña"
               >
                 Actualizar Contraseña
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setShowPasswordSection(false);
                   setPasswordData({
@@ -855,16 +1088,17 @@ const ProfilePage = () => {
                   });
                   setErrors({});
                 }}
-                className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors duration-300"
+                className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors duration-300 focus-ring-primary"
+                aria-label="Cancelar cambio de contraseña"
               >
                 Cancelar
               </button>
             </div>
-          </div>
+          </form>
         )}
-      </div>
+      </section>
 
-      {/* ✅ BOTONES: Guardar Cambios y Cancelar */}
+      {/* BOTONES: Guardar Cambios y Cancelar */}
       <div className="flex justify-center gap-4">
         <Button
           label="Cancelar"
@@ -897,7 +1131,7 @@ const ProfilePage = () => {
         isOpen={isConfirmationModalOpen}
         onClose={() => setIsConfirmationModalOpen(false)}
       />
-    </div>
+    </main>
   );
 };
 

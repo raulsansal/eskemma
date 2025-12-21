@@ -7,23 +7,30 @@ export default function ServiciosPage() {
   return (
     <main className="min-h-screen bg-white-eske">
       {/* Hero Section */}
-      <section className="relative min-h-[200px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
+      <section 
+        className="relative min-h-[200px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden"
+        aria-labelledby="hero-title"
+      >
         {/* Imagen de fondo */}
         <Image
-          src="/images/yanmin_yang.jpg" // Asegúrate de que esta imagen exista en /public/images/
-          alt="Hero Background"
+          src="/images/yanmin_yang.jpg"
+          alt=""
           fill
           style={{ objectFit: "cover" }}
           className="object-cover"
           priority
+          aria-hidden="true"
         />
 
         {/* Overlay con transparencia */}
-        <div className="absolute inset-0 bg-bluegreen-eske opacity-75"></div>
+        <div className="absolute inset-0 bg-bluegreen-eske opacity-75" aria-hidden="true"></div>
 
         {/* Contenido del Hero */}
         <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full">
-          <h1 className="text-[36px] max-sm:text-2xl leading-tight font-bold">
+          <h1 
+            id="hero-title"
+            className="text-[36px] max-sm:text-2xl leading-tight font-bold"
+          >
             Nuestros Servicios
           </h1>
           <p className="mt-4 max-sm:mt-2 text-[18px] max-sm:text-base leading-relaxed font-light">
@@ -34,9 +41,15 @@ export default function ServiciosPage() {
       </section>
 
       {/* Sección de Descripción General */}
-      <section className="bg-white-eske py-12 px-4 sm:px-6 md:px-8">
+      <section 
+        className="bg-white-eske py-12 px-4 sm:px-6 md:px-8"
+        aria-labelledby="description-title"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 className="text-3xl font-semibold text-center text-bluegreen-eske mb-8">
+          <h2 
+            id="description-title"
+            className="text-3xl font-semibold text-center text-bluegreen-eske mb-8"
+          >
             ¿Qué ofrecemos?
           </h2>
           <p className="text-lg font-light text-center text-black-eske mb-8">
@@ -46,19 +59,33 @@ export default function ServiciosPage() {
       </section>
 
       {/* Sección de Servicios Detallados */}
-      <section className="bg-white-eske py-2 px-4 sm:px-6 md:px-8">
-        <div className="w-[90%] mx-auto max-w-screen-xl mb-12">         
+      <section 
+        className="bg-white-eske py-2 px-4 sm:px-6 md:px-8"
+        aria-labelledby="services-title"
+      >
+        <div className="w-[90%] mx-auto max-w-screen-xl mb-12">
+          <h2 
+            id="services-title"
+            className="sr-only"
+          >
+            Lista de servicios disponibles
+          </h2>
 
           {/* Grilla de Servicios */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            role="list"
+            aria-label="9 servicios disponibles"
+          >
             {/* Servicio 1 */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Consultoria.svg"
-                alt="Consultoría Política"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Consultoría Política
@@ -66,16 +93,17 @@ export default function ServiciosPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Estrategias personalizadas para fortalecer tu proyecto político.
               </p>
-            </div>
+            </article>
 
             {/* Servicio 2 */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Moddulo.svg"
-                alt="Herramientas Digitales"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Herramientas Digitales
@@ -83,16 +111,17 @@ export default function ServiciosPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Acceso a metodologías y herramientas para diseñar y gestionar tu estrategia política.
               </p>
-            </div>
+            </article>
 
             {/* Servicio 3 */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Sefix.svg"
-                alt="Dashboards Interactivos"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Dashboards Interactivos
@@ -100,16 +129,17 @@ export default function ServiciosPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Visualización de datos para profundizar en el análisis de información política.
               </p>
-            </div>
+            </article>
 
             {/* Servicio 4: Cursos y Talleres */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Cursos.svg"
-                alt="Cursos y Talleres"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Cursos y Talleres
@@ -117,16 +147,17 @@ export default function ServiciosPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Plataforma virtual, disponible 24/7, para aprender a desarrollar soluciones prácticas.
               </p>
-            </div>           
+            </article>
 
             {/* Servicio 5: Monitoreo de Información */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Monitor.svg"
-                alt="Monitoreo de Información"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Monitoreo de Información
@@ -135,16 +166,17 @@ export default function ServiciosPage() {
                 Seguimiento y análisis de datos relevantes para tu proyecto
                 político.
               </p>
-            </div>
+            </article>
 
-             {/* Servicio 6: Capacitación */}
-            <div className="flex flex-col items-center text-center">
+            {/* Servicio 6: Capacitación */}
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Cursos.svg"
-                alt="Capacitación"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Capacitación
@@ -153,16 +185,17 @@ export default function ServiciosPage() {
                 Presencial y virtual para el desarrollo de habilidades
                 políticas.
               </p>
-            </div>
+            </article>
 
             {/* Servicio 7: Desarrollo de Software */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Software.svg"
-                alt="Desarrollo de Software"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Desarrollo de Software
@@ -170,16 +203,17 @@ export default function ServiciosPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Soluciones tecnológicas adaptadas a las necesidades de tu proyecto.
               </p>
-            </div>
+            </article>
 
             {/* Servicio 8: Producción Audiovisual */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Producción.svg"
-                alt="Producción Audiovisual"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Producción Audiovisual
@@ -187,16 +221,17 @@ export default function ServiciosPage() {
               <p className="text-[16px] font-light text-gray-eske-90">
                 Creación de contenido multimedia para campañas electorales y de gobierno.
               </p>
-            </div>
+            </article>
 
             {/* Servicio 9: Investigación Cuantitativa y Cualitativa */}
-            <div className="flex flex-col items-center text-center">
+            <article className="flex flex-col items-center text-center" role="listitem">
               <Image
                 src="/icons/icon_Investigación.svg"
-                alt="Investigación Cuantitativa y Cualitativa"
+                alt=""
                 width={80}
                 height={80}
                 className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                aria-hidden="true"
               />
               <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
                 Investigación Cuantitativa y Cualitativa
@@ -205,21 +240,30 @@ export default function ServiciosPage() {
                 Análisis profundo de datos sociales y políticos para tomar
                 decisiones informadas.
               </p>
-            </div>
+            </article>
           </div>
         </div>
       </section>
 
       {/* Call to Action */}
-      <section className="bg-gray-eske-20 py-12 px-4 sm:px-6 md:px-8 text-center text-black-eske-90">
+      <section 
+        className="bg-gray-eske-20 py-12 px-4 sm:px-6 md:px-8 text-center text-black-eske-90"
+        aria-labelledby="cta-title"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 className="text-2xl font-semibold mb-4">¿Comenzamos?</h2>
+          <h2 
+            id="cta-title"
+            className="text-2xl font-semibold mb-4"
+          >
+            ¿Comenzamos?
+          </h2>
           <p className="text-lg font-light mb-8">
             Contáctanos para obtener más información sobre nuestros servicios.
           </p>
           <Link
             href="/contacto"
-            className="inline-block bg-orange-eske text-white-eske px-8 py-4 rounded-lg font-medium hover:bg-orange-eske-70 transition-all duration-300"
+            className="inline-block bg-orange-eske text-white-eske px-8 py-4 rounded-lg font-medium hover:bg-orange-eske-70 transition-all duration-300 focus-ring-primary"
+            aria-label="Ir a la página de contacto para solicitar información"
           >
             CONTACTAR AHORA
           </Link>

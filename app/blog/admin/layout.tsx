@@ -48,11 +48,33 @@ export default function AdminLayout({
     };
   }, [isMobileMenuOpen]);
 
+  // Escape key para cerrar modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isMobileMenuOpen]);
+
   if (loading || isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white-eske">
+      <div 
+        className="min-h-screen flex items-center justify-center bg-white-eske"
+        role="status"
+        aria-live="polite"
+        aria-label="Verificando permisos de administrador"
+      >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bluegreen-eske mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bluegreen-eske mx-auto" aria-hidden="true"></div>
           <p className="mt-4 text-gray-600">Verificando permisos...</p>
         </div>
       </div>
@@ -69,6 +91,7 @@ export default function AdminLayout({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -88,6 +111,7 @@ export default function AdminLayout({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -107,6 +131,7 @@ export default function AdminLayout({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -126,6 +151,7 @@ export default function AdminLayout({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -145,6 +171,7 @@ export default function AdminLayout({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -167,14 +194,16 @@ export default function AdminLayout({
             {/* Botón Hamburguesa - Solo Mobile */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 text-gray-700 hover:bg-gray-eske-10 rounded-lg transition-colors"
-              aria-label="Abrir menú"
+              className="lg:hidden p-2 text-gray-700 hover:bg-gray-eske-10 rounded-lg transition-colors focus-ring-primary"
+              aria-label="Abrir menú de navegación"
+              aria-expanded={isMobileMenuOpen}
             >
               <svg
                 className="w-6 h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -187,15 +216,18 @@ export default function AdminLayout({
 
             {/* Logo & Título */}
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-bluegreen-eske rounded-lg flex items-center justify-center">
+              <div 
+                className="w-8 h-8 lg:w-10 lg:h-10 bg-bluegreen-eske rounded-lg flex items-center justify-center"
+                aria-hidden="true"
+              >
                 <span className="text-white font-bold text-lg lg:text-xl">
                   E
                 </span>
               </div>
               <div className="hidden sm:block">
-                <h2 className="font-bold text-gray-800 text-sm lg:text-base">
+                <h1 className="font-bold text-gray-800 text-sm lg:text-base">
                   Admin Panel
-                </h2>
+                </h1>
                 <p className="text-xs text-gray-600">El Baúl de Fouché</p>
               </div>
             </div>
@@ -205,13 +237,15 @@ export default function AdminLayout({
           <div className="flex items-center gap-2 sm:gap-4">
             <Link
               href="/blog"
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors text-sm"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 transition-colors text-sm focus-ring-primary"
+              aria-label="Ver blog público"
             >
               <svg
                 className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -230,15 +264,19 @@ export default function AdminLayout({
             </Link>
 
             {/* User Avatar - Mobile */}
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-eske rounded-full flex items-center justify-center lg:hidden">
+            <div 
+              className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-eske rounded-full flex items-center justify-center lg:hidden"
+              role="img"
+              aria-label={`Avatar de ${user?.name || 'administrador'}`}
+            >
               {user?.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
-                  alt="Avatar"
+                  alt=""
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <span className="text-white font-bold text-xs sm:text-sm">
+                <span className="text-white font-bold text-xs sm:text-sm" aria-hidden="true">
                   {user?.name?.charAt(0) || "A"}
                 </span>
               )}
@@ -249,26 +287,34 @@ export default function AdminLayout({
 
       <div className="flex flex-1">
         {/* Sidebar - Desktop */}
-        <aside className="hidden lg:block w-64 bg-white-eske border-r border-gray-eske-30 shadow-sm">
-          <nav className="p-4 space-y-2">
+        <aside 
+          className="hidden lg:block w-64 bg-white-eske border-r border-gray-eske-30 shadow-sm"
+          aria-label="Navegación principal del panel de administración"
+        >
+          <nav className="p-4 space-y-2" aria-label="Menú principal">
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
+                  className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 focus-ring-primary ${
                     isActive
                       ? "bg-bluegreen-eske text-white shadow-md"
                       : "text-gray-700 hover:bg-gray-eske-10"
                   }`}
+                  aria-current={isActive ? "page" : undefined}
+                  aria-label={item.badge ? `${item.name} (${item.badge})` : item.name}
                 >
                   <div className="flex items-center gap-3">
                     {item.icon}
                     <span className="font-medium">{item.name}</span>
                   </div>
                   {item.badge && (
-                    <span className="text-xs px-2 py-1 bg-yellow-eske-20 text-gray-800 rounded-full">
+                    <span 
+                      className="text-xs px-2 py-1 bg-yellow-eske-20 text-gray-800 rounded-full"
+                      aria-label={item.badge}
+                    >
                       {item.badge}
                     </span>
                   )}
@@ -278,17 +324,25 @@ export default function AdminLayout({
           </nav>
 
           {/* User Info - Desktop */}
-          <div className="absolute bottom-0 left-0 w-64 p-4 border-t border-gray-eske-30 bg-white-eske">
+          <div 
+            className="absolute bottom-0 left-0 w-64 p-4 border-t border-gray-eske-30 bg-white-eske"
+            role="region"
+            aria-label="Información del usuario administrador"
+          >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-eske rounded-full flex items-center justify-center flex-shrink-0">
+              <div 
+                className="w-10 h-10 bg-orange-eske rounded-full flex items-center justify-center flex-shrink-0"
+                role="img"
+                aria-label={`Avatar de ${user?.name || 'administrador'}`}
+              >
                 {user?.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
-                    alt="Avatar"
+                    alt=""
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  <span className="text-white font-bold text-sm">
+                  <span className="text-white font-bold text-sm" aria-hidden="true">
                     {user?.name?.charAt(0) || "A"}
                   </span>
                 )}
@@ -303,6 +357,7 @@ export default function AdminLayout({
           </div>
         </aside>
 
+        {/* Continúa en parte 2... */}
         {/* Sidebar Mobile - Overlay */}
         {isMobileMenuOpen && (
           <>
@@ -310,30 +365,46 @@ export default function AdminLayout({
             <div
               className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
               onClick={() => setIsMobileMenuOpen(false)}
+              aria-hidden="true"
             ></div>
 
             {/* Sidebar Mobile */}
-            <aside className="fixed top-0 left-0 h-full w-64 bg-white-eske shadow-2xl z-50 lg:hidden transform transition-transform duration-300">
+            <aside 
+              className="fixed top-0 left-0 h-full w-64 bg-white-eske shadow-2xl z-50 lg:hidden transform transition-transform duration-300"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mobile-menu-title"
+            >
               {/* Header */}
               <div className="p-6 border-b border-gray-eske-30 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-bluegreen-eske rounded-lg flex items-center justify-center">
+                  <div 
+                    className="w-10 h-10 bg-bluegreen-eske rounded-lg flex items-center justify-center"
+                    aria-hidden="true"
+                  >
                     <span className="text-white font-bold text-xl">E</span>
                   </div>
                   <div>
-                    <h2 className="font-bold text-gray-800">Admin Panel</h2>
+                    <h2 
+                      id="mobile-menu-title"
+                      className="font-bold text-gray-800"
+                    >
+                      Admin Panel
+                    </h2>
                     <p className="text-xs text-gray-600">El Baúl de Fouché</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 text-gray-600 hover:bg-gray-eske-10 rounded-lg transition-colors"
+                  className="p-2 text-gray-600 hover:bg-gray-eske-10 rounded-lg transition-colors focus-ring-primary"
+                  aria-label="Cerrar menú de navegación"
                 >
                   <svg
                     className="w-6 h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -346,25 +417,30 @@ export default function AdminLayout({
               </div>
 
               {/* Navigation */}
-              <nav className="p-4 space-y-2">
+              <nav className="p-4 space-y-2" aria-label="Menú principal mobile">
                 {navigation.map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <Link
                       key={item.name}
                       href={item.href}
-                      className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
+                      className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 focus-ring-primary ${
                         isActive
                           ? "bg-bluegreen-eske text-white shadow-md"
                           : "text-gray-700 hover:bg-gray-eske-10"
                       }`}
+                      aria-current={isActive ? "page" : undefined}
+                      aria-label={item.badge ? `${item.name} (${item.badge})` : item.name}
                     >
                       <div className="flex items-center gap-3">
                         {item.icon}
                         <span className="font-medium">{item.name}</span>
                       </div>
                       {item.badge && (
-                        <span className="text-xs px-2 py-1 bg-yellow-eske-20 text-gray-800 rounded-full">
+                        <span 
+                          className="text-xs px-2 py-1 bg-yellow-eske-20 text-gray-800 rounded-full"
+                          aria-label={item.badge}
+                        >
                           {item.badge}
                         </span>
                       )}
@@ -374,17 +450,25 @@ export default function AdminLayout({
               </nav>
 
               {/* User Info Mobile */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-eske-30 bg-white-eske">
+              <div 
+                className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-eske-30 bg-white-eske"
+                role="region"
+                aria-label="Información del usuario administrador"
+              >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-eske rounded-full flex items-center justify-center flex-shrink-0">
+                  <div 
+                    className="w-10 h-10 bg-orange-eske rounded-full flex items-center justify-center flex-shrink-0"
+                    role="img"
+                    aria-label={`Avatar de ${user?.name || 'administrador'}`}
+                  >
                     {user?.avatarUrl ? (
                       <img
                         src={user.avatarUrl}
-                        alt="Avatar"
+                        alt=""
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
-                      <span className="text-white font-bold text-sm">
+                      <span className="text-white font-bold text-sm" aria-hidden="true">
                         {user?.name?.charAt(0) || "A"}
                       </span>
                     )}
@@ -411,3 +495,4 @@ export default function AdminLayout({
     </div>
   );
 }
+

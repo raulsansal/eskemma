@@ -22,12 +22,18 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div 
+      className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      role="list"
+      aria-label="Navegación entre artículos anterior y siguiente"
+    >
       {/* Post Anterior */}
       {previous ? (
         <Link
           href={`/blog/${previous.slug}`}
-          className="group flex flex-col p-6 bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300"
+          className="group flex flex-col p-6 bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300 focus-ring-primary"
+          aria-label={`Artículo anterior: ${previous.title}`}
+          role="listitem"
         >
           <div className="flex items-center gap-2 text-sm text-gray-800 font-medium mb-3">
             <svg
@@ -35,6 +41,7 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -49,7 +56,7 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
           {previous.featureImage && (
             <img
               src={previous.featureImage}
-              alt={previous.title}
+              alt={`Imagen del artículo: ${previous.title}`}
               className="w-full h-32 object-cover rounded-lg mb-4"
             />
           )}
@@ -58,6 +65,8 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
             <span
               className="inline-block px-2 py-1 text-xs font-semibold rounded-full text-white"
               style={{ backgroundColor: getCategoryColor(previous.category) }}
+              role="text"
+              aria-label={`Categoría: ${getCategoryLabel(previous.category)}`}
             >
               {getCategoryLabel(previous.category)}
             </span>
@@ -68,14 +77,16 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
           </h4>
         </Link>
       ) : (
-        <div className="hidden md:block"></div>
+        <div className="hidden md:block" aria-hidden="true"></div>
       )}
 
       {/* Post Siguiente */}
       {next && (
         <Link
           href={`/blog/${next.slug}`}
-          className="group flex flex-col p-6 bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300"
+          className="group flex flex-col p-6 bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300 focus-ring-primary"
+          aria-label={`Artículo siguiente: ${next.title}`}
+          role="listitem"
         >
           <div className="flex items-center justify-end gap-2 text-sm text-gray-800 font-medium mb-3">
             <span>Siguiente</span>
@@ -84,6 +95,7 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -97,7 +109,7 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
           {next.featureImage && (
             <img
               src={next.featureImage}
-              alt={next.title}
+              alt={`Imagen del artículo: ${next.title}`}
               className="w-full h-32 object-cover rounded-lg mb-4"
             />
           )}
@@ -106,6 +118,8 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
             <span
               className="inline-block px-2 py-1 text-xs font-semibold rounded-full text-white"
               style={{ backgroundColor: getCategoryColor(next.category) }}
+              role="text"
+              aria-label={`Categoría: ${getCategoryLabel(next.category)}`}
             >
               {getCategoryLabel(next.category)}
             </span>
@@ -119,4 +133,3 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
     </div>
   );
 }
-

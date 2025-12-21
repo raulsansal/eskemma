@@ -1,10 +1,10 @@
 // app/blog/[slug]/RelatedPosts.tsx
 import Link from "next/link";
 import { getCategoryColor, getCategoryLabel } from "@/lib/constants/categories";
-import type { RelatedPost } from "@/lib/server/posts.server"; // ✅ IMPORTAR EL TIPO
+import type { RelatedPost } from "@/lib/server/posts.server";
 
 interface RelatedPostsProps {
-  posts: RelatedPost[]; // ✅ Usa el tipo importado
+  posts: RelatedPost[];
   currentCategory: string;
 }
 
@@ -20,9 +20,15 @@ export default function RelatedPosts({
   const categoryLabel = getCategoryLabel(currentCategory);
 
   return (
-    <section className="mt-16 pt-8 border-t border-gray-eske-30">
+    <section 
+      className="mt-16 pt-8 border-t border-gray-eske-30"
+      aria-labelledby="related-posts-heading"
+    >
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <h2 
+          id="related-posts-heading"
+          className="text-2xl font-bold text-gray-800 mb-2"
+        >
           Posts relacionados
         </h2>
         <p className="text-sm text-gray-600">
@@ -30,36 +36,46 @@ export default function RelatedPosts({
           <span
             className="inline-block px-2 py-1 text-xs font-semibold rounded-full text-white"
             style={{ backgroundColor: categoryColor }}
+            role="text"
+            aria-label={`Categoría: ${categoryLabel}`}
           >
             {categoryLabel}
           </span>
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div 
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        role="list"
+        aria-label={`${posts.length} artículo${posts.length !== 1 ? 's' : ''} relacionado${posts.length !== 1 ? 's' : ''}`}
+      >
         {posts.map((post) => (
           <Link
             key={post.id}
             href={`/blog/${post.slug}`}
-            className="group flex flex-col bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300 overflow-hidden"
+            className="group flex flex-col bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300 overflow-hidden focus-ring-primary"
+            aria-label={`Leer artículo: ${post.title}`}
+            role="listitem"
           >
             {/* Imagen */}
             {post.featureImage ? (
               <img
                 src={post.featureImage}
-                alt={post.title}
+                alt={`Imagen del artículo: ${post.title}`}
                 className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
               <div
                 className="w-full h-40 flex items-center justify-center"
                 style={{ backgroundColor: categoryColor + "20" }}
+                aria-hidden="true"
               >
                 <svg
                   className="w-16 h-16 opacity-30"
                   style={{ color: categoryColor }}
                   fill="currentColor"
                   viewBox="0 0 20 20"
+                  aria-hidden="true"
                 >
                   <path
                     fillRule="evenodd"
@@ -77,6 +93,8 @@ export default function RelatedPosts({
                 <span
                   className="inline-block px-2 py-1 text-xs font-semibold rounded-full text-white"
                   style={{ backgroundColor: categoryColor }}
+                  role="text"
+                  aria-label={`Categoría: ${categoryLabel}`}
                 >
                   {categoryLabel}
                 </span>
@@ -88,13 +106,16 @@ export default function RelatedPosts({
               </h3>
 
               {/* Fecha */}
-              <p className="text-xs text-gray-600 mt-auto">
+              <time 
+                className="text-xs text-gray-600 mt-auto"
+                dateTime={post.updatedAt.toISOString()}
+              >
                 {post.updatedAt.toLocaleDateString("es-ES", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
                 })}
-              </p>
+              </time>
             </div>
           </Link>
         ))}

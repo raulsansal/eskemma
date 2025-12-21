@@ -75,13 +75,15 @@ export default function PostReactions({
       <button
         onClick={handleLike}
         disabled={isLoading}
-        className={`flex items-center gap-3 px-6 py-3 rounded-full border-2 transition-all duration-300 ${
+        className={`flex items-center gap-3 px-6 py-3 rounded-full border-2 transition-all duration-300 focus-ring-primary ${
           hasLiked
             ? "bg-red-50 border-red-500 text-red-600 hover:bg-red-100"
             : "bg-white-eske border-gray-eske-30 text-gray-700 hover:border-red-500 hover:text-red-600"
         } ${isAnimating ? "scale-110" : "scale-100"} ${
           isLoading ? "opacity-50 cursor-not-allowed" : ""
         }`}
+        aria-label={hasLiked ? `Quitar me gusta. ${likes} personas dieron me gusta` : `Dar me gusta. ${likes} personas dieron me gusta`}
+        aria-pressed={hasLiked}
       >
         <svg
           className={`w-6 h-6 transition-transform duration-300 ${
@@ -90,6 +92,7 @@ export default function PostReactions({
           fill={hasLiked ? "currentColor" : "none"}
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
@@ -101,7 +104,13 @@ export default function PostReactions({
         <span className="font-semibold text-lg">
           {hasLiked ? "Te gusta" : "Me gusta"}
         </span>
-        <span className="font-bold text-xl">{likes}</span>
+        <span 
+          className="font-bold text-xl"
+          role="status"
+          aria-live="polite"
+        >
+          {likes}
+        </span>
       </button>
     </div>
   );
