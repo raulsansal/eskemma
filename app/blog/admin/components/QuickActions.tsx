@@ -32,40 +32,50 @@ export default function QuickActions() {
     },
     {
       title: "Comentarios",
-      description: "Modera y gestiona comentarios", // ✅ Cambiar descripción
+      description: "Modera y gestiona comentarios",
       href: "/blog/admin/comments",
       letter: "C",
-      color: "bg-orange-eske hover:bg-orange-eske-70", // ✅ Color activo
-      gradient: "from-orange-eske-80 to-orange-eske-90", // ✅ Gradiente activo
-      disabled: false, // ✅ Habilitado
+      color: "bg-orange-eske hover:bg-orange-eske-70",
+      gradient: "from-orange-eske-80 to-orange-eske-90",
+      disabled: false,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {actions.map((action) => (
-        <Link
-          key={action.title}
-          href={action.disabled ? "#" : action.href}
-          className={`${action.color} text-white rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 ${
-            action.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-          }`}
-          onClick={(e) => action.disabled && e.preventDefault()}
-        >
-          <div className="flex items-start justify-between mb-4">
-            {/* Letra con gradiente oscuro y borde */}
-            <div className="relative">
-              <div className={`w-12 h-12 bg-gradient-to-br ${action.gradient} rounded-2xl flex items-center justify-center shadow-lg border-2 border-white border-opacity-20`}>
-                <span className="text-2xl font-black text-white tracking-tight">{action.letter}</span>
+    <nav aria-label="Acciones rápidas del panel de administración">
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        role="list"
+        aria-label="4 acciones rápidas disponibles"
+      >
+        {actions.map((action) => (
+          <Link
+            key={action.title}
+            href={action.disabled ? "#" : action.href}
+            className={`${action.color} text-white rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 focus-ring-primary ${
+              action.disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }`}
+            onClick={(e) => action.disabled && e.preventDefault()}
+            aria-label={`${action.title}: ${action.description}`}
+            aria-disabled={action.disabled}
+            role="listitem"
+          >
+            <div className="flex items-start justify-between mb-4">
+              {/* Letra con gradiente oscuro y borde */}
+              <div className="relative" aria-hidden="true">
+                <div className={`w-12 h-12 bg-gradient-to-br ${action.gradient} rounded-2xl flex items-center justify-center shadow-lg border-2 border-white border-opacity-20`}>
+                  <span className="text-2xl font-black text-white tracking-tight">{action.letter}</span>
+                </div>
+                {/* Brillo superior sutil */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 rounded-2xl pointer-events-none"></div>
               </div>
-              {/* Brillo superior sutil */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-10 rounded-2xl pointer-events-none"></div>
             </div>
-          </div>
-          <h4 className="font-bold text-lg mb-1">{action.title}</h4>
-          <p className="text-sm opacity-90">{action.description}</p>
-        </Link>
-      ))}
-    </div>
+            <h2 className="font-bold text-lg mb-1">{action.title}</h2>
+            <p className="text-sm opacity-90">{action.description}</p>
+          </Link>
+        ))}
+      </div>
+    </nav>
   );
 }
+

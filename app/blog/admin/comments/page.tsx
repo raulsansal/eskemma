@@ -142,12 +142,20 @@ export default function CommentsManagementPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-eske to-bluegreen-eske text-white rounded-xl p-6 shadow-lg">
-        <h2 className="text-3xl font-bold mb-2">Gestión de Comentarios</h2>
+      <section 
+        className="bg-gradient-to-r from-green-eske to-bluegreen-eske text-white rounded-xl p-6 shadow-lg"
+        aria-labelledby="comments-header-title"
+      >
+        <h1 
+          id="comments-header-title"
+          className="text-3xl font-bold mb-2"
+        >
+          Gestión de Comentarios
+        </h1>
         <p className="text-green-eske-10">
           Modera, aprueba o rechaza comentarios del blog
         </p>
-      </div>
+      </section>
 
       {/* Filtros */}
       <CommentFilters
@@ -160,9 +168,14 @@ export default function CommentsManagementPage() {
 
       {/* Tabla de Comentarios */}
       {loading ? (
-        <div className="flex items-center justify-center h-64">
+        <div 
+          className="flex items-center justify-center h-64"
+          role="status"
+          aria-live="polite"
+          aria-label="Cargando comentarios del blog"
+        >
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bluegreen-eske mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bluegreen-eske mx-auto" aria-hidden="true"></div>
             <p className="mt-4 text-gray-600">Cargando comentarios...</p>
           </div>
         </div>
@@ -176,35 +189,54 @@ export default function CommentsManagementPage() {
 
           {/* Paginación */}
           {totalPages > 1 && (
-            <div className="bg-white-eske rounded-lg shadow-md border border-gray-eske-30 p-4">
+            <nav 
+              className="bg-white-eske rounded-lg shadow-md border border-gray-eske-30 p-4"
+              aria-label="Paginación de comentarios"
+            >
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">
-                  Mostrando {comments.length} de {totalComments} comentarios
+                <p 
+                  className="text-sm text-gray-600"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Mostrando {comments.length} de {totalComments} comentario{totalComments !== 1 ? 's' : ''}
                 </p>
-                <div className="flex items-center gap-2">
+                <div 
+                  className="flex items-center gap-2"
+                  role="group"
+                  aria-label="Navegación de páginas"
+                >
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 bg-gray-eske-20 text-gray-800 rounded-lg hover:bg-gray-eske-30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-4 py-2 bg-gray-eske-20 text-gray-800 rounded-lg hover:bg-gray-eske-30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-ring-primary"
+                    aria-label="Ir a página anterior"
                   >
                     Anterior
                   </button>
-                  <span className="px-4 py-2 text-sm text-gray-700">
+                  <span 
+                    className="px-4 py-2 text-sm text-gray-700"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
                     Página {currentPage} de {totalPages}
                   </span>
                   <button
                     onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-4 py-2 bg-bluegreen-eske text-white rounded-lg hover:bg-bluegreen-eske-70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-ring-primary"
+                    aria-label="Ir a página siguiente"
                   >
                     Siguiente
                   </button>
                 </div>
               </div>
-            </div>
+            </nav>
           )}
         </>
       )}
     </div>
   );
 }
+

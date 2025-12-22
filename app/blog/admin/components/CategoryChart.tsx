@@ -44,30 +44,47 @@ export default function CategoryChart() {
 
   if (loading) {
     return (
-      <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6">
+      <section 
+        className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+        role="status"
+        aria-live="polite"
+        aria-label="Cargando estadísticas de categorías"
+      >
         <h3 className="text-xl font-bold text-gray-800 mb-4">Posts por Categoría</h3>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-8 bg-gray-eske-20 rounded"></div>
+            <div key={i} className="h-8 bg-gray-eske-20 rounded" aria-hidden="true"></div>
           ))}
         </div>
-      </div>
+      </section>
     );
   }
 
   const total = categories.reduce((sum, cat) => sum + cat.count, 0);
 
   return (
-    <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6">
-      <h3 className="text-xl font-bold text-gray-800 mb-6">Posts por Categoría</h3>
+    <section 
+      className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+      aria-labelledby="category-chart-title"
+    >
+      <h3 
+        id="category-chart-title"
+        className="text-xl font-bold text-gray-800 mb-6"
+      >
+        Posts por Categoría
+      </h3>
 
       {categories.length === 0 ? (
-        <div className="text-center py-8 text-gray-600">
+        <div 
+          className="text-center py-8 text-gray-600"
+          role="status"
+        >
           <svg
             className="w-16 h-16 mx-auto mb-4 text-gray-eske-40"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -79,29 +96,47 @@ export default function CategoryChart() {
           <p>No hay categorías aún</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div 
+          className="space-y-4"
+          role="list"
+          aria-label={`${categories.length} categorías de posts`}
+        >
           {categories.map((cat) => {
             const percentage = total > 0 ? (cat.count / total) * 100 : 0;
             const color = getCategoryColor(cat.category);
             const label = getCategoryLabel(cat.category);
 
             return (
-              <div key={cat.category}>
+              <div 
+                key={cat.category}
+                role="listitem"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: color }}
+                      aria-hidden="true"
                     ></div>
                     <span className="text-sm font-semibold text-gray-800">
                       {label}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-600">
+                  <span 
+                    className="text-sm text-gray-600"
+                    aria-label={`${cat.count} posts, ${Math.round(percentage)} por ciento del total`}
+                  >
                     {cat.count} ({Math.round(percentage)}%)
                   </span>
                 </div>
-                <div className="w-full bg-gray-eske-20 rounded-full h-2 overflow-hidden">
+                <div 
+                  className="w-full bg-gray-eske-20 rounded-full h-2 overflow-hidden"
+                  role="progressbar"
+                  aria-valuenow={percentage}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${label}: ${Math.round(percentage)}% del total`}
+                >
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -115,16 +150,23 @@ export default function CategoryChart() {
           })}
 
           {/* Total */}
-          <div className="pt-4 border-t border-gray-eske-30">
+          <div 
+            className="pt-4 border-t border-gray-eske-30"
+            role="listitem"
+          >
             <div className="flex items-center justify-between">
               <span className="font-bold text-gray-800">Total</span>
-              <span className="font-bold text-bluegreen-eske">
-                {total} posts
+              <span 
+                className="font-bold text-bluegreen-eske"
+                aria-label={`Total de ${total} posts`}
+              >
+                {total} post{total !== 1 ? 's' : ''}
               </span>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
+

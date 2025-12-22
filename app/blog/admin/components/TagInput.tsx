@@ -14,6 +14,7 @@ export default function TagInput({ value, onChange }: TagInputProps) {
   const [suggestions, setSuggestions] = useState<TagSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [allTags, setAllTags] = useState<TagSuggestion[]>([]);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -47,6 +48,7 @@ export default function TagInput({ value, onChange }: TagInputProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
+    setActiveSuggestionIndex(-1);
 
     if (value.trim()) {
       const filtered = allTags.filter((tag) =>
@@ -66,6 +68,7 @@ export default function TagInput({ value, onChange }: TagInputProps) {
       onChange([...value, normalizedTag]);
       setInputValue("");
       setShowSuggestions(false);
+      setActiveSuggestionIndex(-1);
     }
   };
 
@@ -76,11 +79,24 @@ export default function TagInput({ value, onChange }: TagInputProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      if (inputValue.trim()) {
+      if (activeSuggestionIndex >= 0 && suggestions[activeSuggestionIndex]) {
+        addTag(suggestions[activeSuggestionIndex].tag);
+      } else if (inputValue.trim()) {
         addTag(inputValue);
       }
     } else if (e.key === "Backspace" && !inputValue && value.length > 0) {
       removeTag(value[value.length - 1]);
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveSuggestionIndex((prev) =>
+        prev < suggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveSuggestionIndex((prev) => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === "Escape") {
+      setShowSuggestions(false);
+      setActiveSuggestionIndex(-1);
     }
   };
 
@@ -88,19 +104,30 @@ export default function TagInput({ value, onChange }: TagInputProps) {
     <div className="space-y-3">
       {/* Tags actuales */}
       {value.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div
+          className="flex flex-wrap gap-2"
+          role="list"
+          aria-label={`${value.length} tag${value.length !== 1 ? "s" : ""} seleccionado${value.length !== 1 ? "s" : ""}`}
+        >
           {value.map((tag) => (
             <span
               key={tag}
               className="inline-flex items-center gap-1 px-3 py-1 bg-bluegreen-eske text-white rounded-full text-sm font-medium"
+              role="listitem"
             >
-              {tag}
+              <span aria-label={`Tag: ${tag}`}>{tag}</span>
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="hover:bg-white hover:bg-opacity-20 rounded-full p-0.5 transition-colors"
+                className="hover:bg-white hover:bg-opacity-20 rounded-full p-0.5 transition-colors focus-ring-primary"
+                aria-label={`Eliminar tag ${tag}`}
               >
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-3 h-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
                   <path
                     fillRule="evenodd"
                     d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -115,8 +142,12 @@ export default function TagInput({ value, onChange }: TagInputProps) {
 
       {/* Input con autocompletado */}
       <div className="relative">
+        <label htmlFor="tag-input" className="sr-only">
+          Agregar tags (separados por Enter o coma)
+        </label>
         <input
           ref={inputRef}
+          id="tag-input"
           type="text"
           value={inputValue}
           onChange={handleInputChange}
@@ -126,30 +157,56 @@ export default function TagInput({ value, onChange }: TagInputProps) {
             setShowSuggestions(true);
           }}
           placeholder="Escribe un tag y presiona Enter o coma..."
-          className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
+          aria-describedby="tag-input-hint"
+          aria-autocomplete="list"
+          aria-controls="tag-suggestions"
+          aria-expanded={showSuggestions}
+          aria-activedescendant={
+            activeSuggestionIndex >= 0
+              ? `tag-suggestion-${activeSuggestionIndex}`
+              : undefined
+          }
+          role="combobox"
         />
 
         {/* Sugerencias */}
         {showSuggestions && suggestions.length > 0 && (
           <div
             ref={suggestionsRef}
+            id="tag-suggestions"
             className="absolute z-10 w-full mt-1 bg-white-eske border border-gray-eske-30 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+            role="listbox"
+            aria-label="Sugerencias de tags"
           >
             <div className="p-2">
-              <p className="text-xs text-gray-600 px-2 py-1 font-semibold">
+              <p
+                className="text-xs text-gray-600 px-2 py-1 font-semibold"
+                role="presentation"
+              >
                 Tags sugeridos
               </p>
-              {suggestions.map((suggestion) => (
+              {suggestions.map((suggestion, index) => (
                 <button
                   key={suggestion.tag}
+                  id={`tag-suggestion-${index}`}
                   type="button"
                   onClick={() => addTag(suggestion.tag)}
-                  className="w-full text-left px-3 py-2 hover:bg-bluegreen-eske-10 rounded-lg transition-colors flex items-center justify-between group"
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between group focus-ring-primary ${
+                    index === activeSuggestionIndex
+                      ? "bg-bluegreen-eske-10"
+                      : "hover:bg-bluegreen-eske-10"
+                  }`}
+                  role="option"
+                  aria-selected={index === activeSuggestionIndex}
                 >
                   <span className="text-gray-800 group-hover:text-bluegreen-eske font-medium">
                     {suggestion.tag}
                   </span>
-                  <span className="text-xs text-gray-500 bg-gray-eske-20 px-2 py-0.5 rounded-full">
+                  <span
+                    className="text-xs text-gray-500 bg-gray-eske-20 px-2 py-0.5 rounded-full"
+                    aria-label={`${suggestion.count} uso${suggestion.count !== 1 ? "s" : ""}`}
+                  >
                     {suggestion.count}
                   </span>
                 </button>
@@ -159,9 +216,9 @@ export default function TagInput({ value, onChange }: TagInputProps) {
         )}
       </div>
 
-      <p className="text-xs text-gray-600">
-        💡 Tip: Presiona Enter o coma para agregar. Usa tags existentes para mejor
-        organización.
+      <p id="tag-input-hint" className="text-xs text-gray-600">
+        💡 Tip: Presiona Enter o coma para agregar. Usa tags existentes para
+        mejor organización.
       </p>
     </div>
   );

@@ -16,35 +16,71 @@ export default function SEOPreview({
   imageUrl,
   slug,
 }: SEOPreviewProps) {
-  const [activeTab, setActiveTab] = useState<"google" | "facebook" | "twitter">("google");
+  const [activeTab, setActiveTab] = useState<"google" | "facebook" | "twitter">(
+    "google"
+  );
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://eskemma.com";
   const fullUrl = `${siteUrl}/blog/${slug}`;
 
   // Truncar texto para simular límites de caracteres
   const truncateTitle = (text: string, maxLength: number) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
   };
 
   const truncateDescription = (text: string, maxLength: number) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
   };
 
   return (
-    <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6">
-      <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <svg className="w-5 h-5 text-bluegreen-eske" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    <section
+      className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+      aria-labelledby="seo-preview-title"
+    >
+      <h3
+        id="seo-preview-title"
+        className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"
+      >
+        <svg
+          className="w-5 h-5 text-bluegreen-eske"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+          />
         </svg>
         Vista Previa SEO
       </h3>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-4 border-b border-gray-eske-30">
+      <div
+        className="flex gap-2 mb-4 border-b border-gray-eske-30"
+        role="tablist"
+        aria-label="Plataformas de vista previa SEO"
+      >
         <button
           onClick={() => setActiveTab("google")}
-          className={`px-4 py-2 font-semibold transition-colors ${
+          role="tab"
+          aria-selected={activeTab === "google"}
+          aria-controls="google-preview"
+          id="google-tab"
+          className={`px-4 py-2 font-semibold transition-colors focus-ring-primary ${
             activeTab === "google"
               ? "border-b-2 border-bluegreen-eske text-bluegreen-eske"
               : "text-gray-600 hover:text-gray-800"
@@ -54,7 +90,11 @@ export default function SEOPreview({
         </button>
         <button
           onClick={() => setActiveTab("facebook")}
-          className={`px-4 py-2 font-semibold transition-colors ${
+          role="tab"
+          aria-selected={activeTab === "facebook"}
+          aria-controls="facebook-preview"
+          id="facebook-tab"
+          className={`px-4 py-2 font-semibold transition-colors focus-ring-primary ${
             activeTab === "facebook"
               ? "border-b-2 border-blue-600 text-blue-600"
               : "text-gray-600 hover:text-gray-800"
@@ -64,7 +104,11 @@ export default function SEOPreview({
         </button>
         <button
           onClick={() => setActiveTab("twitter")}
-          className={`px-4 py-2 font-semibold transition-colors ${
+          role="tab"
+          aria-selected={activeTab === "twitter"}
+          aria-controls="twitter-preview"
+          id="twitter-tab"
+          className={`px-4 py-2 font-semibold transition-colors focus-ring-primary ${
             activeTab === "twitter"
               ? "border-b-2 border-sky-500 text-sky-500"
               : "text-gray-600 hover:text-gray-800"
@@ -76,7 +120,12 @@ export default function SEOPreview({
 
       {/* Google Preview */}
       {activeTab === "google" && (
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div
+          id="google-preview"
+          role="tabpanel"
+          aria-labelledby="google-tab"
+          className="bg-white rounded-lg p-4 border border-gray-200"
+        >
           <div className="text-sm text-gray-600 mb-1">{fullUrl}</div>
           <div className="text-xl text-blue-800 hover:underline cursor-pointer mb-1">
             {truncateTitle(title || "Título del post", 60)}
@@ -89,12 +138,17 @@ export default function SEOPreview({
 
       {/* Facebook Preview */}
       {activeTab === "facebook" && (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div
+          id="facebook-preview"
+          role="tabpanel"
+          aria-labelledby="facebook-tab"
+          className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+        >
           {imageUrl && (
             <div className="w-full h-64 bg-gray-200">
               <img
                 src={imageUrl}
-                alt="Preview"
+                alt="Vista previa de imagen destacada en Facebook"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -115,12 +169,17 @@ export default function SEOPreview({
 
       {/* Twitter Preview */}
       {activeTab === "twitter" && (
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div
+          id="twitter-preview"
+          role="tabpanel"
+          aria-labelledby="twitter-tab"
+          className="bg-white rounded-2xl border border-gray-200 overflow-hidden"
+        >
           {imageUrl && (
             <div className="w-full h-64 bg-gray-200">
               <img
                 src={imageUrl}
-                alt="Preview"
+                alt="Vista previa de imagen destacada en Twitter"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -132,41 +191,83 @@ export default function SEOPreview({
             <div className="text-sm text-gray-600 mb-2">
               {truncateDescription(description || "Descripción del post", 125)}
             </div>
-            <div className="text-xs text-gray-500">
-              🔗 eskemma.com
-            </div>
+            <div className="text-xs text-gray-500">🔗 eskemma.com</div>
           </div>
         </div>
       )}
 
       {/* Validación */}
-      <div className="mt-4 space-y-2">
-        <div className="flex items-center gap-2">
+      <div
+        className="mt-4 space-y-2"
+        role="list"
+        aria-label="Validación de contenido SEO"
+      >
+        <div className="flex items-center gap-2" role="listitem">
           {title && title.length > 0 && title.length <= 60 ? (
-            <svg className="w-4 h-4 text-green-eske" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            <svg
+              className="w-4 h-4 text-green-eske"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
             </svg>
           ) : (
-            <svg className="w-4 h-4 text-orange-eske" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              className="w-4 h-4 text-orange-eske"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
           )}
           <span className="text-sm text-gray-700">
             Título: {title?.length || 0}/60 caracteres
             {title && title.length > 60 && (
-              <span className="text-orange-eske ml-2">(Se truncará en Google)</span>
+              <span className="text-orange-eske ml-2">
+                (Se truncará en Google)
+              </span>
             )}
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {description && description.length > 0 && description.length <= 160 ? (
-            <svg className="w-4 h-4 text-green-eske" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        <div className="flex items-center gap-2" role="listitem">
+          {description &&
+          description.length > 0 &&
+          description.length <= 160 ? (
+            <svg
+              className="w-4 h-4 text-green-eske"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
             </svg>
           ) : (
-            <svg className="w-4 h-4 text-orange-eske" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              className="w-4 h-4 text-orange-eske"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
           )}
           <span className="text-sm text-gray-700">
@@ -177,14 +278,32 @@ export default function SEOPreview({
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" role="listitem">
           {imageUrl ? (
-            <svg className="w-4 h-4 text-green-eske" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            <svg
+              className="w-4 h-4 text-green-eske"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
             </svg>
           ) : (
-            <svg className="w-4 h-4 text-yellow-eske" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              className="w-4 h-4 text-yellow-eske"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
           )}
           <span className="text-sm text-gray-700">
@@ -192,6 +311,6 @@ export default function SEOPreview({
           </span>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

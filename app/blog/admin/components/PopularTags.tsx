@@ -44,28 +44,60 @@ export default function PopularTags() {
 
   if (loading) {
     return (
-      <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Tags Populares</h3>
+      <section
+        className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+        role="status"
+        aria-live="polite"
+        aria-label="Cargando tags populares"
+      >
+        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <svg
+            className="w-6 h-6 text-bluegreen-eske"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+            />
+          </svg>
+          Tags Populares
+        </h3>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-8 bg-gray-eske-20 rounded"></div>
+            <div
+              key={i}
+              className="h-8 bg-gray-eske-20 rounded"
+              aria-hidden="true"
+            ></div>
           ))}
         </div>
-      </div>
+      </section>
     );
   }
 
   const maxCount = Math.max(...tags.map((t) => t.count));
 
   return (
-    <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6">
+    <section
+      className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+      aria-labelledby="popular-tags-title"
+    >
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <h3
+          id="popular-tags-title"
+          className="text-xl font-bold text-gray-800 flex items-center gap-2"
+        >
           <svg
             className="w-6 h-6 text-bluegreen-eske"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -78,19 +110,21 @@ export default function PopularTags() {
         </h3>
         <Link
           href="/blog/admin/tags"
-          className="text-sm text-bluegreen-eske hover:text-bluegreen-eske-70 font-semibold"
+          className="text-sm text-bluegreen-eske hover:text-bluegreen-eske-70 font-semibold focus-ring-primary rounded"
+          aria-label="Ver todos los tags del blog"
         >
           Ver todos →
         </Link>
       </div>
 
       {tags.length === 0 ? (
-        <div className="text-center py-8 text-gray-600">
+        <div className="text-center py-8 text-gray-600" role="status">
           <svg
             className="w-16 h-16 mx-auto mb-4 text-gray-eske-40"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -102,7 +136,11 @@ export default function PopularTags() {
           <p>No hay tags aún</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div
+          className="space-y-3"
+          role="list"
+          aria-label={`${tags.length} tags populares`}
+        >
           {tags.map((tag, index) => {
             const percentage = (tag.count / maxCount) * 100;
             const colorClasses = [
@@ -115,16 +153,26 @@ export default function PopularTags() {
             const color = colorClasses[index % colorClasses.length];
 
             return (
-              <div key={tag.tag} className="group">
+              <div key={tag.tag} className="group" role="listitem">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium text-gray-800 group-hover:text-bluegreen-eske transition-colors">
                     #{tag.tag}
                   </span>
-                  <span className="text-sm font-bold text-gray-700">
+                  <span
+                    className="text-sm font-bold text-gray-700"
+                    aria-label={`${tag.count} uso${tag.count !== 1 ? "s" : ""}`}
+                  >
                     {tag.count}
                   </span>
                 </div>
-                <div className="w-full bg-gray-eske-20 rounded-full h-2 overflow-hidden">
+                <div
+                  className="w-full bg-gray-eske-20 rounded-full h-2 overflow-hidden"
+                  role="progressbar"
+                  aria-valuenow={percentage}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${tag.tag}: ${percentage.toFixed(1)}% del máximo de usos`}
+                >
                   <div
                     className={`h-full ${color} rounded-full transition-all duration-500`}
                     style={{ width: `${percentage}%` }}
@@ -135,6 +183,6 @@ export default function PopularTags() {
           })}
         </div>
       )}
-    </div>
+    </section>
   );
 }

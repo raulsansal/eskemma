@@ -49,42 +49,68 @@ export default function PopularPostsList() {
 
   if (loading) {
     return (
-      <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Posts Más Populares</h3>
+      <section
+        className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+        role="status"
+        aria-live="polite"
+        aria-label="Cargando posts más populares"
+      >
+        <h3 className="text-xl font-bold text-gray-800 mb-4">
+          Posts Más Populares
+        </h3>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="animate-pulse flex gap-4">
-              <div className="w-16 h-16 bg-gray-eske-20 rounded"></div>
+              <div
+                className="w-16 h-16 bg-gray-eske-20 rounded"
+                aria-hidden="true"
+              ></div>
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-eske-20 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-eske-20 rounded w-1/2"></div>
+                <div
+                  className="h-4 bg-gray-eske-20 rounded w-3/4"
+                  aria-hidden="true"
+                ></div>
+                <div
+                  className="h-3 bg-gray-eske-20 rounded w-1/2"
+                  aria-hidden="true"
+                ></div>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6">
+    <section
+      className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+      aria-labelledby="popular-posts-title"
+    >
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-800">Posts Más Populares</h3>
+        <h3
+          id="popular-posts-title"
+          className="text-xl font-bold text-gray-800"
+        >
+          Posts Más Populares
+        </h3>
         <Link
           href="/blog/admin/blog"
-          className="text-sm text-bluegreen-eske hover:text-bluegreen-eske-70 font-semibold"
+          className="text-sm text-bluegreen-eske hover:text-bluegreen-eske-70 font-semibold focus-ring-primary rounded"
+          aria-label="Ver todos los posts del blog"
         >
           Ver todos →
         </Link>
       </div>
 
       {posts.length === 0 ? (
-        <div className="text-center py-8 text-gray-600">
+        <div className="text-center py-8 text-gray-600" role="status">
           <svg
             className="w-16 h-16 mx-auto mb-4 text-gray-eske-40"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -96,35 +122,43 @@ export default function PopularPostsList() {
           <p>No hay posts publicados aún</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div
+          className="space-y-4"
+          role="list"
+          aria-label={`${posts.length} posts más populares`}
+        >
           {posts.map((post, index) => {
             const categoryColor = getCategoryColor(post.category);
             const categoryLabel = getCategoryLabel(post.category);
 
             return (
-              <div
+              <article
                 key={post.id}
                 className="flex items-center gap-4 p-4 rounded-lg border border-gray-eske-30 hover:border-bluegreen-eske hover:shadow-md transition-all duration-300 group"
+                role="listitem"
               >
                 {/* Ranking Number */}
                 <div
                   className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white"
                   style={{ backgroundColor: categoryColor }}
+                  aria-label={`Posición ${index + 1}`}
                 >
-                  {index + 1}
+                  <span aria-hidden="true">{index + 1}</span>
                 </div>
 
                 {/* Feature Image */}
                 {post.featureImage ? (
                   <img
                     src={post.featureImage}
-                    alt={post.title}
+                    alt=""
                     className="w-16 h-16 object-cover rounded-lg"
+                    aria-hidden="true"
                   />
                 ) : (
                   <div
                     className="w-16 h-16 rounded-lg flex items-center justify-center"
                     style={{ backgroundColor: categoryColor + "20" }}
+                    aria-hidden="true"
                   >
                     <svg
                       className="w-8 h-8"
@@ -146,7 +180,8 @@ export default function PopularPostsList() {
                   <Link
                     href={`/blog/${post.slug}`}
                     target="_blank"
-                    className="font-semibold text-gray-800 hover:text-bluegreen-eske transition-colors line-clamp-1"
+                    className="font-semibold text-gray-800 hover:text-bluegreen-eske transition-colors line-clamp-1 focus-ring-primary rounded"
+                    aria-label={`${post.title} (abre en nueva pestaña)`}
                   >
                     {post.title}
                   </Link>
@@ -154,15 +189,20 @@ export default function PopularPostsList() {
                     <span
                       className="inline-block px-2 py-1 text-xs font-semibold rounded-full text-white"
                       style={{ backgroundColor: categoryColor }}
+                      aria-label={`Categoría: ${categoryLabel}`}
                     >
                       {categoryLabel}
                     </span>
-                    <span className="flex items-center gap-1 text-sm text-gray-600">
+                    <span
+                      className="flex items-center gap-1 text-sm text-gray-600"
+                      aria-label={`${post.views.toLocaleString()} vistas`}
+                    >
                       <svg
                         className="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -177,7 +217,9 @@ export default function PopularPostsList() {
                           d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                         />
                       </svg>
-                      {post.views.toLocaleString()}
+                      <span aria-hidden="true">
+                        {post.views.toLocaleString()}
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -185,13 +227,15 @@ export default function PopularPostsList() {
                 {/* Edit Button */}
                 <Link
                   href={`/blog/admin/blog/edit/${post.id}`}
-                  className="flex-shrink-0 p-2 text-gray-600 hover:text-bluegreen-eske hover:bg-bluegreen-eske-10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                  className="flex-shrink-0 p-2 text-gray-600 hover:text-bluegreen-eske hover:bg-bluegreen-eske-10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus-ring-primary"
+                  aria-label={`Editar post: ${post.title}`}
                 >
                   <svg
                     className="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -201,11 +245,11 @@ export default function PopularPostsList() {
                     />
                   </svg>
                 </Link>
-              </div>
+              </article>
             );
           })}
         </div>
       )}
-    </div>
+    </section>
   );
 }

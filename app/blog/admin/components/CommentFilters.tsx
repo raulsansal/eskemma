@@ -29,15 +29,25 @@ export default function CommentFilters({
   ];
 
   return (
-    <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6">
+    <section 
+      className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+      aria-labelledby="comment-filters-title"
+    >
+      <h2 id="comment-filters-title" className="sr-only">
+        Filtros de comentarios
+      </h2>
       <div className="space-y-4">
         {/* Búsqueda */}
         <div className="relative">
+          <label htmlFor="comment-search" className="sr-only">
+            Buscar comentarios por contenido o autor
+          </label>
           <svg
             className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -48,22 +58,34 @@ export default function CommentFilters({
           </svg>
           <input
             type="text"
+            id="comment-search"
             placeholder="Buscar por contenido o autor..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-eske-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 border border-gray-eske-30 rounded-lg focus-ring-primary"
+            aria-describedby="search-hint"
           />
+          <p id="search-hint" className="sr-only">
+            Filtra los comentarios por contenido o nombre del autor
+          </p>
         </div>
 
         {/* Filtros de Estado */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div 
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+          role="radiogroup"
+          aria-label="Filtrar comentarios por estado"
+        >
           {filters.map((filter) => {
             const isActive = statusFilter === filter.id;
             return (
               <button
                 key={filter.id}
                 onClick={() => onStatusChange(filter.id as any)}
-                className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 ${
+                role="radio"
+                aria-checked={isActive}
+                aria-label={`${filter.label}: ${filter.count} comentario${filter.count !== 1 ? 's' : ''}`}
+                className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 focus-ring-primary ${
                   isActive
                     ? `${filter.color} text-white border-transparent shadow-md`
                     : "bg-white border-gray-eske-30 text-gray-700 hover:border-gray-eske-60"
@@ -73,12 +95,20 @@ export default function CommentFilters({
                   <p className={`text-sm font-semibold ${isActive ? "text-white" : "text-gray-600"}`}>
                     {filter.label}
                   </p>
-                  <p className={`text-2xl font-bold ${isActive ? "text-white" : "text-gray-800"}`}>
+                  <p 
+                    className={`text-2xl font-bold ${isActive ? "text-white" : "text-gray-800"}`}
+                    aria-hidden="true"
+                  >
                     {filter.count}
                   </p>
                 </div>
                 {isActive && (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <svg 
+                    className="w-6 h-6" 
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -91,6 +121,7 @@ export default function CommentFilters({
           })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
+

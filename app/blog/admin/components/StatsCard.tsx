@@ -15,19 +15,25 @@ export default function StatsCard({
   subtitle,
 }: StatsCardProps) {
   return (
-    <div className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+    <article className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
             {title}
           </h3>
-          <div className={`${color} text-white p-3 rounded-lg`}>
+          <div 
+            className={`${color} text-white p-3 rounded-lg`}
+            aria-hidden="true"
+          >
             {icon}
           </div>
         </div>
         
         <div className="space-y-1">
-          <p className="text-4xl font-bold text-gray-800">
+          <p 
+            className="text-4xl font-bold text-gray-800"
+            aria-label={`${value.toLocaleString()} ${title.toLowerCase()}`}
+          >
             {value.toLocaleString()}
           </p>
           {subtitle && (
@@ -37,7 +43,8 @@ export default function StatsCard({
       </div>
       
       {/* Decorative bottom bar */}
-      <div className={`h-1 ${color}`}></div>
-    </div>
+      <div className={`h-1 ${color}`} aria-hidden="true"></div>
+    </article>
   );
 }
+

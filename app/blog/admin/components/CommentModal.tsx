@@ -62,60 +62,93 @@ export default function CommentModal({
     };
 
     return (
-      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${styles[status]}`}>
+      <span 
+        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${styles[status]}`}
+        aria-label={`Estado del comentario: ${labels[status]}`}
+      >
         {labels[status]}
       </span>
     );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="comment-modal-title"
+      aria-describedby="comment-modal-description"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
         onClick={onClose}
+        aria-hidden="true"
       ></div>
 
       {/* Modal */}
       <div className="relative bg-white-eske rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden animate-modal-appear">
         {/* Header */}
-        <div className="bg-gradient-to-r from-bluegreen-eske to-blue-eske text-white p-6 flex items-center justify-between">
+        <header className="bg-gradient-to-r from-bluegreen-eske to-blue-eske text-white p-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {comment.author.photoURL ? (
-              <img
-                src={comment.author.photoURL}
-                alt={comment.author.displayName}
-                className="w-14 h-14 rounded-full object-cover border-2 border-white"
-              />
-            ) : (
-              <div className="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center border-2 border-white">
-                <span className="text-white font-bold text-xl">
-                  {comment.author.displayName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
+            <div 
+              className="flex-shrink-0"
+              role="img"
+              aria-label={`Foto de perfil de ${comment.author.displayName}`}
+            >
+              {comment.author.photoURL ? (
+                <img
+                  src={comment.author.photoURL}
+                  alt=""
+                  className="w-14 h-14 rounded-full object-cover border-2 border-white"
+                />
+              ) : (
+                <div className="w-14 h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center border-2 border-white">
+                  <span className="text-white font-bold text-xl" aria-hidden="true">
+                    {comment.author.displayName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
             <div>
-              <h3 className="text-xl font-bold">{comment.author.displayName}</h3>
-              <p className="text-sm text-blue-eske-10">
-                {new Date(comment.createdAt).toLocaleDateString("es-ES", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+              <h2 
+                id="comment-modal-title"
+                className="text-xl font-bold"
+              >
+                {comment.author.displayName}
+              </h2>
+              <p 
+                className="text-sm text-blue-eske-10"
+                id="comment-modal-description"
+              >
+                <time dateTime={new Date(comment.createdAt).toISOString()}>
+                  {new Date(comment.createdAt).toLocaleDateString("es-ES", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </time>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-blue-eske-70 hover:bg-opacity-20 rounded-lg transition-colors"
+            className="p-2 hover:bg-blue-eske-70 hover:bg-opacity-20 rounded-lg transition-colors focus-ring-primary"
+            aria-label="Cerrar modal de comentario"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg 
+              className="w-6 h-6" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-        </div>
+        </header>
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-280px)]">
@@ -124,9 +157,16 @@ export default function CommentModal({
             {getStatusBadge(comment.moderationStatus)}
             <Link
               href={`/blog/admin/blog/edit/${comment.postId}`}
-              className="text-sm text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium flex items-center gap-1"
+              className="text-sm text-bluegreen-eske hover:text-bluegreen-eske-70 font-medium flex items-center gap-1 focus-ring-primary rounded"
+              aria-label={`Editar post: ${comment.postTitle}`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg 
+                className="w-4 h-4" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               {comment.postTitle}
@@ -134,25 +174,40 @@ export default function CommentModal({
           </div>
 
           {/* Comment Content */}
-          <div className="bg-gray-eske-10 rounded-xl p-6 border border-gray-eske-30">
-            <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-base">
-              {comment.content}
-            </p>
-          </div>
+          <section aria-labelledby="comment-content-label">
+            <h3 id="comment-content-label" className="sr-only">
+              Contenido del comentario
+            </h3>
+            <div className="bg-gray-eske-10 rounded-xl p-6 border border-gray-eske-30">
+              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-base">
+                {comment.content}
+              </p>
+            </div>
+          </section>
         </div>
 
         {/* Actions Footer */}
-        <div className="border-t border-gray-eske-30 p-6 bg-white-eske">
-          <div className="flex items-center gap-3">
+        <footer className="border-t border-gray-eske-30 p-6 bg-white-eske">
+          <div 
+            className="flex items-center gap-3"
+            role="group"
+            aria-label="Acciones de moderación del comentario"
+          >
             {comment.moderationStatus !== "approved" && (
               <button
                 onClick={() => {
                   onStatusChange(comment.id, comment.postId, "approve");
                   onClose();
                 }}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-eske text-white rounded-lg hover:bg-green-eske-70 transition-colors font-semibold shadow-md"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-eske text-white rounded-lg hover:bg-green-eske-70 transition-colors font-semibold shadow-md focus-ring-primary"
+                aria-label="Aprobar comentario"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg 
+                  className="w-5 h-5" 
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
                   <path
                     fillRule="evenodd"
                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -168,9 +223,15 @@ export default function CommentModal({
                   onStatusChange(comment.id, comment.postId, "reject");
                   onClose();
                 }}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-eske text-white rounded-lg hover:bg-red-eske-70 transition-colors font-semibold shadow-md"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-eske text-white rounded-lg hover:bg-red-eske-70 transition-colors font-semibold shadow-md focus-ring-primary"
+                aria-label="Rechazar comentario"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg 
+                  className="w-5 h-5" 
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
                   <path
                     fillRule="evenodd"
                     d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -185,9 +246,16 @@ export default function CommentModal({
                 onDelete(comment.id, comment.postId);
                 onClose();
               }}
-              className="px-6 py-3 bg-gray-eske-40 text-gray-800 rounded-lg hover:bg-red-eske-20 hover:text-red-eske transition-colors font-semibold shadow-md"
+              className="px-6 py-3 bg-gray-eske-40 text-gray-800 rounded-lg hover:bg-red-eske-20 hover:text-red-eske transition-colors font-semibold shadow-md focus-ring-primary"
+              aria-label="Eliminar comentario permanentemente"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg 
+                className="w-5 h-5" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -197,8 +265,9 @@ export default function CommentModal({
               </svg>
             </button>
           </div>
-        </div>
+        </footer>
       </div>
     </div>
   );
 }
+
