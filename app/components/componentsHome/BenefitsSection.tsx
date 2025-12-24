@@ -12,8 +12,8 @@ const BenefitsSection = () => {
 
   const cards = [
     {
-      front: "Acompañamiento profesional",
-      back: "Recibe guía especializada en cada paso de tu proyecto político. Asegura estrategias efectivas y resultados óptimos.",
+      front: "Respaldo profesional",
+      back: "Recibe acompañamiento especializado en cada paso de tu proyecto. Asegura estrategias efectivas y resultados óptimos.",
       bg: "bg-blue-eske-60",
       text: "text-white-eske",
     },

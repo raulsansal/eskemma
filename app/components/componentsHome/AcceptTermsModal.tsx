@@ -19,7 +19,7 @@ export default function AcceptTermsModal({ isOpen, onClose }: AcceptTermsModalPr
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
       role="presentation"
       onClick={(e) => {
@@ -31,20 +31,21 @@ export default function AcceptTermsModal({ isOpen, onClose }: AcceptTermsModalPr
         role="dialog"
         aria-modal="true"
         aria-labelledby="accept-terms-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar modal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 max-sm:h-5 max-sm:w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -56,12 +57,12 @@ export default function AcceptTermsModal({ isOpen, onClose }: AcceptTermsModalPr
         </button>
 
         {/* Título */}
-        <h2 id="accept-terms-title" className="text-xl font-bold text-orange-eske text-center mb-6">
+        <h2 id="accept-terms-title" className="text-xl max-sm:text-lg font-bold text-orange-eske text-center mb-6 max-sm:mb-4">
           Aceptación de términos requerida
         </h2>
 
         {/* Mensaje */}
-        <p className="text-[16px] text-black-eske text-center mb-4">
+        <p className="text-[16px] max-sm:text-sm text-black-eske text-center mb-4 max-sm:mb-3">
           Para continuar con tu registro, debes aceptar las{" "}
           <Link
             href="/condiciones-de-uso"
@@ -85,7 +86,7 @@ export default function AcceptTermsModal({ isOpen, onClose }: AcceptTermsModalPr
           de Eskemma.
         </p>
 
-        <p className="text-[16px] text-black-eske-20 text-center mb-6">
+        <p className="text-[16px] max-sm:text-sm text-black-eske-20 text-center mb-6 max-sm:mb-4">
           Por favor, marca la casilla de aceptación en el formulario de registro para continuar.
         </p>
 

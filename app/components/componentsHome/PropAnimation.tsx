@@ -1,4 +1,4 @@
-// components/PropAnimation.tsx
+// app/components/PropAnimation.tsx
 import React from 'react';
 
 interface PropAnimationProps {
@@ -20,7 +20,10 @@ const PropAnimation: React.FC<PropAnimationProps> = ({
       width={width}
       height={height}
       className={className}
+      role="img"
+      aria-label="Animación de reloj de arena indicando carga"
     >
+      <title>Cargando</title>
       <style>
         {`
           .st0 { fill: white; stroke: black; stroke-width: 2; }
@@ -30,7 +33,7 @@ const PropAnimation: React.FC<PropAnimationProps> = ({
       </style>
 
       {/* Círculo delimitador */}
-      <circle cx="256" cy="256" r="500" fill="none" stroke="white" strokeWidth="2" />
+      <circle cx="256" cy="256" r="500" fill="none" stroke="white" strokeWidth="2" aria-hidden="true" />
 
       {/* Grupo contenedor para rotación */}
       <g id="hourglass">

@@ -41,6 +41,13 @@ export default function FaqPage() {
     setOpenDropdown(openDropdown === index ? null : index);
   };
 
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleDropdown(index);
+    }
+  };
+
   const handleOpenSignUp = () => {
     setIsSignInModalOpen(true);
   };
@@ -130,14 +137,14 @@ export default function FaqPage() {
             crédito. Para otros países,{" "}
             <Link
               href="/contacto"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               contáctanos
             </Link>{" "}
             o escríbenos a{" "}
             <a
               href="mailto:teamsupport@eskemma.com"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               teamsupport@eskemma.com
             </a>{" "}
@@ -164,14 +171,14 @@ export default function FaqPage() {
             referidos y planes grupales.{" "}
             <Link
               href="/contacto"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               Contáctanos
             </Link>{" "}
             o escríbenos a{" "}
             <a
               href="mailto:teamselling@eskemma.com"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               teamselling@eskemma.com
             </a>{" "}
@@ -211,7 +218,7 @@ export default function FaqPage() {
             Ofrecemos soporte técnico 24/7 a través de nuestro{" "}
             <Link
               href="/contacto"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               formulario de contacto
             </Link>
@@ -220,7 +227,7 @@ export default function FaqPage() {
             directamente a{" "}
             <a
               href="mailto:teamsupport@eskemma.com"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               teamsupport@eskemma.com
             </a>
@@ -246,7 +253,7 @@ export default function FaqPage() {
             Puedes escribirnos a través de nuestro{" "}
             <Link
               href="/contacto"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               formulario de contacto
             </Link>
@@ -307,14 +314,14 @@ export default function FaqPage() {
             Revisa tu bandeja de spam o{" "}
             <Link
               href="/contacto"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               contáctanos
             </Link>{" "}
             con tu comprobante de pago. También puedes escribirnos a{" "}
             <a
               href="mailto:teamsupport@eskemma.com"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               teamsupport@eskemma.com
             </a>
@@ -329,14 +336,14 @@ export default function FaqPage() {
             Sí. Si realizas un depósito local en México o Colombia,{" "}
             <Link
               href="/contacto"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               contáctanos
             </Link>{" "}
             o envíanos un correo a{" "}
             <a
               href="mailto:teamsupport@eskemma.com"
-              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70"
+              className="text-bluegreen-eske font-medium underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
             >
               teamsupport@eskemma.com
             </a>{" "}
@@ -364,7 +371,7 @@ export default function FaqPage() {
     const ctas = Array.isArray(cta) ? cta : [cta];
     
     return (
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="mt-4 max-sm:mt-2 flex flex-wrap gap-3 max-sm:gap-2">
         {ctas.map((ctaItem, index) => (
           <div key={index} className="w-full max-w-[250px]">
             {ctaItem.link ? (
@@ -387,16 +394,17 @@ export default function FaqPage() {
   return (
     <main className="min-h-screen bg-gray-eske-10">
       {/* Hero Section - HOMOLOGADO CON SERVICIOS */}
-      <section className="relative min-h-[200px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
+      <section className="relative min-h-[200px] max-sm:min-h-[150px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
         <Image
           src="/images/yanmin_yang.jpg"
-          alt="Hero Background"
+          alt=""
           fill
           style={{ objectFit: "cover" }}
           className="object-cover"
           priority
+          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-bluegreen-eske opacity-75"></div>
+        <div className="absolute inset-0 bg-bluegreen-eske opacity-75" aria-hidden="true"></div>
         <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full">
           <h1 className="text-[36px] max-sm:text-2xl leading-tight font-bold">
             Preguntas Frecuentes
@@ -408,17 +416,17 @@ export default function FaqPage() {
       </section>
 
       {/* FAQ Content */}
-      <section className="py-12 px-4 sm:px-6 md:px-8">
+      <section className="py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Intro */}
-          <div className="text-center mb-12">
-            <p className="text-[18px] text-black-eske max-w-3xl mx-auto">
+          <div className="text-center mb-12 max-sm:mb-8">
+            <p className="text-[18px] max-sm:text-base text-black-eske max-w-3xl mx-auto">
               ¿No encuentras la respuesta que buscas?{" "}
             </p>
-            <p className="text-[16px] text-black-eske max-w-3xl mt-2 mx-auto">
+            <p className="text-[16px] max-sm:text-sm text-black-eske max-w-3xl mt-2 max-sm:mt-1 mx-auto">
               Contáctanos directamente y nuestro equipo te ayudará.
             </p>
-            <div className="max-w-[300px] mx-auto mt-6">
+            <div className="max-w-[300px] mx-auto mt-6 max-sm:mt-4">
               <Link href="/contacto">
                 <Button label="CONTACTAR CON ESKEMMA" variant="secondary" />
               </Link>
@@ -427,35 +435,40 @@ export default function FaqPage() {
 
           {/* FAQ por categorías */}
           {categories.map((category) => (
-            <div key={category.id} className="mb-12">
-              <h2 className="text-2xl font-bold text-bluegreen-eske mb-6 flex items-center">
-                <span className="text-3xl mr-3">{category.icon}</span>
+            <div key={category.id} className="mb-12 max-sm:mb-8">
+              <h2 className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske mb-6 max-sm:mb-4 flex items-center">
+                <span className="text-3xl max-sm:text-2xl mr-3 max-sm:mr-2">{category.icon}</span>
                 {category.title}
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-4 max-sm:space-y-3">
                 {faqData[category.id as keyof FaqCategory].map((faq) => {
                   const currentIndex = questionCounter++;
                   return (
                     <div
                       key={currentIndex}
-                      className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6"
+                      className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4"
                     >
                       <button
-                        className="flex items-center justify-between w-full text-left focus:outline-none"
+                        className="flex items-center justify-between w-full text-left focus-ring-primary rounded"
                         onClick={() => toggleDropdown(currentIndex)}
+                        onKeyDown={(e) => handleKeyDown(currentIndex, e)}
+                        aria-expanded={openDropdown === currentIndex}
+                        aria-controls={`faq-answer-${currentIndex}`}
+                        id={`faq-question-${currentIndex}`}
                       >
-                        <span className="text-lg font-medium text-bluegreen-eske pr-4">
+                        <span className="text-lg max-sm:text-base font-medium text-bluegreen-eske pr-4 max-sm:pr-2">
                           {faq.question}
                         </span>
                         <svg
-                          className={`w-6 h-6 text-bluegreen-eske transform transition-transform duration-300 ease-in-out flex-shrink-0 ${
+                          className={`w-6 h-6 max-sm:w-5 max-sm:h-5 text-bluegreen-eske transform transition-transform duration-300 ease-in-out flex-shrink-0 ${
                             openDropdown === currentIndex ? "rotate-180" : ""
                           }`}
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -467,8 +480,13 @@ export default function FaqPage() {
                       </button>
 
                       {openDropdown === currentIndex && (
-                        <div className="mt-4">
-                          <div className="text-[16px] text-black-eske leading-relaxed">
+                        <div 
+                          id={`faq-answer-${currentIndex}`}
+                          role="region"
+                          aria-labelledby={`faq-question-${currentIndex}`}
+                          className="mt-4 max-sm:mt-2"
+                        >
+                          <div className="text-[16px] max-sm:text-sm text-black-eske leading-relaxed">
                             {faq.answer}
                           </div>
 
@@ -484,14 +502,14 @@ export default function FaqPage() {
           ))}
 
           {/* CTA Final */}
-          <div className="mt-16 text-center bg-blue-eske-80 rounded-lg p-12">
-            <h2 className="text-3xl font-bold text-white-eske mb-4">
+          <div className="mt-16 max-sm:mt-12 text-center bg-blue-eske-80 rounded-lg p-12 max-sm:p-6">
+            <h2 className="text-3xl max-sm:text-xl font-bold text-white-eske mb-4 max-sm:mb-3">
               ¿Quieres impulsar tu proyecto político?
             </h2>
-            <p className="text-xl text-white-eske-90 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl max-sm:text-base text-white-eske-90 mb-8 max-sm:mb-6 max-w-2xl mx-auto">
               Únete a Eskemma y accede a nuestro ecosistema digital profesional.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 max-sm:gap-3 justify-center items-center">
               <div className="max-w-[250px] w-full">
                 <Link href="/#suscripciones">
                   <Button label="VER PLANES" variant="secondary" />

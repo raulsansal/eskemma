@@ -48,7 +48,7 @@ export default function SubscriptionBadge() {
       daysRemaining > 0
     ) {
       return (
-        <span className="ml-2 text-xs opacity-90">
+        <span className="ml-2 max-sm:ml-1.5 text-xs max-sm:text-[10px] opacity-90">
           ({daysRemaining} día{daysRemaining !== 1 ? "s" : ""} restante
           {daysRemaining !== 1 ? "s" : ""})
         </span>
@@ -57,7 +57,7 @@ export default function SubscriptionBadge() {
 
     if (user.role === "expired") {
       return (
-        <span className="ml-2 text-xs opacity-90">
+        <span className="ml-2 max-sm:ml-1.5 text-xs max-sm:text-[10px] opacity-90">
           (Expiró el {expirationDate})
         </span>
       );
@@ -70,7 +70,11 @@ export default function SubscriptionBadge() {
         "unsubscribed-grupal",
       ].includes(user.role)
     ) {
-      return <span className="ml-2 text-xs opacity-90">(Cancelado)</span>;
+      return (
+        <span className="ml-2 max-sm:ml-1.5 text-xs max-sm:text-[10px] opacity-90">
+          (Cancelado)
+        </span>
+      );
     }
 
     return null;
@@ -106,7 +110,7 @@ export default function SubscriptionBadge() {
 
   return (
     <div
-      className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${getBadgeColor()} shadow-sm`}
+      className={`inline-flex items-center px-3 max-sm:px-2 py-1.5 max-sm:py-1 rounded-full text-sm max-sm:text-xs font-medium ${getBadgeColor()} shadow-sm`}
       role="status"
       aria-label={getAriaLabel()}
     >

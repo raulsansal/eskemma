@@ -1,4 +1,4 @@
-// components/componentsHome/RegisterModal.tsx
+// app/components/componentsHome/RegisterModal.tsx
 "use client";
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
@@ -323,7 +323,7 @@ export default function RegisterModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
       role="presentation"
       onClick={(e) => {
@@ -335,21 +335,22 @@ export default function RegisterModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="register-modal-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[85vh] max-sm:max-h-[90vh]"
         style={{ marginTop: "20px" }}
       >
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           disabled={isSubmitting}
           aria-label="Cerrar modal de registro"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 max-sm:h-5 max-sm:w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -361,15 +362,15 @@ export default function RegisterModal({
         </button>
         <h2
           id="register-modal-title"
-          className="text-2xl font-bold text-bluegreen-eske text-center mb-6"
+          className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske text-center mb-6 max-sm:mb-4"
         >
           Completar Registro
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-sm:space-y-3">
           <div>
             <label
               htmlFor="register-name"
-              className="block text-[16px] font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
             >
               Nombre <span className="text-red-500">*</span>
             </label>
@@ -381,13 +382,13 @@ export default function RegisterModal({
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="register-lastName"
-              className="block text-[16px] font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
             >
               Apellidos <span className="text-red-500">*</span>
             </label>
@@ -399,13 +400,13 @@ export default function RegisterModal({
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="register-userName"
-              className="block text-[16px] font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
             >
               Nombre de usuario <span className="text-red-500">*</span>
             </label>
@@ -425,14 +426,14 @@ export default function RegisterModal({
                     ? "userName-suggestion"
                     : undefined
               }
-              className={`w-full px-3 py-2 border ${
+              className={`w-full px-3 py-2 max-sm:py-1.5 border ${
                 !isUserNameValid ? "border-red-500" : "border-gray-300"
-              } rounded focus-ring-primary disabled:bg-gray-100`}
+              } rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm`}
             />
             {!isUserNameValid && (
               <p
                 id="userName-error"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm max-sm:text-xs mt-1"
                 role="alert"
               >
                 {userNameError}
@@ -441,7 +442,7 @@ export default function RegisterModal({
             {suggestionMessage && (
               <p
                 id="userName-suggestion"
-                className="text-blue-500 text-sm mt-1"
+                className="text-blue-500 text-sm max-sm:text-xs mt-1"
                 role="status"
               >
                 {suggestionMessage}
@@ -451,7 +452,7 @@ export default function RegisterModal({
           <div>
             <label
               htmlFor="register-sex"
-              className="block text-[16px] font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
             >
               Sexo <span className="text-red-500">*</span>
             </label>
@@ -462,7 +463,7 @@ export default function RegisterModal({
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
             >
               <option value="">Selecciona una opción</option>
               <option value="hombre">Hombre</option>
@@ -473,7 +474,7 @@ export default function RegisterModal({
           <div>
             <label
               htmlFor="register-country"
-              className="block text-[16px] font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
             >
               País <span className="text-red-500">*</span>
             </label>
@@ -484,7 +485,7 @@ export default function RegisterModal({
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
             >
               <option value="">Selecciona una opción</option>
               {sortedCountries.map((country) => (
@@ -495,18 +496,18 @@ export default function RegisterModal({
             </select>
           </div>
           <div>
-            <hr className="border-bluegreen-eske my-4" />
-            <p className="text-[16px] font-medium text-bluegreen-eske text-center mb-6">
+            <hr className="border-bluegreen-eske my-4 max-sm:my-3" />
+            <p className="text-[16px] max-sm:text-sm font-medium text-bluegreen-eske text-center mb-6 max-sm:mb-4">
               La siguiente información nos permite ofrecerte un mejor servicio,
               acorde con tu perfil e intereses.
             </p>
           </div>
           <div>
             <fieldset>
-              <legend className="block text-[16px] font-medium text-black-eske mb-1">
+              <legend className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-2 max-sm:mb-1.5">
                 Roles
               </legend>
-              <div className="space-y-2">
+              <div className="space-y-2 max-sm:space-y-1.5">
                 {[
                   "Candidatura",
                   "Consultoría o Asesoría",
@@ -516,7 +517,7 @@ export default function RegisterModal({
                   "Academia",
                   "Otro",
                 ].map((role) => (
-                  <label key={role} className="flex items-center">
+                  <label key={role} className="flex items-center min-h-[44px] max-sm:min-h-[40px] cursor-pointer">
                     <input
                       type="checkbox"
                       name="roles"
@@ -524,9 +525,9 @@ export default function RegisterModal({
                       checked={formData.roles.includes(role)}
                       onChange={handleRolesChange}
                       disabled={isSubmitting}
-                      className="mr-2 accent-blue-eske disabled:opacity-50 focus-ring-primary"
+                      className="mr-2 w-4 h-4 accent-blue-eske disabled:opacity-50 focus-ring-primary"
                     />
-                    {role}
+                    <span className="text-base max-sm:text-sm">{role}</span>
                   </label>
                 ))}
                 {formData.roles.includes("Otro") && (
@@ -539,21 +540,21 @@ export default function RegisterModal({
                     placeholder="Especifica tu rol"
                     disabled={isSubmitting}
                     aria-label="Especifica otro rol"
-                    className="mt-2 w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100"
+                    className="mt-2 w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
                   />
                 )}
               </div>
             </fieldset>
           </div>
           <div>
-            <hr className="border-bluegreen-eske my-4" />
+            <hr className="border-bluegreen-eske my-4 max-sm:my-3" />
             <fieldset>
-              <legend className="block text-[16px] font-medium text-black-eske mb-1">
+              <legend className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-2 max-sm:mb-1.5">
                 Temas de interés
               </legend>
-              <div className="space-y-2">
+              <div className="space-y-2 max-sm:space-y-1.5">
                 {interestsList.map((interest) => (
-                  <label key={interest} className="flex items-center">
+                  <label key={interest} className="flex items-center min-h-[44px] max-sm:min-h-[40px] cursor-pointer">
                     <input
                       type="checkbox"
                       name="interests"
@@ -561,12 +562,12 @@ export default function RegisterModal({
                       checked={formData.interests.includes(interest)}
                       onChange={handleInterestsChange}
                       disabled={isSubmitting}
-                      className="mr-2 accent-blue-eske disabled:opacity-50 focus-ring-primary"
+                      className="mr-2 w-4 h-4 accent-blue-eske disabled:opacity-50 focus-ring-primary"
                     />
-                    {interest}
+                    <span className="text-base max-sm:text-sm">{interest}</span>
                   </label>
                 ))}
-                <label className="flex items-center">
+                <label className="flex items-center min-h-[44px] max-sm:min-h-[40px] cursor-pointer">
                   <input
                     type="checkbox"
                     name="interests"
@@ -574,9 +575,9 @@ export default function RegisterModal({
                     checked={formData.interests.includes("Otro")}
                     onChange={handleInterestsChange}
                     disabled={isSubmitting}
-                    className="mr-2 accent-blue-eske disabled:opacity-50 focus-ring-primary"
+                    className="mr-2 w-4 h-4 accent-blue-eske disabled:opacity-50 focus-ring-primary"
                   />
-                  Otro
+                  <span className="text-base max-sm:text-sm">Otro</span>
                 </label>
                 {formData.interests.includes("Otro") && (
                   <input
@@ -588,7 +589,7 @@ export default function RegisterModal({
                     placeholder="Especifica tu interés"
                     disabled={isSubmitting}
                     aria-label="Especifica otro interés"
-                    className="mt-2 w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100"
+                    className="mt-2 w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
                   />
                 )}
               </div>
@@ -603,7 +604,7 @@ export default function RegisterModal({
             disabled={isSubmitting}
             type="submit"
           />
-          <p className="mt-4 text-[14px] text-black-eske text-center">
+          <p className="mt-4 max-sm:mt-3 text-[14px] max-sm:text-xs text-black-eske text-center">
             Al registrarme acepto las{" "}
             <Link
               href="/condiciones-de-uso"
@@ -627,8 +628,8 @@ export default function RegisterModal({
             de Eskemma.
           </p>
 
-          <hr className="border-gray-300 my-4" />
-          <p className="text-[14px] text-black-eske text-center">
+          <hr className="border-gray-300 my-4 max-sm:my-3" />
+          <p className="text-[14px] max-sm:text-xs text-black-eske text-center">
             ¿Ya te has registrado?{" "}
             <button
               type="button"
