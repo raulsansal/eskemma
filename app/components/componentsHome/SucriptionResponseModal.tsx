@@ -25,7 +25,7 @@ export default function SuscriptionResponseModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
       role="presentation"
       onClick={(e) => {
@@ -37,21 +37,22 @@ export default function SuscriptionResponseModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="subscription-response-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[80vh] max-sm:max-h-[85vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar confirmación de suscripción"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 max-sm:h-5 max-sm:w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -63,38 +64,38 @@ export default function SuscriptionResponseModal({
         </button>
 
         {/* Contenido del Modal */}
-        <div className="space-y-6 text-center">
+        <div className="space-y-6 max-sm:space-y-4 text-center">
           {/* Espacio para el logotipo */}
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-4 max-sm:mb-3">
             <img
               src="/images/esk_log_csm.svg"
               alt="Eskemma - Logotipo"
-              className="w-60 h-24 object-contain"
+              className="w-60 max-sm:w-48 h-24 max-sm:h-20 object-contain"
             />
           </div>
 
           {/* Saludo personalizado */}
-          <p id="subscription-response-title" className="text-xl font-bold text-bluegreen-eske">
+          <p id="subscription-response-title" className="text-xl max-sm:text-lg font-bold text-bluegreen-eske">
             Hola, {userName}
           </p>
 
           {/* Mensaje de felicitaciones */}
-          <p className="text-[16px] font-normal text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
             ¡Felicidades por suscribirte a Eskemma!
           </p>
 
           {/* Mensaje destacado */}
-          <p className="text-[16px] font-bold text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
             Ahora cuentas con el respaldo de profesionales para tu proyecto político.
           </p>
 
           {/* Información sobre el correo */}
-          <p className="text-[16px] font-normal text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
             Hemos enviado un email a tu cuenta de correo con la información de tu compra y las indicaciones para la facturación.
           </p>
 
           {/* Contacto */}
-          <p className="text-[16px] font-normal text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
             Para cualquier información sobre tu compra contacta con nosotros al correo:{" "}
             <a 
               href="mailto:clientes@eskemma.com"
@@ -105,7 +106,7 @@ export default function SuscriptionResponseModal({
           </p>
 
           {/* Invitación a explorar recursos */}
-          <p className="text-[16px] font-normal text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
             Te invitamos a iniciar explorando los materiales disponibles para tu proyecto en la{" "}
             <Link
               href="/recursos"
@@ -120,7 +121,7 @@ export default function SuscriptionResponseModal({
           </p>
 
           {/* Agradecimiento final */}
-          <p className="text-[16px] font-bold text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
             Agradecemos tu confianza.
           </p>
 
@@ -132,10 +133,10 @@ export default function SuscriptionResponseModal({
           />
 
           {/* Línea horizontal */}
-          <hr className="border-gray-300 my-4" />
+          <hr className="border-gray-300 my-4 max-sm:my-3" />
 
           {/* Links adicionales */}
-          <p className="text-[14px] text-black-eske">
+          <p className="text-[14px] max-sm:text-xs text-black-eske">
             Consultar{" "}
             <Link
               href="/terminos-y-condiciones-uso"

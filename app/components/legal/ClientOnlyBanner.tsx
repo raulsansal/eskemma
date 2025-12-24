@@ -22,9 +22,14 @@ const CookieBanner = dynamic(() => import("./CookieBanner"), {
  * - No afecta la accesibilidad directamente (solo es un wrapper técnico)
  * - El CookieBanner renderizado incluye todas las mejoras de accesibilidad:
  *   * Focus trap cuando está abierto
- *   * Navegación por teclado
+ *   * Navegación por teclado (Escape para cerrar)
  *   * ARIA labels y roles apropiados
  *   * Anuncios para screen readers
+ *   * Botones con min-height táctil
+ * 
+ * MOBILE:
+ * - Todas las optimizaciones mobile están en CookieBanner.tsx
+ * - Este componente es solo un wrapper técnico sin UI propia
  */
 export default function ClientOnlyBanner() {
   const [isMounted, setIsMounted] = useState(false);

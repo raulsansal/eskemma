@@ -96,7 +96,7 @@ const TeamModal = () => {
       {/* Modal */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center px-4"
           style={{ backgroundColor: "rgba(0,0,0, 0.6)" }}
           role="presentation"
           onClick={(e) => {
@@ -109,20 +109,21 @@ const TeamModal = () => {
             aria-modal="true"
             aria-labelledby="team-member-name"
             aria-describedby="team-member-bio"
-            className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-hidden"
+            className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-hidden"
           >
             {/* Botón de Cierre */}
             <button
-              className="absolute top-4 right-4 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+              className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
               onClick={() => setIsOpen(false)}
               aria-label="Cerrar modal del equipo"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+                className="h-6 w-6 max-sm:h-5 max-sm:w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -134,17 +135,17 @@ const TeamModal = () => {
             </button>
 
             {/* Encabezado */}
-            <h3 id="team-member-name" className="text-2xl font-medium text-bluegreen-eske mb-1 text-center">
+            <h3 id="team-member-name" className="text-2xl max-sm:text-xl font-medium text-bluegreen-eske mb-1 text-center">
               {currentMember.name}
             </h3>
-            <p className="text-xl text-orange-eske mb-8 text-center">
+            <p className="text-xl max-sm:text-lg text-orange-eske mb-8 max-sm:mb-6 text-center">
               {currentMember.role}
             </p>
 
             {/* Contenido Principal */}
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center gap-6 max-sm:gap-4">
               {/* Imagen Circular */}
-              <div className="w-36 h-36 rounded-full bg-bluegreen-eske border-blue-eske p-0.5 overflow-hidden flex items-center justify-center">
+              <div className="w-36 h-36 max-sm:w-28 max-sm:h-28 rounded-full bg-bluegreen-eske border-blue-eske p-0.5 overflow-hidden flex items-center justify-center">
                 <img
                   src={currentMember.image}
                   alt={`${currentMember.name}, ${currentMember.role}`}
@@ -153,26 +154,27 @@ const TeamModal = () => {
               </div>
 
               {/* Biografía */}
-              <div className="mt-2 text-center">
-                <p id="team-member-bio" className="text-10px text-gray-700">{currentMember.bio}</p>
+              <div className="mt-2 max-sm:mt-1 text-center">
+                <p id="team-member-bio" className="text-10px max-sm:text-[10px] text-gray-700">{currentMember.bio}</p>
               </div>
             </div>
 
             {/* Navegación entre Miembros */}
-            <div className="flex justify-between mt-6">
+            <div className="flex justify-between mt-6 max-sm:mt-4">
               {/* Botón Anterior */}
               <button
-                className="text-gray-700 hover:text-blue-eske transition-colors duration-300 focus-ring-primary rounded"
+                className="text-gray-700 hover:text-blue-eske transition-colors duration-300 focus-ring-primary rounded p-2 max-sm:p-1"
                 onClick={prevMember}
                 onKeyDown={(e) => handleKeyDown(e, 'prev')}
                 aria-label="Ver miembro anterior del equipo"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
+                  className="h-6 w-6 max-sm:h-5 max-sm:w-5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -184,7 +186,7 @@ const TeamModal = () => {
               </button>
 
               {/* Indicadores de Carrusel */}
-              <div className="flex gap-2" role="tablist" aria-label="Miembros del equipo">
+              <div className="flex gap-2 max-sm:gap-1.5" role="tablist" aria-label="Miembros del equipo">
                 {teamMembers.map((member, index) => (
                   <button
                     key={member.id}
@@ -192,7 +194,7 @@ const TeamModal = () => {
                     aria-selected={index === currentIndex}
                     aria-label={`Ver ${member.name}`}
                     onClick={() => setCurrentIndex(index)}
-                    className={`h-2 w-2 rounded-full focus-ring-primary ${
+                    className={`h-2 w-2 max-sm:h-1.5 max-sm:w-1.5 rounded-full focus-ring-primary ${
                       index === currentIndex ? "bg-orange-eske" : "bg-gray-300"
                     }`}
                   />
@@ -201,17 +203,18 @@ const TeamModal = () => {
 
               {/* Botón Siguiente */}
               <button
-                className="text-gray-700 hover:text-blue-eske transition-colors duration-300 focus-ring-primary rounded"
+                className="text-gray-700 hover:text-blue-eske transition-colors duration-300 focus-ring-primary rounded p-2 max-sm:p-1"
                 onClick={nextMember}
                 onKeyDown={(e) => handleKeyDown(e, 'next')}
                 aria-label="Ver siguiente miembro del equipo"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
+                  className="h-6 w-6 max-sm:h-5 max-sm:w-5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"

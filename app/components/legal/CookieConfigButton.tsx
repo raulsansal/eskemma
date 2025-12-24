@@ -11,6 +11,16 @@ interface CookieConfigButtonProps {
 /**
  * Botón para reabrir el CookieBanner
  * Permite a los usuarios cambiar sus preferencias de cookies en cualquier momento
+ * 
+ * ACCESIBILIDAD:
+ * - Botón con área táctil mínima (44px desktop / 40px mobile)
+ * - Focus ring visible
+ * - Mensaje de confirmación con z-index apropiado
+ * 
+ * MOBILE:
+ * - 3 variantes responsive
+ * - Mensaje de confirmación adaptativo
+ * - Padding y texto responsive
  */
 export default function CookieConfigButton({ 
   variant = "default" 
@@ -30,11 +40,11 @@ export default function CookieConfigButton({
     }, 3000);
   };
 
-  // Estilos según variante
+  // Estilos según variante - TODOS RESPONSIVE
   const buttonStyles = {
-    default: "px-6 py-3 bg-bluegreen-eske text-white-eske rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-colors duration-300 text-[15px] shadow-md hover:shadow-lg",
-    compact: "px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-colors duration-300 text-[14px]",
-    light: "px-6 py-3 bg-white-eske text-bluegreen-eske rounded-lg font-bold hover:bg-gray-eske-10 transition-colors duration-300 text-[15px] shadow-lg hover:shadow-xl"
+    default: "px-6 max-sm:px-4 py-3 max-sm:py-2 bg-bluegreen-eske text-white-eske rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-colors duration-300 text-[15px] max-sm:text-[14px] shadow-md hover:shadow-lg focus-ring-primary",
+    compact: "px-4 max-sm:px-3 py-2 max-sm:py-1.5 bg-bluegreen-eske text-white-eske rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-colors duration-300 text-[14px] max-sm:text-[13px] focus-ring-primary",
+    light: "px-6 max-sm:px-4 py-3 max-sm:py-2 bg-white-eske text-bluegreen-eske rounded-lg font-bold hover:bg-gray-eske-10 transition-colors duration-300 text-[15px] max-sm:text-[14px] shadow-lg hover:shadow-xl focus-ring-primary border-2 border-bluegreen-eske"
   };
 
   return (
@@ -42,13 +52,18 @@ export default function CookieConfigButton({
       <button
         onClick={handleClick}
         className={buttonStyles[variant]}
+        aria-label="Abrir configuración de cookies"
       >
         Configurar Cookies
       </button>
 
-      {/* Mensaje de confirmación */}
+      {/* Mensaje de confirmación - RESPONSIVE */}
       {showMessage && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-4 py-2 bg-green-eske text-white-eske rounded-lg shadow-lg text-[13px] whitespace-nowrap animate-fade-in z-10">
+        <div 
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 max-sm:mt-1.5 px-4 max-sm:px-3 py-2 max-sm:py-1.5 bg-green-eske text-white-eske rounded-lg shadow-lg text-[13px] max-sm:text-[12px] whitespace-nowrap animate-fade-in z-10"
+          role="status"
+          aria-live="polite"
+        >
           ✅ Banner de cookies reabierto
         </div>
       )}

@@ -1,4 +1,4 @@
- //app/components/componentsHome/SuscriptionBasicModal.tsx
+//app/components/componentsHome/SuscriptionBasicModal.tsx
 
 import Link from "next/link";
 import { useState } from "react";
@@ -39,6 +39,7 @@ export default function SuscriptionBasicModal({
       position: relative;
       transition: all 0.2s ease;
       vertical-align: middle;
+      flex-shrink: 0;
     }
     
     .custom-radio:checked {
@@ -56,7 +57,7 @@ export default function SuscriptionBasicModal({
 
   return (
     <div
-      className="fixed inset-0 z-70 flex items-center justify-center"
+      className="fixed inset-0 z-70 flex items-center justify-center px-4"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
       role="presentation"
       onClick={(e) => {
@@ -70,21 +71,22 @@ export default function SuscriptionBasicModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="subscription-basic-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[85vh] max-sm:max-h-[90vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar modal de suscripción básica"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 max-sm:h-5 max-sm:w-5"
             fill="blue-eske"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -95,9 +97,9 @@ export default function SuscriptionBasicModal({
           </svg>
         </button>
 
-        <div className="space-y-6 text-left">
+        <div className="space-y-6 max-sm:space-y-4 text-left">
           {/* Título del Modal */}
-          <h2 id="subscription-basic-title" className="text-3xl font-bold text-bluegreen-eske text-center">
+          <h2 id="subscription-basic-title" className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske text-center">
             Suscripción
           </h2>
 
@@ -106,26 +108,26 @@ export default function SuscriptionBasicModal({
             <img
               src="https://images.unsplash.com/photo-1565350552203-b68085b104df?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Plan Básico - Ilustración de escritorio con computadora"
-              className="w-150 h-70"
+              className="w-150 max-sm:w-full h-70 max-sm:h-auto object-cover rounded"
             />
           </div>
 
           {/* Nombre del Plan */}
-          <p className="text-2xl font-semibold text-bluegreen-eske">
+          <p className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske">
             Plan Básico
           </p>
 
           {/* Precio */}
-          <p className="text-[16px] font-bold text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
             $2,000ºº (mx) pago por persona / mes
           </p>
 
           {/* Bloque de texto con la descripción */}
-          <fieldset className="space-y-2">
-            <legend className="text-[16px] font-normal text-black-eske mb-2">
+          <fieldset className="space-y-2 max-sm:space-y-1.5">
+            <legend className="text-[16px] max-sm:text-sm font-normal text-black-eske mb-2 max-sm:mb-1.5">
               Selecciona un servicio:
             </legend>
-            <label htmlFor="service-moddulo" className="flex items-center space-x-2 ml-4 cursor-pointer">
+            <label htmlFor="service-moddulo" className="flex items-center space-x-2 ml-4 max-sm:ml-2 cursor-pointer min-h-[44px] max-sm:min-h-[40px]">
               <input
                 type="radio"
                 id="service-moddulo"
@@ -135,9 +137,9 @@ export default function SuscriptionBasicModal({
                 onChange={(e) => setSelectedService(e.target.value)}
                 className="custom-radio"
               />
-              <span className="ml-2 text-[16px] font-normal text-black-eske">Moddulo</span>
+              <span className="ml-2 text-[16px] max-sm:text-sm font-normal text-black-eske">Moddulo</span>
             </label>
-            <label htmlFor="service-sefix" className="flex items-center space-x-2 ml-4 cursor-pointer">
+            <label htmlFor="service-sefix" className="flex items-center space-x-2 ml-4 max-sm:ml-2 cursor-pointer min-h-[44px] max-sm:min-h-[40px]">
               <input
                 type="radio"
                 id="service-sefix"
@@ -147,9 +149,9 @@ export default function SuscriptionBasicModal({
                 onChange={(e) => setSelectedService(e.target.value)}
                 className="custom-radio"
               />
-              <span className="ml-2 text-[16px] font-normal text-black-eske">Sefix</span>
+              <span className="ml-2 text-[16px] max-sm:text-sm font-normal text-black-eske">Sefix</span>
             </label>
-            <label htmlFor="service-cursos" className="flex items-center space-x-2 ml-4 cursor-pointer">
+            <label htmlFor="service-cursos" className="flex items-center space-x-2 ml-4 max-sm:ml-2 cursor-pointer min-h-[44px] max-sm:min-h-[40px]">
               <input
                 type="radio"
                 id="service-cursos"
@@ -159,9 +161,9 @@ export default function SuscriptionBasicModal({
                 onChange={(e) => setSelectedService(e.target.value)}
                 className="custom-radio"
               />
-              <span className="ml-2 text-[16px] font-normal text-black-eske">Cursos online</span>
+              <span className="ml-2 text-[16px] max-sm:text-sm font-normal text-black-eske">Cursos online</span>
             </label>
-            <label htmlFor="service-monitor" className="flex items-center space-x-2 ml-4 cursor-pointer">
+            <label htmlFor="service-monitor" className="flex items-center space-x-2 ml-4 max-sm:ml-2 cursor-pointer min-h-[44px] max-sm:min-h-[40px]">
               <input
                 type="radio"
                 id="service-monitor"
@@ -171,12 +173,12 @@ export default function SuscriptionBasicModal({
                 onChange={(e) => setSelectedService(e.target.value)}
                 className="custom-radio"
               />
-              <span className="ml-2 text-[15px] font-normal text-black-eske">Monitor</span>
+              <span className="ml-2 text-[15px] max-sm:text-sm font-normal text-black-eske">Monitor</span>
             </label>
           </fieldset>
 
           {/* Método de pago */}
-          <p className="text-[16px] font-semibold text-bluegreen-eske">
+          <p className="text-[16px] max-sm:text-sm font-semibold text-bluegreen-eske">
             Método de pago
           </p>
           <div className="flex items-center justify-between">
@@ -184,7 +186,7 @@ export default function SuscriptionBasicModal({
             <div className="flex items-center space-x-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-black-eske"
+                className="h-6 w-6 max-sm:h-5 max-sm:w-5 text-black-eske"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -197,14 +199,14 @@ export default function SuscriptionBasicModal({
                   d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                 />
               </svg>
-              <p className="text-[16px] font-normal text-black-eske">
+              <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
                 **** **** **** 1234
               </p>
             </div>
             {/* Botón CAMBIAR - Mantener personalizado */}
             <button
               type="button"
-              className="text-10px font-medium text-black-eske px-4 py-2 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300 focus-ring-primary"
+              className="text-10px max-sm:text-[9px] font-medium text-black-eske px-4 max-sm:px-3 py-2 max-sm:py-1.5 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300 focus-ring-primary"
               aria-label="Cambiar método de pago"
             >
               CAMBIAR
@@ -219,10 +221,10 @@ export default function SuscriptionBasicModal({
           />
 
           {/* Línea horizontal */}
-          <hr className="border-gray-300 my-4" />
+          <hr className="border-gray-300 my-4 max-sm:my-3" />
 
           {/* Links adicionales */}
-          <p className="text-[14px] text-black-eske text-center">
+          <p className="text-[14px] max-sm:text-xs text-black-eske text-center">
             Consultar{" "}
             <Link
               href="/terminos-y-condiciones-suscripciones"
@@ -234,7 +236,7 @@ export default function SuscriptionBasicModal({
               <span className="sr-only"> (se abre en nueva ventana)</span>
             </Link>
           </p>
-          <p className="text-[14px] text-black-eske text-center">
+          <p className="text-[14px] max-sm:text-xs text-black-eske text-center">
             Acepto las{" "}
             <Link
               href="/condiciones-de-uso"

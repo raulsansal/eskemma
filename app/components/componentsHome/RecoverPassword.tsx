@@ -1,4 +1,4 @@
-// components/componentsHome/RecoverPassword.tsx
+// app/components/componentsHome/RecoverPassword.tsx
 "use client";
 import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
@@ -40,28 +40,36 @@ export default function RecoverPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-8 max-sm:p-6 w-full max-w-md">
+        <h1 className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske text-center mb-6 max-sm:mb-4">
           Recuperar Contraseña
         </h1>
 
         {message && (
-          <p className="text-green-500 text-sm text-center mb-4" role="alert">
+          <p 
+            className="text-green-500 text-sm max-sm:text-xs text-center mb-4 max-sm:mb-3 p-3 max-sm:p-2 bg-green-50 border border-green-200 rounded" 
+            role="alert"
+            aria-live="polite"
+          >
             {message}
           </p>
         )}
         {error && (
-          <p className="text-red-500 text-sm text-center mb-4" role="alert">
+          <p 
+            className="text-red-500 text-sm max-sm:text-xs text-center mb-4 max-sm:mb-3 p-3 max-sm:p-2 bg-red-50 border border-red-200 rounded" 
+            role="alert"
+            aria-live="assertive"
+          >
             {error}
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-sm:space-y-3">
           <div>
             <label 
               htmlFor="recover-email"
-              className="block text-[18px] font-medium text-black-eske mb-1"
+              className="block text-[18px] max-sm:text-base font-medium text-black-eske mb-1"
             >
               Email Address
             </label>
@@ -72,7 +80,8 @@ export default function RecoverPassword() {
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100"
+              placeholder="tu@email.com"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
             />
           </div>
 
@@ -83,6 +92,16 @@ export default function RecoverPassword() {
             type="submit"
           />
         </form>
+
+        {/* Link para volver al login */}
+        <div className="mt-6 max-sm:mt-4 text-center">
+          <a
+            href="/"
+            className="text-[14px] max-sm:text-xs text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+          >
+            Volver al inicio
+          </a>
+        </div>
       </div>
     </div>
   );

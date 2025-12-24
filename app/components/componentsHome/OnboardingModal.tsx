@@ -50,7 +50,7 @@ export default function OnboardingModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
       role="presentation"
       onClick={(e) => {
@@ -62,20 +62,21 @@ export default function OnboardingModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="onboarding-modal-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative"
+        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
       >
         {/* Botón de Cierre */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           aria-label="Cerrar modal de bienvenida"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
+            className="h-6 w-6 max-sm:h-5 max-sm:w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -87,25 +88,25 @@ export default function OnboardingModal({
         </button>
 
         {/* Título Personalizado */}
-        <h2 id="onboarding-modal-title" className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+        <h2 id="onboarding-modal-title" className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske text-center mb-6 max-sm:mb-4">
           ¡Hola, {userName}!
         </h2>
 
         {/* Mensaje de Introducción */}
-        <p className="text-[18px] text-black-eske text-center mb-6">
+        <p className="text-[18px] max-sm:text-base text-black-eske text-center mb-6 max-sm:mb-4">
           Te damos la bienvenida a{" "}<br></br>
           <span className="text-blue-eske font-bold">Eskemma</span> <br></br>{" "}
-          <span className="text-center text-[13px] text-bluegreen-eske font-semibold">
+          <span className="text-center text-[13px] max-sm:text-xs text-bluegreen-eske font-semibold">
             El ecosistema digital para tu proyecto político
           </span>
         </p>
 
-        <p className="text-[16px] text-black-eske text-center mb-6">
+        <p className="text-[16px] max-sm:text-sm text-black-eske text-center mb-6 max-sm:mb-4">
           Aquí tienes nuestras sugerencias para comenzar:
         </p>
 
         {/* Botones de Acción */}
-        <div className="space-y-4">
+        <div className="space-y-4 max-sm:space-y-3">
           <Button
             label="EXPLORAR RECURSOS"
             variant="primary"
@@ -124,16 +125,16 @@ export default function OnboardingModal({
         </div>
 
         {/* Casilla de Verificación con descripción mejorada */}
-        <div className="mt-4 flex items-center justify-center">
+        <div className="mt-4 max-sm:mt-3 flex items-center justify-center">
           <input
             type="checkbox"
             id="showOnLogin"
             checked={showOnLogin}
             onChange={(e) => setShowOnLogin(e.target.checked)}
-            className="mr-2 focus-ring-primary"
+            className="mr-2 w-4 h-4 focus-ring-primary"
             aria-describedby="show-onboarding-description"
           />
-          <label htmlFor="showOnLogin" className="text-[14px] text-black-eske">
+          <label htmlFor="showOnLogin" className="text-[14px] max-sm:text-xs text-black-eske cursor-pointer">
             Mostrar este mensaje al iniciar sesión
           </label>
         </div>
@@ -144,3 +145,4 @@ export default function OnboardingModal({
     </div>
   );
 }
+

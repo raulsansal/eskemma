@@ -54,7 +54,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           priority
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-bluegreen-eske opacity-20" aria-hidden="true"></div>
+        <div
+          className="absolute inset-0 bg-bluegreen-eske opacity-20"
+          aria-hidden="true"
+        ></div>
         <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full">
           <h1 className="text-[48px] max-sm:text-2xl leading-tight font-bold">
             Consultoría política
@@ -72,9 +75,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Blog Section */}
-      <section className="bg-gray-eske-10 min-h-[580px] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8" aria-labelledby="blog-heading">
+      <section
+        className="bg-gray-eske-10 min-h-[580px] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+        aria-labelledby="blog-heading"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 id="blog-heading" className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8">
+          <h2
+            id="blog-heading"
+            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8"
+          >
             Hoy en Eskemma
           </h2>
 
@@ -102,7 +111,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                   {/* Título - con flex-grow para ocupar espacio variable */}
                   <h3 className="text-xl max-sm:text-base text-bluegreen-eske-60 font-semibold mb-2 max-sm:mb-1 hover:text-bluegreen-eske transition-colors duration-300 flex-grow-0">
-                    <Link href={`/blog/${post.slug}`} className="focus-ring-primary rounded">{post.title}</Link>
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="focus-ring-primary rounded"
+                    >
+                      {post.title}
+                    </Link>
                   </h3>
 
                   {/* Contenido - con flex-grow para ocupar espacio variable */}
@@ -112,7 +126,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                   {/* Fecha y autor */}
                   <div className="flex justify-between w-full text-sm max-sm:text-xs text-gray-700 mb-4 max-sm:mb-2 px-2 max-sm:px-1">
-                    <time className="text-gray-eske-60" dateTime={post.updatedAt.toISOString()}>
+                    <time
+                      className="text-gray-eske-60"
+                      dateTime={post.updatedAt.toISOString()}
+                    >
                       {post.updatedAt.toLocaleDateString("es-ES", {
                         year: "numeric",
                         month: "long",
@@ -141,9 +158,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Información Relevante Section */}
-      <section className="bg-white-eske min-h-[500px] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8" aria-labelledby="info-heading">
+      <section
+        className="bg-white-eske min-h-[500px] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+        aria-labelledby="info-heading"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 id="info-heading" className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8">
+          <h2
+            id="info-heading"
+            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8"
+          >
             Información relevante
           </h2>
 
@@ -159,7 +182,8 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 unoptimized={true}
               />
               <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 flex-grow">
-                Participación electoral por circunscripción <br className="max-sm:hidden" />
+                Participación electoral por circunscripción{" "}
+                <br className="max-sm:hidden" />
                 en las elecciones federales de México 2006-2021
               </p>
 
@@ -185,7 +209,8 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 unoptimized={true}
               />
               <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 flex-grow">
-                ¿Por qué la participación electoral aumenta en las <br className="max-sm:hidden" />
+                ¿Por qué la participación electoral aumenta en las{" "}
+                <br className="max-sm:hidden" />
                 elecciones presidenciales en México?
               </p>
 
@@ -204,14 +229,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Propuesta Section */}
-      <section className="bg-bluegreen-eske min-h-[500px] max-sm:min-h-[400px] py-18 max-sm:py-12 px-4 sm:px-6 md:px-8" aria-labelledby="propuesta-heading">
+      <section
+        className="bg-bluegreen-eske min-h-[500px] max-sm:min-h-[400px] py-18 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        aria-labelledby="propuesta-heading"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl flex flex-col md:flex-row items-center justify-between">
           <div className="w-full md:w-1/3 flex justify-center">
             <PropAnimation />
           </div>
 
           <div className="w-full md:w-1/2 text-center text-white-eske mt-8 md:mt-0">
-            <h2 id="propuesta-heading" className="text-[24px] max-sm:text-lg block mb-10 max-sm:mb-6">
+            <h2
+              id="propuesta-heading"
+              className="text-[24px] max-sm:text-lg block mb-8 max-sm:mb-6"
+            >
               El tiempo es el recurso más valioso.
             </h2>
             <p className="text-[18px] max-sm:text-base font-light mb-4 max-sm:mb-3 leading-relaxed">
@@ -219,18 +250,63 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               <span className="block">Comencemos a planear tu estrategia.</span>
             </p>
             <p className="mt-6 max-sm:mt-4 text-[18px] max-sm:text-base font-light leading-relaxed">
-              <span className="block">Haz que cada decisión sea efectivo</span>
+              <span className="block">Haz que cada decisión sea efectiva</span>
               <span className="block">en el contexto de tu proyecto.</span>
             </p>
+
+            {/* Párrafo Adicional */}
+            <p className="text-[16px] max-sm:text-base font-light mb-4 max-sm:mb-3 leading-relaxed">                           
+              <span className="mt-6 font-semibold block">
+                Podemos colaborar desde ahora con una{" "}
+              </span>
+              <span className="block font-semibold">asesoría gratuita de 30 minutos.</span>
+            </p>
+
+            {/* Botón "AGENDAR ASESORÍA GRATUITA" */}
+            <div className="text-center mt-6 max-w-[300px] mx-auto">
+              <Button
+                label="AGENDAR ASESORÍA GRATUITA"
+                variant="secondary"
+                onClick={() => setIsScheduleModalOpen(true)}
+              />
+            </div>
+
+            {/* Modal de Agendar Asesoría */}
+            <ScheduleDate
+              isOpen={isScheduleModalOpen}
+              onClose={() => setIsScheduleModalOpen(false)}
+              onSubmitSuccess={(data) => {
+                setFormData(data);
+                setIsScheduleModalOpen(false);
+                setIsResponseModalOpen(true);
+              }}
+            />
+
+            {/* Modal de Confirmación */}
+            {isResponseModalOpen && (
+              <ResponseDate
+                isOpen={isResponseModalOpen}
+                onClose={() => setIsResponseModalOpen(false)}
+                fullName={formData.fullName}
+                email={formData.email}
+                dateTime={formData.dateTime}
+              />
+            )}
           </div>
         </div>
       </section>
 
       {/* Sobre Nosotros Section */}
-      <section className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8" aria-labelledby="about-heading">
+      <section
+        className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+        aria-labelledby="about-heading"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl text-center">
           {/* Subtítulo */}
-          <h2 id="about-heading" className="text-3xl max-sm:text-xl font-bold text-bluegreen-eske mb-6 max-sm:mb-4">
+          <h2
+            id="about-heading"
+            className="text-3xl max-sm:text-xl font-bold text-bluegreen-eske mb-6 max-sm:mb-4"
+          >
             Sobre nosotros
           </h2>
 
@@ -255,43 +331,6 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
           {/* Modal de Equipo */}
           <TeamModal />
-
-          {/* Párrafo Adicional */}
-          <p className="mt-12 max-sm:mt-8 text-[18px] max-sm:text-base font-normal text-gray-700 mb-8 max-sm:mb-6">
-            Podemos colaborar desde ahora con una asesoría gratuita de 30
-            minutos.
-          </p>
-
-          {/* Botón "AGENDAR ASESORÍA GRATUITA" */}
-          <div className="text-center max-w-[300px] mx-auto">
-            <Button
-              label="AGENDAR ASESORÍA GRATUITA"
-              variant="secondary"
-              onClick={() => setIsScheduleModalOpen(true)}
-            />
-          </div>
-
-          {/* Modal de Agendar Asesoría */}
-          <ScheduleDate
-            isOpen={isScheduleModalOpen}
-            onClose={() => setIsScheduleModalOpen(false)}
-            onSubmitSuccess={(data) => {
-              setFormData(data);
-              setIsScheduleModalOpen(false);
-              setIsResponseModalOpen(true);
-            }}
-          />
-
-          {/* Modal de Confirmación */}
-          {isResponseModalOpen && (
-            <ResponseDate
-              isOpen={isResponseModalOpen}
-              onClose={() => setIsResponseModalOpen(false)}
-              fullName={formData.fullName}
-              email={formData.email}
-              dateTime={formData.dateTime}
-            />
-          )}
         </div>
       </section>
 
@@ -299,10 +338,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       <BenefitsSection />
 
       {/* Sección - Testimonios */}
-      <section className="bg-gray-eske-10 min-h-[600px] max-sm:min-h-[400px] py-20 max-sm:py-12 px-4 sm:px-6 md:px-8" aria-labelledby="testimonials-heading">
+      <section
+        className="bg-gray-eske-10 min-h-[600px] max-sm:min-h-[400px] py-20 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        aria-labelledby="testimonials-heading"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 id="testimonials-heading" className="sr-only">Testimonios de clientes</h2>
-          
+          <h2 id="testimonials-heading" className="sr-only">
+            Testimonios de clientes
+          </h2>
+
           {/* Contenedor de Testimonios */}
           <div className="space-y-12 max-sm:space-y-8">
             {/* Testimonio 1 */}
@@ -317,9 +361,11 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </div>
               {/* Texto */}
               <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light text-center sm:text-left w-full sm:max-w-[70%]">
-                <p>"Cuando pensé que no había nada más que hacer en mi candidatura
-                decidí utilizar el <em>Moddulo</em> de Eskemma. Descubrí que había
-                muchas opciones para competir con fuerza."</p>
+                <p>
+                  "Cuando pensé que no había nada más que hacer en mi
+                  candidatura decidí utilizar el <em>Moddulo</em> de Eskemma.
+                  Descubrí que había muchas opciones para competir con fuerza."
+                </p>
               </blockquote>
             </figure>
 
@@ -335,9 +381,11 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </div>
               {/* Texto */}
               <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light text-center sm:text-right w-full sm:max-w-[70%]">
-                <p>"En los cursos de comunicación política siempre hablan de
-                estrategia, pero hasta ahora sé cómo hacerlo en territorio, no
-                sólo en teoría."</p>
+                <p>
+                  "En los cursos de comunicación política siempre hablan de
+                  estrategia, pero hasta ahora sé cómo hacerlo en territorio, no
+                  sólo en teoría."
+                </p>
               </blockquote>
             </figure>
 
@@ -353,9 +401,11 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </div>
               {/* Texto */}
               <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light text-center sm:text-left w-full sm:max-w-[70%]">
-                <p>"Con su ayuda logré analizar mejor la información y saber cómo
-                aventajar a los otros partidos. Lo mejor es que lo hice yo mismo
-                y me ahorré una lana."</p>
+                <p>
+                  "Con su ayuda logré analizar mejor la información y saber cómo
+                  aventajar a los otros partidos. Lo mejor es que lo hice yo
+                  mismo y me ahorré una lana."
+                </p>
               </blockquote>
             </figure>
 
@@ -371,9 +421,11 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </div>
               {/* Texto */}
               <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light text-center sm:text-right w-full sm:max-w-[70%]">
-                <p>"Pensé que estos servicios sólo eran para grandes campañas.
-                Participé en una elección local en 2024 y pude utilizar mucha de
-                la ayuda que me brindaron."</p>
+                <p>
+                  "Pensé que estos servicios sólo eran para grandes campañas.
+                  Participé en una elección local en 2024 y pude utilizar mucha
+                  de la ayuda que me brindaron."
+                </p>
               </blockquote>
             </figure>
           </div>
@@ -381,14 +433,17 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       </section>
 
       {/* Sección - Planes de suscripción */}
-      <section 
+      <section
         id="suscripciones"
         className="bg-white-eske min-h-[800px] py-18 max-sm:py-12 px-4 sm:px-6 md:px-8"
         aria-labelledby="subscriptions-heading"
       >
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Título de la Sección */}
-          <h2 id="subscriptions-heading" className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-6 max-sm:mb-4">
+          <h2
+            id="subscriptions-heading"
+            className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-6 max-sm:mb-4"
+          >
             Selecciona el mejor plan para tu proyecto político
           </h2>
 
@@ -620,13 +675,22 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       <FaqSection />
 
       {/* Enlaces Rápidos Section */}
-      <section className="bg-white-eske min-h-[500px] py-16 max-sm:py-12 px-4 sm:px-6 md:px-8" aria-labelledby="quick-links-heading">
+      <section
+        className="bg-white-eske min-h-[500px] py-16 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        aria-labelledby="quick-links-heading"
+      >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 id="quick-links-heading" className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-14 max-sm:mb-8">
+          <h2
+            id="quick-links-heading"
+            className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-14 max-sm:mb-8"
+          >
             Enlaces rápidos
           </h2>
 
-          <nav className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-sm:gap-4" aria-label="Enlaces rápidos a secciones principales">
+          <nav
+            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-sm:gap-4"
+            aria-label="Enlaces rápidos a secciones principales"
+          >
             <Link
               href="/moddulo"
               className="flex flex-col items-center justify-center text-center text-bluegreen-eske hover:text-bluegreen-60 transition-all duration-300 ease-in-out h-full focus-ring-primary rounded"

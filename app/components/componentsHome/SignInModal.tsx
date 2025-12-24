@@ -123,7 +123,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
     <>
       {/* Modal de Registro */}
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center ${
+        className={`fixed inset-0 z-50 flex items-center justify-center px-4 ${
           isOpen ? "" : "hidden"
         }`}
         style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
@@ -137,21 +137,22 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
           role="dialog"
           aria-modal="true"
           aria-labelledby="signin-modal-title"
-          className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 relative overflow-y-auto max-h-[80vh]"
+          className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[80vh] max-sm:max-h-[85vh]"
           style={{ marginTop: "20px" }}
         >
           {/* Botón de Cierre */}
           <button
-            className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+            className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
             onClick={onClose}
             aria-label="Cerrar modal de registro"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
+              className="h-6 w-6 max-sm:h-5 max-sm:w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -163,31 +164,31 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
           </button>
 
           {/* Título */}
-          <h2 id="signin-modal-title" className="text-2xl font-bold text-bluegreen-eske text-center mb-6">
+          <h2 id="signin-modal-title" className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske text-center mb-6 max-sm:mb-4">
             Registro
           </h2>
 
           {/* Contenedor con scroll */}
-          <div className="max-h-[calc(80vh-120px)] overflow-y-auto">
+          <div className="max-h-[calc(80vh-120px)] max-sm:max-h-[calc(85vh-120px)] overflow-y-auto">
             {/* Botón de Google */}
             <button
               onClick={handleGoogleSignIn}
-              className="w-full bg-red-500 text-white py-2 rounded mb-4 hover:bg-red-600 transition-colors duration-300 focus-ring-primary"
+              className="w-full bg-red-500 text-white py-2 max-sm:py-1.5 rounded mb-4 max-sm:mb-3 hover:bg-red-600 transition-colors duration-300 focus-ring-primary text-base max-sm:text-sm"
             >
               REGISTRARME CON GOOGLE
             </button>
 
             {/* Separador */}
-            <div className="flex items-center my-4">
+            <div className="flex items-center my-4 max-sm:my-3">
               <hr className="flex-grow border-gray-300" />
-              <span className="mx-4 text-gray-500">O</span>
+              <span className="mx-4 max-sm:mx-3 text-gray-500 text-sm max-sm:text-xs">O</span>
               <hr className="flex-grow border-gray-300" />
             </div>
 
-            <form onSubmit={handleRegisterWithEmail} className="space-y-4">
+            <form onSubmit={handleRegisterWithEmail} className="space-y-4 max-sm:space-y-3">
               {/* Correo Electrónico */}
               <div>
-                <label htmlFor="register-email" className="block text-[16px] font-medium text-black-eske mb-1">
+                <label htmlFor="register-email" className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1">
                   Correo electrónico
                 </label>
                 <input
@@ -197,13 +198,13 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary"
+                  className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary text-base max-sm:text-sm"
                 />
               </div>
 
               {/* Contraseña */}
               <div>
-                <label htmlFor="register-password" className="block text-[16px] font-medium text-black-eske mb-1">
+                <label htmlFor="register-password" className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1">
                   Contraseña
                 </label>
                 <input
@@ -214,21 +215,21 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
                   onChange={(e) => setPassword(e.target.value)}
                   minLength={8}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary"
+                  className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary text-base max-sm:text-sm"
                 />
               </div>
 
               {/* Checkbox de aceptación de términos */}
-              <div className="flex items-start gap-2 mt-4">
+              <div className="flex items-start gap-2 mt-4 max-sm:mt-3">
                 <input
                   type="checkbox"
                   id="acceptTermsSignIn"
                   checked={acceptedTerms}
                   onChange={(e) => setAcceptedTerms(e.target.checked)}
-                  className="mt-1 accent-bluegreen-eske focus-ring-primary"
+                  className="mt-1 w-4 h-4 accent-bluegreen-eske focus-ring-primary"
                   required
                 />
-                <label htmlFor="acceptTermsSignIn" className="text-[14px] text-black-eske">
+                <label htmlFor="acceptTermsSignIn" className="text-[14px] max-sm:text-xs text-black-eske cursor-pointer">
                   Acepto las{" "}
                   <Link
                     href="/condiciones-de-uso"
@@ -261,10 +262,10 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
               />
 
               {/* Separador */}
-              <hr className="border-gray-300 my-4" />
+              <hr className="border-gray-300 my-4 max-sm:my-3" />
 
               {/* Iniciar Sesión */}
-              <p className="text-[16px] text-black-eske text-center">
+              <p className="text-[16px] max-sm:text-sm text-black-eske text-center">
                 ¿Ya te has registrado?{" "}
                 <button
                   type="button"
@@ -293,3 +294,4 @@ export default function SignInModal({ isOpen, onClose, onOpenLoginModal }: SignI
     </>
   );
 }
+

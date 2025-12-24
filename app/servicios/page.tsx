@@ -8,7 +8,7 @@ export default function ServiciosPage() {
     <main className="min-h-screen bg-white-eske">
       {/* Hero Section */}
       <section 
-        className="relative min-h-[200px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden"
+        className="relative min-h-[200px] max-sm:min-h-[160px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden"
         aria-labelledby="hero-title"
       >
         {/* Imagen de fondo */}
@@ -26,7 +26,7 @@ export default function ServiciosPage() {
         <div className="absolute inset-0 bg-bluegreen-eske opacity-75" aria-hidden="true"></div>
 
         {/* Contenido del Hero */}
-        <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full">
+        <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full py-8 max-sm:py-6">
           <h1 
             id="hero-title"
             className="text-[36px] max-sm:text-2xl leading-tight font-bold"
@@ -42,17 +42,17 @@ export default function ServiciosPage() {
 
       {/* Sección de Descripción General */}
       <section 
-        className="bg-white-eske py-12 px-4 sm:px-6 md:px-8"
+        className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
         aria-labelledby="description-title"
       >
         <div className="w-[90%] mx-auto max-w-screen-xl">
           <h2 
             id="description-title"
-            className="text-3xl font-semibold text-center text-bluegreen-eske mb-8"
+            className="text-3xl max-sm:text-2xl font-semibold text-center text-bluegreen-eske mb-8 max-sm:mb-6"
           >
             ¿Qué ofrecemos?
           </h2>
-          <p className="text-lg font-light text-center text-black-eske mb-8">
+          <p className="text-lg max-sm:text-base font-light text-center text-black-eske mb-8 max-sm:mb-6">
             En Eskemma, brindamos soluciones integrales para apoyar tu proyecto político.
           </p>
         </div>
@@ -63,7 +63,7 @@ export default function ServiciosPage() {
         className="bg-white-eske py-2 px-4 sm:px-6 md:px-8"
         aria-labelledby="services-title"
       >
-        <div className="w-[90%] mx-auto max-w-screen-xl mb-12">
+        <div className="w-[90%] mx-auto max-w-screen-xl mb-12 max-sm:mb-8">
           <h2 
             id="services-title"
             className="sr-only"
@@ -73,7 +73,7 @@ export default function ServiciosPage() {
 
           {/* Grilla de Servicios */}
           <div 
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-sm:gap-6"
             role="list"
             aria-label="9 servicios disponibles"
           >
@@ -84,13 +84,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Consultoría Política
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Estrategias personalizadas para fortalecer tu proyecto político.
               </p>
             </article>
@@ -102,13 +102,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Herramientas Digitales
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Acceso a metodologías y herramientas para diseñar y gestionar tu estrategia política.
               </p>
             </article>
@@ -120,13 +120,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Dashboards Interactivos
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Visualización de datos para profundizar en el análisis de información política.
               </p>
             </article>
@@ -138,13 +138,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Cursos y Talleres
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Plataforma virtual, disponible 24/7, para aprender a desarrollar soluciones prácticas.
               </p>
             </article>
@@ -156,13 +156,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Monitoreo de Información
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Seguimiento y análisis de datos relevantes para tu proyecto
                 político.
               </p>
@@ -175,13 +175,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Capacitación
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Presencial y virtual para el desarrollo de habilidades
                 políticas.
               </p>
@@ -194,13 +194,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Desarrollo de Software
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Soluciones tecnológicas adaptadas a las necesidades de tu proyecto.
               </p>
             </article>
@@ -212,13 +212,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Producción Audiovisual
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Creación de contenido multimedia para campañas electorales y de gobierno.
               </p>
             </article>
@@ -230,13 +230,13 @@ export default function ServiciosPage() {
                 alt=""
                 width={80}
                 height={80}
-                className="mb-4 transition-transform duration-300 ease-in-out hover:scale-130"
+                className="mb-4 max-sm:mb-3 max-sm:w-16 max-sm:h-16 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl font-semibold text-bluegreen-eske mb-2">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
                 Investigación Cuantitativa y Cualitativa
               </h3>
-              <p className="text-[16px] font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
                 Análisis profundo de datos sociales y políticos para tomar
                 decisiones informadas.
               </p>
@@ -247,22 +247,22 @@ export default function ServiciosPage() {
 
       {/* Call to Action */}
       <section 
-        className="bg-gray-eske-20 py-12 px-4 sm:px-6 md:px-8 text-center text-black-eske-90"
+        className="bg-gray-eske-20 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8 text-center text-black-eske-90"
         aria-labelledby="cta-title"
       >
         <div className="w-[90%] mx-auto max-w-screen-xl">
           <h2 
             id="cta-title"
-            className="text-2xl font-semibold mb-4"
+            className="text-2xl max-sm:text-xl font-semibold mb-4 max-sm:mb-3"
           >
             ¿Comenzamos?
           </h2>
-          <p className="text-lg font-light mb-8">
+          <p className="text-lg max-sm:text-base font-light mb-8 max-sm:mb-6">
             Contáctanos para obtener más información sobre nuestros servicios.
           </p>
           <Link
             href="/contacto"
-            className="inline-block bg-orange-eske text-white-eske px-8 py-4 rounded-lg font-medium hover:bg-orange-eske-70 transition-all duration-300 focus-ring-primary"
+            className="inline-block bg-orange-eske text-white-eske px-8 max-sm:px-6 py-4 max-sm:py-3 rounded-lg font-medium hover:bg-orange-eske-70 transition-all duration-300 focus-ring-primary text-base max-sm:text-sm"
             aria-label="Ir a la página de contacto para solicitar información"
           >
             CONTACTAR AHORA
@@ -272,3 +272,4 @@ export default function ServiciosPage() {
     </main>
   );
 }
+

@@ -495,46 +495,46 @@ const ProfilePage = () => {
   };
 
   return (
-    <main className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-bluegreen-eske text-center mb-8">
+    <main className="max-w-2xl mx-auto p-6 max-sm:p-4">
+      <h1 className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske text-center mb-8 max-sm:mb-6">
         Editar Perfil
       </h1>
 
       {/* SECCIÓN: Avatar */}
       <section 
-        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        className="mb-8 max-sm:mb-6 p-6 max-sm:p-4 bg-white rounded-lg shadow-md"
         aria-labelledby="avatar-section-title"
       >
         <h2 
           id="avatar-section-title"
-          className="text-xl font-semibold text-bluegreen-eske mb-4"
+          className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-4 max-sm:mb-3"
         >
           Foto de Perfil
         </h2>
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-6 max-sm:gap-4">
           <div className="flex-shrink-0">
             {avatarPreview ? (
               <img
                 src={avatarPreview}
                 alt={`Foto de perfil de ${formData.name || 'usuario'}`}
-                className="w-32 h-32 rounded-full object-cover border-4 border-bluegreen-eske"
+                className="w-32 h-32 max-sm:w-24 max-sm:h-24 rounded-full object-cover border-4 border-bluegreen-eske"
               />
             ) : (
               <div 
-                className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300"
+                className="w-32 h-32 max-sm:w-24 max-sm:h-24 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300"
                 role="img"
                 aria-label="Sin foto de perfil"
               >
-                <span className="text-gray-400 text-sm text-center px-2">
+                <span className="text-gray-400 text-sm max-sm:text-xs text-center px-2">
                   Sin foto
                 </span>
               </div>
             )}
           </div>
-          <div className="flex-1">
+          <div className="flex-1 text-center sm:text-left">
             <label
               htmlFor="avatar-upload"
-              className="cursor-pointer inline-block bg-bluegreen-eske text-white px-6 py-3 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 focus-ring-primary"
+              className="cursor-pointer inline-block bg-bluegreen-eske text-white px-6 max-sm:px-4 py-3 max-sm:py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 focus-ring-primary text-base max-sm:text-sm"
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -554,7 +554,7 @@ const ProfilePage = () => {
               className="hidden"
               aria-label="Seleccionar archivo de imagen para foto de perfil"
             />
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm max-sm:text-xs text-gray-500 mt-2">
               Tamaño máximo: 2 MB. Formatos: JPG, PNG, GIF
             </p>
           </div>
@@ -563,22 +563,22 @@ const ProfilePage = () => {
 
       {/* SECCIÓN: Información Personal */}
       <section 
-        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        className="mb-8 max-sm:mb-6 p-6 max-sm:p-4 bg-white rounded-lg shadow-md"
         aria-labelledby="personal-info-title"
       >
         <h2 
           id="personal-info-title"
-          className="text-xl font-semibold text-bluegreen-eske mb-4"
+          className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-4 max-sm:mb-3"
         >
           Información Personal
         </h2>
 
-        <form aria-label="Formulario de información personal">
+        <form aria-label="Formulario de información personal" className="space-y-4 max-sm:space-y-3">
           {/* Nombre */}
-          <div className="mb-4">
+          <div>
             <label 
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
             >
               Nombre <span className="text-red-500" aria-label="campo requerido">*</span>
             </label>
@@ -588,9 +588,9 @@ const ProfilePage = () => {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 border ${
+              className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                 errors.name ? "border-red-500" : "border-gray-300"
-              } rounded-md focus-ring-primary`}
+              } rounded-md focus-ring-primary text-base max-sm:text-sm`}
               aria-required="true"
               aria-invalid={!!errors.name}
               aria-describedby={errors.name ? "name-error" : undefined}
@@ -598,7 +598,7 @@ const ProfilePage = () => {
             {errors.name && (
               <p 
                 id="name-error"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm max-sm:text-xs mt-1"
                 role="alert"
               >
                 {errors.name}
@@ -607,10 +607,10 @@ const ProfilePage = () => {
           </div>
 
           {/* Apellidos */}
-          <div className="mb-4">
+          <div>
             <label 
               htmlFor="lastName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
             >
               Apellidos <span className="text-red-500" aria-label="campo requerido">*</span>
             </label>
@@ -620,9 +620,9 @@ const ProfilePage = () => {
               name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 border ${
+              className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                 errors.lastName ? "border-red-500" : "border-gray-300"
-              } rounded-md focus-ring-primary`}
+              } rounded-md focus-ring-primary text-base max-sm:text-sm`}
               aria-required="true"
               aria-invalid={!!errors.lastName}
               aria-describedby={errors.lastName ? "lastName-error" : undefined}
@@ -630,7 +630,7 @@ const ProfilePage = () => {
             {errors.lastName && (
               <p 
                 id="lastName-error"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm max-sm:text-xs mt-1"
                 role="alert"
               >
                 {errors.lastName}
@@ -639,10 +639,10 @@ const ProfilePage = () => {
           </div>
 
           {/* Nombre de Usuario */}
-          <div className="mb-4">
+          <div>
             <label 
               htmlFor="userName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
             >
               Nombre de Usuario <span className="text-red-500" aria-label="campo requerido">*</span>
             </label>
@@ -652,9 +652,9 @@ const ProfilePage = () => {
               name="userName"
               value={formData.userName}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 border ${
+              className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                 !isUserNameValid ? "border-red-500" : "border-gray-300"
-              } rounded-md focus-ring-primary`}
+              } rounded-md focus-ring-primary text-base max-sm:text-sm`}
               aria-required="true"
               aria-invalid={!isUserNameValid}
               aria-describedby={!isUserNameValid || suggestionMessage ? "userName-error userName-suggestion" : undefined}
@@ -662,7 +662,7 @@ const ProfilePage = () => {
             {!isUserNameValid && (
               <p 
                 id="userName-error"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm max-sm:text-xs mt-1"
                 role="alert"
               >
                 {userNameError}
@@ -671,7 +671,7 @@ const ProfilePage = () => {
             {suggestionMessage && (
               <p 
                 id="userName-suggestion"
-                className="text-blue-500 text-sm mt-1"
+                className="text-blue-500 text-sm max-sm:text-xs mt-1"
                 role="status"
                 aria-live="polite"
               >
@@ -681,10 +681,10 @@ const ProfilePage = () => {
           </div>
 
           {/* Sexo */}
-          <div className="mb-4">
+          <div>
             <label 
               htmlFor="sex"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
             >
               Sexo <span className="text-red-500" aria-label="campo requerido">*</span>
             </label>
@@ -693,9 +693,9 @@ const ProfilePage = () => {
               name="sex"
               value={formData.sex}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 border ${
+              className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                 errors.sex ? "border-red-500" : "border-gray-300"
-              } rounded-md focus-ring-primary`}
+              } rounded-md focus-ring-primary text-base max-sm:text-sm`}
               aria-required="true"
               aria-invalid={!!errors.sex}
               aria-describedby={errors.sex ? "sex-error" : undefined}
@@ -708,7 +708,7 @@ const ProfilePage = () => {
             {errors.sex && (
               <p 
                 id="sex-error"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm max-sm:text-xs mt-1"
                 role="alert"
               >
                 {errors.sex}
@@ -717,10 +717,10 @@ const ProfilePage = () => {
           </div>
 
           {/* País */}
-          <div className="mb-4">
+          <div>
             <label 
               htmlFor="country"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
             >
               País <span className="text-red-500" aria-label="campo requerido">*</span>
             </label>
@@ -729,9 +729,9 @@ const ProfilePage = () => {
               name="country"
               value={formData.country}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 border ${
+              className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                 errors.country ? "border-red-500" : "border-gray-300"
-              } rounded-md focus-ring-primary`}
+              } rounded-md focus-ring-primary text-base max-sm:text-sm`}
               aria-required="true"
               aria-invalid={!!errors.country}
               aria-describedby={errors.country ? "country-error" : undefined}
@@ -746,7 +746,7 @@ const ProfilePage = () => {
             {errors.country && (
               <p 
                 id="country-error"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm max-sm:text-xs mt-1"
                 role="alert"
               >
                 {errors.country}
@@ -755,10 +755,10 @@ const ProfilePage = () => {
           </div>
 
           {/* Email */}
-          <div className="mb-4">
+          <div>
             <label 
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
             >
               Correo Electrónico <span className="text-red-500" aria-label="campo requerido">*</span>
             </label>
@@ -768,16 +768,16 @@ const ProfilePage = () => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className={`w-full px-4 py-2 border ${
+              className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                 errors.email ? "border-red-500" : "border-gray-300"
-              } rounded-md focus-ring-primary`}
+              } rounded-md focus-ring-primary text-base max-sm:text-sm`}
               aria-required="true"
               aria-invalid={!!errors.email}
               aria-describedby="email-hint email-error"
             />
             <p 
               id="email-hint"
-              className="text-xs text-gray-500 mt-1"
+              className="text-xs max-sm:text-[10px] text-gray-500 mt-1"
             >
               ⚠️ Este es tu correo de autenticación. Cambiarlo requerirá
               verificación y afectará tu inicio de sesión.
@@ -785,7 +785,7 @@ const ProfilePage = () => {
             {errors.email && (
               <p 
                 id="email-error"
-                className="text-red-500 text-sm mt-1"
+                className="text-red-500 text-sm max-sm:text-xs mt-1"
                 role="alert"
               >
                 {errors.email}
@@ -795,22 +795,21 @@ const ProfilePage = () => {
         </form>
       </section>
 
-      {/* Continúa en parte 2... */}
       {/* SECCIÓN: Roles */}
       <section 
-        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        className="mb-8 max-sm:mb-6 p-6 max-sm:p-4 bg-white rounded-lg shadow-md"
         aria-labelledby="roles-section-title"
       >
         <h2 
           id="roles-section-title"
-          className="text-xl font-semibold text-bluegreen-eske mb-4"
+          className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-4 max-sm:mb-3"
         >
           Roles Profesionales
         </h2>
         <fieldset>
           <legend className="sr-only">Selecciona tus roles profesionales</legend>
           <div 
-            className="space-y-2"
+            className="space-y-2 max-sm:space-y-1.5"
             role="group"
             aria-label="Lista de roles profesionales"
           >
@@ -823,25 +822,25 @@ const ProfilePage = () => {
               "Academia",
               "Otro",
             ].map((role) => (
-              <label key={role} className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+              <label key={role} className="flex items-center cursor-pointer hover:bg-gray-50 p-2 max-sm:p-1.5 rounded transition-colors min-h-[44px] max-sm:min-h-[40px]">
                 <input
                   type="checkbox"
                   value={role}
                   checked={formData.roles.includes(role)}
                   onChange={handleRolesChange}
-                  className="mr-2 accent-bluegreen-eske focus-ring-primary rounded"
+                  className="mr-2 w-4 h-4 accent-bluegreen-eske focus-ring-primary rounded"
                   aria-label={role}
                 />
-                <span className="text-gray-700">{role}</span>
+                <span className="text-gray-700 text-base max-sm:text-sm">{role}</span>
               </label>
             ))}
           </div>
         </fieldset>
         {formData.roles.includes("Otro") && (
-          <div className="mt-4">
+          <div className="mt-4 max-sm:mt-3">
             <label 
               htmlFor="otherRole"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
             >
               Especifica tu otro rol
             </label>
@@ -852,12 +851,12 @@ const ProfilePage = () => {
               value={formData.otherRole}
               onChange={handleInputChange}
               placeholder="Especifica tu rol"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus-ring-primary"
+              className="w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded-md focus-ring-primary text-base max-sm:text-sm"
               aria-describedby="otherRole-hint"
             />
             <p 
               id="otherRole-hint"
-              className="text-xs text-gray-500 mt-1"
+              className="text-xs max-sm:text-[10px] text-gray-500 mt-1"
             >
               Describe tu rol profesional si no está en la lista
             </p>
@@ -867,56 +866,56 @@ const ProfilePage = () => {
 
       {/* SECCIÓN: Intereses */}
       <section 
-        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        className="mb-8 max-sm:mb-6 p-6 max-sm:p-4 bg-white rounded-lg shadow-md"
         aria-labelledby="interests-section-title"
       >
         <h2 
           id="interests-section-title"
-          className="text-xl font-semibold text-bluegreen-eske mb-4"
+          className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-4 max-sm:mb-3"
         >
           Temas de Interés
         </h2>
         <fieldset>
           <legend className="sr-only">Selecciona tus temas de interés</legend>
           <div 
-            className="grid grid-cols-1 md:grid-cols-2 gap-2"
+            className="grid grid-cols-1 md:grid-cols-2 gap-2 max-sm:gap-1.5"
             role="group"
             aria-label="Lista de temas de interés"
           >
             {interestsList.map((interest) => (
               <label 
                 key={interest} 
-                className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                className="flex items-center cursor-pointer hover:bg-gray-50 p-2 max-sm:p-1.5 rounded transition-colors min-h-[44px] max-sm:min-h-[40px]"
               >
                 <input
                   type="checkbox"
                   value={interest}
                   checked={formData.interests.includes(interest)}
                   onChange={handleInterestsChange}
-                  className="mr-2 accent-bluegreen-eske focus-ring-primary rounded"
+                  className="mr-2 w-4 h-4 accent-bluegreen-eske focus-ring-primary rounded"
                   aria-label={interest}
                 />
-                <span className="text-gray-700 text-sm">{interest}</span>
+                <span className="text-gray-700 text-sm max-sm:text-xs">{interest}</span>
               </label>
             ))}
-            <label className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+            <label className="flex items-center cursor-pointer hover:bg-gray-50 p-2 max-sm:p-1.5 rounded transition-colors min-h-[44px] max-sm:min-h-[40px]">
               <input
                 type="checkbox"
                 value="Otro"
                 checked={formData.interests.includes("Otro")}
                 onChange={handleInterestsChange}
-                className="mr-2 accent-bluegreen-eske focus-ring-primary rounded"
+                className="mr-2 w-4 h-4 accent-bluegreen-eske focus-ring-primary rounded"
                 aria-label="Otro interés"
               />
-              <span className="text-gray-700 text-sm">Otro</span>
+              <span className="text-gray-700 text-sm max-sm:text-xs">Otro</span>
             </label>
           </div>
         </fieldset>
         {formData.interests.includes("Otro") && (
-          <div className="mt-4">
+          <div className="mt-4 max-sm:mt-3">
             <label 
               htmlFor="otherInterest"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
             >
               Especifica tu otro interés
             </label>
@@ -927,12 +926,12 @@ const ProfilePage = () => {
               value={formData.otherInterest}
               onChange={handleInputChange}
               placeholder="Especifica tu interés"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus-ring-primary"
+              className="w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded-md focus-ring-primary text-base max-sm:text-sm"
               aria-describedby="otherInterest-hint"
             />
             <p 
               id="otherInterest-hint"
-              className="text-xs text-gray-500 mt-1"
+              className="text-xs max-sm:text-[10px] text-gray-500 mt-1"
             >
               Describe tu tema de interés si no está en la lista
             </p>
@@ -942,12 +941,12 @@ const ProfilePage = () => {
 
       {/* SECCIÓN: Cambiar Contraseña */}
       <section 
-        className="mb-8 p-6 bg-white rounded-lg shadow-md"
+        className="mb-8 max-sm:mb-6 p-6 max-sm:p-4 bg-white rounded-lg shadow-md"
         aria-labelledby="security-section-title"
       >
         <h2 
           id="security-section-title"
-          className="text-xl font-semibold text-bluegreen-eske mb-4"
+          className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-4 max-sm:mb-3"
         >
           Seguridad
         </h2>
@@ -955,14 +954,14 @@ const ProfilePage = () => {
         {!showPasswordSection ? (
           <button
             onClick={() => setShowPasswordSection(true)}
-            className="text-bluegreen-eske hover:underline cursor-pointer focus-ring-primary rounded"
+            className="text-bluegreen-eske hover:underline cursor-pointer focus-ring-primary rounded text-base max-sm:text-sm"
             aria-label="Mostrar formulario para cambiar contraseña"
           >
             Cambiar contraseña
           </button>
         ) : (
           <form 
-            className="space-y-4"
+            className="space-y-4 max-sm:space-y-3"
             aria-label="Formulario para cambiar contraseña"
             onSubmit={(e) => {
               e.preventDefault();
@@ -972,7 +971,7 @@ const ProfilePage = () => {
             <div>
               <label 
                 htmlFor="currentPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
               >
                 Contraseña Actual <span className="text-red-500" aria-label="campo requerido">*</span>
               </label>
@@ -982,9 +981,9 @@ const ProfilePage = () => {
                 name="currentPassword"
                 value={passwordData.currentPassword}
                 onChange={handlePasswordChange}
-                className={`w-full px-4 py-2 border ${
+                className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                   errors.currentPassword ? "border-red-500" : "border-gray-300"
-                } rounded-md focus-ring-primary`}
+                } rounded-md focus-ring-primary text-base max-sm:text-sm`}
                 aria-required="true"
                 aria-invalid={!!errors.currentPassword}
                 aria-describedby={errors.currentPassword ? "currentPassword-error" : undefined}
@@ -992,7 +991,7 @@ const ProfilePage = () => {
               {errors.currentPassword && (
                 <p 
                   id="currentPassword-error"
-                  className="text-red-500 text-sm mt-1"
+                  className="text-red-500 text-sm max-sm:text-xs mt-1"
                   role="alert"
                 >
                   {errors.currentPassword}
@@ -1003,7 +1002,7 @@ const ProfilePage = () => {
             <div>
               <label 
                 htmlFor="newPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
               >
                 Nueva Contraseña <span className="text-red-500" aria-label="campo requerido">*</span>
               </label>
@@ -1013,23 +1012,23 @@ const ProfilePage = () => {
                 name="newPassword"
                 value={passwordData.newPassword}
                 onChange={handlePasswordChange}
-                className={`w-full px-4 py-2 border ${
+                className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                   errors.newPassword ? "border-red-500" : "border-gray-300"
-                } rounded-md focus-ring-primary`}
+                } rounded-md focus-ring-primary text-base max-sm:text-sm`}
                 aria-required="true"
                 aria-invalid={!!errors.newPassword}
                 aria-describedby="newPassword-hint newPassword-error"
               />
               <p 
                 id="newPassword-hint"
-                className="text-xs text-gray-500 mt-1"
+                className="text-xs max-sm:text-[10px] text-gray-500 mt-1"
               >
                 Mínimo 6 caracteres
               </p>
               {errors.newPassword && (
                 <p 
                   id="newPassword-error"
-                  className="text-red-500 text-sm mt-1"
+                  className="text-red-500 text-sm max-sm:text-xs mt-1"
                   role="alert"
                 >
                   {errors.newPassword}
@@ -1040,7 +1039,7 @@ const ProfilePage = () => {
             <div>
               <label 
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm max-sm:text-xs font-medium text-gray-700 mb-1"
               >
                 Confirmar Nueva Contraseña{" "}
                 <span className="text-red-500" aria-label="campo requerido">*</span>
@@ -1051,9 +1050,9 @@ const ProfilePage = () => {
                 name="confirmPassword"
                 value={passwordData.confirmPassword}
                 onChange={handlePasswordChange}
-                className={`w-full px-4 py-2 border ${
+                className={`w-full px-4 max-sm:px-3 py-2 max-sm:py-1.5 border ${
                   errors.confirmPassword ? "border-red-500" : "border-gray-300"
-                } rounded-md focus-ring-primary`}
+                } rounded-md focus-ring-primary text-base max-sm:text-sm`}
                 aria-required="true"
                 aria-invalid={!!errors.confirmPassword}
                 aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
@@ -1061,7 +1060,7 @@ const ProfilePage = () => {
               {errors.confirmPassword && (
                 <p 
                   id="confirmPassword-error"
-                  className="text-red-500 text-sm mt-1"
+                  className="text-red-500 text-sm max-sm:text-xs mt-1"
                   role="alert"
                 >
                   {errors.confirmPassword}
@@ -1069,10 +1068,10 @@ const ProfilePage = () => {
               )}
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 max-sm:gap-3 flex-wrap">
               <button
                 type="submit"
-                className="bg-bluegreen-eske text-white px-6 py-2 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 focus-ring-primary"
+                className="bg-bluegreen-eske text-white px-6 max-sm:px-4 py-2 max-sm:py-1.5 rounded hover:bg-bluegreen-eske-70 transition-colors duration-300 focus-ring-primary text-base max-sm:text-sm"
                 aria-label="Confirmar cambio de contraseña"
               >
                 Actualizar Contraseña
@@ -1088,7 +1087,7 @@ const ProfilePage = () => {
                   });
                   setErrors({});
                 }}
-                className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition-colors duration-300 focus-ring-primary"
+                className="bg-gray-300 text-gray-700 px-6 max-sm:px-4 py-2 max-sm:py-1.5 rounded hover:bg-gray-400 transition-colors duration-300 focus-ring-primary text-base max-sm:text-sm"
                 aria-label="Cancelar cambio de contraseña"
               >
                 Cancelar
@@ -1099,7 +1098,7 @@ const ProfilePage = () => {
       </section>
 
       {/* BOTONES: Guardar Cambios y Cancelar */}
-      <div className="flex justify-center gap-4">
+      <div className="flex justify-center gap-4 max-sm:gap-3 flex-wrap">
         <Button
           label="Cancelar"
           variant="secondary"
@@ -1136,3 +1135,4 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+
