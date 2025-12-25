@@ -1,7 +1,7 @@
 // app/HomeClient.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Button from "./components/Button";
@@ -39,7 +39,21 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
   const [isResponseSuscriptionModalOpen, setIsResponseSuscriptionModalOpen] =
     useState(false);
 
+  // ✅ NUEVO: Estado para controlar carga del video
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
+
   const userName = "Usuario";
+
+  // ✅ NUEVO: Timeout de seguridad - Si el video no carga en 10s, oculta spinner
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isVideoLoading) {
+        setIsVideoLoading(false);
+      }
+    }, 10000); // 10 segundos
+
+    return () => clearTimeout(timeout);
+  }, [isVideoLoading]);
 
   return (
     <main className="min-h-screen overflow-x-hidden w-full">
@@ -249,17 +263,19 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               <span className="block">Nunca es demasiado pronto.</span>
               <span className="block">Comencemos a planear tu estrategia.</span>
             </p>
-            <p className="mt-6 max-sm:mt-4 text-[18px] max-sm:text-base font-light leading-relaxed">
+            <p className="mt-6 max-sm:mt-4 text-[18px] max-sm:text-base font-light leading-relaxed max-sm:hidden">
               <span className="block">Haz que cada decisión sea efectiva</span>
               <span className="block">en el contexto de tu proyecto.</span>
             </p>
 
             {/* Párrafo Adicional */}
-            <p className="text-[16px] max-sm:text-base font-light mb-4 max-sm:mb-3 leading-relaxed">                           
-              <span className="mt-6 font-semibold block">
+            <p className="text-[18px] max-sm:text-base font-light mb-4 max-sm:mb-3 leading-relaxed">
+              <span className="mt-6 block">
                 Podemos colaborar desde ahora con una{" "}
               </span>
-              <span className="block font-semibold">asesoría gratuita de 30 minutos.</span>
+              <span className="block">
+                asesoría gratuita de 30 minutos.
+              </span>
             </p>
 
             {/* Botón "AGENDAR ASESORÍA GRATUITA" */}
@@ -296,7 +312,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         </div>
       </section>
 
-      {/* Sobre Nosotros Section */}
+      {/* Sobre Nosotros Section - CON SPINNER DE CARGA */}
       <section
         className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
         aria-labelledby="about-heading"
@@ -315,17 +331,56 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             Nuestro propósito es profesionalizar la vida pública.
           </p>
 
-          {/* Recuadro para el Video */}
-          <div className="relative w-full max-w-[680px] mx-auto overflow-hidden shadow-lg mb-8 max-sm:mb-6">
-            {/* Contenedor del video con relación de aspecto adaptable */}
-            <div className="relative md:aspect-video md:h-auto h-56 sm:h-64">
+          {/* Recuadro para el Video - CON SPINNER */}
+          <div className="relative w-full max-w-[680px] mx-auto overflow-hidden shadow-lg mb-8 max-sm:mb-6 rounded-lg bg-black">            
+            {isVideoLoading && (
+              <div 
+                className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black"
+                aria-live="polite"
+              >
+                {/* Spinner animado */}
+                <div className="w-12 h-12 max-sm:w-10 max-sm:h-10 border-4 border-bluegreen-eske/30 border-t-bluegreen-eske rounded-full animate-spin"></div>
+                
+                {/* Texto de carga (oculto para lectores de pantalla) */}
+                <span className="sr-only">Cargando video de presentación</span>
+                
+                {/* Texto visible (opcional) */}
+                <p className="mt-4 text-white-eske text-sm max-sm:text-xs font-light">
+                  Cargando video...
+                </p>
+              </div>
+            )}
+
+            <div className="relative aspect-video w-full overflow-hidden">
               <iframe
                 src="https://drive.google.com/file/d/1b8qZHWHYyID5Q-PN26pEbhCUySrilivE/preview"
                 title="Video de presentación de Eskemma - Sobre nosotros"
-                className="absolute top-0 left-0 w-full h-full"
+                className="absolute left-0 w-full video-iframe"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
+                // ✅ Cuando el iframe carga, oculta el spinner
+                onLoad={() => setIsVideoLoading(false)}
               ></iframe>
+
+              <style jsx>{`
+                /* Desktop: Sin cambios (valores originales) */
+                .video-iframe {
+                  top: 0;
+                  height: 100%;
+                  border: none;
+                  /* Fade-in suave del video */
+                  opacity: ${isVideoLoading ? 0 : 1};
+                  transition: opacity 0.5s ease;
+                }
+
+                /* Mobile: Valores adaptativos con clamp() */
+                @media (max-width: 640px) {
+                  .video-iframe {
+                    height: clamp(130%, 135%, 140%);
+                    top: clamp(-20%, -17.5%, -15%);
+                  }
+                }
+              `}</style>
             </div>
           </div>
 
@@ -786,3 +841,4 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
     </main>
   );
 }
+

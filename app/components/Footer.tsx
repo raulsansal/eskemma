@@ -124,12 +124,14 @@ const Footer = () => {
           <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-4" />
           {/* Contenedor de columnas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-sm:gap-4 mx-auto max-w-screen-xl">
-            {/* Columna 1: Navegación */}
+            {/* Columna 1: Navegación - OPTIMIZADA CON 2 COLUMNAS EN MOBILE */}
             <nav aria-label="Navegación principal del sitio">
               <h3 className="text-[14px] max-sm:text-sm font-semibold mb-4 max-sm:mb-3 max-sm:text-center">
                 Navegación
               </h3>
-              <div className="grid grid-cols-1 gap-2 max-sm:gap-1.5">
+              {/* Grid con 2 columnas en mobile, 1 columna en desktop */}
+              <div className="grid grid-cols-1 max-sm:grid-cols-2 gap-2 max-sm:gap-x-3 max-sm:gap-y-1.5">
+                {/* Primera columna - Primeros 5 links */}
                 <ul className="space-y-2 max-sm:space-y-1.5">
                   <li>
                     <Link
@@ -171,6 +173,9 @@ const Footer = () => {
                       Moddulo
                     </Link>
                   </li>
+                </ul>
+                {/* Segunda columna - Últimos 5 links */}
+                <ul className="space-y-2 max-sm:space-y-1.5">
                   <li>
                     <Link
                       href="/sefix"
@@ -217,7 +222,7 @@ const Footer = () => {
             {/* Línea divisoria después de Navegación (móvil) */}
             <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-4" />
 
-            {/* Columna 2: Legal */}
+            {/* Columna 2: Legal - SIN MODIFICACIONES */}
             <nav aria-label="Enlaces legales">
               <h3 className="text-[14px] max-sm:text-sm font-semibold mb-4 max-sm:mb-3 max-sm:text-center">
                 Legal
@@ -260,12 +265,14 @@ const Footer = () => {
             {/* Línea divisoria después de Legal (móvil) */}
             <hr className="hidden max-sm:block border-t border-white-eske max-sm:my-4" />
 
-            {/* Columna 3: Sitios de interés */}
+            {/* Columna 3: Sitios de interés - OPTIMIZADA CON 2 COLUMNAS EN MOBILE */}
             <nav aria-label="Sitios de interés recomendados">
               <h3 className="text-[14px] max-sm:text-sm font-semibold mb-4 max-sm:mb-3 max-sm:text-center">
                 Sitios de interés
               </h3>
-              <div className="grid grid-cols-1 gap-2 max-sm:gap-1.5">
+              {/* Grid con 2 columnas en mobile, 1 columna en desktop */}
+              <div className="grid grid-cols-1 max-sm:grid-cols-2 gap-2 max-sm:gap-x-3 max-sm:gap-y-1.5">
+                {/* Primera columna - Primeros 4 links */}
                 <ul className="space-y-2 max-sm:space-y-1.5">
                   <li>
                     <a
@@ -311,6 +318,9 @@ const Footer = () => {
                       <span className="sr-only"> (se abre en nueva ventana)</span>
                     </a>
                   </li>
+                </ul>
+                {/* Segunda columna - Últimos 4 links */}
+                <ul className="space-y-2 max-sm:space-y-1.5">
                   <li>
                     <a
                       href="https://www.diputados.gob.mx"
