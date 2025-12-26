@@ -157,9 +157,9 @@ export default function ContactoPage() {
 
   return (
     <main className="min-h-screen bg-white-eske">
-      {/* Hero Section - Responsiva */}
+      {/* Hero Section - Responsiva CON IMAGEN EN MOBILE */}
       <section 
-        className="relative h-[250px] sm:h-[200px] md:h-[200px] w-full flex items-center bg-bluegreen-eske overflow-hidden"
+        className="relative min-h-[250px] sm:h-[200px] md:h-[200px] w-full flex items-center bg-bluegreen-eske overflow-hidden"
         aria-labelledby="hero-title"
       >
         {/* Imagen de Fondo */}
@@ -176,10 +176,22 @@ export default function ContactoPage() {
         {/* Overlay con opacidad */}
         <div className="absolute inset-0 bg-bluegreen-eske opacity-75 z-10" aria-hidden="true"></div>
 
-        {/* Contenedor Principal */}
-        <div className="relative z-20 w-full max-w-screen-xl mx-auto flex items-center h-full px-4 sm:px-6 md:px-8">
-          {/* Imagen de Persona Sonriendo (Izquierda) - Solo en desktop */}
-          <div className="hidden md:block md:w-1/2 relative h-full" aria-hidden="true">
+        {/* 
+          ✅ LAYOUT RESPONSIVE:
+          
+          MOBILE (<768px):
+          - Layout vertical (flex-col)
+          - Imagen arriba (120px altura)
+          - Texto abajo (centrado)
+          
+          DESKTOP (≥768px):
+          - Layout horizontal (flex-row)
+          - Imagen izquierda (50%)
+          - Texto derecha (50%)
+        */}
+        <div className="relative z-20 w-full max-w-screen-xl mx-auto flex flex-col md:flex-row items-center md:h-full px-4 sm:px-6 md:px-8 py-6 md:py-0">
+          {/* Imagen de Persona Sonriendo - Mobile: arriba (120px), Desktop: izquierda (altura completa) */}
+          <div className="w-full md:w-1/2 relative h-[120px] md:h-full max-md:mb-4" aria-hidden="true">
             <Image
               src="/images/womanContact.jpg"
               alt=""
@@ -192,8 +204,8 @@ export default function ContactoPage() {
             />
           </div>
 
-          {/* Contenido del Hero (Derecha en desktop, centrado en móvil) */}
-          <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left py-4">
+          {/* Contenido del Hero - Mobile: centrado, Desktop: izquierda */}
+          <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
             <h1 
               id="hero-title"
               className="text-2xl sm:text-[26px] md:text-[28px] max-sm:text-xl leading-tight font-bold text-white-eske"

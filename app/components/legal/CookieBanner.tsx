@@ -91,7 +91,7 @@ export default function CookieBanner() {
   return (
     <>
       {/* Banner Principal */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white-eske shadow-2xl border-t-2 border-bluegreen-eske animate-slide-up">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-eske-20 shadow-2xl border-t-2 border-bluegreen-eske animate-slide-up">
         <div className="w-[90%] max-w-screen-xl mx-auto py-6 px-4 sm:px-6">
           {/* Contenedor principal */}
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
@@ -138,7 +138,7 @@ export default function CookieBanner() {
               
               <button
                 onClick={handleAcceptEssential}
-                className="px-6 py-2 bg-gray-eske-40 text-black-eske rounded-lg font-medium hover:bg-gray-eske-60 transition-colors duration-300 text-[14px] whitespace-nowrap focus-ring-primary"
+                className="px-6 py-2 bg-gray-eske text-black-eske rounded-lg font-medium hover:bg-gray-eske-90 hover:text-white-eske transition-colors duration-300 text-[14px] whitespace-nowrap focus-ring-primary"
               >
                 Solo esenciales
               </button>
