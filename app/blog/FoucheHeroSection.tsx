@@ -16,7 +16,7 @@ export default function FoucheHeroSection() {
         {/* Imagen de Fondo */}
         <Image
           src="/images/yanmin_yang.jpg"
-          alt=""
+          alt="imagen de fondo"
           fill
           style={{ objectFit: "cover" }}
           className="absolute inset-0 z-0"
@@ -39,7 +39,7 @@ export default function FoucheHeroSection() {
             {/* Imagen de Fouché */}
             <Image
               src="/images/fouche.jpg"
-              alt=""
+              alt="imagen de Joseph Fouché"
               fill
               style={{
                 objectFit: "contain",
