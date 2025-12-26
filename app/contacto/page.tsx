@@ -165,7 +165,7 @@ export default function ContactoPage() {
         {/* Imagen de Fondo */}
         <Image
           src="/images/yanmin_yang.jpg"
-          alt=""
+          alt="imagen de fondo"
           fill
           style={{ objectFit: "cover" }}
           className="absolute inset-0 z-0"
@@ -175,26 +175,13 @@ export default function ContactoPage() {
 
         {/* Overlay con opacidad */}
         <div className="absolute inset-0 bg-bluegreen-eske opacity-75 z-10" aria-hidden="true"></div>
-
-        {/* 
-          ✅ LAYOUT RESPONSIVE:
-          
-          MOBILE (<768px):
-          - Layout vertical (flex-col)
-          - Imagen arriba (120px altura)
-          - Texto abajo (centrado)
-          
-          DESKTOP (≥768px):
-          - Layout horizontal (flex-row)
-          - Imagen izquierda (50%)
-          - Texto derecha (50%)
-        */}
+       
         <div className="relative z-20 w-full max-w-screen-xl mx-auto flex flex-col md:flex-row items-center md:h-full px-4 sm:px-6 md:px-8 py-6 md:py-0">
           {/* Imagen de Persona Sonriendo - Mobile: arriba (120px), Desktop: izquierda (altura completa) */}
           <div className="w-full md:w-1/2 relative h-[120px] md:h-full max-md:mb-4" aria-hidden="true">
             <Image
               src="/images/womanContact.jpg"
-              alt=""
+              alt="imagen de mujer atendiendo clientes por teléfono"
               fill
               style={{
                 objectFit: "contain",
