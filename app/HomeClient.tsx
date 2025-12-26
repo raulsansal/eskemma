@@ -273,9 +273,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               <span className="mt-6 block">
                 Podemos colaborar desde ahora con una{" "}
               </span>
-              <span className="block">
-                asesoría gratuita de 30 minutos.
-              </span>
+              <span className="block">asesoría gratuita de 30 minutos.</span>
             </p>
 
             {/* Botón "AGENDAR ASESORÍA GRATUITA" */}
@@ -332,18 +330,18 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           </p>
 
           {/* Recuadro para el Video - CON SPINNER */}
-          <div className="relative w-full max-w-[680px] mx-auto overflow-hidden shadow-lg mb-8 max-sm:mb-6 rounded-lg bg-black">            
+          <div className="relative w-full max-w-[680px] mx-auto overflow-hidden shadow-lg mb-8 max-sm:mb-6 rounded-lg bg-black">
             {isVideoLoading && (
-              <div 
+              <div
                 className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black"
                 aria-live="polite"
               >
                 {/* Spinner animado */}
                 <div className="w-12 h-12 max-sm:w-10 max-sm:h-10 border-4 border-bluegreen-eske/30 border-t-bluegreen-eske rounded-full animate-spin"></div>
-                
+
                 {/* Texto de carga (oculto para lectores de pantalla) */}
                 <span className="sr-only">Cargando video de presentación</span>
-                
+
                 {/* Texto visible (opcional) */}
                 <p className="mt-4 text-white-eske text-sm max-sm:text-xs font-light">
                   Cargando video...
@@ -392,7 +390,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       {/* Sección - Beneficios */}
       <BenefitsSection />
 
-      {/* Sección - Testimonios */}
+      {/* Sección - Testimonios - OPTIMIZADA CON ALTERNANCIA MOBILE */}
       <section
         className="bg-gray-eske-10 min-h-[600px] max-sm:min-h-[400px] py-20 max-sm:py-12 px-4 sm:px-6 md:px-8"
         aria-labelledby="testimonials-heading"
@@ -403,19 +401,38 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           </h2>
 
           {/* Contenedor de Testimonios */}
-          <div className="space-y-12 max-sm:space-y-8">
-            {/* Testimonio 1 */}
-            <figure className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8 space-y-4 sm:space-y-0">
-              {/* Avatar */}
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-60 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img
-                  src="https://untitledui.com/images/avatars/brianna-ware"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+          <div className="space-y-12 max-sm:space-y-8">           
+
+            {/* Testimonio 1 - MOBILE: IZQUIERDA */}
+            <figure className="flex flex-col sm:flex-row items-center max-sm:items-start sm:items-start sm:space-x-8 space-y-4 sm:space-y-0">
+              {/* Avatar + Datos - Desktop: columna centrada, Mobile: fila alineada izquierda */}
+              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 flex-shrink-0">
+                {/* Avatar */}
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-60 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    src="https://untitledui.com/images/avatars/brianna-ware"
+                    alt=""
+                    className="w-full h-full object-cover"
+                    aria-hidden="true"
+                  />
+                </div>
+
+                {/* Datos de la persona */}
+                <div className="text-center sm:text-center max-sm:text-left">
+                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight">
+                    Carmen Arriaga
+                  </p>
+                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5">
+                    Regidora
+                  </p>
+                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5">
+                    @carriaganl
+                  </p>
+                </div>
               </div>
-              {/* Texto */}
-              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light text-center sm:text-left w-full sm:max-w-[70%]">
+
+              {/* Texto del testimonio - Mobile: izquierda, Desktop: izquierda */}
+              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-left sm:text-left w-full sm:max-w-[70%]">
                 <p>
                   "Cuando pensé que no había nada más que hacer en mi
                   candidatura decidí utilizar el <em>Moddulo</em> de Eskemma.
@@ -424,18 +441,36 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </blockquote>
             </figure>
 
-            {/* Testimonio 2 */}
-            <figure className="flex flex-col sm:flex-row-reverse items-center sm:items-start sm:space-x-reverse sm:space-x-8 space-y-4 sm:space-y-0">
-              {/* Avatar */}
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-orange-60 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img
-                  src="https://untitledui.com/images/avatars/drew-cano"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+            {/* Testimonio 2 - MOBILE: DERECHA */}
+            <figure className="flex flex-col sm:flex-row-reverse items-center max-sm:items-end sm:items-start sm:space-x-reverse sm:space-x-8 space-y-4 sm:space-y-0">
+              {/* Avatar + Datos - Desktop: columna centrada, Mobile: fila alineada derecha */}
+              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 flex-shrink-0">
+                {/* Avatar */}
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-orange-60 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    src="https://untitledui.com/images/avatars/drew-cano"
+                    alt=""
+                    className="w-full h-full object-cover"
+                    aria-hidden="true"
+                  />
+                </div>
+
+                {/* Datos de la persona */}
+                <div className="text-center sm:text-center max-sm:text-left">
+                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight">
+                    Sergio Hernández
+                  </p>
+                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5">
+                    Analista
+                  </p>
+                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5">
+                    @sergehernan33
+                  </p>
+                </div>
               </div>
-              {/* Texto */}
-              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light text-center sm:text-right w-full sm:max-w-[70%]">
+
+              {/* Texto del testimonio - Mobile: derecha, Desktop: derecha */}
+              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-right sm:text-right w-full sm:max-w-[70%]">
                 <p>
                   "En los cursos de comunicación política siempre hablan de
                   estrategia, pero hasta ahora sé cómo hacerlo en territorio, no
@@ -444,18 +479,36 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </blockquote>
             </figure>
 
-            {/* Testimonio 3 */}
-            <figure className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8 space-y-4 sm:space-y-0">
-              {/* Avatar */}
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-green-60 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img
-                  src="https://untitledui.com/images/avatars/ethan-valdez"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+            {/* Testimonio 3 - MOBILE: IZQUIERDA */}
+            <figure className="flex flex-col sm:flex-row items-center max-sm:items-start sm:items-start sm:space-x-8 space-y-4 sm:space-y-0">
+              {/* Avatar + Datos - Desktop: columna centrada, Mobile: fila alineada izquierda */}
+              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 flex-shrink-0">
+                {/* Avatar */}
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-green-60 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    src="https://untitledui.com/images/avatars/ethan-valdez"
+                    alt=""
+                    className="w-full h-full object-cover"
+                    aria-hidden="true"
+                  />
+                </div>
+
+                {/* Datos de la persona */}
+                <div className="text-center sm:text-center max-sm:text-left">
+                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight">
+                    Juan Carlos Montañez L.
+                  </p>
+                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5">
+                    Candidato diputado local
+                  </p>
+                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5">
+                    @JCMontañez
+                  </p>
+                </div>
               </div>
-              {/* Texto */}
-              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light text-center sm:text-left w-full sm:max-w-[70%]">
+
+              {/* Texto del testimonio - Mobile: izquierda, Desktop: izquierda */}
+              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-left sm:text-left w-full sm:max-w-[70%]">
                 <p>
                   "Con su ayuda logré analizar mejor la información y saber cómo
                   aventajar a los otros partidos. Lo mejor es que lo hice yo
@@ -464,18 +517,36 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </blockquote>
             </figure>
 
-            {/* Testimonio 4 */}
-            <figure className="flex flex-col sm:flex-row-reverse items-center sm:items-start sm:space-x-reverse sm:space-x-8 space-y-4 sm:space-y-0">
-              {/* Avatar */}
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-60 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img
-                  src="https://untitledui.com/images/avatars/ava-bentley"
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+            {/* Testimonio 4 - MOBILE: DERECHA */}
+            <figure className="flex flex-col sm:flex-row-reverse items-center max-sm:items-end sm:items-start sm:space-x-reverse sm:space-x-8 space-y-4 sm:space-y-0">
+              {/* Avatar + Datos - Desktop: columna centrada, Mobile: fila alineada derecha */}
+              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 flex-shrink-0">
+                {/* Avatar */}
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-60 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    src="https://untitledui.com/images/avatars/ava-bentley"
+                    alt=""
+                    className="w-full h-full object-cover"
+                    aria-hidden="true"
+                  />
+                </div>
+
+                {/* Datos de la persona */}
+                <div className="text-center sm:text-center max-sm:text-left">
+                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight">
+                    Martha T. Sepúlveda
+                  </p>
+                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5">
+                    Concejal
+                  </p>
+                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5">
+                    @mtsepulvedaCDMX
+                  </p>
+                </div>
               </div>
-              {/* Texto */}
-              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light text-center sm:text-right w-full sm:max-w-[70%]">
+
+              {/* Texto del testimonio - Mobile: derecha, Desktop: derecha */}
+              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-right sm:text-right w-full sm:max-w-[70%]">
                 <p>
                   "Pensé que estos servicios sólo eran para grandes campañas.
                   Participé en una elección local en 2024 y pude utilizar mucha
@@ -841,4 +912,3 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
     </main>
   );
 }
-
