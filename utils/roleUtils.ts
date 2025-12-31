@@ -1,18 +1,18 @@
-// utils/roleUtils.ts (VERSIÓN DEFINITIVA CON ADMIN)
+// utils/roleUtils.ts
 type UserRole =
   | "visitor"
   | "registered"
   | "user"
   | "basic"
   | "premium"
-  | "grupal"
+  | "professional"                // ✅ CAMBIADO de "grupal"
   | "unsubscribed-basic"
   | "unsubscribed-premium"
-  | "unsubscribed-grupal"
+  | "unsubscribed-professional"   // ✅ CAMBIADO de "unsubscribed-grupal"
   | "expired"
-  | "admin"; 
+  | "admin";
 
-type SubscriptionPlan = "basic" | "premium" | "grupal" | null;
+type SubscriptionPlan = "basic" | "premium" | "professional" | null; // ✅ CAMBIADO
 type SubscriptionStatus = "active" | "cancelled" | "expired" | null;
 
 interface UserData {
@@ -22,7 +22,7 @@ interface UserData {
   subscriptionStatus?: SubscriptionStatus;
   subscriptionEndDate?: Date | string | null;
   previousSubscription?: SubscriptionPlan;
-  role?: UserRole; // ✅ AGREGAR para preservar admin
+  role?: UserRole;
 }
 
 /**
@@ -70,8 +70,8 @@ export const calculateUserRole = (userData: UserData): UserRole => {
         return "basic";
       case "premium":
         return "premium";
-      case "grupal":
-        return "grupal";
+      case "professional":  // ✅ CAMBIADO de "grupal"
+        return "professional";
     }
   }
 
@@ -82,8 +82,8 @@ export const calculateUserRole = (userData: UserData): UserRole => {
         return "unsubscribed-basic";
       case "premium":
         return "unsubscribed-premium";
-      case "grupal":
-        return "unsubscribed-grupal";
+      case "professional":  // ✅ CAMBIADO de "grupal"
+        return "unsubscribed-professional";
     }
   }
 
@@ -109,14 +109,15 @@ export const getRoleName = (role: UserRole): string => {
     visitor: "Visitante",
     registered: "Registrado",
     user: "Usuario",
-    basic: "Plan Básico",
+    basic: "Plan Basic",
     premium: "Plan Premium",
-    grupal: "Plan Grupal",
-    "unsubscribed-basic": "Plan Básico (Cancelado)",
+    professional: "Plan Professional",  // ✅ CAMBIADO
+    "unsubscribed-basic": "Plan Basic (Cancelado)",
     "unsubscribed-premium": "Plan Premium (Cancelado)",
-    "unsubscribed-grupal": "Plan Grupal (Cancelado)",
+    "unsubscribed-professional": "Plan Professional (Cancelado)",  // ✅ CAMBIADO
     expired: "Suscripción Expirada",
-    admin: "Administrador", // ✅ ADMIN
+    admin: "Administrador",
   };
   return roleNames[role] || "Usuario";
 };
+

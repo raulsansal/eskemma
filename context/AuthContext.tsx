@@ -36,27 +36,14 @@ import {
 import { auth, db, providerGoogle } from "../firebase/firebaseConfig";
 import { isUserNameAvailable } from "../utils/userUtils";
 
-// ✅ TIPOS DE ROLES
-type UserRole =
-  | "visitor"
-  | "registered"
-  | "user"
-  | "basic"
-  | "premium"
-  | "grupal"
-  | "unsubscribed-basic"
-  | "unsubscribed-premium"
-  | "unsubscribed-grupal"
-  | "expired"
-  | "admin";
+// ✅ IMPORTAR TIPOS CENTRALIZADOS
+import type { 
+  UserRole, 
+  SubscriptionPlan, 
+  SubscriptionStatus 
+} from "../types/subscription.types";
 
-// ✅ TIPOS DE PLANES
-type SubscriptionPlan = "basic" | "premium" | "grupal" | null;
-
-// ✅ TIPOS DE ESTADO DE SUSCRIPCIÓN
-type SubscriptionStatus = "active" | "cancelled" | "expired" | null;
-
-// ✅ Interfaz para los datos de Firestore (ACTUALIZADA)
+// ✅ Interfaz para los datos de Firestore
 interface FirestoreUserData {
   uid: string;
   email: string;
@@ -75,7 +62,6 @@ interface FirestoreUserData {
   createdAt: Date | string;
   updatedAt?: Date | string;
 
-  // ✅ NUEVOS CAMPOS PARA SUSCRIPCIONES
   subscriptionPlan?: SubscriptionPlan;
   subscriptionStatus?: SubscriptionStatus;
   subscriptionStartDate?: Date | string | null;
@@ -85,7 +71,7 @@ interface FirestoreUserData {
   stripeSubscriptionId?: string | null;
 }
 
-// ✅ Tipo extendido que combina User de Firebase con datos de Firestore (ACTUALIZADO)
+// ✅ Tipo extendido que combina User de Firebase con datos de Firestore
 interface ExtendedUser extends User {
   role: UserRole;
   name?: string;
@@ -101,7 +87,6 @@ interface ExtendedUser extends User {
   createdAt?: Date | string;
   updatedAt?: Date | string;
 
-  // ✅ CAMPOS DE SUSCRIPCIÓN
   subscriptionPlan?: SubscriptionPlan;
   subscriptionStatus?: SubscriptionStatus;
   subscriptionStartDate?: Date | string | null;
@@ -111,7 +96,7 @@ interface ExtendedUser extends User {
   stripeSubscriptionId?: string | null;
 }
 
-// ✅ AuthContextType (ACTUALIZADO)
+// ✅ AuthContextType
 interface AuthContextType {
   user: ExtendedUser | null;
   setUser: Dispatch<SetStateAction<ExtendedUser | null>>;
@@ -140,7 +125,6 @@ interface AuthContextType {
   debugUserToken: () => Promise<void>;
   updateUserRole: (uid: string, newRole: UserRole) => Promise<void>;
 
-  // ✅ NUEVAS FUNCIONES PARA SUSCRIPCIONES
   activateSubscription: (
     plan: SubscriptionPlan,
     stripeSubscriptionId?: string
@@ -163,7 +147,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<ExtendedUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Estados para controlar los modales
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isVerifyEmailModalOpen, setIsVerifyEmailModalOpen] = useState(false);
   const [isCompleteRegisterModalOpen, setIsCompleteRegisterModalOpen] =
@@ -174,7 +157,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
 
-  // ✅ FUNCIÓN AUXILIAR: Calcular rol desde roleUtils
   const { calculateUserRole } = require("../utils/roleUtils");
 
   useEffect(() => {
@@ -198,7 +180,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const userDocSnapshot = await getDoc(userDocRef);
 
           if (!userDocSnapshot.exists()) {
-            // ✅ NUEVO USUARIO: Crear con role "visitor"
             const initialRole: UserRole = "visitor";
 
             await setDoc(userDocRef, {
@@ -229,7 +210,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           } else {
             const userData = userDocSnapshot.data() as FirestoreUserData;
 
-            // ✅ SI EL USUARIO ES ADMIN, NO RECALCULAR EL ROL
             if (userData.role === "admin") {
               console.log("🔒 Usuario es admin, manteniendo rol");
 
@@ -245,7 +225,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
               setUser(extendedUser);
             } else {
-              // ✅ CALCULAR ROL SOLO SI NO ES ADMIN
               const calculatedRole = calculateUserRole({
                 emailVerified: updatedUser.emailVerified,
                 profileCompleted: userData.profileCompleted,
@@ -255,7 +234,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 previousSubscription: userData.previousSubscription,
               });
 
-              // ✅ ACTUALIZAR ROL SI CAMBIÓ
               if (userData.role !== calculatedRole) {
                 await updateDoc(userDocRef, {
                   role: calculatedRole,
@@ -272,7 +250,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 });
               }
 
-              // Actualizar emailVerified si cambió
               if (userData.emailVerified !== updatedUser.emailVerified) {
                 const newRole = calculateUserRole({
                   emailVerified: updatedUser.emailVerified,
@@ -327,13 +304,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  // Función para generar un nombre de usuario predeterminado
   const generateDefaultUserName = (email: string): string => {
     const [username] = email.split("@");
     return username;
   };
 
-  // Función para cerrar el modal de Onboarding
   const closeOnboardingModal = async (showOnLogin?: boolean) => {
     try {
       if (user) {
@@ -349,7 +324,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ Función para registrar un nuevo usuario (ACTUALIZADA)
   const registerUser = async (email: string, password: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -428,7 +402,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para iniciar sesión con correo electrónico o nombre de usuario
   const loginUser = async (identifier: string, password: string) => {
     try {
       let email: string;
@@ -553,7 +526,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         );
       }
 
-      // ✅ SI EL USUARIO ES ADMIN, NO RECALCULAR EL ROL
       if (userData.role === "admin") {
         console.log("🔒 Usuario es admin, manteniendo rol");
 
@@ -579,7 +551,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return extendedUser;
       }
 
-      // ✅ CALCULAR ROL SOLO SI NO ES ADMIN
       const calculatedRole = calculateUserRole({
         emailVerified: user.emailVerified,
         profileCompleted: userData.profileCompleted,
@@ -660,7 +631,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ Función para iniciar sesión con Google (SOLO POPUP - SIMPLIFICADO)
   const signInWithGoogle = async () => {
     try {
       console.log("🔐 Iniciando login con Google...");
@@ -669,7 +639,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error("Error al iniciar sesión con Google:", error);
 
-      // Manejar errores específicos
       switch (error.code) {
         case "auth/popup-blocked":
           alert(
@@ -681,12 +650,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           break;
 
         case "auth/popup-closed-by-user":
-          // Usuario canceló, no mostrar error
           console.log("Usuario canceló el inicio de sesión");
           break;
 
         case "auth/cancelled-popup-request":
-          // Múltiples popups, ignorar
           console.log("Solicitud de popup cancelada");
           break;
 
@@ -711,7 +678,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ FUNCIÓN AUXILIAR: Procesar login de Google
   const processGoogleSignIn = async (user: User) => {
     try {
       const userDocRef = doc(db, "users", user.uid);
@@ -755,7 +721,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const userData = (await getDoc(userDocRef)).data() as FirestoreUserData;
 
-      // ✅ SI EL USUARIO ES ADMIN, NO RECALCULAR EL ROL
       if (userData.role === "admin") {
         console.log("🔒 Usuario es admin, manteniendo rol");
 
@@ -777,7 +742,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      // ✅ CALCULAR ROL SOLO SI NO ES ADMIN
       const calculatedRole = calculateUserRole({
         emailVerified: true,
         profileCompleted: userData.profileCompleted,
@@ -823,14 +787,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para cerrar sesión
   const logout = async () => {
     try {
       await signOut(auth);
       setUser(null);
       setIsOnboardingModalOpen(false);
 
-      // ✅ Redirigir a la página de inicio
       if (typeof window !== "undefined") {
         window.location.href = "/";
       }
@@ -840,7 +802,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para recuperar la contraseña
   const resetPassword = async (email: string) => {
     try {
       await sendPasswordResetEmail(auth, email);
@@ -859,7 +820,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para actualizar el correo electrónico del usuario
   const updateAuthEmail = async (newEmail: string) => {
     try {
       const currentUser = auth.currentUser;
@@ -890,7 +850,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Función para depurar el token del usuario
   const debugUserToken = async () => {
     const user = auth.currentUser;
     if (user) {
@@ -908,7 +867,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ Función para actualizar el rol del usuario (ACTUALIZADA)
   const updateUserRole = async (uid: string, newRole: UserRole) => {
     try {
       const userDocRef = doc(db, "users", uid);
@@ -935,11 +893,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ ========== NUEVAS FUNCIONES PARA SUSCRIPCIONES ==========
-
-  /**
-   * Activa una suscripción para el usuario actual
-   */
   const activateSubscription = async (
     plan: SubscriptionPlan,
     stripeSubscriptionId?: string
@@ -952,7 +905,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error("Plan de suscripción no especificado");
     }
 
-    // ✅ NO MODIFICAR ROL SI ES ADMIN
     if (user.role === "admin") {
       console.log("🔒 Usuario admin detectado, no se modificará el rol");
       return;
@@ -1021,9 +973,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  /**
-   * Cancela la suscripción actual del usuario
-   */
   const cancelSubscription = async () => {
     if (!user) {
       throw new Error("Usuario no autenticado");
@@ -1033,7 +982,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error("No hay suscripción activa para cancelar");
     }
 
-    // ✅ NO MODIFICAR ROL SI ES ADMIN
     if (user.role === "admin") {
       console.log("🔒 Usuario admin detectado, no se modificará el rol");
       return;
@@ -1088,14 +1036,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  /**
-   * Verifica y actualiza suscripciones expiradas
-   * Debe ejecutarse periódicamente o al iniciar sesión
-   */
   const checkAndUpdateExpiredSubscriptions = async () => {
     if (!user) return;
 
-    // ✅ NO MODIFICAR ROL SI ES ADMIN
     if (user.role === "admin") {
       console.log(
         "🔒 Usuario admin detectado, omitiendo verificación de expiración"
@@ -1153,7 +1096,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // ✅ EJECUTAR VERIFICACIÓN AL CARGAR EL USUARIO
   useEffect(() => {
     if (user) {
       checkAndUpdateExpiredSubscriptions();

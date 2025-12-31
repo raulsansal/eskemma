@@ -5,7 +5,7 @@ import Button from "../Button";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 
-interface SuscriptionGrupalModalProps {
+interface SuscriptionProfessionalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPaymentSuccess: () => void;
@@ -15,7 +15,7 @@ export default function SuscriptionGrupalModal({
   isOpen,
   onClose,
   onPaymentSuccess,
-}: SuscriptionGrupalModalProps) {
+}: SuscriptionProfessionalModalProps) {
   // Hooks de accesibilidad
   const modalRef = useFocusTrap(isOpen);
   useEscapeKey(isOpen, onClose);
@@ -79,12 +79,12 @@ export default function SuscriptionGrupalModal({
 
           {/* Nombre del Plan */}
           <p className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske">
-            Plan Grupal
+            Plan Profesional
           </p>
 
           {/* Precio */}
           <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
-            $20,000 (MX) por 6 personas / mes
+            $9,899 (MX) / mes
           </p>
 
           {/* Descripción */}
@@ -93,11 +93,13 @@ export default function SuscriptionGrupalModal({
               Tu suscripción mensual incluye:
             </p>
             <ul className="list-disc pl-6 max-sm:pl-5 text-10px max-sm:text-[9px] text-gray-700 space-y-1 max-sm:space-y-0.5">
-              <li>Versión colaborativa</li>
-              <li>Acceso total al ecosistema de Eskemma</li>
-              <li>Acceso a recursos exclusivos para grupos</li>
-              <li>Dos sesiones de asesoría gratuita al mes</li>
-              <li>Asistencia online 24/7</li>
+              <li>Todo Plan Premium</li>
+              <li>Versión Profesional de Cursos online, Sefix y Monitor</li>
+              <li>Acceso a 25 apps avanzadas con IA de Moddulo</li>
+              <li>Soporte 24/7 por teléfono, email y chat</li>
+              <li>Capacitación personalizada</li>
+              <li>Consultoría estratégica (4 hrs/mes)</li>
+              <li>Almacenamiento ilimitado</li>
               <li>Acceso total a eBooks y plantillas</li>
             </ul>
           </div>
@@ -140,7 +142,7 @@ export default function SuscriptionGrupalModal({
 
           {/* Botón PAGAR */}
           <Button
-            label="PAGAR $20,000.ºº"
+            label="PAGAR $9,899.ºº"
             variant="primary"
             onClick={onPaymentSuccess}
           />

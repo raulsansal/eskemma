@@ -12,7 +12,7 @@ import ResponseDate from "./components/componentsHome/ReponseDate";
 import BenefitsSection from "./components/componentsHome/BenefitsSection";
 import SuscriptionBasicModal from "./components/componentsHome/SuscriptionBasicModal";
 import SuscriptionPremiumModal from "./components/componentsHome/SuscriptionPremiumModal";
-import SuscriptionGrupalModal from "./components/componentsHome/SuscriptionGrupalModal";
+import SuscriptionProfessionalModal from "./components/componentsHome/SuscriptionProfessioinalModal";
 import SuscriptionResponseModal from "./components/componentsHome/SucriptionResponseModal";
 import FaqSection from "./components/componentsHome/FaqSection";
 import { BlogPost } from "@/types/post.types";
@@ -34,7 +34,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
     useState(false);
   const [isPremiumSuscriptionModalOpen, setIsPremiumSuscriptionModalOpen] =
     useState(false);
-  const [isGrupalSuscriptionModalOpen, setIsGrupalSuscriptionModalOpen] =
+  const [isProfessionalSuscriptionModalOpen, setIsProfessionalSuscriptionModalOpen] =
     useState(false);
   const [isResponseSuscriptionModalOpen, setIsResponseSuscriptionModalOpen] =
     useState(false);
@@ -590,7 +590,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
                 aria-hidden="true"
               >
-                Sólo un producto
+                Suite IA Básica
               </div>
 
               {/* Contenido de la card */}
@@ -602,17 +602,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                 {/* Detalles del Plan */}
                 <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 flex-grow">
-                  <p>Mensual</p>
-                  <p>Para 1 persona</p>
-                  <p className="mt-4 max-sm:mt-2 text-[10px] max-sm:text-[9px]">
+                  <p className="text-center">Mensual | Para 1 persona</p>                   
+                  <p className="mt-4 max-sm:mt-2 text-[16px] text-center max-sm:text-[9px]">
+                    <strong>Ideal para candidatos locales y equipos pequeños.</strong>
+                  </p>
+                  <p className="mt-4 max-sm:mt-2 text-[16px] max-sm:text-[9px]">
                     <strong>Obtienes:</strong>
                   </p>
                   <p>
-                    Acceso a un producto: cursos online, Sefix, Moddulo o
+                    Acceso a versiones básicas de cursos online, Sefix  y
                     Monitor
                   </p>
-                  <p>Asistencia online 24/7</p>
-                  <p>Acceso total a eBooks y plantillas</p>
+                  <p>Moddulo con 8 Apps Estándar</p>
+                  <p>Soporte por email</p>
+                  <p>Almacenamiento de 5 GB</p>
                 </div>
 
                 {/* Bandera y Precio */}
@@ -627,7 +630,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   </div>
                   {/* Precio */}
                   <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
-                    $ 2,000 MX / mes
+                    $ 2,899 MX / mes
                   </p>
                 </div>
 
@@ -650,7 +653,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
                 aria-hidden="true"
               >
-                Todo Eskemma
+                Suite Avanzada con IA
               </div>
 
               {/* Contenido de la card */}
@@ -662,14 +665,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                 {/* Detalles del Plan */}
                 <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 flex-grow">
-                  <p>Mensual</p>
-                  <p>Para 1 persona</p>
+                  <p className="text-center">Mensual | Hasta 5 personas</p> 
+                  <p className="mt-4 max-sm:mt-2 text-[16px] text-center max-sm:text-[9px]">
+                    <strong>Ideal para equipos de 5-15 personas</strong>
+                  </p>                 
                   <p className="mt-4 max-sm:mt-2 text-[16px] max-sm:text-sm">
-                    <strong>Obtienes Plan Básico +</strong>
+                    <strong>Obtienes Plan Básico +</strong></p>
+                  <p>
+                    Acceso a versiones Premium de cursos online, Sefix  y
+                    Monitor
                   </p>
-                  <p>Acceso total al ecosistema de Eskemma</p>
-                  <p>Acceso a recursos exclusivos para tu proyecto político</p>
-                  <p>1 sesión de asesoría gratuita al mes</p>
+                  <p>Moddulo con 16 Apps Avanzadas</p>
+                  <p>Soporte por email / chat</p>
+                  <p>Capacitación grupal online (1 sesión)</p>
+                  <p>Almacenamiento de 50 GB</p>
                 </div>
 
                 {/* Bandera y Precio */}
@@ -684,7 +693,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   </div>
                   {/* Precio */}
                   <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
-                    $ 4,000 MX / mes
+                    $ 5,899 MX / mes
                   </p>
                 </div>
 
@@ -707,26 +716,34 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
                 aria-hidden="true"
               >
-                Trabajo Colaborativo
+                Suite Completa con IA
               </div>
 
               {/* Contenido de la card */}
               <div className="flex flex-col flex-grow">
                 {/* Título del Plan */}
                 <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3">
-                  Plan Grupal
+                  Plan Profesional
                 </h3>
 
                 {/* Detalles del Plan */}
                 <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 flex-grow">
-                  <p>Mensual</p>
-                  <p>Para 6 personas</p>
+                  <p className="text-center">Mensual | Usuarios ilimitados</p>
+                  <p className="mt-4 max-sm:mt-2 text-center text-[16px] max-sm:text-sm">
+                    <strong>Ideal para equipos de 15-50+ personas</strong>
+                  </p>
                   <p className="mt-4 max-sm:mt-2 text-[16px] max-sm:text-sm">
                     <strong>Obtienes Plan Premium +</strong>
                   </p>
-                  <p>Versión colaborativa</p>
-                  <p>Acceso a recursos exclusivos para grupos</p>
-                  <p>2 sesiones de asesoría gratuita al mes</p>
+                  <p>
+                    Acceso a versiones profesionales de cursos online, Sefix  y
+                    Monitor
+                  </p>
+                  <p>Moddulo con 25 Apps Avanzadas</p>
+                  <p>Soporte por teléfono, email y chat</p>
+                  <p>Capacitación personalizada</p>
+                  <p>Consultoría estratégica (4 hrs/mes incluidas)</p>
+                  <p>Almacenamiento ilimitado</p>
                 </div>
 
                 {/* Bandera y Precio */}
@@ -741,7 +758,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   </div>
                   {/* Precio */}
                   <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
-                    $ 20,000 MX / mes
+                    $ 9,899 MX / mes
                   </p>
                 </div>
 
@@ -750,7 +767,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   <Button
                     label="SUSCRIBIRME"
                     variant="primary"
-                    onClick={() => setIsGrupalSuscriptionModalOpen(true)}
+                    onClick={() => setIsProfessionalSuscriptionModalOpen(true)}
                   />
                 </div>
               </div>
@@ -781,11 +798,11 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       />
 
       {/* Modal de Suscripción (Plan Grupal) */}
-      <SuscriptionGrupalModal
-        isOpen={isGrupalSuscriptionModalOpen}
-        onClose={() => setIsGrupalSuscriptionModalOpen(false)}
+      <SuscriptionProfessionalModal
+        isOpen={isProfessionalSuscriptionModalOpen}
+        onClose={() => setIsProfessionalSuscriptionModalOpen(false)}
         onPaymentSuccess={() => {
-          setIsGrupalSuscriptionModalOpen(false);
+          setIsProfessionalSuscriptionModalOpen(false);
           setIsResponseSuscriptionModalOpen(true);
         }}
       />
