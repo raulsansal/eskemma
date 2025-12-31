@@ -85,7 +85,7 @@ export default function SuscriptionPremiumModal({
 
           {/* Precio */}
           <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
-            $4,000 (MX) por persona / mes
+            $5,899 (MX) / mes
           </p>
 
           {/* Descripción */}
@@ -94,10 +94,12 @@ export default function SuscriptionPremiumModal({
               Tu suscripción mensual incluye:
             </p>
             <ul className="list-disc pl-6 max-sm:pl-5 text-[16px] max-sm:text-sm text-black-eske space-y-1 max-sm:space-y-0.5">
-              <li>Acceso total al ecosistema de Eskemma</li>
-              <li>Acceso a recursos exclusivos</li>
-              <li>Una sesión de asesoría gratuita al mes</li>
-              <li>Asistencia online 24/7</li>
+              <li>Todo Plan Básico</li>
+              <li>Acceso a versiones Premium de Cursos online, Sefix y Monitor</li>
+              <li>Acceso a 16 apps avanzadas con IA de Moddulo</li>
+              <li>Soporte por email / chat</li>
+              <li>Capacitación grupal online (1 sesión)</li>
+              <li>Almacenamiento de 50 GB</li>
               <li>Acceso total a eBooks y plantillas</li>
             </ul>
           </div>
@@ -140,7 +142,7 @@ export default function SuscriptionPremiumModal({
 
           {/* Botón PAGAR */}
           <Button
-            label="PAGAR $4,000.ºº"
+            label="PAGAR $5,899.ºº"
             variant="primary"
             onClick={onPaymentSuccess}
           />

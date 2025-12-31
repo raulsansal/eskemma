@@ -25,47 +25,15 @@ export default function SuscriptionBasicModal({
 
   if (!isOpen) return null;
 
-  const radioButtonStyle = `
-    .custom-radio {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #6b7280;
-      border-radius: 50%;
-      outline: none;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.2s ease;
-      vertical-align: middle;
-      flex-shrink: 0;
-    }
-    
-    .custom-radio:checked {
-      border-color: #1e40af;
-      background-color: #1e40af;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='8' cy='8' r='3'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-    
-    .custom-radio:focus {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
-    }
-  `;
-
   return (
     <div
-      className="fixed inset-0 z-70 flex items-center justify-center px-4"
-      style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
       role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <style>{radioButtonStyle}</style>
-      
       <div
         ref={modalRef as React.RefObject<HTMLDivElement>}
         role="dialog"
@@ -76,14 +44,14 @@ export default function SuscriptionBasicModal({
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
-          aria-label="Cerrar modal de suscripción básica"
+          aria-label="Cerrar modal de suscripción basic"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 max-sm:h-5 max-sm:w-5"
-            fill="blue-eske"
+            fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
             aria-hidden="true"
@@ -99,7 +67,10 @@ export default function SuscriptionBasicModal({
 
         <div className="space-y-6 max-sm:space-y-4 text-left">
           {/* Título del Modal */}
-          <h2 id="subscription-basic-title" className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske text-center">
+          <h2
+            id="subscription-basic-title"
+            className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske text-center"
+          >
             Suscripción
           </h2>
 
@@ -119,63 +90,24 @@ export default function SuscriptionBasicModal({
 
           {/* Precio */}
           <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
-            $2,000ºº (mx) pago por persona / mes
+            $2,899 (MX) / mes
           </p>
 
-          {/* Bloque de texto con la descripción */}
-          <fieldset className="space-y-2 max-sm:space-y-1.5">
-            <legend className="text-[16px] max-sm:text-sm font-normal text-black-eske mb-2 max-sm:mb-1.5">
-              Selecciona un servicio:
-            </legend>
-            <label htmlFor="service-moddulo" className="flex items-center space-x-2 ml-4 max-sm:ml-2 cursor-pointer min-h-[44px] max-sm:min-h-[40px]">
-              <input
-                type="radio"
-                id="service-moddulo"
-                name="service"
-                value="Moddulo"
-                checked={selectedService === "Moddulo"}
-                onChange={(e) => setSelectedService(e.target.value)}
-                className="custom-radio"
-              />
-              <span className="ml-2 text-[16px] max-sm:text-sm font-normal text-black-eske">Moddulo</span>
-            </label>
-            <label htmlFor="service-sefix" className="flex items-center space-x-2 ml-4 max-sm:ml-2 cursor-pointer min-h-[44px] max-sm:min-h-[40px]">
-              <input
-                type="radio"
-                id="service-sefix"
-                name="service"
-                value="Sefix"
-                checked={selectedService === "Sefix"}
-                onChange={(e) => setSelectedService(e.target.value)}
-                className="custom-radio"
-              />
-              <span className="ml-2 text-[16px] max-sm:text-sm font-normal text-black-eske">Sefix</span>
-            </label>
-            <label htmlFor="service-cursos" className="flex items-center space-x-2 ml-4 max-sm:ml-2 cursor-pointer min-h-[44px] max-sm:min-h-[40px]">
-              <input
-                type="radio"
-                id="service-cursos"
-                name="service"
-                value="Cursos"
-                checked={selectedService === "Cursos"}
-                onChange={(e) => setSelectedService(e.target.value)}
-                className="custom-radio"
-              />
-              <span className="ml-2 text-[16px] max-sm:text-sm font-normal text-black-eske">Cursos online</span>
-            </label>
-            <label htmlFor="service-monitor" className="flex items-center space-x-2 ml-4 max-sm:ml-2 cursor-pointer min-h-[44px] max-sm:min-h-[40px]">
-              <input
-                type="radio"
-                id="service-monitor"
-                name="service"
-                value="Monitor"
-                checked={selectedService === "Monitor"}
-                onChange={(e) => setSelectedService(e.target.value)}
-                className="custom-radio"
-              />
-              <span className="ml-2 text-[15px] max-sm:text-sm font-normal text-black-eske">Monitor</span>
-            </label>
-          </fieldset>
+          {/* Descripción */}
+          <div className="space-y-2 max-sm:space-y-1.5">
+            <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
+              Tu suscripción mensual incluye:
+            </p>
+            <ul className="list-disc pl-6 max-sm:pl-5 text-[16px] max-sm:text-sm text-black-eske space-y-1 max-sm:space-y-0.5">
+              <li>
+                Acceso a versiones básicas de Cursos online, Sefix y Monitor
+              </li>
+              <li>Acceso a 8 apps estándar con IA de Moddulo</li>
+              <li>Soporte por email</li>
+              <li>Almacenamiento de 5 GB</li>
+              <li>Acceso total a eBooks y plantillas</li>
+            </ul>
+          </div>
 
           {/* Método de pago */}
           <p className="text-[16px] max-sm:text-sm font-semibold text-bluegreen-eske">
@@ -186,7 +118,7 @@ export default function SuscriptionBasicModal({
             <div className="flex items-center space-x-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 max-sm:h-5 max-sm:w-5 text-black-eske"
+                className="h-6 w-6 max-sm:h-5 max-sm:w-5 text-gray-700"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -206,7 +138,7 @@ export default function SuscriptionBasicModal({
             {/* Botón CAMBIAR - Mantener personalizado */}
             <button
               type="button"
-              className="text-10px max-sm:text-[9px] font-medium text-black-eske px-4 max-sm:px-3 py-2 max-sm:py-1.5 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300 focus-ring-primary"
+              className="text-10px max-sm:text-[9px] font-medium text-gray-700 px-4 max-sm:px-3 py-2 max-sm:py-1.5 border border-gray-90 rounded hover:bg-blue-eske hover:text-white-eske cursor-pointer transition-colors duration-300 focus-ring-primary"
               aria-label="Cambiar método de pago"
             >
               CAMBIAR
@@ -215,7 +147,7 @@ export default function SuscriptionBasicModal({
 
           {/* Botón PAGAR */}
           <Button
-            label="PAGAR $ 2,000.ºº"
+            label="PAGAR $2,899.ºº"
             variant="primary"
             onClick={onPaymentSuccess}
           />
@@ -264,4 +196,3 @@ export default function SuscriptionBasicModal({
     </div>
   );
 }
-

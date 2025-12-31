@@ -15,20 +15,21 @@ export default function SubscriptionBadge() {
   const daysRemaining = getDaysRemaining(user.subscriptionEndDate || null);
   const expirationDate = formatExpirationDate(user.subscriptionEndDate || null);
 
-  // Colores según el rol
-  const getBadgeColor = () => {
+  const getBadgeColor = (): string => {
     switch (user.role) {
+      case "admin":
+        return "bg-red-600 text-white";
       case "basic":
         return "bg-blue-500 text-white";
       case "premium":
         return "bg-purple-600 text-white";
-      case "grupal":
+      case "professional":  // ✅ CAMBIADO
         return "bg-green-600 text-white";
       case "expired":
         return "bg-red-500 text-white";
       case "unsubscribed-basic":
       case "unsubscribed-premium":
-      case "unsubscribed-grupal":
+      case "unsubscribed-professional":  // ✅ CAMBIADO
         return "bg-orange-500 text-white";
       case "user":
         return "bg-bluegreen-eske text-white";
@@ -41,16 +42,13 @@ export default function SubscriptionBadge() {
     }
   };
 
-  // Determinar si mostrar información adicional
   const showExtraInfo = () => {
-    if (
-      ["basic", "premium", "grupal"].includes(user.role) &&
-      daysRemaining > 0
-    ) {
+    if (user.role === "admin") return null;
+
+    if (["basic", "premium", "professional"].includes(user.role) && daysRemaining > 0) {  // ✅ CAMBIADO
       return (
         <span className="ml-2 max-sm:ml-1.5 text-xs max-sm:text-[10px] opacity-90">
-          ({daysRemaining} día{daysRemaining !== 1 ? "s" : ""} restante
-          {daysRemaining !== 1 ? "s" : ""})
+          ({daysRemaining} día{daysRemaining !== 1 ? "s" : ""} restante{daysRemaining !== 1 ? "s" : ""})
         </span>
       );
     }
@@ -58,18 +56,12 @@ export default function SubscriptionBadge() {
     if (user.role === "expired") {
       return (
         <span className="ml-2 max-sm:ml-1.5 text-xs max-sm:text-[10px] opacity-90">
-          (Expiró el {expirationDate})
+          (Expiró {expirationDate})
         </span>
       );
     }
 
-    if (
-      [
-        "unsubscribed-basic",
-        "unsubscribed-premium",
-        "unsubscribed-grupal",
-      ].includes(user.role)
-    ) {
+    if (["unsubscribed-basic", "unsubscribed-premium", "unsubscribed-professional"].includes(user.role)) {  // ✅ CAMBIADO
       return (
         <span className="ml-2 max-sm:ml-1.5 text-xs max-sm:text-[10px] opacity-90">
           (Cancelado)
@@ -80,14 +72,14 @@ export default function SubscriptionBadge() {
     return null;
   };
 
-  // Generar texto accesible para screen readers
-  const getAriaLabel = () => {
+  const getAriaLabel = (): string => {
     const roleName = getRoleName(user.role);
 
-    if (
-      ["basic", "premium", "grupal"].includes(user.role) &&
-      daysRemaining > 0
-    ) {
+    if (user.role === "admin") {
+      return "Rol de administrador del sistema";
+    }
+
+    if (["basic", "premium", "professional"].includes(user.role) && daysRemaining > 0) {  // ✅ CAMBIADO
       return `Suscripción ${roleName}, ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""} restante${daysRemaining !== 1 ? "s" : ""}`;
     }
 
@@ -95,13 +87,7 @@ export default function SubscriptionBadge() {
       return `Suscripción expirada el ${expirationDate}`;
     }
 
-    if (
-      [
-        "unsubscribed-basic",
-        "unsubscribed-premium",
-        "unsubscribed-grupal",
-      ].includes(user.role)
-    ) {
+    if (["unsubscribed-basic", "unsubscribed-premium", "unsubscribed-professional"].includes(user.role)) {  // ✅ CAMBIADO
       return `Suscripción ${roleName} cancelada`;
     }
 
