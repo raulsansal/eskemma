@@ -103,8 +103,8 @@ export default function UpgradeModduloModal({
           className="
             absolute
             top-4 right-4
-            text-gray-eske-60
-            hover:text-gray-eske-90
+            text-white-eske
+            hover:text-blue-eske-10
             transition-colors
             focus-ring-primary
             rounded-full

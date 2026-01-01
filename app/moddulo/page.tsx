@@ -1,8 +1,10 @@
+
 // app/moddulo/page.tsx
 "use client";
 
 import React, { useState, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import WhatIsModduloModal from "@/app/components/moddulo/WhatIsModduloModal";
@@ -13,6 +15,7 @@ import type { ModduloAppWithStatus, ModduloAppCategory } from "@/types/moddulo.t
 
 export default function ModduloHubPage() {
   const { user, loading } = useAuth();
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<ModduloAppCategory | "all">("all");
   const [selectedPlan, setSelectedPlan] = useState<"all" | "BASIC" | "PREMIUM" | "PROFESSIONAL">("all");
   const [showWhatIsModal, setShowWhatIsModal] = useState(false);
@@ -72,15 +75,6 @@ export default function ModduloHubPage() {
     return grouped;
   }, [appsWithStatus]);
 
-  // Contar apps por plan
-  const appsByPlan = useMemo(() => {
-    return {
-      BASIC: appsWithStatus.filter(app => app.tier === "BASIC").length,
-      PREMIUM: appsWithStatus.filter(app => app.tier === "PREMIUM").length,
-      PROFESSIONAL: appsWithStatus.filter(app => app.tier === "PROFESSIONAL").length,
-    };
-  }, [appsWithStatus]);
-
   // Estadísticas
   const stats = useMemo(() => {
     const total = appsWithStatus.length;
@@ -98,8 +92,14 @@ export default function ModduloHubPage() {
   };
 
   // Helper para obtener nombre del plan
-  const getPlanName = (tier: string) => {
-    switch (tier) {
+  const getPlanName = (plan: string | null | undefined) => {
+    if (plan === null || plan === undefined || plan === "") {
+      return "Sin plan";
+    }
+    
+    const normalizedPlan = String(plan).toUpperCase();
+    
+    switch (normalizedPlan) {
       case "BASIC":
         return "Básico";
       case "PREMIUM":
@@ -107,7 +107,7 @@ export default function ModduloHubPage() {
       case "PROFESSIONAL":
         return "Profesional";
       default:
-        return "Usuario";
+        return "Sin plan";
     }
   };
 
@@ -117,7 +117,6 @@ export default function ModduloHubPage() {
     const isLocked = app.status === "locked";
     const isComingSoon = app.status === "coming-soon";
     const isActive = app.status === "active";
-    const showTooltip = true; // Tooltip para TODAS las apps (visitantes y usuarios)
     const [showMobileDetails, setShowMobileDetails] = useState(false);
 
     const getBadgeColor = () => {
@@ -143,12 +142,12 @@ export default function ModduloHubPage() {
           shadow-md
           p-5 max-sm:p-4
           transition-all duration-300
-          ${isActive ? "hover:shadow-xl hover:-translate-y-1 cursor-pointer" : ""}
-          ${isLocked || isComingSoon ? "opacity-70" : ""}
+          hover:shadow-xl hover:-translate-y-1
+          cursor-pointer
           h-full
           max-w-[240px] mx-auto
         `}
-        onMouseEnter={() => showTooltip && setHoveredApp(app.id)}
+        onMouseEnter={() => setHoveredApp(app.id)}
         onMouseLeave={() => setHoveredApp(null)}
         role="article"
         aria-label={`${app.name} - ${app.shortDescription}`}
@@ -166,12 +165,7 @@ export default function ModduloHubPage() {
             src={app.icon}
             alt=""
             fill
-            className={`
-              object-contain
-              transition-transform duration-300 ease-in-out
-              ${isActive ? "hover:scale-110" : ""}
-              ${isLocked || isComingSoon ? "grayscale" : ""}
-            `}
+            className="object-contain transition-transform duration-300 ease-in-out hover:scale-110"
             aria-hidden="true"
           />
         </div>
@@ -186,20 +180,18 @@ export default function ModduloHubPage() {
           {app.shortDescription}
         </p>
 
-        {/* Botón "i" de información (solo mobile/tablet) */}
-        {showTooltip && (
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowMobileDetails(!showMobileDetails);
-            }}
-            className="lg:hidden absolute top-2 right-2 w-6 h-6 rounded-full bg-bluegreen-eske text-white-eske flex items-center justify-center text-xs font-bold hover:bg-bluegreen-eske/80 transition-colors z-10"
-            aria-label="Ver más información"
-          >
-            i
-          </button>
-        )}
+        {/* Botón "i" de información (solo mobile/tablet) - SIEMPRE VISIBLE */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowMobileDetails(!showMobileDetails);
+          }}
+          className="lg:hidden absolute top-2 right-2 w-6 h-6 rounded-full bg-bluegreen-eske text-white-eske flex items-center justify-center text-xs font-bold hover:bg-bluegreen-eske/80 transition-colors z-10"
+          aria-label="Ver más información"
+        >
+          i
+        </button>
 
         {/* Badge de "Abrir" */}
         <span
@@ -241,13 +233,13 @@ export default function ModduloHubPage() {
           </div>
         )}
 
-        {/* Tooltip Desktop - Para TODAS las apps */}
-        {showTooltip && hoveredApp === app.id && (
+        {/* Tooltip Desktop - Para TODAS las apps - MÁS ALTO */}
+        {hoveredApp === app.id && (
           <div
             className="
               hidden lg:block
               absolute
-              bottom-12 sm:bottom-14 lg:bottom-16
+              bottom-20 sm:bottom-22 lg:bottom-24
               left-1/2
               -translate-x-1/2
               z-[9999]
@@ -261,7 +253,7 @@ export default function ModduloHubPage() {
               animate-fadeIn
             "
             role="tooltip"
-            style={{ backgroundColor: 'rgb(0, 105, 136)', opacity: 0.98 }}
+            style={{ backgroundColor: 'rgb(0, 102, 102)', opacity: 0.98 }}
           >
             {/* Flecha apuntando hacia abajo al botón */}
             <div
@@ -274,7 +266,7 @@ export default function ModduloHubPage() {
                 border-r-8 border-r-transparent
                 border-t-8
               "
-              style={{ borderTopColor: 'rgb(0, 105, 136)' }}
+              style={{ borderTopColor: 'rgb(0, 102, 102)' }}
               aria-hidden="true"
             />
             {/* Contenido del tooltip */}
@@ -320,35 +312,41 @@ export default function ModduloHubPage() {
           </div>
         )}
 
-        {/* Modal de detalles Mobile/Tablet */}
-        {showMobileDetails && showTooltip && (
+        {/* ÚNICO Modal Mobile - MISMO DISEÑO PARA TODAS LAS APPS */}
+        {showMobileDetails && (
           <div
-            className="lg:hidden fixed inset-0 bg-black-eske/70 z-[99999] flex items-end sm:items-center justify-center p-4"
+            className="lg:hidden fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-4"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               setShowMobileDetails(false);
             }}
           >
+            {/* Backdrop oscuro - SEPARADO del modal */}
+            <div 
+              className="absolute inset-0 bg-black-eske/80" 
+              aria-hidden="true"
+            />
+            
+            {/* Modal - SOBRE el backdrop */}
             <div
-              className="bg-white-eske rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[80vh] overflow-y-auto shadow-2xl"
+              className="relative bg-white rounded-t-2xl sm:rounded-2xl w-[90%] sm:max-w-md max-h-[80vh] overflow-y-auto shadow-2xl"
               onClick={(e) => e.stopPropagation()}
-              style={{ opacity: 1 }}
             >
-              {/* Header */}
-              <div className="sticky top-0 bg-bluegreen-eske text-white-eske p-4 rounded-t-2xl sm:rounded-t-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 bg-white-eske rounded-lg p-1.5">
+              {/* Header - SIEMPRE BLUEGREEN */}
+              <div className="sticky top-0 bg-bluegreen-eske text-white-eske p-4 rounded-t-2xl sm:rounded-t-2xl flex items-center justify-between z-10">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="relative w-12 h-12 bg-white-eske rounded-lg p-1.5 flex-shrink-0">
                     <Image src={app.icon} alt="" fill className="object-contain" />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-base">{app.name}</h3>
-                    <p className="text-xs opacity-80">{app.shortDescription}</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-base leading-tight">{app.name}</h3>
+                    <p className="text-xs opacity-80 line-clamp-1">{app.shortDescription}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowMobileDetails(false)}
-                  className="text-white-eske hover:bg-white-eske/10 rounded-full p-2 transition-colors"
+                  className="text-white-eske hover:bg-white-eske/10 rounded-full p-2 transition-colors flex-shrink-0 ml-2"
                   aria-label="Cerrar"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -357,8 +355,9 @@ export default function ModduloHubPage() {
                 </button>
               </div>
 
-              {/* Contenido */}
+              {/* Contenido - SIEMPRE MISMO DISEÑO */}
               <div className="p-6">
+                {/* Descripción */}
                 <div className="mb-4">
                   <h4 className="font-semibold text-bluegreen-eske mb-2 text-sm">Descripción</h4>
                   <p className="text-sm text-gray-eske-90 leading-relaxed">
@@ -366,6 +365,15 @@ export default function ModduloHubPage() {
                   </p>
                 </div>
 
+                {/* Plan (como texto, no badge) */}
+                <div className="mb-4">
+                  <p className="text-sm text-gray-eske-90">
+                    <span className="font-semibold text-bluegreen-eske">Plan:</span>{" "}
+                    {app.tier === "BASIC" ? "Básico" : app.tier === "PREMIUM" ? "Premium" : "Profesional"}
+                  </p>
+                </div>
+
+                {/* Características */}
                 <div className="mb-4">
                   <h4 className="font-semibold text-bluegreen-eske mb-3 text-sm">Características</h4>
                   <ul className="space-y-2">
@@ -388,17 +396,32 @@ export default function ModduloHubPage() {
                   </ul>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-eske-20">
-                  <span className={`${getBadgeColor()} px-4 py-2 rounded-lg text-xs font-semibold`}>
-                    Plan {app.tier === "BASIC" ? "Básico" : app.tier === "PREMIUM" ? "Premium" : "Profesional"}
-                  </span>
-                  {isActive && (
-                    <Link
-                      href={`/moddulo/${app.slug}`}
-                      className="bg-bluegreen-eske text-white-eske px-6 py-2 rounded-lg text-sm font-semibold hover:bg-bluegreen-eske/90 transition-colors"
+                {/* Línea horizontal */}
+                <div className="border-t border-gray-eske-20 pt-4">
+                  {/* Botón: Abrir App o Ver Planes - SIEMPRE MISMO DISEÑO */}
+                  {isActive ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/moddulo/${app.slug}`);
+                      }}
+                      className="w-full bg-bluegreen-eske text-white-eske px-6 py-3 rounded-lg text-sm font-semibold hover:bg-bluegreen-eske/90 transition-colors"
+                      aria-label={`Abrir ${app.name}`}
                     >
                       Abrir App
-                    </Link>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowMobileDetails(false);
+                        router.push('/#suscripciones');
+                      }}
+                      className="w-full bg-orange-eske text-white-eske px-6 py-3 rounded-lg text-sm font-semibold hover:bg-orange-eske-70 transition-colors"
+                      aria-label="Ver planes de suscripción"
+                    >
+                      Ver Planes
+                    </button>
                   )}
                 </div>
               </div>
@@ -443,7 +466,7 @@ export default function ModduloHubPage() {
 
   const userName = user?.name || user?.displayName || "";
   const currentTier = getPlanTier(user?.subscriptionPlan);
-  const planName = getPlanName(currentTier);
+  const planName = getPlanName(user?.subscriptionPlan || null);
 
   return (
     <main className="min-h-screen bg-gray-eske-10">
@@ -587,10 +610,9 @@ export default function ModduloHubPage() {
                 `}
                 aria-pressed={selectedCategory === "all"}
               >
-                Todas ({appsWithStatus.length})
+                Todas
               </button>
               {MODDULO_CATEGORIES.map((category) => {
-                const count = appsByCategory[category.id]?.length || 0;
                 return (
                   <button
                     key={category.id}
@@ -614,7 +636,7 @@ export default function ModduloHubPage() {
                     }}
                     aria-pressed={selectedCategory === category.id}
                   >
-                    {category.name} ({count})
+                    {category.name}
                   </button>
                 );
               })}
@@ -642,7 +664,7 @@ export default function ModduloHubPage() {
                 `}
                 aria-pressed={selectedPlan === "all"}
               >
-                Todos ({appsWithStatus.length})
+                Todos
               </button>
               <button
                 onClick={() => setSelectedPlan("BASIC")}
@@ -661,7 +683,7 @@ export default function ModduloHubPage() {
                 `}
                 aria-pressed={selectedPlan === "BASIC"}
               >
-                Básico ({appsByPlan.BASIC})
+                Básico
               </button>
               <button
                 onClick={() => setSelectedPlan("PREMIUM")}
@@ -680,7 +702,7 @@ export default function ModduloHubPage() {
                 `}
                 aria-pressed={selectedPlan === "PREMIUM"}
               >
-                Premium ({appsByPlan.PREMIUM})
+                Premium
               </button>
               <button
                 onClick={() => setSelectedPlan("PROFESSIONAL")}
@@ -699,7 +721,7 @@ export default function ModduloHubPage() {
                 `}
                 aria-pressed={selectedPlan === "PROFESSIONAL"}
               >
-                Profesional ({appsByPlan.PROFESSIONAL})
+                Profesional
               </button>
             </div>
           </div>
@@ -788,24 +810,48 @@ export default function ModduloHubPage() {
           <p className="text-lg max-sm:text-base font-light text-black-eske mb-8 max-sm:mb-6">
             Mejora tu plan para acceder a todas las aplicaciones profesionales.
           </p>
-          <Link
-            href="/#suscripciones"
-            className="
-              inline-block
-              bg-orange-eske
-              text-white-eske
-              px-8 max-sm:px-6
-              py-4 max-sm:py-3
-              rounded-lg
-              font-medium
-              hover:bg-orange-eske-70
-              transition-all duration-300
-              focus-ring-primary
-              text-base max-sm:text-sm
-            "
-          >
-            VER PLANES
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-sm:gap-3">
+            <Link
+              href="/#suscripciones"
+              className="
+                inline-block
+                bg-orange-eske
+                text-white-eske
+                px-8 max-sm:px-6
+                py-4 max-sm:py-3
+                rounded-lg
+                font-medium
+                hover:bg-orange-eske-70
+                transition-all duration-300
+                focus-ring-primary
+                text-base max-sm:text-sm
+                w-full sm:w-auto
+              "
+              aria-label="Ver planes de suscripción"
+            >
+              VER PLANES
+            </Link>
+            <Link
+              href="/contacto"
+              className="
+                inline-block
+                bg-bluegreen-eske
+                text-white-eske
+                px-8 max-sm:px-6
+                py-4 max-sm:py-3
+                rounded-lg
+                font-medium
+                hover:bg-bluegreen-eske/90
+                transition-all duration-300
+                focus-ring-primary
+                text-base max-sm:text-sm
+                w-full sm:w-auto
+              "
+              aria-label="Contactar con Eskemma"
+            >
+              CONTACTAR CON ESKEMMA
+            </Link>
+          </div>
         </div>
       </section>
 
