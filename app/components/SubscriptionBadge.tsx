@@ -1,16 +1,24 @@
 // app/components/SubscriptionBadge.tsx
 "use client";
-import { useAuth } from "../../context/AuthContext";
-import { getRoleName } from "../../utils/roleUtils";
+import { useAuth } from "@/context/AuthContext";
+import { getRoleName } from "@/utils/roleUtils";
 import {
   getDaysRemaining,
   formatExpirationDate,
-} from "../../utils/subscriptionUtils";
+} from "@/utils/subscriptionUtils";
+import type { SubscriptionPlan } from "@/types/subscription.types";
 
-export default function SubscriptionBadge() {
+interface SubscriptionBadgeProps {
+  plan?: SubscriptionPlan | null; // Prop opcional para pasar plan manualmente
+}
+
+export default function SubscriptionBadge({ plan: externalPlan }: SubscriptionBadgeProps = {}) {
   const { user } = useAuth();
 
   if (!user) return null;
+
+  // Usar plan externo si se provee, sino usar el del usuario
+  const plan = externalPlan !== undefined ? externalPlan : user.subscriptionPlan;
 
   const daysRemaining = getDaysRemaining(user.subscriptionEndDate || null);
   const expirationDate = formatExpirationDate(user.subscriptionEndDate || null);
@@ -23,13 +31,13 @@ export default function SubscriptionBadge() {
         return "bg-blue-500 text-white";
       case "premium":
         return "bg-purple-600 text-white";
-      case "professional":  // ✅ CAMBIADO
+      case "professional":
         return "bg-green-600 text-white";
       case "expired":
         return "bg-red-500 text-white";
       case "unsubscribed-basic":
       case "unsubscribed-premium":
-      case "unsubscribed-professional":  // ✅ CAMBIADO
+      case "unsubscribed-professional":
         return "bg-orange-500 text-white";
       case "user":
         return "bg-bluegreen-eske text-white";
@@ -45,7 +53,7 @@ export default function SubscriptionBadge() {
   const showExtraInfo = () => {
     if (user.role === "admin") return null;
 
-    if (["basic", "premium", "professional"].includes(user.role) && daysRemaining > 0) {  // ✅ CAMBIADO
+    if (["basic", "premium", "professional"].includes(user.role) && daysRemaining > 0) {
       return (
         <span className="ml-2 max-sm:ml-1.5 text-xs max-sm:text-[10px] opacity-90">
           ({daysRemaining} día{daysRemaining !== 1 ? "s" : ""} restante{daysRemaining !== 1 ? "s" : ""})
@@ -61,7 +69,7 @@ export default function SubscriptionBadge() {
       );
     }
 
-    if (["unsubscribed-basic", "unsubscribed-premium", "unsubscribed-professional"].includes(user.role)) {  // ✅ CAMBIADO
+    if (["unsubscribed-basic", "unsubscribed-premium", "unsubscribed-professional"].includes(user.role)) {
       return (
         <span className="ml-2 max-sm:ml-1.5 text-xs max-sm:text-[10px] opacity-90">
           (Cancelado)
@@ -79,7 +87,7 @@ export default function SubscriptionBadge() {
       return "Rol de administrador del sistema";
     }
 
-    if (["basic", "premium", "professional"].includes(user.role) && daysRemaining > 0) {  // ✅ CAMBIADO
+    if (["basic", "premium", "professional"].includes(user.role) && daysRemaining > 0) {
       return `Suscripción ${roleName}, ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""} restante${daysRemaining !== 1 ? "s" : ""}`;
     }
 
@@ -87,7 +95,7 @@ export default function SubscriptionBadge() {
       return `Suscripción expirada el ${expirationDate}`;
     }
 
-    if (["unsubscribed-basic", "unsubscribed-premium", "unsubscribed-professional"].includes(user.role)) {  // ✅ CAMBIADO
+    if (["unsubscribed-basic", "unsubscribed-premium", "unsubscribed-professional"].includes(user.role)) {
       return `Suscripción ${roleName} cancelada`;
     }
 

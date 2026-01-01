@@ -293,3 +293,28 @@ textarea:focus-visible,
 @theme {
   --color-gray-eske-60: #9a9a9a; /* Cambiado de #b8b8b8 para mejor contraste (4.6:1) */
 }
+
+/* ============================================
+   css para Hub de Móddulo
+   ============================================ */
+
+/* Animación para tooltips de Moddulo */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Mejora de hover para cards de Moddulo */
+.hover\:scale-110:hover {
+  transform: scale(1.1);
+}
