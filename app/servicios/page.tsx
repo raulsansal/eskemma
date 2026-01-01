@@ -14,7 +14,7 @@ export default function ServiciosPage() {
         {/* Imagen de fondo */}
         <Image
           src="/images/yanmin_yang.jpg"
-          alt=""
+          alt="Imagen de fondo"
           fill
           style={{ objectFit: "cover" }}
           className="object-cover"

@@ -1,8 +1,9 @@
 // types/subscription.types.ts
 // ============================================================
 // CONFIGURACIÓN CENTRALIZADA DE SUSCRIPCIONES ESKEMMA
-// Versión: 1.0.0
+// Versión: 1.1.0
 // Última actualización: 31 de diciembre de 2025
+// Corrección: Funciones helper aceptan undefined/null
 // ============================================================
 
 // ============================================================
@@ -387,44 +388,71 @@ export const PLAN_FEATURES_DETAILED = {
 };
 
 // ============================================================
-// FUNCIONES HELPER
+// FUNCIONES HELPER (ACTUALIZADAS - ACEPTAN UNDEFINED/NULL)
 // ============================================================
 
-export function getPlanTier(plan: SubscriptionPlan): ModduloTier {
+/**
+ * Obtiene el tier de Moddulo basado en el plan de suscripción
+ * ACTUALIZADO: Acepta undefined/null y retorna tier por defecto
+ */
+export function getPlanTier(plan: SubscriptionPlan | undefined | null): ModduloTier {
   if (!plan) return "BASIC";
   return PLAN_TO_TIER_MAP[plan];
 }
 
-export function getPlanFeatures(plan: SubscriptionPlan | "user"): PlanFeatures {
+/**
+ * Obtiene las características del plan
+ * ACTUALIZADO: Acepta undefined/null
+ */
+export function getPlanFeatures(plan: SubscriptionPlan | "user" | undefined | null): PlanFeatures {
   const planKey = plan || "user";
   return PLAN_FEATURES[planKey as keyof typeof PLAN_FEATURES];
 }
 
+/**
+ * Verifica si un usuario tiene acceso a una app de Moddulo
+ * ACTUALIZADO: Acepta undefined/null
+ */
 export function canAccessModduloApp(
-  userPlan: SubscriptionPlan,
+  userPlan: SubscriptionPlan | undefined | null,
   appSlug: string
 ): boolean {
-  const features = getPlanFeatures(userPlan || "user");
+  const features = getPlanFeatures(userPlan || null);
   return features.modduloAppsIncluded.includes(appSlug);
 }
 
-export function getPlanDisplayName(plan: SubscriptionPlan | "user"): string {
+/**
+ * Obtiene el nombre para mostrar del plan
+ */
+export function getPlanDisplayName(plan: SubscriptionPlan | "user" | undefined | null): string {
   return getPlanFeatures(plan || "user").displayName;
 }
 
-export function getPlanPrice(plan: SubscriptionPlan): number {
+/**
+ * Obtiene el precio del plan
+ */
+export function getPlanPrice(plan: SubscriptionPlan | undefined | null): number {
   if (!plan) return 0;
   return PLAN_FEATURES[plan].price;
 }
 
+/**
+ * Obtiene todas las apps disponibles para un tier
+ */
 export function getAppsForTier(tier: ModduloTier): string[] {
   return MODDULO_APPS[tier];
 }
 
+/**
+ * Verifica si un tier tiene acceso a una app específica
+ */
 export function tierHasApp(tier: ModduloTier, appSlug: string): boolean {
   return MODDULO_APPS[tier].includes(appSlug);
 }
 
+/**
+ * Obtiene el tier mínimo requerido para una app
+ */
 export function getRequiredTierForApp(appSlug: string): ModduloTier | null {
   if (MODDULO_APPS.BASIC.includes(appSlug)) return "BASIC";
   if (MODDULO_APPS.PREMIUM.includes(appSlug)) return "PREMIUM";
@@ -432,6 +460,9 @@ export function getRequiredTierForApp(appSlug: string): ModduloTier | null {
   return null;
 }
 
+/**
+ * Formatea un precio con el símbolo de moneda
+ */
 export function formatPrice(price: number, currency: string = "MXN"): string {
   const symbols: Record<string, string> = {
     MXN: "$",
@@ -443,8 +474,11 @@ export function formatPrice(price: number, currency: string = "MXN"): string {
   return `${symbol}${price.toLocaleString("es-MX")}`;
 }
 
+/**
+ * Verifica si un plan tiene una característica específica
+ */
 export function planHasFeature(
-  plan: SubscriptionPlan,
+  plan: SubscriptionPlan | undefined | null,
   feature: keyof PlanFeatures
 ): boolean {
   const features = getPlanFeatures(plan || "user");
