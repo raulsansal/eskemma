@@ -41,7 +41,21 @@ export default function UpgradeModduloModal({
 
   // Determinar información del plan sugerido
   const getPlanInfo = () => {
-    if (requiredTier === "PREMIUM") {
+    if (requiredTier === "BASIC") {
+      return {
+        name: "Básico",
+        price: "$2,899",
+        appsCount: "8 apps",
+        color: "bg-blue-500",
+        features: [
+          "Redactor Político con IA",
+          "CRM especializado",
+          "Dashboard de campaña",
+          "Calendario político",
+          "Presupuesto y FODA",
+        ],
+      };
+    } else if (requiredTier === "PREMIUM") {
       return {
         name: "Premium",
         price: "$5,899",

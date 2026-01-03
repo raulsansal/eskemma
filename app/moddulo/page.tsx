@@ -16,7 +16,7 @@ export default function ModduloHubPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<ModduloAppCategory | "all">("all");
-  const [selectedPlan, setSelectedPlan] = useState<"all" | "BASIC" | "PREMIUM" | "PROFESSIONAL">("all");
+  const [selectedPlan, setSelectedPlan] = useState<"all" | "BASIC" | "PREMIUM" | "PROFESSIONAL" | "MY_APPS">("all");
   const [showWhatIsModal, setShowWhatIsModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [selectedAppForUpgrade, setSelectedAppForUpgrade] = useState<ModduloAppWithStatus | null>(null);
@@ -58,7 +58,10 @@ export default function ModduloHubPage() {
     }
 
     // Filtrar por plan
-    if (selectedPlan !== "all") {
+    if (selectedPlan === "MY_APPS") {
+      // Mostrar solo apps disponibles para el usuario
+      filtered = filtered.filter((app) => app.status === "active");
+    } else if (selectedPlan !== "all") {
       filtered = filtered.filter((app) => app.tier === selectedPlan);
     }
 
@@ -86,6 +89,7 @@ export default function ModduloHubPage() {
 
   // Handler para abrir modal de upgrade
   const handleUpgradeClick = (app: ModduloAppWithStatus) => {
+    setHoveredApp(null); // Ocultar tooltip al abrir modal
     setSelectedAppForUpgrade(app);
     setShowUpgradeModal(true);
   };
@@ -142,10 +146,16 @@ export default function ModduloHubPage() {
           p-5 max-sm:p-4
           transition-all duration-300
           hover:shadow-xl hover:-translate-y-1
-          cursor-pointer
+          ${isActive ? "cursor-pointer" : ""}
           h-full
-          max-w-[240px] mx-auto
+          w-full
         `}
+        onClick={(e) => {
+          // Solo navegar si está activa Y NO se clickeó el botón "i" o "Abrir"
+          if (isActive && !(e.target as HTMLElement).closest('button')) {
+            router.push(`/moddulo/${app.slug}`);
+          }
+        }}
         onMouseEnter={() => setHoveredApp(app.id)}
         onMouseLeave={() => setHoveredApp(null)}
         role="article"
@@ -193,12 +203,17 @@ export default function ModduloHubPage() {
         </button>
 
         {/* Badge de "Abrir" - Clickeable para apps bloqueadas */}
-        <span
+        <button
+          type="button"
           onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation();
+            
             if (isLocked) {
-              e.preventDefault();
-              e.stopPropagation();
               handleUpgradeClick(app);
+            } else if (isActive) {
+              router.push(`/moddulo/${app.slug}`);
             }
           }}
           className={`
@@ -210,12 +225,12 @@ export default function ModduloHubPage() {
             font-semibold
             mb-2
             block
-            ${isLocked ? "cursor-pointer hover:opacity-90" : ""}
+            ${isLocked ? "cursor-pointer hover:opacity-90" : isActive ? "cursor-pointer hover:opacity-90" : "cursor-default"}
           `}
           aria-label={`Plan ${app.tier}`}
         >
           Abrir
-        </span>
+        </button>
 
         {/* Estados especiales */}
         {(isComingSoon || isLocked) && (
@@ -260,7 +275,7 @@ export default function ModduloHubPage() {
               animate-fadeIn
             "
             role="tooltip"
-            style={{ backgroundColor: 'rgb(0, 102, 102)', opacity: 0.98 }}
+            style={{ backgroundColor: 'rgb(0, 105, 136)', opacity: 0.98 }}
           >
             {/* Flecha apuntando hacia abajo al botón */}
             <div
@@ -273,7 +288,7 @@ export default function ModduloHubPage() {
                 border-r-8 border-r-transparent
                 border-t-8
               "
-              style={{ borderTopColor: 'rgb(0, 102, 102)' }}
+              style={{ borderTopColor: 'rgb(0, 105, 136)' }}
               aria-hidden="true"
             />
             {/* Contenido del tooltip */}
@@ -438,16 +453,7 @@ export default function ModduloHubPage() {
       </article>
     );
 
-    // Envolver en Link si está activa
-    if (isActive) {
-      return (
-        <Link href={`/moddulo/${app.slug}`} className="block h-full">
-          {cardContent}
-        </Link>
-      );
-    }
-
-    // Para apps bloqueadas o próximamente, solo mostrar (botón Abrir maneja el click)
+    // Retornar card sin wrapper Link
     return cardContent;
   };
 
@@ -543,23 +549,23 @@ export default function ModduloHubPage() {
             </>
           ) : (
             <>
-              <h1 id="hero-title" className="text-[42px] max-sm:text-3xl leading-tight font-bold mb-4 max-sm:mb-3">
-                Bienvenido a Moddulo
+              <h1 id="hero-title" className="text-[38px] max-sm:text-3xl leading-tight font-bold mb-4 max-sm:mb-3">
+                Te damos la bienvenida a Moddulo
               </h1>
-              <p className="text-[20px] max-sm:text-base leading-relaxed font-light mb-6 max-sm:mb-4">
+              <p className="text-[18px] max-sm:text-base leading-relaxed font-light mb-6 max-sm:mb-4">
                 Tu ecosistema de apps políticas impulsadas por IA
               </p>
               <button
                 onClick={() => setShowWhatIsModal(true)}
                 className="
                   inline-block
-                  bg-orange-eske
+                  bg-blue-eske
                   text-white-eske
                   px-8 max-sm:px-6
                   py-4 max-sm:py-3
                   rounded-lg
                   font-medium
-                  hover:bg-orange-eske-70
+                  hover:bg-blue-eske-90
                   transition-all duration-300
                   focus-ring-primary
                   text-base max-sm:text-sm
@@ -575,7 +581,7 @@ export default function ModduloHubPage() {
       {/* Descripción */}
       <section className="bg-gray-eske-10 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 className="text-3xl max-sm:text-2xl font-semibold text-center text-bluegreen-eske mb-6 max-sm:mb-4">
+          <h2 className="text-2xl max-sm:text-2xl font-semibold text-center text-bluegreen-eske mb-6 max-sm:mb-4">
             Herramientas profesionales para tu proyecto político
           </h2>
           <p className="text-lg max-sm:text-base font-light text-center text-black-eske max-w-3xl mx-auto">
@@ -585,7 +591,7 @@ export default function ModduloHubPage() {
       </section>
 
       {/* Filtros por Categoría */}
-      <section className="bg-white-eske border-y border-gray-eske-20 sticky top-0 z-40 shadow-sm">
+      <section className="bg-white-eske border-y border-gray-eske-20 top-0 z-40 shadow-sm">
         <div className="w-[90%] mx-auto max-w-screen-xl py-6 max-sm:py-4">
           {/* Filtros por Categoría */}
           <div className="mb-4">
@@ -721,6 +727,25 @@ export default function ModduloHubPage() {
               >
                 Profesional
               </button>
+              <button
+                onClick={() => setSelectedPlan("MY_APPS")}
+                className={`
+                  px-6 py-3 max-sm:px-4 max-sm:py-2
+                  rounded-lg
+                  font-medium
+                  text-sm max-sm:text-xs
+                  transition-all duration-300
+                  focus-ring-primary
+                  ${
+                    selectedPlan === "MY_APPS"
+                      ? "bg-bluegreen-eske text-white-eske shadow-md"
+                      : "bg-gray-eske-10 text-gray-eske-70 hover:bg-gray-eske-20"
+                  }
+                `}
+                aria-pressed={selectedPlan === "MY_APPS"}
+              >
+                Mis Apps
+              </button>
             </div>
           </div>
         </div>
@@ -751,9 +776,9 @@ export default function ModduloHubPage() {
                       </p>
                     </div>
 
-                    {/* Grid de apps */}
+                    {/* Grid de apps - ANCHO HOMOGÉNEO CON MINMAX */}
                     <div
-                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-sm:gap-5"
+                      className="grid gap-6 max-sm:gap-5 max-sm:grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(240px,240px))] sm:justify-start"
                       role="list"
                       aria-label={`${categoryApps.length} aplicaciones en ${category.name}`}
                     >
@@ -770,7 +795,7 @@ export default function ModduloHubPage() {
             <div>
               {filteredApps.length > 0 ? (
                 <div
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-sm:gap-5"
+                  className="grid gap-6 max-sm:gap-5 max-sm:grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(240px,240px))] sm:justify-start"
                   role="list"
                   aria-label={`${filteredApps.length} aplicaciones`}
                 >
@@ -781,17 +806,28 @@ export default function ModduloHubPage() {
               ) : (
                 <div className="text-center py-16">
                   <p className="text-gray-eske-60 text-lg mb-2">
-                    No hay apps con los filtros seleccionados
+                    {selectedPlan === "MY_APPS" 
+                      ? "No tienes apps disponibles. Contrata un plan para acceder a más aplicaciones."
+                      : "No hay apps con los filtros seleccionados"
+                    }
                   </p>
-                  <button
-                    onClick={() => {
-                      setSelectedCategory("all");
-                      setSelectedPlan("all");
-                    }}
-                    className="text-bluegreen-eske hover:underline text-sm"
-                  >
-                    Limpiar filtros
-                  </button>
+                  <div className="flex items-center justify-center gap-4 max-sm:flex-col max-sm:gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedCategory("all");
+                        setSelectedPlan("all");
+                      }}
+                      className="text-bluegreen-eske hover:underline text-sm"
+                    >
+                      Limpiar filtros
+                    </button>
+                    <Link
+                      href="/#suscripciones"
+                      className="text-orange-eske hover:underline text-sm font-medium"
+                    >
+                      Ver Planes
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>

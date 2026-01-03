@@ -31,7 +31,7 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -57,8 +57,8 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
           className="
             absolute
             top-4 right-4
-            text-white-eske
-            hover:text-blue-eske-10
+            text-gray-eske-70
+            hover:text-black-eske
             transition-colors
             focus-ring-primary
             rounded-full
@@ -86,7 +86,7 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
             >
               ¿Qué incluye Moddulo?
             </h2>
-            <p className="text-base max-sm:text-sm text-gray-eske-70">
+            <p className="text-base max-sm:text-sm text-gray-eske-90">
               Tu ecosistema completo de apps políticas impulsadas por IA
             </p>
           </div>
@@ -103,10 +103,10 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
                   <h3 className="font-bold text-base max-sm:text-sm text-black-eske mb-1">
                     Plan Basic
                   </h3>
-                  <p className="text-sm max-sm:text-xs text-gray-eske-70 mb-2">
-                    Herramientas fundamentales para campañas locales
+                  <p className="text-sm max-sm:text-xs text-gray-eske-90 mb-2">
+                    Herramientas fundamentales para gestión de campañas
                   </p>
-                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-70 space-y-1">
+                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 space-y-1">
                     <li>• Redactor Político</li>
                     <li>• CRM Comunitario</li>
                     <li>• Dashboard, Calendario y más</li>
@@ -125,10 +125,10 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
                   <h3 className="font-bold text-base max-sm:text-sm text-black-eske mb-1">
                     Plan Premium
                   </h3>
-                  <p className="text-sm max-sm:text-xs text-gray-eske-70 mb-2">
+                  <p className="text-sm max-sm:text-xs text-gray-eske-90 mb-2">
                     Todo lo de Basic + IA avanzada y multi-agente
                   </p>
-                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-70 space-y-1">
+                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 space-y-1">
                     <li>• Centro de Escucha Social</li>
                     <li>• Estratega IA</li>
                     <li>• Upgrades Premium con ML</li>
@@ -147,10 +147,10 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
                   <h3 className="font-bold text-base max-sm:text-sm text-black-eske mb-1">
                     Plan Professional
                   </h3>
-                  <p className="text-sm max-sm:text-xs text-gray-eske-70 mb-2">
-                    Suite completa para campañas federales
+                  <p className="text-sm max-sm:text-xs text-gray-eske-90 mb-2">
+                    Suite completa para campañas exitosas
                   </p>
-                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-70 space-y-1">
+                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 space-y-1">
                     <li>• Sala de Crisis</li>
                     <li>• Monitor de Redes Avanzado</li>
                     <li>• Territorio Digital y más</li>
@@ -188,14 +188,14 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
               className="
                 block
                 w-full
-                bg-gray-eske-10
-                text-gray-eske-80
+                bg-gray-eske-60
+                text-white-eske
                 text-center
                 px-6 py-2.5 max-sm:py-2
                 rounded-lg
                 font-medium
                 text-sm max-sm:text-xs
-                hover:bg-gray-eske-20
+                hover:bg-gray-eske-90
                 transition-colors
                 focus-ring-primary
               "
