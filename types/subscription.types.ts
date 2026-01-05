@@ -1,9 +1,9 @@
 // types/subscription.types.ts
 // ============================================================
 // CONFIGURACIÓN CENTRALIZADA DE SUSCRIPCIONES ESKEMMA
-// Versión: 1.1.0
-// Última actualización: 31 de diciembre de 2025
-// Corrección: Funciones helper aceptan undefined/null
+// Versión: 1.2.0
+// Última actualización: 5 de enero de 2026
+// NUEVO: Soporte para apps freemium
 // ============================================================
 
 // ============================================================
@@ -165,6 +165,16 @@ export const MODDULO_APPS = {
     "roi",
   ],
 };
+
+// ============================================================
+// APPS CON VERSIÓN FREEMIUM
+// ============================================================
+
+/**
+ * Apps de Moddulo que tienen versión freemium (accesibles para TODOS los usuarios)
+ * La app internamente controla las limitaciones freemium vs plan pagado
+ */
+export const FREEMIUM_APPS = ["redactor"];
 
 // ============================================================
 // CONFIGURACIÓN COMPLETA DE PLANES
@@ -411,12 +421,18 @@ export function getPlanFeatures(plan: SubscriptionPlan | "user" | undefined | nu
 
 /**
  * Verifica si un usuario tiene acceso a una app de Moddulo
- * ACTUALIZADO: Acepta undefined/null
+ * ACTUALIZADO: Soporta apps freemium
  */
 export function canAccessModduloApp(
   userPlan: SubscriptionPlan | undefined | null,
   appSlug: string
 ): boolean {
+  // Si la app tiene versión freemium, siempre es accesible
+  if (FREEMIUM_APPS.includes(appSlug)) {
+    return true;
+  }
+  
+  // Para otras apps, verificar según el plan
   const features = getPlanFeatures(userPlan || null);
   return features.modduloAppsIncluded.includes(appSlug);
 }

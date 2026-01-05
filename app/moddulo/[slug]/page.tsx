@@ -2,10 +2,10 @@
 "use client";
 
 import React from "react";
-import { useParams, notFound } from "next/navigation";
+import { useParams, notFound, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getAppBySlug } from "@/lib/moddulo-apps";
-import { canAccessModduloApp } from "@/types/subscription.types";
+import { canAccessModduloApp, FREEMIUM_APPS } from "@/types/subscription.types";
 import UnderConstructionApp from "@/app/components/moddulo/UnderConstructionApp";
 import Link from "next/link";
 
@@ -13,6 +13,7 @@ export default function ModduloAppPage() {
   const params = useParams();
   const slug = params?.slug as string;
   const { user, loading } = useAuth();
+  const router = useRouter();
 
   // Buscar la app en el catálogo
   const app = getAppBySlug(slug);
@@ -24,7 +25,7 @@ export default function ModduloAppPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-eske-10">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-bluegreen-eske border-t-transparent" />
           <p className="mt-4 text-gray-eske-70">Cargando...</p>
@@ -35,9 +36,10 @@ export default function ModduloAppPage() {
 
   // Verificar acceso
   const hasAccess = canAccessModduloApp(user?.subscriptionPlan, app.slug);
+  const isFreemiumApp = FREEMIUM_APPS.includes(app.slug);
 
-  // Si no tiene acceso, redirigir al hub con mensaje
-  if (!hasAccess && !app.comingSoon) {
+  // Si NO tiene acceso Y NO es app freemium, bloquear
+  if (!hasAccess && !isFreemiumApp && !app.comingSoon) {
     return (
       <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white-eske rounded-lg shadow-lg p-8 max-sm:p-6 text-center">
@@ -104,10 +106,16 @@ export default function ModduloAppPage() {
     );
   }
 
+  // ============================================================
+  // ROUTER PARA APPS DESARROLLADAS
+  // ============================================================
+  // Si la app está desarrollada, redirigir a su página específica
+  if (app.slug === "redactor") {
+    router.push("/moddulo/redactor");
+    return null;
+  }
+
   // Si la app está "Coming Soon" o aún no desarrollada, mostrar página de construcción
-  // NOTA: Aquí iría la lógica para determinar si la app está desarrollada
-  // Por ahora, todas las apps no "comingSoon" mostrarán construcción excepto las que se desarrollen
-  
   return (
     <UnderConstructionApp
       appName={app.name}
