@@ -30,13 +30,18 @@ export default function RedactorPage() {
 
   // Cargar uso del usuario al montar
   useEffect(() => {
+    // Para usuarios autenticados freemium
     if (user && isFreemium) {
       loadUsageInfo();
+    }
+    // Para usuarios NO autenticados (visitantes)
+    else if (!user) {
+      loadVisitorUsageInfo();
     }
   }, [user, isFreemium]);
 
   /**
-   * Cargar información de uso desde Firestore
+   * Cargar información de uso desde Firestore (usuarios autenticados)
    */
   const loadUsageInfo = async () => {
     if (!user) return;
@@ -52,6 +57,42 @@ export default function RedactorPage() {
       });
     } catch (error) {
       console.error("Error al cargar uso:", error);
+    }
+  };
+
+  /**
+   * Cargar información de uso desde localStorage (usuarios visitantes)
+   */
+  const loadVisitorUsageInfo = () => {
+    try {
+      const stored = localStorage.getItem("redactor_visitor_usage");
+      
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setUsageInfo({
+          userId: "visitor",
+          totalGenerations: parsed.totalGenerations || 0,
+          lastGeneration: new Date(parsed.lastGeneration),
+          isFreemium: true,
+        });
+      } else {
+        // Primera vez del visitante
+        setUsageInfo({
+          userId: "visitor",
+          totalGenerations: 0,
+          lastGeneration: new Date(),
+          isFreemium: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error al cargar uso de visitante:", error);
+      // En caso de error, inicializar en 0
+      setUsageInfo({
+        userId: "visitor",
+        totalGenerations: 0,
+        lastGeneration: new Date(),
+        isFreemium: true,
+      });
     }
   };
 
@@ -118,12 +159,30 @@ export default function RedactorPage() {
       setSelectedVarianteId(mockOutput.variantes[0].id);
 
       // Actualizar uso
-      if (isFreemium && usageInfo) {
-        setUsageInfo({
-          ...usageInfo,
-          totalGenerations: usageInfo.totalGenerations + 1,
-          lastGeneration: new Date(),
-        });
+      if (isFreemium) {
+        if (user && usageInfo) {
+          // Usuario autenticado: actualizar en memoria (luego en Firestore)
+          setUsageInfo({
+            ...usageInfo,
+            totalGenerations: usageInfo.totalGenerations + 1,
+            lastGeneration: new Date(),
+          });
+        } else if (!user && usageInfo) {
+          // Usuario visitante: actualizar en localStorage
+          const newUsage = {
+            ...usageInfo,
+            totalGenerations: usageInfo.totalGenerations + 1,
+            lastGeneration: new Date(),
+          };
+          
+          setUsageInfo(newUsage);
+          
+          // Guardar en localStorage
+          localStorage.setItem("redactor_visitor_usage", JSON.stringify({
+            totalGenerations: newUsage.totalGenerations,
+            lastGeneration: newUsage.lastGeneration.toISOString(),
+          }));
+        }
       }
     } catch (error: any) {
       console.error("Error al generar posts:", error);
