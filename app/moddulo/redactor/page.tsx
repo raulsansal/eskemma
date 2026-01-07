@@ -1,4 +1,4 @@
-// app/moddulo/redactor/page.tsx
+// app/moddulo/redactor/page.tsx - VERSIÓN INTEGRADA CON WIZARD
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -8,7 +8,13 @@ import Link from "next/link";
 import RedactorForm from "./components/RedactorForm";
 import PostPreview from "./components/PostPreview";
 import FreemiumBanner from "./components/FreemiumBanner";
-import type { RedactorInput, RedactorOutput, RedactorUsage } from "@/types/redactor.types";
+import ConfigWizard from "./components/ConfigWizard";
+import type { 
+  RedactorInput, 
+  RedactorOutput, 
+  RedactorUsage,
+  ProjectConfiguration,
+} from "@/types/redactor.types";
 import { getPlanLimits, isFreemiumUser, MESSAGES } from "@/lib/redactor/constants";
 
 export default function RedactorPage() {
@@ -21,12 +27,27 @@ export default function RedactorPage() {
   const [selectedVarianteId, setSelectedVarianteId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [usageInfo, setUsageInfo] = useState<RedactorUsage | null>(null);
+  
+  // ⭐ NUEVO: Estado de configuración y wizard
+  const [projectConfig, setProjectConfig] = useState<ProjectConfiguration | null>(null);
+  const [showConfigWizard, setShowConfigWizard] = useState(false);
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
 
   // Calcular límites según plan
   const userPlan = user?.subscriptionPlan || null;
   const limits = getPlanLimits(userPlan);
   const isFreemium = isFreemiumUser(userPlan);
   const isLimitReached = isFreemium && usageInfo && usageInfo.totalGenerations >= 2;
+
+  // ⭐ NUEVO: Cargar configuración al montar
+  useEffect(() => {
+    if (user) {
+      loadProjectConfiguration();
+    } else {
+      // Usuarios no autenticados: verificar si hay config en localStorage
+      loadVisitorConfiguration();
+    }
+  }, [user]);
 
   // Cargar uso del usuario al montar
   useEffect(() => {
@@ -39,6 +60,103 @@ export default function RedactorPage() {
       loadVisitorUsageInfo();
     }
   }, [user, isFreemium]);
+
+  /**
+   * ⭐ NUEVO: Cargar configuración desde Firestore (usuarios autenticados)
+   */
+  const loadProjectConfiguration = async () => {
+    if (!user) return;
+
+    setIsLoadingConfig(true);
+    
+    try {
+      // TODO: Implementar carga desde Firestore
+      // Por ahora, simulamos que no hay configuración
+      const hasConfig = false; // Temporal
+      
+      if (!hasConfig) {
+        // Primera vez del usuario: mostrar wizard
+        setShowConfigWizard(true);
+      } else {
+        // Cargar configuración existente
+        // const config = await fetchConfigFromFirestore(user.uid);
+        // setProjectConfig(config);
+      }
+    } catch (error) {
+      console.error("Error al cargar configuración:", error);
+      setShowConfigWizard(true); // Fallback: mostrar wizard
+    } finally {
+      setIsLoadingConfig(false);
+    }
+  };
+
+  /**
+   * ⭐ NUEVO: Cargar configuración desde localStorage (visitantes)
+   */
+  const loadVisitorConfiguration = () => {
+    setIsLoadingConfig(true);
+    
+    try {
+      const stored = localStorage.getItem("redactor_config");
+      
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setProjectConfig(parsed);
+      } else {
+        // Primera vez del visitante: mostrar wizard
+        setShowConfigWizard(true);
+      }
+    } catch (error) {
+      console.error("Error al cargar configuración de visitante:", error);
+      setShowConfigWizard(true);
+    } finally {
+      setIsLoadingConfig(false);
+    }
+  };
+
+  /**
+   * ⭐ NUEVO: Guardar configuración completada del wizard
+   */
+  const handleConfigComplete = async (config: Partial<ProjectConfiguration>) => {
+    try {
+      // Crear configuración completa
+      const fullConfig: ProjectConfiguration = {
+        id: user?.uid || "visitor",
+        userId: user?.uid || "visitor",
+        context: config.context!,
+        country: config.country!,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        electoral: config.electoral,
+        governmental: config.governmental,
+        guidelines: config.guidelines,
+      };
+
+      if (user) {
+        // Usuario autenticado: guardar en Firestore
+        // TODO: Implementar en Fase 3B
+        // await saveConfigToFirestore(user.uid, fullConfig);
+        console.log("Guardar en Firestore:", fullConfig);
+      } else {
+        // Visitante: guardar en localStorage
+        localStorage.setItem("redactor_config", JSON.stringify(fullConfig));
+      }
+
+      setProjectConfig(fullConfig);
+      setShowConfigWizard(false);
+      
+    } catch (error) {
+      console.error("Error al guardar configuración:", error);
+      setError("Error al guardar configuración. Intenta de nuevo.");
+    }
+  };
+
+  /**
+   * ⭐ NUEVO: Abrir wizard para editar configuración
+   */
+  const handleEditConfig = () => {
+    setShowConfigWizard(true);
+  };
 
   /**
    * Cargar información de uso desde Firestore (usuarios autenticados)
@@ -106,54 +224,35 @@ export default function RedactorPage() {
       return;
     }
 
+    // ⭐ NUEVO: Verificar que hay configuración
+    if (!projectConfig) {
+      setError("Por favor, completa la configuración inicial primero.");
+      setShowConfigWizard(true);
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
 
     try {
-      // TODO: Implementar en Fase 3 - Integración con Claude API
-      // Por ahora, simulamos una respuesta
+      // ⭐ NUEVO: Llamar al endpoint con contexto
+      const response = await fetch("/api/moddulo/redactor/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input,
+          context: projectConfig.context,
+          country: projectConfig.country,
+          config: projectConfig,
+        }),
+      });
 
-      // Simular delay de API
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!response.ok) {
+        throw new Error("Error al generar posts");
+      }
 
-      // Output simulado con variantes según el plan
-      const numVariantes = limits.maxVariantes; // 2 para freemium, 3 para planes pagados
-      const numHashtags = limits.maxHashtags;   // 3 para freemium, 5 para planes pagados
-
-      const allVariantes = [
-        {
-          id: "var-1",
-          titulo: "Invirtiendo en el futuro de nuestros niños",
-          texto: `La educación es la base del progreso. Por eso propongo aumentar el presupuesto educativo en zonas rurales, garantizar acceso a tecnología y capacitar a nuestros maestros. Juntos construiremos un México más justo. #EducaciónParaTodos`,
-          caracteresUsados: 245,
-        },
-        {
-          id: "var-2",
-          titulo: "Educación de calidad: un derecho, no un privilegio",
-          texto: `Cada niño merece la misma oportunidad de aprender. Trabajaremos para eliminar la brecha educativa entre el campo y la ciudad, con infraestructura moderna y maestros bien preparados. El cambio empieza en las aulas. #FuturoEducativo`,
-          caracteresUsados: 258,
-        },
-        {
-          id: "var-3",
-          titulo: "Compromiso con la educación rural",
-          texto: `Las comunidades rurales necesitan las mismas oportunidades educativas que las ciudades. Mi compromiso: internet en todas las escuelas, becas para maestros rurales y equipamiento moderno. La educación transforma vidas. #MéxicoEducado`,
-          caracteresUsados: 265,
-        },
-      ];
-
-      const allHashtags = [
-        "#EducaciónParaTodos",
-        "#FuturoEducativo",
-        "#MéxicoEducado",
-        "#EducaciónRural",
-        "#InversiónEducativa",
-      ];
-
-      const mockOutput: RedactorOutput = {
-        variantes: allVariantes.slice(0, numVariantes),
-        hashtags: allHashtags.slice(0, numHashtags),
-        imagenDescripcion: "Niños sonrientes en un aula rural con tecnología moderna y maestros atentos",
-      };
+      const data = await response.json();
+      const mockOutput: RedactorOutput = data.output;
 
       setCurrentOutput(mockOutput);
       setSelectedVarianteId(mockOutput.variantes[0].id);
@@ -208,7 +307,7 @@ export default function RedactorPage() {
   };
 
   // Loading state
-  if (loading) {
+  if (loading || isLoadingConfig) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-eske-10">
         <div className="text-center">
@@ -221,6 +320,22 @@ export default function RedactorPage() {
 
   return (
     <main className="min-h-screen bg-gray-eske-10 py-8 max-sm:py-6">
+      {/* ⭐ WIZARD DE CONFIGURACIÓN */}
+      {showConfigWizard && (
+        <ConfigWizard
+          onComplete={handleConfigComplete}
+          onClose={() => {
+            if (projectConfig) {
+              // Si ya tiene config, puede cerrar sin completar
+              setShowConfigWizard(false);
+            } else {
+              // Si no tiene config, debe completar o irse
+              router.push("/moddulo");
+            }
+          }}
+        />
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 max-sm:mb-6">
@@ -262,7 +377,7 @@ export default function RedactorPage() {
                 />
               </svg>
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske">
                 Redactor Político
               </h1>
@@ -270,19 +385,63 @@ export default function RedactorPage() {
                 Genera posts profesionales con IA para tus redes sociales
               </p>
             </div>
+            
+            {/* ⭐ NUEVO: Botón de configuración */}
+            {projectConfig && (
+              <button
+                onClick={handleEditConfig}
+                className="flex items-center gap-2 bg-gray-eske-10 hover:bg-gray-eske-20 text-gray-eske-80 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+                title="Editar configuración"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span className="max-sm:hidden">Configuración</span>
+              </button>
+            )}
           </div>
 
-          {/* Plan badge */}
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-              <path
-                fillRule="evenodd"
-                d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Plan Básico
+          {/* ⭐ NUEVO: Badge de contexto y país */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                <path
+                  fillRule="evenodd"
+                  d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Plan Básico
+            </div>
+            
+            {projectConfig && (
+              <>
+                <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-semibold">
+                  {projectConfig.context === "electoral" ? "🗳️ Electoral" : "🏛️ Gubernamental"}
+                </div>
+                
+                <div className="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-xs font-semibold">
+                  {projectConfig.country === "mexico" ? "🇲🇽 México" : projectConfig.country}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -328,7 +487,7 @@ export default function RedactorPage() {
             <RedactorForm
               onSubmit={handleGenerate}
               isGenerating={isGenerating}
-              disabled={isLimitReached || false}
+              disabled={isLimitReached || false || !projectConfig}
             />
           </div>
 
