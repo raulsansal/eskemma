@@ -78,3 +78,14 @@ next-env.d.ts
 # Secrets
 /secrets/
 
+# Credenciales Firebase Admin
+**/firebase-admin-key.json
+**/firebase-adminsdk-*.json
+lib/firebase-admin-key.json
+app/secrets/
+
+# Archivos macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes

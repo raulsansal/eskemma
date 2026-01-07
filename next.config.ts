@@ -6,18 +6,90 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com", // Permite imágenes desde Unsplash
+        hostname: "images.unsplash.com",
         port: "",
-        pathname: "/**", // Permite cualquier ruta dentro del host
+        pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "plus.unsplash.com", // Permite imágenes desde Unsplash Plus
+        hostname: "plus.unsplash.com",
         port: "",
-        pathname: "/**", // Permite cualquier ruta dentro del host
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
       },
     ],
-  },  
+  },
+
+  // Headers de seguridad y SEO
+  async headers() {
+    const isProduction = process.env.NEXT_PUBLIC_ENVIRONMENT === 'production';
+    
+    return [
+      {
+        // Headers globales para todas las rutas
+        source: '/:path*',
+        headers: [
+          // Control de indexación
+          {
+            key: 'X-Robots-Tag',
+            value: isProduction ? 'index, follow' : 'noindex, nofollow',
+          },
+          // Seguridad
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+      {
+        // Permitir iframe de Shiny Apps SOLO en /sefix
+        source: '/sefix',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-src 'self' https://*.shinyapps.io https://kj6hbt-ra0l-s0nchez.shinyapps.io;",
+          },
+        ],
+      },
+    ];
+  },
+
+  // TypeScript estricto
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
+  // ESLint
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+
+  // Optimizaciones
+  compress: true,
+  poweredByHeader: false,
 };
 
 export default nextConfig;

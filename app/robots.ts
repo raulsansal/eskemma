@@ -2,8 +2,20 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const isProduction = process.env.NEXT_PUBLIC_ENVIRONMENT === 'production';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://eskemma.com';
+  
+  // Bloquear indexación en desarrollo/staging
+  if (!isProduction) {
+    return {
+      rules: {
+        userAgent: '*',
+        disallow: '/',
+      },
+    };
+  }
 
+  // Permitir indexación en producción
   return {
     rules: [
       {
@@ -12,15 +24,19 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/api/',
           '/blog/admin/',
-          '/_next/',
           '/admin/',
+          '/_next/',
           '/private/',
         ],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/blog/admin/', '/api/'],
+        disallow: [
+          '/blog/admin/',
+          '/api/',
+          '/admin/',
+        ],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
