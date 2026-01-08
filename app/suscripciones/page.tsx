@@ -14,7 +14,8 @@ import {
   formatExpirationDate,
 } from "../../utils/subscriptionUtils";
 
-type SubscriptionPlan = "basic" | "premium" | "grupal";
+// ✅ CAMBIADO: Usar "professional" en lugar de "grupal"
+type SubscriptionPlan = "basic" | "premium" | "professional";
 
 export default function SuscripcionesPage() {
   const router = useRouter();
@@ -51,21 +52,8 @@ export default function SuscripcionesPage() {
     setIsProcessing(true);
 
     try {
-      // 🔮 AQUÍ SE INTEGRARÁ STRIPE EN EL FUTURO
-      // Por ahora, solo activamos la suscripción directamente
       console.log(`🎯 Procesando suscripción al plan: ${selectedPlan}`);
 
-      // TODO: Integrar con Stripe Checkout
-      // const response = await fetch("/api/create-checkout-session", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ plan: selectedPlan }),
-      // });
-      // const { sessionId } = await response.json();
-      // const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);
-      // await stripe.redirectToCheckout({ sessionId });
-
-      // Simulación: activar suscripción directamente (TEMPORAL)
       await activateSubscription(selectedPlan);
 
       alert(`¡Suscripción al ${getPlanName(selectedPlan)} activada exitosamente!`);
@@ -271,10 +259,10 @@ export default function SuscripcionesPage() {
               />
             </article>
 
-            {/* Plan Grupal */}
+            {/* Plan Professional (antes Grupal) */}
             <article
               className={`bg-white rounded-lg shadow-lg p-8 border-2 transition-all duration-300 ${
-                selectedPlan === "grupal"
+                selectedPlan === "professional"
                   ? "border-green-500 transform scale-105"
                   : "border-gray-200 hover:border-green-300"
               }`}
@@ -282,10 +270,10 @@ export default function SuscripcionesPage() {
             >
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Plan Grupal
+                  Plan Professional
                 </h3>
                 <div className="text-4xl font-bold text-green-600 mb-2">
-                  ${SUBSCRIPTION_PRICES.grupal}
+                  ${SUBSCRIPTION_PRICES.professional}
                   <span className="text-lg text-gray-500">/mes</span>
                 </div>
                 <p className="text-gray-600">Para equipos y empresas</p>
@@ -294,9 +282,9 @@ export default function SuscripcionesPage() {
               <ul 
                 className="space-y-3 mb-8"
                 role="list"
-                aria-label="Características del plan grupal"
+                aria-label="Características del plan professional"
               >
-                {PLAN_FEATURES.grupal.map((feature, index) => (
+                {PLAN_FEATURES.professional.map((feature, index) => (
                   <li key={index} className="flex items-start" role="listitem">
                     <svg
                       className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0"
@@ -317,15 +305,15 @@ export default function SuscripcionesPage() {
 
               <Button
                 label={
-                  user.subscriptionPlan === "grupal"
+                  user.subscriptionPlan === "professional"
                     ? "Plan Actual"
-                    : selectedPlan === "grupal"
+                    : selectedPlan === "professional"
                     ? "Seleccionado"
                     : "Seleccionar"
                 }
-                variant={selectedPlan === "grupal" ? "primary" : "secondary"}
-                onClick={() => handleSelectPlan("grupal")}
-                disabled={user.subscriptionPlan === "grupal"}
+                variant={selectedPlan === "professional" ? "primary" : "secondary"}
+                onClick={() => handleSelectPlan("professional")}
+                disabled={user.subscriptionPlan === "professional"}
               />
             </article>
           </div>
@@ -387,4 +375,3 @@ export default function SuscripcionesPage() {
     </main>
   );
 }
-

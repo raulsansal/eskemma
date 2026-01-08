@@ -18,10 +18,11 @@ import {
 export const SUBSCRIPTION_PRICES = {
   basic: PLAN_FEATURES.basic.price,
   premium: PLAN_FEATURES.premium.price,
-  professional: PLAN_FEATURES.professional.price,  // ✅ CAMBIADO
+  professional: PLAN_FEATURES.professional.price,
 };
 
-export const PLAN_FEATURES_LIST = PLAN_FEATURES_DETAILED;
+// ✅ EXPORTAR PLAN_FEATURES para compatibilidad con page.tsx
+export { PLAN_FEATURES_DETAILED as PLAN_FEATURES };
 
 export const getPlanName = (plan: SubscriptionPlan | null): string => {
   if (!plan) return "Sin plan";
@@ -36,12 +37,12 @@ export { getPlanPrice };
 
 export const hasPremiumAccess = (role: string): boolean => {
   if (role === "admin") return true;
-  return ["basic", "premium", "professional"].includes(role);  // ✅ CAMBIADO
+  return ["basic", "premium", "professional"].includes(role);
 };
 
 export const canAccessFeature = (
   userRole: string,
-  requiredRole: "user" | "basic" | "premium" | "professional"  // ✅ CAMBIADO
+  requiredRole: "user" | "basic" | "premium" | "professional"
 ): boolean => {
   if (userRole === "admin") return true;
 
@@ -51,10 +52,10 @@ export const canAccessFeature = (
     user: 2,
     basic: 3,
     premium: 4,
-    professional: 5,  // ✅ CAMBIADO: professional > premium
+    professional: 5,
     "unsubscribed-basic": 2,
     "unsubscribed-premium": 2,
-    "unsubscribed-professional": 2,  // ✅ CAMBIADO
+    "unsubscribed-professional": 2,
     expired: 2,
     admin: 999,
   };
@@ -66,7 +67,7 @@ export const canAccessFeature = (
 };
 
 // ============================================================
-// FUNCIONES DE FECHAS (sin cambios)
+// FUNCIONES DE FECHAS
 // ============================================================
 
 export const getDaysRemaining = (endDate: string | Date | null): number => {
@@ -118,7 +119,7 @@ export const getSubscriptionStatusMessage = (
     return "Acceso administrativo completo al sistema.";
   }
 
-  if (["basic", "premium", "professional"].includes(role)) {  // ✅ CAMBIADO
+  if (["basic", "premium", "professional"].includes(role)) {
     const daysRemaining = getDaysRemaining(endDate);
     if (daysRemaining > 7) {
       return `Tu suscripción está activa hasta el ${formatExpirationDate(endDate)}`;
@@ -131,7 +132,7 @@ export const getSubscriptionStatusMessage = (
     return `Tu suscripción expiró el ${formatExpirationDate(endDate)}. Renueva para seguir disfrutando del contenido premium.`;
   }
 
-  if (["unsubscribed-basic", "unsubscribed-premium", "unsubscribed-professional"].includes(role)) {  // ✅ CAMBIADO
+  if (["unsubscribed-basic", "unsubscribed-premium", "unsubscribed-professional"].includes(role)) {
     return "Has cancelado tu suscripción. Puedes reactivarla en cualquier momento.";
   }
 
@@ -177,7 +178,7 @@ export const getPlanColor = (plan: SubscriptionPlan | null | "admin"): string =>
   const colors: Record<NonNullable<SubscriptionPlan>, string> = {
     basic: "blue",
     premium: "purple",
-    professional: "green",  // ✅ CAMBIADO
+    professional: "green",
   };
   
   return plan ? colors[plan] : "gray";
@@ -198,7 +199,7 @@ export const getRolePermissions = (role: string): string[] => {
     user: ["Ver contenido público", "Acceso a perfil", "Ver cursos gratuitos"],
     basic: ["Todo lo de Usuario", "Acceso a Sefix", "Acceso a 8 Apps de Moddulo", "Soporte por email"],
     premium: ["Todo lo de Plan Básico", "Acceso a 16 Apps de Moddulo", "Soporte prioritario 24h", "Hasta 5 usuarios"],
-    professional: [  // ✅ CAMBIADO
+    professional: [
       "Todo lo de Plan Premium",
       "Acceso a 25 Apps de Moddulo",
       "Usuarios ilimitados",
