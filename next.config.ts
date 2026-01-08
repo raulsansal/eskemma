@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Configuración de imágenes externas
+  // Imágenes permitidas
   images: {
     remotePatterns: [
       {
@@ -81,15 +81,11 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-
-  // ESLint
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
-
+  
   // Optimizaciones
   compress: true,
   poweredByHeader: false,
 };
 
 export default nextConfig;
+
