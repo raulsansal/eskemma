@@ -464,7 +464,7 @@ export default function RedactorPage() {
           >
             <div className="flex items-start gap-3">
               <svg
-                className="w-5 h-5 flex-shrink-0 mt-0.5"
+                className="w-5 h-5 shrink-0 mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 aria-hidden="true"

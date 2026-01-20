@@ -185,7 +185,7 @@ export default function ModduloHubPage() {
         </h3>
 
         {/* Descripción corta */}
-        <p className="text-xs max-sm:text-[11px] font-light text-gray-eske-90 mb-3 max-sm:mb-2 flex-grow line-clamp-2">
+        <p className="text-xs max-sm:text-[11px] font-light text-gray-eske-90 mb-3 max-sm:mb-2 grow line-clamp-2">
           {app.shortDescription}
         </p>
 
@@ -264,8 +264,8 @@ export default function ModduloHubPage() {
               bottom-20 sm:bottom-22 lg:bottom-24
               left-1/2
               -translate-x-1/2
-              z-[9999]
-              w-[280px] xl:w-[300px]
+              z-9999
+              w-70 xl:w-75
               bg-bluegreen-eske
               rounded-lg
               shadow-2xl
@@ -294,7 +294,7 @@ export default function ModduloHubPage() {
             {/* Contenido del tooltip */}
             <div className="space-y-2.5">
               <div className="flex items-start gap-2.5">
-                <div className="relative w-10 h-10 flex-shrink-0 bg-white-eske rounded-lg p-1">
+                <div className="relative w-10 h-10 shrink-0 bg-white-eske rounded-lg p-1">
                   <Image src={app.icon} alt="" fill className="object-contain" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -314,7 +314,7 @@ export default function ModduloHubPage() {
                   {app.features.slice(0, 4).map((feature, index) => (
                     <li key={index} className="flex items-start gap-1.5 text-xs text-white-eske/90">
                       <svg
-                        className="w-4 h-4 text-orange-eske flex-shrink-0 mt-0.5"
+                        className="w-4 h-4 text-orange-eske shrink-0 mt-0.5"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                         aria-hidden="true"
@@ -337,7 +337,7 @@ export default function ModduloHubPage() {
         {/* ÚNICO Modal Mobile - MISMO DISEÑO PARA TODAS LAS APPS */}
         {showMobileDetails && (
           <div
-            className="lg:hidden fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-4"
+            className="lg:hidden fixed inset-0 z-99999 flex items-end sm:items-center justify-center p-4"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -358,7 +358,7 @@ export default function ModduloHubPage() {
               {/* Header - SIEMPRE BLUEGREEN */}
               <div className="sticky top-0 bg-bluegreen-eske text-white-eske p-4 rounded-t-2xl sm:rounded-t-2xl flex items-center justify-between z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="relative w-12 h-12 bg-white-eske rounded-lg p-1.5 flex-shrink-0">
+                  <div className="relative w-12 h-12 bg-white-eske rounded-lg p-1.5 shrink-0">
                     <Image src={app.icon} alt="" fill className="object-contain" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -368,7 +368,7 @@ export default function ModduloHubPage() {
                 </div>
                 <button
                   onClick={() => setShowMobileDetails(false)}
-                  className="text-white-eske hover:bg-white-eske/10 rounded-full p-2 transition-colors flex-shrink-0 ml-2"
+                  className="text-white-eske hover:bg-white-eske/10 rounded-full p-2 transition-colors shrink-0 ml-2"
                   aria-label="Cerrar"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,7 +402,7 @@ export default function ModduloHubPage() {
                     {app.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm text-gray-eske-90">
                         <svg
-                          className="w-5 h-5 text-orange-eske flex-shrink-0 mt-0.5"
+                          className="w-5 h-5 text-orange-eske shrink-0 mt-0.5"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -476,7 +476,7 @@ export default function ModduloHubPage() {
     <main className="min-h-screen bg-gray-eske-10">
       {/* Hero Section con estadísticas integradas */}
       <section
-        className="relative min-h-[320px] max-sm:min-h-[280px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden"
+        className="relative min-h-80 max-sm:min-h-70 w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden"
         aria-labelledby="hero-title"
       >
         {/* Imagen de fondo */}
@@ -494,7 +494,7 @@ export default function ModduloHubPage() {
         <div className="absolute inset-0 bg-bluegreen-eske opacity-80" aria-hidden="true" />
 
         {/* Contenido del Hero */}
-        <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full py-12 max-sm:py-8">
+        <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full py-12 max-sm:py-8">
           {user ? (
             <>
               <h1 id="hero-title" className="text-[38px] max-sm:text-2xl leading-tight font-bold mb-3 max-sm:mb-2">
@@ -580,7 +580,7 @@ export default function ModduloHubPage() {
 
       {/* Descripción */}
       <section className="bg-gray-eske-10 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
-        <div className="w-[90%] mx-auto max-w-screen-xl">
+        <div className="w-[90%] mx-auto max-w-7xl">
           <h2 className="text-2xl max-sm:text-2xl font-semibold text-center text-bluegreen-eske mb-6 max-sm:mb-4">
             Herramientas profesionales para tu proyecto político
           </h2>
@@ -592,7 +592,7 @@ export default function ModduloHubPage() {
 
       {/* Filtros por Categoría */}
       <section className="bg-white-eske border-y border-gray-eske-20 top-0 z-40 shadow-sm">
-        <div className="w-[90%] mx-auto max-w-screen-xl py-6 max-sm:py-4">
+        <div className="w-[90%] mx-auto max-w-7xl py-6 max-sm:py-4">
           {/* Filtros por Categoría */}
           <div className="mb-4">
             <p className="text-xs font-semibold text-gray-eske-70 mb-2 text-center">Filtrar por categoría</p>
@@ -753,7 +753,7 @@ export default function ModduloHubPage() {
 
       {/* Grid de Apps */}
       <section className="bg-gray-eske-10 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
-        <div className="w-[90%] mx-auto max-w-screen-xl">
+        <div className="w-[90%] mx-auto max-w-7xl">
           {selectedCategory === "all" && selectedPlan === "all" ? (
             // Vista por categorías (sin filtros)
             <div className="space-y-16 max-sm:space-y-12">
@@ -837,7 +837,7 @@ export default function ModduloHubPage() {
 
       {/* Call to Action */}
       <section className="bg-gray-eske-20 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8 text-center">
-        <div className="w-[90%] mx-auto max-w-screen-xl">
+        <div className="w-[90%] mx-auto max-w-7xl">
           <h2 className="text-2xl max-sm:text-xl font-semibold text-black-eske mb-4 max-sm:mb-3">
             ¿Necesitas más herramientas?
           </h2>

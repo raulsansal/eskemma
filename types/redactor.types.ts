@@ -1,13 +1,13 @@
-// types/redactor.types.ts - VERSIÓN EXTENDIDA COMPATIBLE
+// types/redactor.types.ts - VERSIÓN FINAL SIN WARNINGS
 /**
  * ============================================
  * TIPOS PARA REDACTOR POLÍTICO
- * Versión 2.0 - Soporte Dual Context
+ * Versión Completa: V1.0 + V2.0 + V3.0
  * ============================================
  */
 
 // ============================================
-// TIPOS BASE (COMPATIBLES CON VERSIÓN 1.0)
+// TIPOS BASE (V1.0)
 // ============================================
 
 /**
@@ -69,6 +69,7 @@ export interface RedactorOutput {
 export interface RedactorGeneration {
   id: string;
   userId: string;
+  projectId: string;  // ⭐ Vinculado a proyecto
   timestamp: Date;
   
   // Input
@@ -79,7 +80,7 @@ export interface RedactorGeneration {
   
   // Metadata
   userPlan: "freemium" | "basic" | "premium" | "professional";
-  selected: string | null;      // ID de variante seleccionada
+  selected: string | null;
   exported: boolean;
   isFreemium: boolean;
 }
@@ -104,6 +105,7 @@ export interface RedactorLimits {
   maxHashtags: number;
   hasHistorial: boolean;
   hasExportacion: boolean;
+  maxProjects: number; // ⭐ Límite de proyectos
 }
 
 /**
@@ -118,7 +120,7 @@ export interface RedactorUIState {
 }
 
 // ============================================
-// NUEVOS TIPOS PARA CONTEXTO DUAL (V2.0)
+// CONTEXTO DUAL (V2.0)
 // ============================================
 
 export type ProjectContext = "electoral" | "governmental";
@@ -319,4 +321,52 @@ export interface RedactorOutputExtended extends RedactorOutput {
     generatedAt: Date;
     country: string;
   };
+}
+
+// ============================================
+// GESTIÓN DE PROYECTOS (V3.0)
+// ============================================
+
+/**
+ * Proyecto del Redactor Político
+ */
+export interface RedactorProject {
+  id: string;
+  userId: string;
+  name: string;
+  description?: string;
+  
+  // Configuración del proyecto
+  configuration: ProjectConfiguration;
+  
+  // Metadata
+  createdAt: Date;
+  updatedAt: Date;
+  lastAccessedAt: Date;
+  
+  // Estadísticas
+  stats: {
+    totalGenerations: number;
+    lastGenerationAt: Date | null; // ⭐ Union type en lugar de opcional
+  };
+  
+  // Estado
+  isActive: boolean;
+  isArchived: boolean;
+}
+
+/**
+ * Input para crear un nuevo proyecto
+ */
+export interface CreateProjectInput {
+  name: string;
+  description?: string;
+}
+
+/**
+ * Límites de proyectos según plan
+ */
+export interface ProjectLimits {
+  maxProjects: number;
+  canArchive: boolean;
 }

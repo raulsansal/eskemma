@@ -61,7 +61,7 @@ export default function ModduloAppCard({ app, onUpgradeClick }: ModduloAppCardPr
       />
 
       {/* Contenido de la card */}
-      <div className="p-4 max-sm:p-3 flex flex-col items-center text-center flex-grow">
+      <div className="p-4 max-sm:p-3 flex flex-col items-center text-center grow">
         {/* Ícono */}
         <div className="relative w-16 h-16 max-sm:w-14 max-sm:h-14 mb-3 max-sm:mb-2">
           <Image
@@ -199,7 +199,7 @@ export default function ModduloAppCard({ app, onUpgradeClick }: ModduloAppCardPr
           {/* Contenido del tooltip */}
           <div className="space-y-3">
             <div className="flex items-start gap-3">
-              <div className="relative w-12 h-12 flex-shrink-0">
+              <div className="relative w-12 h-12 shrink-0">
                 <Image src={app.icon} alt="" fill className="object-contain" />
               </div>
               <div>
@@ -217,7 +217,7 @@ export default function ModduloAppCard({ app, onUpgradeClick }: ModduloAppCardPr
                 {app.features.slice(0, 4).map((feature, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm text-gray-eske-70">
                     <svg
-                      className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5"
+                      className="w-5 h-5 text-green-600 shrink-0 mt-0.5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       aria-hidden="true"
