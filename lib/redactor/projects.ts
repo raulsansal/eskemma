@@ -36,6 +36,36 @@ import type {
 import { COLLECTIONS } from "./constants";
 
 // ============================================
+// HELPERS
+// ============================================
+
+/**
+ * ⭐ Elimina campos undefined de un objeto
+ * Firestore no permite undefined, solo acepta null
+ * 
+ * @param obj - Objeto a limpiar
+ * @returns Objeto sin campos undefined
+ */
+function removeUndefined<T extends Record<string, any>>(obj: T): T {
+  // Crear copia del objeto sin tipado estricto para manipulación
+  const cleaned: Record<string, any> = { ...obj };
+  
+  Object.keys(cleaned).forEach((key) => {
+    const value = cleaned[key];
+    
+    if (value === undefined) {
+      delete cleaned[key];
+    } else if (value !== null && typeof value === 'object' && !(value instanceof Date)) {
+      // Recursivo para objetos anidados (excepto Date)
+      cleaned[key] = removeUndefined(value);
+    }
+  });
+  
+  // Retornar con el tipo original
+  return cleaned as T;
+}
+
+// ============================================
 // CREAR PROYECTO
 // ============================================
 
@@ -231,8 +261,11 @@ export async function updateProjectConfiguration(
   try {
     const projectRef = doc(db, COLLECTIONS.PROJECTS, projectId);
     
+    // ⭐ Limpiar undefined antes de guardar en Firestore
+    const cleanConfig = removeUndefined(configuration);
+    
     await updateDoc(projectRef, {
-      configuration,
+      configuration: cleanConfig,
       updatedAt: serverTimestamp(),
     });
   } catch (error) {

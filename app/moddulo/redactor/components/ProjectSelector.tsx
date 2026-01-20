@@ -12,12 +12,14 @@ interface ProjectSelectorProps {
   userId: string;
   userPlan: string | null | undefined;
   onProjectSelected: (project: RedactorProject) => void;
+  isVisitor?: boolean; // ⭐ NUEVO: Indica si es visitante
 }
 
 export default function ProjectSelector({
   userId,
   userPlan,
   onProjectSelected,
+  isVisitor = false, // ⭐ Default false
 }: ProjectSelectorProps) {
   const router = useRouter();
   const [projects, setProjects] = useState<RedactorProject[]>([]);
@@ -30,8 +32,12 @@ export default function ProjectSelector({
 
   // Cargar proyectos al montar
   useEffect(() => {
-    loadProjects();
-  }, [userId]);
+    if (isVisitor) {
+      loadVisitorProjects();
+    } else {
+      loadProjects();
+    }
+  }, [userId, isVisitor]);
 
   /**
    * Carga dinámica de proyectos con lazy loading
@@ -54,6 +60,28 @@ export default function ProjectSelector({
   };
 
   /**
+   * ⭐ NUEVO: Cargar proyectos de visitantes desde localStorage
+   */
+  const loadVisitorProjects = () => {
+    try {
+      setIsLoading(true);
+      
+      const stored = localStorage.getItem("redactor_visitor_projects");
+      if (stored) {
+        const visitorProjects: RedactorProject[] = JSON.parse(stored);
+        setProjects(visitorProjects);
+      } else {
+        setProjects([]);
+      }
+    } catch (err: any) {
+      console.error("Error al cargar proyectos de visitante:", err);
+      setProjects([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
    * Crea un nuevo proyecto con validación de límites
    */
   const handleCreateProject = async (input: CreateProjectInput) => {
@@ -61,27 +89,65 @@ export default function ProjectSelector({
       setIsCreating(true);
       setError(null);
 
-      // Import dinámico para crear proyecto
-      const projectsModule = await import("@/lib/redactor/projects");
-      
-      // Verificar límite
-      const canCreate = await projectsModule.canCreateMoreProjects(userId, limits.maxProjects);
-      if (!canCreate) {
-        throw new Error(
-          `Has alcanzado el límite de ${limits.maxProjects} proyecto${
-            limits.maxProjects === 1 ? "" : "s"
-          } de tu plan. Mejora tu plan para crear más proyectos.`
-        );
+      if (isVisitor) {
+        // ⭐ Visitante: Crear proyecto en localStorage
+        
+        // Verificar límite (1 proyecto para visitantes)
+        if (projects.length >= 1) {
+          throw new Error("Has alcanzado el límite de 1 proyecto para usuarios no registrados. Regístrate para crear más proyectos.");
+        }
+
+        // Crear proyecto "virtual"
+        const newProject: RedactorProject = {
+          id: `visitor_${Date.now()}`,
+          userId: "visitor",
+          name: input.name.trim(),
+          description: input.description?.trim() || "",
+          configuration: null as any,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          lastAccessedAt: new Date(),
+          stats: {
+            totalGenerations: 0,
+            lastGenerationAt: null,
+          },
+          isActive: true,
+          isArchived: false,
+        };
+
+        // Guardar en localStorage
+        const updatedProjects = [...projects, newProject];
+        localStorage.setItem("redactor_visitor_projects", JSON.stringify(updatedProjects));
+        
+        setProjects(updatedProjects);
+        
+        // Seleccionar el nuevo proyecto
+        await handleSelectProject(newProject);
+        
+      } else {
+        // Usuario autenticado: Crear en Firestore
+        const projectsModule = await import("@/lib/redactor/projects");
+        
+        // Verificar límite
+        const canCreate = await projectsModule.canCreateMoreProjects(userId, limits.maxProjects);
+        if (!canCreate) {
+          throw new Error(
+            `Has alcanzado el límite de ${limits.maxProjects} proyecto${
+              limits.maxProjects === 1 ? "" : "s"
+            } de tu plan. Mejora tu plan para crear más proyectos.`
+          );
+        }
+
+        // Crear proyecto
+        const newProject = await projectsModule.createProject(userId, input);
+
+        // Recargar proyectos
+        await loadProjects();
+
+        // Seleccionar el nuevo proyecto
+        await handleSelectProject(newProject);
       }
-
-      // Crear proyecto
-      const newProject = await projectsModule.createProject(userId, input);
-
-      // Recargar proyectos
-      await loadProjects();
-
-      // Seleccionar el nuevo proyecto
-      await handleSelectProject(newProject);
+      
     } catch (err: any) {
       console.error("Error al crear proyecto:", err);
       setError(err.message || "No se pudo crear el proyecto");
@@ -96,11 +162,13 @@ export default function ProjectSelector({
    */
   const handleSelectProject = async (project: RedactorProject) => {
     try {
-      // Import dinámico para activar proyecto
-      const projectsModule = await import("@/lib/redactor/projects");
-      await projectsModule.setActiveProject(userId, project.id);
-
-      // Notificar al padre
+      if (!isVisitor) {
+        // Usuario autenticado: Activar en Firestore
+        const projectsModule = await import("@/lib/redactor/projects");
+        await projectsModule.setActiveProject(userId, project.id);
+      }
+      
+      // Notificar al padre (tanto visitantes como autenticados)
       onProjectSelected(project);
     } catch (err: any) {
       console.error("Error al seleccionar proyecto:", err);
