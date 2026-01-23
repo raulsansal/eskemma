@@ -18,13 +18,13 @@ export default function FreemiumBanner({
   if (isLimitReached) {
     return (
       <div
-        className="bg-gradient-to-r from-orange-eske to-orange-eske-70 text-white-eske rounded-lg p-6 max-sm:p-4 shadow-lg"
+        className="bg-linear-to-r from-orange-eske to-orange-eske-70 text-white-eske rounded-lg p-6 max-sm:p-4 shadow-lg"
         role="alert"
         aria-live="polite"
       >
         <div className="flex items-start gap-4 max-sm:flex-col">
           {/* Icono */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <svg
               className="w-12 h-12 max-sm:w-10 max-sm:h-10"
               fill="currentColor"
@@ -64,7 +64,7 @@ export default function FreemiumBanner({
                 ].map((benefit, index) => (
                   <li key={index} className="flex items-start gap-2 text-xs">
                     <svg
-                      className="w-4 h-4 flex-shrink-0 mt-0.5"
+                      className="w-4 h-4 shrink-0 mt-0.5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       aria-hidden="true"
@@ -149,7 +149,7 @@ export default function FreemiumBanner({
     >
       <div className="flex items-start gap-3">
         <svg
-          className="w-5 h-5 flex-shrink-0 mt-0.5"
+          className="w-5 h-5 shrink-0 mt-0.5"
           fill="currentColor"
           viewBox="0 0 20 20"
           aria-hidden="true"
