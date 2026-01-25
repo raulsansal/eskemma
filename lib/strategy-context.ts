@@ -225,6 +225,32 @@ function projectToSummary(project: StrategyProject): ProjectSummary {
 }
 
 // ============================================================
+// UTILIDAD: Remover valores undefined (Firestore no los acepta)
+// ============================================================
+
+function removeUndefinedValues<T>(obj: T): T {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => removeUndefinedValues(item)) as T;
+  }
+  
+  if (typeof obj === 'object') {
+    const cleaned: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      if (value !== undefined) {
+        cleaned[key] = removeUndefinedValues(value);
+      }
+    }
+    return cleaned as T;
+  }
+  
+  return obj;
+}
+
+// ============================================================
 // ACTUALIZAR PROYECTO
 // ============================================================
 
@@ -233,9 +259,12 @@ export async function updateProject(
   updates: Partial<StrategyProject>
 ): Promise<void> {
   const projectRef = doc(db, COLLECTION_NAME, projectId);
+  
+  // Limpiar valores undefined antes de enviar a Firestore
+  const cleanedUpdates = removeUndefinedValues(updates);
 
   await updateDoc(projectRef, {
-    ...updates,
+    ...cleanedUpdates,
     updatedAt: serverTimestamp(),
   });
 }
@@ -247,9 +276,12 @@ export async function updatePhaseData<T extends Record<string, unknown>>(
 ): Promise<void> {
   const projectRef = doc(db, COLLECTION_NAME, projectId);
   const layer = PHASE_TO_LAYER[phase];
+  
+  // Limpiar valores undefined antes de enviar a Firestore
+  const cleanedData = removeUndefinedValues(data);
 
   await updateDoc(projectRef, {
-    [`${layer}.${phase}`]: data,
+    [`${layer}.${phase}`]: cleanedData,
     [`phaseProgress.${phase}.lastSavedAt`]: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -455,3 +487,4 @@ export function getPhaseData<T>(project: StrategyProject, phase: PhaseId): T | u
   const layerData = project[layer] as Record<string, unknown>;
   return layerData?.[phase] as T | undefined;
 }
+
