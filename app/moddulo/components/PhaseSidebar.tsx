@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useStrategyContext, useSaveStatus } from './StrategyContextProvider';
+import ExportProjectModal from './ExportProjectModal';
 import {
   PHASE_METADATA,
   LAYER_METADATA,
@@ -34,6 +35,7 @@ export default function PhaseSidebar({
 }: PhaseSidebarProps) {
   const pathname = usePathname();
   const { project, canAccessPhase, getOverallProgress, loading } = useStrategyContext();
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const [expandedLayers, setExpandedLayers] = useState<Record<LayerId, boolean>>({
     fundacion: true,
@@ -85,155 +87,199 @@ export default function PhaseSidebar({
   // ============================================================
 
   return (
-    <aside
-      className={`
-        bg-white-eske border-r border-gray-eske-20 h-full
-        ${collapsed ? 'w-16' : 'w-72'}
-        transition-all duration-300
-        flex flex-col
-      `}
-    >
-      {/* Header */}
-      <div className="p-4 border-b border-gray-eske-20">
-        <div className="flex items-center justify-between">
-          {!collapsed && (
-            <div className="flex-1 min-w-0 mr-2">
-              <h2 className="text-sm font-semibold text-bluegreen-eske truncate">
-                {project.projectName}
-              </h2>
-              <p className="text-xs text-gray-eske-60 mt-0.5 truncate">
-                {PHASE_METADATA[project.currentPhase].name}
-              </p>
-            </div>
-          )}
+    <>
+      <aside
+        className={`
+          bg-white-eske border-r border-gray-eske-20 h-full
+          ${collapsed ? 'w-16' : 'w-72'}
+          transition-all duration-300
+          flex flex-col
+        `}
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-gray-eske-20">
+          <div className="flex items-center justify-between">
+            {!collapsed && (
+              <div className="flex-1 min-w-0 mr-2">
+                <h2 className="text-sm font-semibold text-bluegreen-eske truncate">
+                  {project.projectName}
+                </h2>
+                <p className="text-xs text-gray-eske-60 mt-0.5 truncate">
+                  {PHASE_METADATA[project.currentPhase].name}
+                </p>
+              </div>
+            )}
 
-          {/* Toggle button */}
-          {onToggleCollapse && (
-            <button
-              onClick={onToggleCollapse}
-              className="p-1.5 rounded-lg hover:bg-gray-eske-10 text-gray-eske-50 transition-colors shrink-0"
-              aria-label={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
-            >
-              <svg
-                className={`w-5 h-5 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {/* Toggle button */}
+            {onToggleCollapse && (
+              <button
+                onClick={onToggleCollapse}
+                className="p-1.5 rounded-lg hover:bg-gray-eske-10 text-gray-eske-50 transition-colors shrink-0"
+                aria-label={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                <svg
+                  className={`w-5 h-5 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* Progress bar */}
+          {!collapsed && (
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="text-gray-eske-60">Progreso general</span>
+                <span className="font-medium text-bluegreen-eske">{overallProgress}%</span>
+              </div>
+              <div className="h-2 bg-gray-eske-10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-bluegreen-eske transition-all duration-500 ease-out"
+                  style={{ width: `${overallProgress}%` }}
                 />
-              </svg>
-            </button>
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Progress bar */}
-        {!collapsed && (
-          <div className="mt-3">
-            <div className="flex items-center justify-between text-xs mb-1.5">
-              <span className="text-gray-eske-60">Progreso general</span>
-              <span className="font-medium text-bluegreen-eske">{overallProgress}%</span>
-            </div>
-            <div className="h-2 bg-gray-eske-10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-bluegreen-eske transition-all duration-500 ease-out"
-                style={{ width: `${overallProgress}%` }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-2">
+          {(Object.keys(LAYER_METADATA) as LayerId[]).map((layerId) => {
+            const layer = LAYER_METADATA[layerId];
+            const layerPhases = layer.phases;
+            const isExpanded = expandedLayers[layerId];
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-2">
-        {(Object.keys(LAYER_METADATA) as LayerId[]).map((layerId) => {
-          const layer = LAYER_METADATA[layerId];
-          const layerPhases = layer.phases;
-          const isExpanded = expandedLayers[layerId];
+            // Calcular progreso de la capa
+            const completedInLayer = layerPhases.filter((p) =>
+              project.completedPhases.includes(p)
+            ).length;
+            const layerProgress = Math.round((completedInLayer / layerPhases.length) * 100);
 
-          // Calcular progreso de la capa
-          const completedInLayer = layerPhases.filter((p) =>
-            project.completedPhases.includes(p)
-          ).length;
-          const layerProgress = Math.round((completedInLayer / layerPhases.length) * 100);
+            return (
+              <div key={layerId} className="mb-2">
+                {/* Layer Header */}
+                <button
+                  onClick={() => !collapsed && toggleLayer(layerId)}
+                  className={`
+                    w-full flex items-center gap-2 px-3 py-2.5 rounded-lg
+                    hover:bg-gray-eske-10 transition-colors
+                    ${collapsed ? 'justify-center' : ''}
+                  `}
+                >
+                  {/* Layer color indicator */}
+                  <div
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{ backgroundColor: layer.color }}
+                    title={collapsed ? layer.name : undefined}
+                  />
 
-          return (
-            <div key={layerId} className="mb-2">
-              {/* Layer Header */}
-              <button
-                onClick={() => !collapsed && toggleLayer(layerId)}
-                className={`
-                  w-full flex items-center gap-2 px-3 py-2.5 rounded-lg
-                  hover:bg-gray-eske-10 transition-colors
-                  ${collapsed ? 'justify-center' : ''}
-                `}
-              >
-                {/* Layer color indicator */}
-                <div
-                  className="w-3 h-3 rounded-full shrink-0"
-                  style={{ backgroundColor: layer.color }}
-                  title={collapsed ? layer.name : undefined}
-                />
+                  {!collapsed && (
+                    <>
+                      <div className="flex-1 text-left">
+                        <span className="text-sm font-medium text-gray-eske-80">
+                          {layer.name}
+                        </span>
+                        <span className="text-xs text-gray-eske-50 ml-2">
+                          {layerProgress}%
+                        </span>
+                      </div>
+                      <svg
+                        className={`w-4 h-4 text-gray-eske-50 transition-transform duration-200 ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </>
+                  )}
+                </button>
 
-                {!collapsed && (
-                  <>
-                    <div className="flex-1 text-left">
-                      <span className="text-sm font-medium text-gray-eske-80">
-                        {layer.name}
-                      </span>
-                      <span className="text-xs text-gray-eske-50 ml-2">
-                        {layerProgress}%
-                      </span>
-                    </div>
-                    <svg
-                      className={`w-4 h-4 text-gray-eske-50 transition-transform duration-200 ${
-                        isExpanded ? 'rotate-180' : ''
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
+                {/* Phases */}
+                {isExpanded && !collapsed && (
+                  <div className="ml-3 mt-1 space-y-0.5 border-l-2 border-gray-eske-10 pl-3">
+                    {layerPhases.map((phaseId) => (
+                      <PhaseItem
+                        key={phaseId}
+                        projectId={projectId}
+                        phaseId={phaseId}
+                        layerId={layerId}
+                        isCompleted={project.completedPhases.includes(phaseId)}
+                        isCurrent={project.currentPhase === phaseId}
+                        isAccessible={canAccessPhase(phaseId)}
+                        isActive={pathname?.includes(`/${phaseId}`) || false}
+                        layerColor={layer.color}
                       />
-                    </svg>
-                  </>
+                    ))}
+                  </div>
                 )}
-              </button>
+              </div>
+            );
+          })}
 
-              {/* Phases */}
-              {isExpanded && !collapsed && (
-                <div className="ml-3 mt-1 space-y-0.5 border-l-2 border-gray-eske-10 pl-3">
-                  {layerPhases.map((phaseId) => (
-                    <PhaseItem
-                      key={phaseId}
-                      projectId={projectId}
-                      phaseId={phaseId}
-                      layerId={layerId}
-                      isCompleted={project.completedPhases.includes(phaseId)}
-                      isCurrent={project.currentPhase === phaseId}
-                      isAccessible={canAccessPhase(phaseId)}
-                      isActive={pathname?.includes(`/${phaseId}`) || false}
-                      layerColor={layer.color}
-                    />
-                  ))}
+          {/* Export Button */}
+          {!collapsed && (
+            <div className="mt-4 px-2">
+              <button
+                onClick={() => setShowExportModal(true)}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-linear-to-r from-bluegreen-eske/10 to-bluegreen-eske/5 border border-bluegreen-eske/20 hover:border-bluegreen-eske/40 transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-bluegreen-eske/20 flex items-center justify-center group-hover:bg-bluegreen-eske/30 transition-colors">
+                  <svg className="w-4 h-4 text-bluegreen-eske" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
                 </div>
-              )}
+                <div className="text-left">
+                  <p className="text-sm font-medium text-bluegreen-eske">Exportar Proyecto</p>
+                  <p className="text-xs text-gray-eske-50">PDF o DOCX</p>
+                </div>
+              </button>
             </div>
-          );
-        })}
-      </nav>
+          )}
 
-      {/* Footer: Save status */}
-      {!collapsed && <SaveStatusFooter />}
-    </aside>
+          {/* Export button collapsed */}
+          {collapsed && (
+            <div className="mt-4 px-2">
+              <button
+                onClick={() => setShowExportModal(true)}
+                className="w-full flex items-center justify-center p-2.5 rounded-lg bg-bluegreen-eske/10 hover:bg-bluegreen-eske/20 transition-colors"
+                title="Exportar Proyecto"
+              >
+                <svg className="w-5 h-5 text-bluegreen-eske" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </nav>
+
+        {/* Footer: Save status */}
+        {!collapsed && <SaveStatusFooter />}
+      </aside>
+
+      {/* Export Modal */}
+      <ExportProjectModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        projectId={projectId}
+      />
+    </>
   );
 }
 
