@@ -6,8 +6,8 @@ export default function SefixPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   
-  const dashboardUrl = process.env.NEXT_PUBLIC_SEFIX_DASHBOARD_URL || 
-    'https://kj6hbt-ra0l-s0nchez.shinyapps.io/sefix/';
+const dashboardUrl = process.env.NEXT_PUBLIC_SEFIX_DASHBOARD_URL || 
+'https://kj6hbt-ra0l-s0nchez.shinyapps.io/sefix/';
 
   useEffect(() => {
     const timeout = setTimeout(() => {

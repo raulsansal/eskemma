@@ -1,4 +1,6 @@
 
+//app/layout.tsx
+
 import type { Metadata } from "next";
 import { Arimo, PT_Sans, Philosopher } from "next/font/google";
 import { ReactNode } from "react";

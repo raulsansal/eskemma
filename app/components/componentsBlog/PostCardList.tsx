@@ -34,7 +34,7 @@ export default function PostCardList({
     <article className="flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-4 sm:p-6">
       {/* Imagen destacada - Responsive */}
       {featureImage && (
-        <div className="w-full sm:w-48 md:w-64 flex-shrink-0">
+        <div className="w-full sm:w-48 md:w-64 shrink-0">
           <Link
             href={`/blog/${slug}`}
             className="focus-ring-primary rounded-lg block"
@@ -72,7 +72,7 @@ export default function PostCardList({
 
         {/* Excerpt - Más líneas en desktop */}
         <div
-          className="text-sm sm:text-base text-gray-eske-90 mb-3 sm:mb-4 flex-grow line-clamp-2 sm:line-clamp-3"
+          className="text-sm sm:text-base text-gray-eske-90 mb-3 sm:mb-4 grow line-clamp-2 sm:line-clamp-3"
           dangerouslySetInnerHTML={{ __html: excerpt }}
         />
 

@@ -183,10 +183,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
         {/* Sección de Posts */}
         <section
-          className="bg-gray-eske-10 min-h-[580px] py-12 px-4 sm:px-6 md:px-8"
+          className="bg-gray-eske-10 min-h-145 py-12 px-4 sm:px-6 md:px-8"
           aria-labelledby="posts-section-title"
         >
-          <div className="w-[90%] mx-auto max-w-screen-xl">
+          <div className="w-[90%] mx-auto max-w-7xl">
             <h2 id="posts-section-title" className="sr-only">
               Artículos del blog
             </h2>

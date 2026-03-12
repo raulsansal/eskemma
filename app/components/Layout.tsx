@@ -37,7 +37,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Contenido Principal con Padding */}
-      <main id="main-content" className="pt-[80px]" tabIndex={-1}>
+      <main id="main-content" className="pt-20" tabIndex={-1}>
         {children}
       </main>
 
