@@ -2,15 +2,15 @@
 // ============================================================
 // PÁGINA PRINCIPAL DE CURSOS
 // Inspirada en app/blog/page.tsx
-// CORREGIDO: CourseFilters ahora existe, tags como TagItem[]
+// CORREGIDO: Importación actualizada a lib/cursos/shared/courses
 // ============================================================
 
 import { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import CourseGrid from "./components/CourseGrid";
-import CourseFilters from "./components/CourseFilters";
-import { getCourses, getCategories, getAllTags } from "@/lib/courses";
+import CourseGrid from "@/app/components/componentsCursos/listado/CourseGrid";
+import CourseFilters from "@/app/components/componentsCursos/listado/CourseFilters";
+import { getCourses, getCategories, getAllTags } from "@/lib/cursos/shared/courses";
 import Pagination from "../components/componentsBlog/Pagination";
 import Sidebar from "../components/componentsBlog/Sidebar";
 
@@ -120,7 +120,7 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
               6 módulos · 20 horas · 100% práctico
             </p>
             <Link
-              href="/taller/diagnostico-electoral"
+              href="/cursos/taller-diagnostico-electoral"
               className="inline-block bg-yellow-eske hover:bg-yellow-eske/90 text-blue-eske-900 font-semibold px-8 py-3 rounded-lg transition-colors text-lg focus-ring-light"
               aria-label="Comenzar Taller de Diagnóstico Electoral"
             >
@@ -140,7 +140,7 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
             Listado de cursos y talleres
           </h2>
 
-          {/* Filtros - AHORA SÍ EXISTE */}
+          {/* Filtros */}
           <CourseFilters
             currentCategory={category}
             currentType={type}
@@ -198,9 +198,9 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
             {/* Sidebar - Desktop */}
             <div className="hidden lg:block lg:w-1/3">
               <Sidebar
-                popularPosts={[]} // Los cursos populares podrían ir aquí después
+                popularPosts={[]}
                 categoryCounts={categoryCounts}
-                tags={allTags} // ← CORREGIDO: ahora pasamos TagItem[], no string[]
+                tags={allTags}
               />
             </div>
           </div>
@@ -210,7 +210,7 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
             <Sidebar
               popularPosts={[]}
               categoryCounts={categoryCounts}
-              tags={allTags} // ← CORREGIDO: igual aquí
+              tags={allTags}
             />
           </div>
         </div>

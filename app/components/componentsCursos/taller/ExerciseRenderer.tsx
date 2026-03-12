@@ -1,4 +1,4 @@
-// app/taller/diagnostico-electoral/components/ExerciseRenderer.tsx
+// app/components/componentsCursos/taller/ExerciseRenderer.tsx
 // ============================================================
 // RENDERIZADOR DE EJERCICIOS
 // Muestra diferentes tipos de ejercicios según su configuración
@@ -9,7 +9,7 @@
 import { useState } from "react";
 import type { SessionExercise } from "@/types/course.types";
 import { useAuth } from "@/context/AuthContext";
-import { updateSessionProgress } from "@/lib/taller/firebaseWorkshop";
+import { updateSessionProgress } from "@/lib/cursos/taller/firebaseWorkshop";
 
 interface ExerciseRendererProps {
   exercise: SessionExercise;
@@ -101,27 +101,6 @@ export default function ExerciseRenderer({
                 </div>
               </div>
             ))}
-          </div>
-        );
-
-      case "api-call":
-        return (
-          <div className="space-y-4">
-            <p className="text-gray-eske-80">{exercise.description}</p>
-            <div className="bg-gray-eske-10 p-4 rounded-lg">
-              <p className="text-sm font-mono">
-                API: {exercise.apiConfig?.apiType}
-                {exercise.apiConfig?.endpoint && ` | Endpoint: ${exercise.apiConfig.endpoint}`}
-              </p>
-            </div>
-            {exercise.apiConfig?.exampleResponse && (
-              <div className="mt-4">
-                <h4 className="font-semibold mb-2">Ejemplo de respuesta:</h4>
-                <pre className="bg-gray-eske-10 p-3 rounded-lg text-sm overflow-x-auto">
-                  {JSON.stringify(exercise.apiConfig.exampleResponse, null, 2)}
-                </pre>
-              </div>
-            )}
           </div>
         );
 

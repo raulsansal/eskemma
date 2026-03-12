@@ -1,9 +1,10 @@
-// lib/courses.ts
+// lib/cursos/shared/courses.ts
 // ============================================================
 // FUNCIONES PARA OBTENER CURSOS (similar a lib/posts.ts)
+// CORREGIDO: Ruta de importación para TALLER_DIAGNOSTICO
 // ============================================================
 
-import { TALLER_DIAGNOSTICO } from "./taller/diagnostico-electoral/config";
+import { TALLER_DIAGNOSTICO } from "../taller/diagnostico-electoral/config";
 import type { CourseCardItem } from "@/types/course.types";
 
 // Configuración para evitar importación en cliente

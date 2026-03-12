@@ -1,4 +1,4 @@
-// app/taller/diagnostico-electoral/components/WorkshopSidebar.tsx
+// app/components/componentsCursos/taller/WorkshopSidebar.tsx
 // ============================================================
 // SIDEBAR DE NAVEGACIÓN DEL TALLER
 // Muestra módulos, sesiones y progreso
@@ -9,7 +9,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { TALLER_MODULES } from "@/lib/taller/diagnostico-electoral/config";
+import { TALLER_MODULES } from "@/lib/cursos/taller/diagnostico-electoral/config";
 import type { UserWorkshopProgress } from "@/types/firestore.types";
 
 interface WorkshopSidebarProps {
@@ -25,7 +25,6 @@ export default function WorkshopSidebar({
   progress,
   currentPath 
 }: WorkshopSidebarProps) {
-  const pathname = usePathname();
   const [expandedModules, setExpandedModules] = useState<string[]>(["modulo-1-fundamentos"]);
 
   const toggleModule = (moduleId: string) => {
@@ -135,7 +134,7 @@ export default function WorkshopSidebar({
                       return (
                         <li key={session.id}>
                           <Link
-                            href={`/taller/diagnostico-electoral/modulo/${module.id}/sesion/${session.id}`}
+                            href={`/cursos/taller-diagnostico-electoral/${module.id}/${session.id}`}
                             className={`
                               flex items-center gap-2 p-2 rounded-lg text-sm
                               ${current 

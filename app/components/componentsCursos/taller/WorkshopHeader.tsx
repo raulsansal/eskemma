@@ -1,4 +1,4 @@
-// app/taller/diagnostico-electoral/components/WorkshopHeader.tsx
+// app/components/componentsCursos/taller/WorkshopHeader.tsx
 // ============================================================
 // HEADER DEL TALLER
 // Muestra título, progreso y controles

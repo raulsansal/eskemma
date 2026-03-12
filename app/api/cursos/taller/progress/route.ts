@@ -1,7 +1,7 @@
-// app/api/workshop/progress/route.ts
+// app/api/cursos/taller/progress/route.ts
 // ============================================================
 // API PARA OBTENER Y ACTUALIZAR PROGRESO DEL TALLER
-// CORREGIDO: Importación correcta de FieldValue
+// UBICACIÓN CORRECTA: /api/cursos/taller/progress
 // ============================================================
 
 import { NextResponse } from "next/server";
@@ -11,7 +11,7 @@ import { FieldValue } from "firebase-admin/firestore";
 const WORKSHOP_ID = "taller-diagnostico-electoral";
 
 /**
- * GET /api/workshop/progress?userId=xxx
+ * GET /api/cursos/taller/progress?userId=xxx
  * Obtiene el progreso de un usuario en el taller
  */
 export async function GET(request: Request) {
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST /api/workshop/progress
+ * POST /api/cursos/taller/progress
  * Actualiza el progreso de una sesión
  */
 export async function POST(request: Request) {
