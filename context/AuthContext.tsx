@@ -1,4 +1,8 @@
 // context/AuthContext.tsx
+// ✅ FASE 0: Todas las llamadas a /api/setUserRole ahora incluyen
+// el token de Firebase en el header Authorization.
+// Cambios marcados con: // ← FASE 0
+
 "use client";
 import {
   createContext,
@@ -36,12 +40,49 @@ import {
 import { auth, db, providerGoogle } from "../firebase/firebaseConfig";
 import { isUserNameAvailable } from "../utils/userUtils";
 
-// ✅ IMPORTAR TIPOS CENTRALIZADOS
-import type { 
-  UserRole, 
-  SubscriptionPlan, 
-  SubscriptionStatus 
+import type {
+  UserRole,
+  SubscriptionPlan,
+  SubscriptionStatus,
 } from "../types/subscription.types";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FASE 0 — NUEVO: Helper para obtener el token del usuario actual y llamar
+// a /api/setUserRole con el header Authorization correctamente.
+// Centraliza todas las llamadas para no repetir lógica en cada función.
+// ─────────────────────────────────────────────────────────────────────────────
+async function callSetUserRole(uid: string, role: string): Promise<void> {
+  const currentUser = auth.currentUser;
+
+  if (!currentUser) {
+    console.error("❌ [callSetUserRole] No hay usuario autenticado para obtener token");
+    throw new Error("No hay usuario autenticado");
+  }
+
+  // Obtener token fresco (forceRefresh=false está bien aquí;
+  // Firebase lo renueva automáticamente si está por vencer)
+  const idToken = await currentUser.getIdToken();
+
+  const response = await fetch("/api/setUserRole", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`, // ← FASE 0: token incluido
+    },
+    body: JSON.stringify({ uid, role }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error("❌ [callSetUserRole] Error en respuesta:", errorData);
+    throw new Error(errorData.error || `Error ${response.status} al asignar rol`);
+  }
+
+  console.log("✅ [callSetUserRole] Rol asignado:", { uid, role });
+}
+// ─────────────────────────────────────────────────────────────────────────────
+// FIN helper FASE 0
+// ─────────────────────────────────────────────────────────────────────────────
 
 // ✅ Interfaz para los datos de Firestore
 interface FirestoreUserData {
@@ -200,6 +241,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               stripeSubscriptionId: null,
             });
 
+            // ← FASE 0: reemplazado fetch directo por callSetUserRole
+            try {
+              await callSetUserRole(updatedUser.uid, initialRole);
+            } catch (roleError) {
+              // No bloqueamos el login si falla la sincronización de claims
+              console.warn("⚠️ No se pudo sincronizar custom claim:", roleError);
+            }
+
             const newExtendedUser: ExtendedUser = {
               ...updatedUser,
               role: initialRole,
@@ -240,14 +289,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   updatedAt: new Date(),
                 });
 
-                await fetch("/api/setUserRole", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    uid: updatedUser.uid,
-                    role: calculatedRole,
-                  }),
-                });
+                // ← FASE 0: reemplazado fetch directo por callSetUserRole
+                try {
+                  await callSetUserRole(updatedUser.uid, calculatedRole);
+                } catch (roleError) {
+                  console.warn("⚠️ No se pudo sincronizar custom claim:", roleError);
+                }
               }
 
               if (userData.emailVerified !== updatedUser.emailVerified) {
@@ -373,11 +420,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         stripeSubscriptionId: null,
       });
 
-      await fetch("/api/setUserRole", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: user.uid, role: initialRole }),
-      });
+      // ← FASE 0: reemplazado fetch directo por callSetUserRole
+      try {
+        await callSetUserRole(user.uid, initialRole);
+      } catch (roleError) {
+        console.warn("⚠️ No se pudo sincronizar custom claim en registro:", roleError);
+      }
 
       console.log(`✅ Usuario registrado con role: ${initialRole}`);
 
@@ -569,14 +617,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           updatedAt: new Date(),
         });
 
-        await fetch("/api/setUserRole", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            uid: finalUid,
-            role: calculatedRole,
-          }),
-        });
+        // ← FASE 0: reemplazado fetch directo por callSetUserRole
+        try {
+          await callSetUserRole(finalUid, calculatedRole);
+        } catch (roleError) {
+          console.warn("⚠️ No se pudo sincronizar custom claim en login:", roleError);
+        }
       }
 
       const extendedUser: ExtendedUser = {
@@ -710,11 +756,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           stripeSubscriptionId: null,
         });
 
-        await fetch("/api/setUserRole", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uid: user.uid, role: initialRole }),
-        });
+        // ← FASE 0: reemplazado fetch directo por callSetUserRole
+        try {
+          await callSetUserRole(user.uid, initialRole);
+        } catch (roleError) {
+          console.warn("⚠️ No se pudo sincronizar custom claim (Google, nuevo usuario):", roleError);
+        }
 
         console.log(`✅ Nuevo usuario Google creado con role: ${initialRole}`);
       }
@@ -757,14 +804,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           updatedAt: new Date(),
         });
 
-        await fetch("/api/setUserRole", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            uid: user.uid,
-            role: calculatedRole,
-          }),
-        });
+        // ← FASE 0: reemplazado fetch directo por callSetUserRole
+        try {
+          await callSetUserRole(user.uid, calculatedRole);
+        } catch (roleError) {
+          console.warn("⚠️ No se pudo sincronizar custom claim (Google, usuario existente):", roleError);
+        }
       }
 
       const extendedUser: ExtendedUser = {
@@ -875,11 +920,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         updatedAt: new Date().toISOString(),
       });
 
-      await fetch("/api/setUserRole", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid, role: newRole }),
-      });
+      // ← FASE 0: reemplazado fetch directo por callSetUserRole
+      await callSetUserRole(uid, newRole);
 
       setUser((prevUser) => {
         if (!prevUser) return null;
@@ -946,11 +988,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         role: newRole,
       });
 
-      await fetch("/api/setUserRole", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: user.uid, role: newRole }),
-      });
+      // ← FASE 0: reemplazado fetch directo por callSetUserRole
+      await callSetUserRole(user.uid, newRole);
 
       setUser((prevUser) => {
         if (!prevUser) return null;
@@ -1012,11 +1051,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         role: newRole,
       });
 
-      await fetch("/api/setUserRole", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: user.uid, role: newRole }),
-      });
+      // ← FASE 0: reemplazado fetch directo por callSetUserRole
+      await callSetUserRole(user.uid, newRole);
 
       setUser((prevUser) => {
         if (!prevUser) return null;
@@ -1072,11 +1108,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           role: newRole,
         });
 
-        await fetch("/api/setUserRole", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uid: user.uid, role: newRole }),
-        });
+        // ← FASE 0: reemplazado fetch directo por callSetUserRole
+        try {
+          await callSetUserRole(user.uid, newRole);
+        } catch (roleError) {
+          console.warn("⚠️ No se pudo sincronizar custom claim (expiración):", roleError);
+        }
 
         setUser((prevUser) => {
           if (!prevUser) return null;
