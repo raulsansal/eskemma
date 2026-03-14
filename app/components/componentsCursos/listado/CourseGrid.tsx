@@ -7,13 +7,16 @@
 "use client";
 
 import type { CourseCardItem } from "@/types/course.types";
+import type { UserRole } from "@/types/subscription.types";
 import CourseCard from "./CourseCard";
 
 interface CourseGridProps {
   courses: CourseCardItem[];
+  /** Rol del usuario pasado desde el Server Component padre para evitar flickering. */
+  userRole?: UserRole | null;
 }
 
-export default function CourseGrid({ courses }: CourseGridProps) {
+export default function CourseGrid({ courses, userRole }: CourseGridProps) {
   if (courses.length === 0) {
     return (
       <div className="text-center py-12">
@@ -34,7 +37,7 @@ export default function CourseGrid({ courses }: CourseGridProps) {
       aria-label="Listado de cursos disponibles"
     >
       {courses.map((course) => (
-        <CourseCard key={course.id} course={course} />
+        <CourseCard key={course.id} course={course} userRole={userRole} />
       ))}
     </div>
   );

@@ -84,6 +84,30 @@ async function callSetUserRole(uid: string, role: string): Promise<void> {
 // FIN helper FASE 0
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FASE 4 — Helper para crear/refrescar la cookie de sesión HTTP-only.
+// Se llama tras cada login y en cada carga de página (onAuthStateChanged).
+// El error se captura silenciosamente para no bloquear el flujo de auth.
+// ─────────────────────────────────────────────────────────────────────────────
+async function syncSessionCookie(): Promise<void> {
+  const currentUser = auth.currentUser;
+  if (!currentUser) return;
+  try {
+    const idToken = await currentUser.getIdToken(true); // force-refresh para obtener claims actualizados
+    await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    });
+    console.log("✅ [syncSessionCookie] Cookie de sesión sincronizada");
+  } catch (error) {
+    console.warn("⚠️ [syncSessionCookie] No se pudo sincronizar cookie:", error);
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+// FIN helper FASE 4
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ✅ Interfaz para los datos de Firestore
 interface FirestoreUserData {
   uid: string;
@@ -256,6 +280,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               showOnboardingModal: true,
             };
             setUser(newExtendedUser);
+            await syncSessionCookie(); // ← FASE 4
           } else {
             const userData = userDocSnapshot.data() as FirestoreUserData;
 
@@ -273,6 +298,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               console.log("Rol: admin (protegido)");
 
               setUser(extendedUser);
+              await syncSessionCookie(); // ← FASE 4
             } else {
               const calculatedRole = calculateUserRole({
                 emailVerified: updatedUser.emailVerified,
@@ -325,6 +351,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               console.log("Rol calculado:", calculatedRole);
 
               setUser(extendedUser);
+              await syncSessionCookie(); // ← FASE 4
             }
           }
 
@@ -583,6 +610,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           role: "admin",
         };
         setUser(extendedUser);
+        await syncSessionCookie(); // ← FASE 4
 
         console.log("✅ Login completado exitosamente con role: admin");
 
@@ -631,6 +659,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         role: calculatedRole,
       };
       setUser(extendedUser);
+      await syncSessionCookie(); // ← FASE 4
 
       console.log("✅ Login completado exitosamente con role:", calculatedRole);
 
@@ -778,6 +807,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         };
 
         setUser(extendedUser);
+        await syncSessionCookie(); // ← FASE 4
         setIsLoginModalOpen(false);
 
         if (!userData.profileCompleted) {
@@ -819,6 +849,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       };
 
       setUser(extendedUser);
+      await syncSessionCookie(); // ← FASE 4
       setIsLoginModalOpen(false);
 
       if (!userData.profileCompleted) {
@@ -834,6 +865,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
+      // ← FASE 4: destruir cookie de sesión antes de cerrar sesión en Firebase
+      await fetch("/api/auth/session", { method: "DELETE" }).catch(() => {});
       await signOut(auth);
       setUser(null);
       setIsOnboardingModalOpen(false);

@@ -82,7 +82,7 @@ export default function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body
         className={`${arimo.variable} ${ptSans.variable} ${philosopher.variable} min-h-screen`}
       >

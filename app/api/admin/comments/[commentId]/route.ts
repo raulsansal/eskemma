@@ -1,30 +1,17 @@
 // app/api/admin/comments/[commentId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
+import { getSessionFromRequest } from "@/lib/server/auth-helpers";
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ commentId: string }> }
 ) {
   try {
-    // Verificar autenticación
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    if (session.role !== "admin") return NextResponse.json({ error: "No tienes permisos de administrador" }, { status: 403 });
 
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
-
-    // Verificar que sea admin
-    if (decodedToken.role !== "admin") {
-      return NextResponse.json(
-        { error: "No tienes permisos de administrador" },
-        { status: 403 }
-      );
-    }
-
-    // ✅ CORRECCIÓN: Await params antes de usarlo
     const { commentId } = await params;
     const body = await request.json();
     const { postId, action } = body;
@@ -87,24 +74,10 @@ export async function DELETE(
   { params }: { params: Promise<{ commentId: string }> }
 ) {
   try {
-    // Verificar autenticación
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    if (session.role !== "admin") return NextResponse.json({ error: "No tienes permisos de administrador" }, { status: 403 });
 
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
-
-    // Verificar que sea admin
-    if (decodedToken.role !== "admin") {
-      return NextResponse.json(
-        { error: "No tienes permisos de administrador" },
-        { status: 403 }
-      );
-    }
-
-    // ✅ CORRECCIÓN: Await params antes de usarlo
     const { commentId } = await params;
     const { searchParams } = new URL(request.url);
     const postId = searchParams.get("postId");

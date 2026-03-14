@@ -1,21 +1,17 @@
 // app/api/notifications/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
+import { getSessionFromRequest } from "@/lib/server/auth-helpers";
 
 // GET: Obtener notificaciones del usuario
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
     const notificationsRef = adminDb
       .collection("notifications")
-      .where("userId", "==", decodedToken.uid)
+      .where("userId", "==", session.uid)
       .orderBy("createdAt", "desc")
       .limit(20);
 
@@ -54,13 +50,8 @@ export async function GET(request: NextRequest) {
 // PATCH: Marcar notificaciones como leídas
 export async function PATCH(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
     const { notificationIds } = await request.json();
 

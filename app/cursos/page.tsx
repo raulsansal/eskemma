@@ -11,6 +11,7 @@ import Link from "next/link";
 import CourseGrid from "@/app/components/componentsCursos/listado/CourseGrid";
 import CourseFilters from "@/app/components/componentsCursos/listado/CourseFilters";
 import { getCourses, getCategories, getAllTags } from "@/lib/cursos/shared/courses";
+import { getServerSession } from "@/lib/server/session.server"; // ← Fase 5
 import Pagination from "../components/componentsBlog/Pagination";
 import Sidebar from "../components/componentsBlog/Sidebar";
 
@@ -60,6 +61,10 @@ interface CursosPageProps {
 }
 
 export default async function CursosPage({ searchParams }: CursosPageProps) {
+  // Fase 5: leer sesión server-side para evitar flickering en CourseCard
+  const session = await getServerSession();
+  const userRole = session?.role ?? null;
+
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
   const category = params.category || "todos";
@@ -179,7 +184,7 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
             {/* Columna principal - Grid de cursos */}
             <div className="flex-1 lg:w-2/3">
               <Suspense fallback={<CourseGridSkeleton />}>
-                <CourseGrid courses={courses} />
+                <CourseGrid courses={courses} userRole={userRole} />
               </Suspense>
 
               {/* Paginación */}

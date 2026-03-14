@@ -4,9 +4,10 @@
 // UBICACIÓN CORRECTA: /api/cursos/taller/progress
 // ============================================================
 
-import { NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { NextRequest, NextResponse } from "next/server";
+import { adminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { getSessionFromRequest } from "@/lib/server/auth-helpers";
 
 const WORKSHOP_ID = "taller-diagnostico-electoral";
 
@@ -14,37 +15,22 @@ const WORKSHOP_ID = "taller-diagnostico-electoral";
  * GET /api/cursos/taller/progress?userId=xxx
  * Obtiene el progreso de un usuario en el taller
  */
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const sessionId = searchParams.get("sessionId");
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Se requiere userId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Se requiere userId" }, { status: 400 });
     }
-
-    // Verificar autenticación
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "No autorizado" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
 
     // Verificar que el usuario solo acceda a sus propios datos
-    if (decodedToken.uid !== userId) {
-      return NextResponse.json(
-        { error: "No autorizado para ver estos datos" },
-        { status: 403 }
-      );
+    if (session.uid !== userId) {
+      return NextResponse.json({ error: "No autorizado para ver estos datos" }, { status: 403 });
     }
 
     // Obtener datos de Firestore
@@ -86,8 +72,11 @@ export async function GET(request: Request) {
  * POST /api/cursos/taller/progress
  * Actualiza el progreso de una sesión
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
     const body = await request.json();
     const { userId, sessionId, exerciseCompleted } = body;
 
@@ -98,23 +87,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verificar autenticación
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "No autorizado" },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
-
-    if (decodedToken.uid !== userId) {
-      return NextResponse.json(
-        { error: "No autorizado" },
-        { status: 403 }
-      );
+    if (session.uid !== userId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
     }
 
     const now = new Date().toISOString();

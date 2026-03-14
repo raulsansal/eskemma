@@ -1,9 +1,14 @@
 // app/api/admin/set-admin-claim/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/firebase-admin';
+import { getSessionFromRequest } from '@/lib/server/auth-helpers';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (session.role !== 'admin') return NextResponse.json({ error: 'Se requieren permisos de administrador' }, { status: 403 });
+
     const { uid } = await request.json();
 
     if (!uid) {

@@ -9,6 +9,7 @@
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import type { CourseCardItem } from "@/types/course.types";
+import type { UserRole } from "@/types/subscription.types";
 import { 
   canAccessCourse, 
   getRoleBadgeColor,
@@ -17,11 +18,15 @@ import {
 
 interface CourseCardProps {
   course: CourseCardItem;
+  /** Rol pasado desde un Server Component. Si se omite, se lee desde useAuth(). */
+  userRole?: UserRole | null;
 }
 
-export default function CourseCard({ course }: CourseCardProps) {
+export default function CourseCard({ course, userRole: userRoleProp }: CourseCardProps) {
   const { user } = useAuth();
-  const userRole = user?.role || null;
+  // Si el Server Component pasó el rol, lo usamos directamente (sin flickering).
+  // Si no, fallback al rol del cliente (compatibilidad con usos directos de CourseCard).
+  const userRole = userRoleProp !== undefined ? userRoleProp : (user?.role || null);
   
   const hasAccess = canAccessCourse(userRole, course.requiredRole);
   const badgeColor = getRoleBadgeColor(course.requiredRole);

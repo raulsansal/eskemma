@@ -1,18 +1,14 @@
 // app/api/posts/save/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { getSessionFromRequest } from "@/lib/server/auth-helpers";
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
-    const userId = decodedToken.uid;
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    const userId = session.uid;
 
     const { postId, action, postTitle, postSlug } = await request.json();
 
@@ -72,14 +68,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
-    const userId = decodedToken.uid;
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    const userId = session.uid;
 
     const url = new URL(request.url);
     const postId = url.searchParams.get("postId");

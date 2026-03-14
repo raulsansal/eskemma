@@ -1,7 +1,8 @@
 // app/api/posts/comments/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { getSessionFromRequest } from "@/lib/server/auth-helpers";
 
 // GET: Obtener comentarios de un post (con soporte para respuestas anidadas)
 export async function GET(request: NextRequest) {
@@ -75,15 +76,10 @@ export async function GET(request: NextRequest) {
 // POST: Crear un nuevo comentario o respuesta
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const session = await getSessionFromRequest(request);
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await adminAuth.verifyIdToken(token);
-
-    const { postId, content, parentId } = await request.json(); // ✅ NUEVO: parentId
+    const { postId, content, parentId } = await request.json();
 
     if (!postId || !content) {
       return NextResponse.json(
@@ -100,17 +96,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener datos del usuario desde Firestore
-    const userDoc = await adminDb.collection("users").doc(decodedToken.uid).get();
+    const userDoc = await adminDb.collection("users").doc(session.uid).get();
     const userData = userDoc.data();
 
-    // ✅ CORRECCIÓN: Priorizar avatarUrl de Firestore
-    const photoURL = userData?.avatarUrl || decodedToken.picture || null;
+    const photoURL = userData?.avatarUrl || null;
 
     const commentData = {
       content: content.trim(),
       author: {
-        uid: decodedToken.uid,
-        displayName: userData?.name || decodedToken.name || "Usuario",
+        uid: session.uid,
+        displayName: userData?.name || "Usuario",
         photoURL: photoURL,
       },
       createdAt: FieldValue.serverTimestamp(),
@@ -141,7 +136,7 @@ export async function POST(request: NextRequest) {
           const parentAuthorUid = parentComment?.author?.uid;
 
           // No notificar si el autor responde su propio comentario
-          if (parentAuthorUid && parentAuthorUid !== decodedToken.uid) {
+          if (parentAuthorUid && parentAuthorUid !== session.uid) {
             // Obtener slug del post
             const postDoc = await adminDb.collection("posts").doc(postId).get();
             const postSlug = postDoc.data()?.slug;

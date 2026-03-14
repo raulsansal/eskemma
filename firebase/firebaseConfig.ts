@@ -30,3 +30,10 @@ providerGoogle.setCustomParameters({
 });
 
 export const providerFacebook = new FacebookAuthProvider();
+
+// ─── Solo en desarrollo: expone auth en window para pruebas desde consola ───
+// Uso: const token = await window.__auth.currentUser.getIdToken()
+// REMOVER antes de producción (o dejarlo — el bloque solo corre en dev)
+if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+  (window as any).__auth = auth;
+}
