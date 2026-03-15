@@ -4,6 +4,8 @@ import { getSessionFromRequest } from "@/lib/server/auth-helpers";
 import { anthropic, CLAUDE_MODEL } from "@/lib/ai/claude";
 import { getPhaseSystemPrompt } from "@/lib/ai/phases/prompts";
 import { appendChatMessage } from "@/lib/moddulo/project";
+import { adminDb } from "@/lib/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 import type { PhaseId, ChatRequest } from "@/types/moddulo.types";
 import { PHASE_ORDER } from "@/types/moddulo.types";
 
@@ -99,6 +101,25 @@ export async function POST(
         appendChatMessage(projectId, phaseId as PhaseId, assistantMessage).catch(
           (err) => console.error("[chat/route] Error guardando mensaje:", err)
         );
+
+        // Si hay datos extraídos con campos xpcto.*, guardarlos DIRECTAMENTE
+        // en project.xpcto usando dot-notation para actualización granular.
+        // Esto asegura persistencia sin depender del auto-save del cliente.
+        if (extractedData && Object.keys(extractedData).length > 0) {
+          const xpctoUpdates: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(extractedData)) {
+            if (key.startsWith("xpcto.")) {
+              xpctoUpdates[key] = value;
+            }
+          }
+          if (Object.keys(xpctoUpdates).length > 0) {
+            adminDb
+              .collection("moddulo_projects")
+              .doc(projectId)
+              .update({ ...xpctoUpdates, updatedAt: FieldValue.serverTimestamp() })
+              .catch((err) => console.error("[chat/route] Error guardando xpcto:", err));
+          }
+        }
 
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`)

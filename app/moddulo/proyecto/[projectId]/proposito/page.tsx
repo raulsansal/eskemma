@@ -50,12 +50,21 @@ export default function PropositoPage() {
   useEffect(() => {
     if (!projectId) return;
     fetch(`/api/moddulo/projects/${projectId}`, { credentials: "include" })
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) {
+          console.error(`[proposito] API error ${r.status}:`, await r.text());
+          return null;
+        }
+        return r.json();
+      })
       .then((data) => {
+        if (!data) return;
+        console.log("[proposito] xpcto desde API:", JSON.stringify(data.project?.xpcto));
         if (data.project) {
           setProjectType(data.project.type ?? "electoral");
           const xpcto = data.project.xpcto;
-          if (xpcto && (xpcto.hito || xpcto.sujeto || xpcto.justificacion)) {
+          // Poblar el form con cualquier dato disponible (string no vacío = tiene dato)
+          if (xpcto) {
             setForm({
               hito: xpcto.hito ?? "",
               sujeto: xpcto.sujeto ?? "",
@@ -73,7 +82,7 @@ export default function PropositoPage() {
           }
         }
       })
-      .catch(() => {/* proyecto no cargado, usar form vacío */})
+      .catch((err) => console.error("[proposito] fetch error:", err))
       .finally(() => setIsLoaded(true));
   }, [projectId]);
 
