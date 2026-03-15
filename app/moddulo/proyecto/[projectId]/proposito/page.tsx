@@ -43,6 +43,8 @@ export default function PropositoPage() {
   const [showReview, setShowReview] = useState(false);
   const [isClosingPhase, setIsClosingPhase] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  // Flag que impide que auto-save corra antes de que los datos se carguen
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Cargar datos del proyecto al montar — fuente de verdad: project.xpcto
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function PropositoPage() {
         if (data.project) {
           setProjectType(data.project.type ?? "electoral");
           const xpcto = data.project.xpcto;
-          if (xpcto) {
+          if (xpcto && (xpcto.hito || xpcto.sujeto || xpcto.justificacion)) {
             setForm({
               hito: xpcto.hito ?? "",
               sujeto: xpcto.sujeto ?? "",
@@ -71,7 +73,8 @@ export default function PropositoPage() {
           }
         }
       })
-      .catch(() => {/* proyecto no cargado, usar form vacío */});
+      .catch(() => {/* proyecto no cargado, usar form vacío */})
+      .finally(() => setIsLoaded(true));
   }, [projectId]);
 
   // Auto-calcular duracionMeses cuando cambia fechaLimite
@@ -109,9 +112,11 @@ export default function PropositoPage() {
   }, [projectId]);
 
   useEffect(() => {
+    // No auto-guardar hasta que los datos iniciales hayan cargado
+    if (!isLoaded) return;
     const timer = setTimeout(() => autoSave(form), 1500);
     return () => clearTimeout(timer);
-  }, [form, autoSave]);
+  }, [form, autoSave, isLoaded]);
 
   // Recibir datos extraídos por Moddulo del chat
   const handleDataExtracted = useCallback((data: Record<string, unknown>) => {
