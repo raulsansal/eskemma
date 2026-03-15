@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/server/auth-helpers";
 import { getProject, updateProject } from "@/lib/moddulo/project";
-import type { UpdateProjectInput } from "@/types/moddulo.types";
+import type { UpdateProjectInput, ModduloProject } from "@/types/moddulo.types";
 
 // GET: Obtener proyecto individual
 export async function GET(
@@ -20,11 +20,64 @@ export async function GET(
       return NextResponse.json({ error: "Proyecto no encontrado" }, { status: 404 });
     }
 
+    // Si xpcto está vacío, intentar reconstruirlo desde el chatHistory de cada fase
+    // (los mensajes guardados incluyen extractedData con los campos xpcto.*)
+    const xpcto = project.xpcto;
+    const xpctoIsEmpty = !xpcto?.hito && !xpcto?.sujeto && !xpcto?.justificacion;
+
+    if (xpctoIsEmpty) {
+      const recovered = recoverXpctoFromChatHistory(project);
+      if (recovered) {
+        // Guardar los datos recuperados en Firestore para no tener que reconstruir siempre
+        const { adminDb } = await import("@/lib/firebase-admin");
+        const { FieldValue } = await import("firebase-admin/firestore");
+        await adminDb.collection("moddulo_projects").doc(projectId).update({
+          ...recovered,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+        // Aplicar al proyecto devuelto
+        for (const [key, value] of Object.entries(recovered)) {
+          const parts = key.split(".");
+          if (parts[0] === "xpcto" && parts.length === 2) {
+            (project.xpcto as Record<string, unknown>)[parts[1]] = value;
+          } else if (parts[0] === "xpcto" && parts.length === 3) {
+            const sub = (project.xpcto as Record<string, Record<string, unknown>>)[parts[1]];
+            if (sub) sub[parts[2]] = value;
+          }
+        }
+        console.log(`[projects/GET] xpcto recuperado desde chatHistory para ${projectId}`);
+      }
+    }
+
     return NextResponse.json({ project });
   } catch (error) {
     console.error("Error al obtener proyecto:", error);
     return NextResponse.json({ error: "Error al obtener proyecto" }, { status: 500 });
   }
+}
+
+// ==========================================
+// RECUPERACIÓN DE XPCTO DESDE CHATHISTORY
+// Reconstruye los campos xpcto.* acumulando el extractedData de todos los
+// mensajes de asistente guardados en phases.proposito.chatHistory
+// ==========================================
+
+function recoverXpctoFromChatHistory(project: ModduloProject): Record<string, unknown> | null {
+  const chatHistory = project.phases?.proposito?.chatHistory ?? [];
+  if (chatHistory.length === 0) return null;
+
+  const merged: Record<string, unknown> = {};
+  for (const msg of chatHistory) {
+    const ed = (msg as { extractedData?: Record<string, unknown> }).extractedData;
+    if (!ed) continue;
+    for (const [key, value] of Object.entries(ed)) {
+      if (key.startsWith("xpcto.") && value !== "" && value !== null && value !== undefined) {
+        merged[key] = value;
+      }
+    }
+  }
+
+  return Object.keys(merged).length > 0 ? merged : null;
 }
 
 // PATCH: Actualizar proyecto
