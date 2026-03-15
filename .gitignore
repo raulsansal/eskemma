@@ -89,3 +89,7 @@ app/secrets/
 ._*
 .Spotlight-V100
 .Trashes
+
+# Documentos de metodología y archivos históricos (uso local)
+/_archive/
+/_moddulo-docs/

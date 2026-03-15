@@ -24,7 +24,7 @@ export default function ModduloPage() {
     fetch("/api/moddulo/projects", { credentials: "include" })
       .then((r) => r.json())
       .then((data) => setProjects(data.projects ?? []))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setIsLoading(false));
   }, [user]);
 
@@ -55,7 +55,7 @@ export default function ModduloPage() {
             Moddulo
           </h1>
           <p className="mt-4 max-sm:mt-2 text-[18px] max-sm:text-base leading-relaxed font-light">
-            Tu copiloto estratégico para diseñar, gestionar y evaluar proyectos políticos de alto impacto.
+            El colaborador estratégico para tus proyectos políticos de alto impacto.
           </p>
         </div>
       </section>
@@ -169,7 +169,7 @@ function EmptyState() {
         Aún no tienes proyectos
       </h2>
       <p className="text-gray-eske-50 mb-6 text-sm font-light max-w-sm mx-auto">
-        Crea tu primer proyecto estratégico y comienza a trabajar con Moddulo como tu copiloto.
+        Crea tu primer proyecto estratégico y comienza a trabajar con Moddulo como tu colaborador estratégico
       </p>
       <Link
         href="/moddulo/proyecto/nuevo"
