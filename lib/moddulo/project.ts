@@ -52,6 +52,7 @@ export async function createProject(
   input: CreateProjectInput
 ): Promise<ModduloProject> {
   const now = FieldValue.serverTimestamp();
+  const nowDate = new Date().toISOString(); // Para campos dentro de arrays
 
   const data = {
     userId,
@@ -66,7 +67,7 @@ export async function createProject(
         uid: userId,
         email: "",
         role: "owner",
-        addedAt: now,
+        addedAt: nowDate, // FieldValue no permitido dentro de arrays
         addedBy: userId,
       },
     ],
