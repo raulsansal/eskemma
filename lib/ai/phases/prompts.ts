@@ -212,12 +212,22 @@ export function getPhaseSystemPrompt(
 ): string {
   const basePrompt = PHASE_PROMPTS[phaseId];
 
+  // Fecha actual — crítico para cálculos de tiempo correctos
+  const now = new Date();
+  const fechaHoy = now.toLocaleDateString("es-MX", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const dateContext = `\n\nFECHA ACTUAL: ${fechaHoy} (${now.toISOString().split("T")[0]}). Usa esta fecha como referencia para todos los cálculos de tiempo, duración y plazos. No asumas ninguna otra fecha.`;
+
   if (!currentFormData || Object.keys(currentFormData).length === 0) {
-    return basePrompt;
+    return basePrompt + dateContext;
   }
 
   // Añadir contexto de datos ya capturados
   const dataContext = `\n\nDADOS YA CAPTURADOS EN ESTA FASE:\n${JSON.stringify(currentFormData, null, 2)}\n\nNo repitas preguntas sobre campos que ya tienen información. Continúa con los campos pendientes.`;
 
-  return basePrompt + dataContext;
+  return basePrompt + dateContext + dataContext;
 }

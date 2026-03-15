@@ -51,7 +51,7 @@ export async function POST(
     // Streaming con Claude
     const stream = await anthropic.messages.stream({
       model: CLAUDE_MODEL,
-      max_tokens: 1024,
+      max_tokens: 4096,
       system: systemPrompt,
       messages,
     });

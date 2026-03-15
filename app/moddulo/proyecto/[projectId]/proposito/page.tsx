@@ -44,7 +44,7 @@ export default function PropositoPage() {
   const [isClosingPhase, setIsClosingPhase] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  // Cargar datos del proyecto al montar
+  // Cargar datos del proyecto al montar — fuente de verdad: project.xpcto
   useEffect(() => {
     if (!projectId) return;
     fetch(`/api/moddulo/projects/${projectId}`, { credentials: "include" })
@@ -52,21 +52,21 @@ export default function PropositoPage() {
       .then((data) => {
         if (data.project) {
           setProjectType(data.project.type ?? "electoral");
-          const saved = data.project.phases?.proposito?.data;
-          if (saved && Object.keys(saved).length > 0) {
+          const xpcto = data.project.xpcto;
+          if (xpcto) {
             setForm({
-              hito: saved.hito ?? "",
-              sujeto: saved.sujeto ?? "",
+              hito: xpcto.hito ?? "",
+              sujeto: xpcto.sujeto ?? "",
               capacidades: {
-                financiero: saved["capacidades.financiero"] ?? saved.capacidades?.financiero ?? "",
-                humano: saved["capacidades.humano"] ?? saved.capacidades?.humano ?? "",
-                logistico: saved["capacidades.logistico"] ?? saved.capacidades?.logistico ?? "",
+                financiero: xpcto.capacidades?.financiero ?? "",
+                humano: xpcto.capacidades?.humano ?? "",
+                logistico: xpcto.capacidades?.logistico ?? "",
               },
               tiempo: {
-                fechaLimite: saved["tiempo.fechaLimite"] ?? saved.tiempo?.fechaLimite ?? "",
-                duracionMeses: saved["tiempo.duracionMeses"] ?? saved.tiempo?.duracionMeses ?? 0,
+                fechaLimite: xpcto.tiempo?.fechaLimite ?? "",
+                duracionMeses: xpcto.tiempo?.duracionMeses ?? 0,
               },
-              justificacion: saved.justificacion ?? "",
+              justificacion: xpcto.justificacion ?? "",
             });
           }
         }
