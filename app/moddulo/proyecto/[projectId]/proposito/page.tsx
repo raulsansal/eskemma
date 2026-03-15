@@ -5,11 +5,13 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ModduloChat from "@/app/moddulo/components/ModduloChat";
 import PhaseTransitionReview from "@/app/moddulo/components/PhaseTransitionReview";
+import PhaseReportView from "@/app/moddulo/components/PhaseReportView";
 import { detectRisks } from "@/lib/moddulo/risks";
-import type { XPCTO, ProjectType } from "@/types/moddulo.types";
+import type { XPCTO, ProjectType, ChatMessage, PhaseId } from "@/types/moddulo.types";
+import { PHASE_ORDER } from "@/types/moddulo.types";
 
 // ==========================================
-// TIPO LOCAL PARA EL FORMULARIO
+// TIPOS LOCALES
 // ==========================================
 
 type XPCTOForm = {
@@ -19,6 +21,8 @@ type XPCTOForm = {
   tiempo: { fechaLimite: string; duracionMeses: number };
   justificacion: string;
 };
+
+type PageMode = "active" | "completed" | "editing";
 
 const emptyForm = (): XPCTOForm => ({
   hito: "",
@@ -38,15 +42,19 @@ export default function PropositoPage() {
   const projectId = params?.projectId as string;
 
   const [form, setForm] = useState<XPCTOForm>(emptyForm());
+  const [editForm, setEditForm] = useState<XPCTOForm>(emptyForm());
   const [projectType, setProjectType] = useState<ProjectType>("electoral");
+  const [mode, setMode] = useState<PageMode>("active");
+  const [reportText, setReportText] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [isClosingPhase, setIsClosingPhase] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  // Flag que impide que auto-save corra antes de que los datos se carguen
   const [isLoaded, setIsLoaded] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [propagationWarning, setPropagationWarning] = useState<PhaseId[]>([]);
 
-  // Cargar datos del proyecto al montar — fuente de verdad: project.xpcto
+  // Cargar proyecto al montar
   useEffect(() => {
     if (!projectId) return;
     fetch(`/api/moddulo/projects/${projectId}`, { credentials: "include" })
@@ -58,35 +66,44 @@ export default function PropositoPage() {
         return r.json();
       })
       .then((data) => {
-        if (!data) return;
-        console.log("[proposito] xpcto desde API:", JSON.stringify(data.project?.xpcto));
-        if (data.project) {
-          setProjectType(data.project.type ?? "electoral");
-          const xpcto = data.project.xpcto;
-          // Poblar el form con cualquier dato disponible (string no vacío = tiene dato)
-          if (xpcto) {
-            setForm({
-              hito: xpcto.hito ?? "",
-              sujeto: xpcto.sujeto ?? "",
-              capacidades: {
-                financiero: xpcto.capacidades?.financiero ?? "",
-                humano: xpcto.capacidades?.humano ?? "",
-                logistico: xpcto.capacidades?.logistico ?? "",
-              },
-              tiempo: {
-                fechaLimite: xpcto.tiempo?.fechaLimite ?? "",
-                duracionMeses: xpcto.tiempo?.duracionMeses ?? 0,
-              },
-              justificacion: xpcto.justificacion ?? "",
-            });
-          }
+        if (!data?.project) return;
+        const p = data.project;
+        setProjectType(p.type ?? "electoral");
+
+        // Poblar formulario desde xpcto
+        const xpcto = p.xpcto;
+        if (xpcto) {
+          const loaded: XPCTOForm = {
+            hito: xpcto.hito ?? "",
+            sujeto: xpcto.sujeto ?? "",
+            capacidades: {
+              financiero: xpcto.capacidades?.financiero ?? "",
+              humano: xpcto.capacidades?.humano ?? "",
+              logistico: xpcto.capacidades?.logistico ?? "",
+            },
+            tiempo: {
+              fechaLimite: xpcto.tiempo?.fechaLimite ?? "",
+              duracionMeses: xpcto.tiempo?.duracionMeses ?? 0,
+            },
+            justificacion: xpcto.justificacion ?? "",
+          };
+          setForm(loaded);
+          setEditForm(loaded);
+        }
+
+        // Detectar si la fase está completada
+        const phaseStatus = p.phases?.proposito?.status;
+        if (phaseStatus === "completed") {
+          setMode("completed");
+          const savedReport = p.phases?.proposito?.reportText;
+          if (savedReport) setReportText(savedReport);
         }
       })
       .catch((err) => console.error("[proposito] fetch error:", err))
       .finally(() => setIsLoaded(true));
   }, [projectId]);
 
-  // Auto-calcular duracionMeses cuando cambia fechaLimite
+  // Auto-calcular duracionMeses (sólo en modo activo/edicion)
   useEffect(() => {
     if (!form.tiempo.fechaLimite) return;
     const limite = new Date(form.tiempo.fechaLimite);
@@ -95,7 +112,7 @@ export default function PropositoPage() {
     setForm((prev) => ({ ...prev, tiempo: { ...prev.tiempo, duracionMeses: meses } }));
   }, [form.tiempo.fechaLimite]);
 
-  // Auto-guardar cuando el formulario cambia (debounced)
+  // Auto-guardar (solo en modo activo, después de que cargaron los datos)
   const autoSave = useCallback(async (formData: XPCTOForm) => {
     if (!projectId) return;
     setIsSaving(true);
@@ -121,13 +138,24 @@ export default function PropositoPage() {
   }, [projectId]);
 
   useEffect(() => {
-    // No auto-guardar hasta que los datos iniciales hayan cargado
-    if (!isLoaded) return;
+    if (!isLoaded || mode !== "active") return;
     const timer = setTimeout(() => autoSave(form), 1500);
     return () => clearTimeout(timer);
-  }, [form, autoSave, isLoaded]);
+  }, [form, autoSave, isLoaded, mode]);
 
-  // Recibir datos extraídos por Moddulo del chat
+  // Datos del formulario como objeto plano para el chat
+  const currentFormData = {
+    "xpcto.hito": form.hito,
+    "xpcto.sujeto": form.sujeto,
+    "xpcto.capacidades.financiero": form.capacidades.financiero,
+    "xpcto.capacidades.humano": form.capacidades.humano,
+    "xpcto.capacidades.logistico": form.capacidades.logistico,
+    "xpcto.tiempo.fechaLimite": form.tiempo.fechaLimite,
+    "xpcto.tiempo.duracionMeses": form.tiempo.duracionMeses,
+    "xpcto.justificacion": form.justificacion,
+  };
+
+  // Extraer datos del chat
   const handleDataExtracted = useCallback((data: Record<string, unknown>) => {
     setForm((prev) => {
       const next = { ...prev };
@@ -148,87 +176,183 @@ export default function PropositoPage() {
     });
   }, []);
 
-  // Cerrar fase y avanzar a F2
+  // Cerrar fase — guarda el reporte y avanza
   const handleClosePhase = async () => {
     setIsClosingPhase(true);
+    try {
+      // Buscar el último mensaje largo del asistente como reporte
+      const report = extractReportFromMessages(chatMessages);
+
+      await fetch(`/api/moddulo/projects/${projectId}/complete-phase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ phaseId: "proposito", reportText: report ?? undefined }),
+      });
+
+      if (report) setReportText(report);
+      setMode("completed");
+      setShowReview(false);
+    } catch {
+      /* manejo de error silencioso por ahora */
+    } finally {
+      setIsClosingPhase(false);
+    }
+  };
+
+  // Entrar a modo edición
+  const handleStartEdit = () => {
+    setEditForm({ ...form });
+    setMode("editing");
+  };
+
+  // Cancelar edición
+  const handleCancelEdit = () => {
+    setMode("completed");
+  };
+
+  // Guardar cambios del modo edición
+  const handleSaveEdit = async () => {
+    setIsSaving(true);
     try {
       await fetch(`/api/moddulo/projects/${projectId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ currentPhase: "exploracion" }),
+        body: JSON.stringify({
+          xpcto: {
+            hito: editForm.hito,
+            sujeto: editForm.sujeto,
+            capacidades: editForm.capacidades,
+            tiempo: editForm.tiempo,
+            justificacion: editForm.justificacion,
+          } satisfies Partial<XPCTO>,
+        }),
       });
-      router.push(`/moddulo/proyecto/${projectId}/exploracion`);
-    } catch {
-      setIsClosingPhase(false);
+      setForm({ ...editForm });
+      setLastSaved(new Date());
+
+      // Verificar si hay fases posteriores con datos (back-propagation)
+      const affected = await checkBackPropagation(projectId);
+      if (affected.length > 0) {
+        setPropagationWarning(affected);
+      } else {
+        setMode("completed");
+      }
+    } catch {/* silencioso */} finally {
+      setIsSaving(false);
     }
   };
 
-  // Datos del formulario como objeto plano para el chat
-  const currentFormData = {
-    "xpcto.hito": form.hito,
-    "xpcto.sujeto": form.sujeto,
-    "xpcto.capacidades.financiero": form.capacidades.financiero,
-    "xpcto.capacidades.humano": form.capacidades.humano,
-    "xpcto.capacidades.logistico": form.capacidades.logistico,
-    "xpcto.tiempo.fechaLimite": form.tiempo.fechaLimite,
-    "xpcto.tiempo.duracionMeses": form.tiempo.duracionMeses,
-    "xpcto.justificacion": form.justificacion,
-  };
-
   const risks = detectRisks(
-    {
-      hito: form.hito,
-      sujeto: form.sujeto,
-      capacidades: form.capacidades,
-      tiempo: form.tiempo,
-      justificacion: form.justificacion,
-    },
+    { hito: form.hito, sujeto: form.sujeto, capacidades: form.capacidades, tiempo: form.tiempo, justificacion: form.justificacion },
     projectType
   );
 
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Phase header */}
+      {/* Header */}
       <div className="shrink-0 px-6 py-4 border-b border-gray-eske-20 bg-white-eske flex items-center justify-between">
         <div>
           <span className="text-xs font-semibold uppercase tracking-widest text-bluegreen-eske">Fase 1</span>
-          <h1 className="text-lg font-bold text-gray-eske-80 mt-0.5">Propósito</h1>
+          <div className="flex items-center gap-2 mt-0.5">
+            <h1 className="text-lg font-bold text-gray-eske-80">Propósito</h1>
+            {mode === "completed" && (
+              <span className="text-xs font-medium px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                Completada
+              </span>
+            )}
+            {mode === "editing" && (
+              <span className="text-xs font-medium px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full">
+                Editando
+              </span>
+            )}
+          </div>
         </div>
+
         <div className="flex items-center gap-3">
-          {/* Estado de guardado */}
           <span className="text-xs text-gray-eske-40">
             {isSaving ? "Guardando..." : lastSaved ? `Guardado ${lastSaved.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}` : ""}
           </span>
-          <button
-            onClick={() => setShowReview(true)}
-            className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
-          >
-            Cerrar Fase 1
-          </button>
+
+          {mode === "active" && (
+            <button
+              onClick={() => setShowReview(true)}
+              className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
+            >
+              Cerrar Fase 1
+            </button>
+          )}
+
+          {mode === "completed" && (
+            <button
+              onClick={handleStartEdit}
+              className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors"
+            >
+              Editar variables
+            </button>
+          )}
+
+          {mode === "editing" && (
+            <div className="flex gap-2">
+              <button
+                onClick={handleCancelEdit}
+                className="px-4 py-2 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-sm font-medium hover:bg-gray-eske-10 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={isSaving}
+                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors disabled:opacity-40"
+              >
+                {isSaving ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Layout split */}
+      {/* Contenido principal */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Chat — columna izquierda */}
+        {/* Columna izquierda: chat o reporte */}
         <div className="flex-1 flex flex-col p-4 overflow-hidden min-w-0">
-          <ModduloChat
-            phaseId="proposito"
-            projectId={projectId}
-            currentFormData={currentFormData}
-            onDataExtracted={handleDataExtracted}
-            className="flex-1 overflow-hidden"
+          {mode === "completed" ? (
+            <PhaseReportView
+              phaseId="proposito"
+              reportText={reportText}
+              projectId={projectId}
+              onStartEdit={handleStartEdit}
+              className="flex-1 overflow-hidden"
+            />
+          ) : (
+            <ModduloChat
+              phaseId="proposito"
+              projectId={projectId}
+              currentFormData={currentFormData}
+              onDataExtracted={handleDataExtracted}
+              onMessagesChange={setChatMessages}
+              className="flex-1 overflow-hidden"
+            />
+          )}
+        </div>
+
+        {/* Columna derecha: formulario XPCTO */}
+        <div className="w-80 xl:w-96 shrink-0 border-l border-gray-eske-20 overflow-y-auto bg-gray-eske-10/50 p-4">
+          <XPCTOFormPanel
+            form={mode === "editing" ? editForm : form}
+            onChange={mode === "editing" ? setEditForm : (mode === "active" ? setForm : () => {})}
+            risks={risks}
+            readOnly={mode === "completed"}
           />
         </div>
-
-        {/* Formulario XPCTO — columna derecha */}
-        <div className="w-80 xl:w-96 shrink-0 border-l border-gray-eske-20 overflow-y-auto bg-gray-eske-10/50 p-4">
-          <XPCTOForm form={form} onChange={setForm} risks={risks} />
-        </div>
       </div>
 
-      {/* Modal de revisión de cierre */}
+      {/* Modal revisión de cierre */}
       {showReview && (
         <PhaseTransitionReview
           phaseId="proposito"
@@ -240,22 +364,64 @@ export default function PropositoPage() {
           isSubmitting={isClosingPhase}
         />
       )}
+
+      {/* Modal back-propagation */}
+      {propagationWarning.length > 0 && (
+        <BackPropagationModal
+          affectedPhases={propagationWarning}
+          onDismiss={() => {
+            setPropagationWarning([]);
+            setMode("completed");
+          }}
+        />
+      )}
     </div>
   );
+}
+
+// ==========================================
+// HELPERS
+// ==========================================
+
+function extractReportFromMessages(messages: ChatMessage[]): string | null {
+  // Buscar el último mensaje del asistente que sea suficientemente largo
+  // (el reporte diagnóstico suele ser > 500 caracteres)
+  const candidates = messages
+    .filter((m) => m.role === "assistant" && m.content.length > 500)
+    .reverse();
+  return candidates[0]?.content ?? null;
+}
+
+async function checkBackPropagation(projectId: string): Promise<PhaseId[]> {
+  try {
+    const r = await fetch(`/api/moddulo/projects/${projectId}`, { credentials: "include" });
+    if (!r.ok) return [];
+    const data = await r.json();
+    const phases = data.project?.phases ?? {};
+    const propositoIndex = PHASE_ORDER.indexOf("proposito");
+    return PHASE_ORDER.slice(propositoIndex + 1).filter((phaseId) => {
+      const status = phases[phaseId]?.status;
+      return status === "in-progress" || status === "completed";
+    }) as PhaseId[];
+  } catch {
+    return [];
+  }
 }
 
 // ==========================================
 // FORMULARIO XPCTO
 // ==========================================
 
-function XPCTOForm({
+function XPCTOFormPanel({
   form,
   onChange,
   risks,
+  readOnly = false,
 }: {
   form: XPCTOForm;
   onChange: (f: XPCTOForm) => void;
   risks: ReturnType<typeof detectRisks>;
+  readOnly?: boolean;
 }) {
   const risksByField = risks.reduce<Record<string, (typeof risks)[0]>>(
     (acc, r) => ({ ...acc, [r.field]: r }),
@@ -263,7 +429,7 @@ function XPCTOForm({
   );
 
   const fieldClass = (field: string) =>
-    `w-full px-3 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-gray-eske-80 bg-white-eske ${
+    `w-full px-3 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-gray-eske-80 bg-white-eske disabled:bg-gray-eske-10 disabled:text-gray-eske-50 ${
       risksByField[field]
         ? risksByField[field].level === "critical"
           ? "border-red-300"
@@ -274,21 +440,21 @@ function XPCTOForm({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-gray-eske-50">
-          Variables XPCTO
-        </h2>
-        <span className="text-xs text-gray-eske-40">Auto-rellena via chat</span>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-gray-eske-50">Variables XPCTO</h2>
+        {readOnly && (
+          <span className="text-xs text-gray-eske-40 italic">Solo lectura</span>
+        )}
+        {!readOnly && (
+          <span className="text-xs text-gray-eske-40">Auto-rellena via chat</span>
+        )}
       </div>
 
       {/* X — Hito */}
-      <FormField
-        label="Hito (X)"
-        hint="El resultado concreto e inamovible"
-        risk={risksByField["xpcto.hito"]}
-      >
+      <FormField label="Hito (X)" hint="El resultado concreto e inamovible" risk={risksByField["xpcto.hito"]}>
         <textarea
           value={form.hito}
-          onChange={(e) => onChange({ ...form, hito: e.target.value })}
+          onChange={(e) => !readOnly && onChange({ ...form, hito: e.target.value })}
+          disabled={readOnly}
           placeholder="¿Qué resultado específico y medible buscas lograr?"
           rows={3}
           className={fieldClass("xpcto.hito") + " resize-none"}
@@ -299,7 +465,8 @@ function XPCTOForm({
       <FormField label="Sujeto (P)" hint="El actor político del proyecto">
         <textarea
           value={form.sujeto}
-          onChange={(e) => onChange({ ...form, sujeto: e.target.value })}
+          onChange={(e) => !readOnly && onChange({ ...form, sujeto: e.target.value })}
+          disabled={readOnly}
           placeholder="Nombre, cargo al que aspira, perfil general..."
           rows={2}
           className={fieldClass("xpcto.sujeto") + " resize-none"}
@@ -314,43 +481,36 @@ function XPCTOForm({
             <RiskBadge level={risksByField["xpcto.capacidades"].level} />
           )}
         </p>
-        <input
-          type="text"
-          value={form.capacidades.financiero}
-          onChange={(e) => onChange({ ...form, capacidades: { ...form.capacidades, financiero: e.target.value } })}
-          placeholder="Financiero — presupuesto disponible"
-          className={fieldClass("xpcto.capacidades.financiero")}
-        />
-        <input
-          type="text"
-          value={form.capacidades.humano}
-          onChange={(e) => onChange({ ...form, capacidades: { ...form.capacidades, humano: e.target.value } })}
-          placeholder="Humano — equipo y estructura"
-          className={fieldClass("xpcto.capacidades.humano")}
-        />
-        <input
-          type="text"
-          value={form.capacidades.logistico}
-          onChange={(e) => onChange({ ...form, capacidades: { ...form.capacidades, logistico: e.target.value } })}
-          placeholder="Logístico — infraestructura y medios"
-          className={fieldClass("xpcto.capacidades.logistico")}
-        />
+        {[
+          { key: "financiero" as const, placeholder: "Financiero — presupuesto disponible" },
+          { key: "humano" as const, placeholder: "Humano — equipo y estructura" },
+          { key: "logistico" as const, placeholder: "Logístico — infraestructura y medios" },
+        ].map(({ key, placeholder }) => (
+          <input
+            key={key}
+            type="text"
+            value={form.capacidades[key]}
+            onChange={(e) => !readOnly && onChange({ ...form, capacidades: { ...form.capacidades, [key]: e.target.value } })}
+            disabled={readOnly}
+            placeholder={placeholder}
+            className={fieldClass(`xpcto.capacidades.${key}`)}
+          />
+        ))}
       </div>
 
       {/* T — Tiempo */}
       <div className="space-y-2">
         <p className="text-xs font-semibold text-gray-eske-60">
           Tiempo (T)
-          {risksByField["xpcto.tiempo"] && (
-            <RiskBadge level={risksByField["xpcto.tiempo"].level} />
-          )}
+          {risksByField["xpcto.tiempo"] && <RiskBadge level={risksByField["xpcto.tiempo"].level} />}
         </p>
         <div>
           <label className="text-xs text-gray-eske-40 mb-1 block">Fecha límite inamovible</label>
           <input
             type="date"
             value={form.tiempo.fechaLimite}
-            onChange={(e) => onChange({ ...form, tiempo: { ...form.tiempo, fechaLimite: e.target.value } })}
+            onChange={(e) => !readOnly && onChange({ ...form, tiempo: { ...form.tiempo, fechaLimite: e.target.value } })}
+            disabled={readOnly}
             className={fieldClass("xpcto.tiempo.fechaLimite")}
           />
         </div>
@@ -362,14 +522,11 @@ function XPCTOForm({
       </div>
 
       {/* O — Justificación */}
-      <FormField
-        label="Justificación (O)"
-        hint="El propósito ético que legitima el proyecto"
-        risk={risksByField["xpcto.justificacion"]}
-      >
+      <FormField label="Justificación (O)" hint="El propósito ético que legitima el proyecto" risk={risksByField["xpcto.justificacion"]}>
         <textarea
           value={form.justificacion}
-          onChange={(e) => onChange({ ...form, justificacion: e.target.value })}
+          onChange={(e) => !readOnly && onChange({ ...form, justificacion: e.target.value })}
+          disabled={readOnly}
           placeholder="¿Por qué este proyecto merece existir más allá de ganar o perder?"
           rows={3}
           className={fieldClass("xpcto.justificacion") + " resize-none"}
@@ -379,12 +536,7 @@ function XPCTOForm({
   );
 }
 
-function FormField({
-  label,
-  hint,
-  risk,
-  children,
-}: {
+function FormField({ label, hint, risk, children }: {
   label: string;
   hint?: string;
   risk?: ReturnType<typeof detectRisks>[0];
@@ -414,5 +566,68 @@ function RiskBadge({ level }: { level: "warning" | "critical" }) {
     }`}>
       {level === "critical" ? "⚠" : "○"}
     </span>
+  );
+}
+
+// ==========================================
+// MODAL BACK-PROPAGATION
+// ==========================================
+
+function BackPropagationModal({ affectedPhases, onDismiss }: {
+  affectedPhases: PhaseId[];
+  onDismiss: () => void;
+}) {
+  const PHASE_NAMES: Record<PhaseId, string> = {
+    proposito: "Propósito",
+    exploracion: "Exploración",
+    investigacion: "Investigación",
+    diagnostico: "Diagnóstico",
+    estrategia: "Diseño Estratégico",
+    tactica: "Diseño Táctico",
+    gerencia: "Gerencia",
+    seguimiento: "Seguimiento",
+    evaluacion: "Evaluación",
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black-eske/50">
+      <div className="bg-white-eske rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="font-bold text-gray-eske-80">Cambios con impacto en fases posteriores</h2>
+            <p className="text-sm text-gray-eske-60 mt-1">
+              Las siguientes fases ya tienen trabajo registrado. Los cambios al XPCTO de Propósito pueden afectar las decisiones tomadas en ellas:
+            </p>
+          </div>
+        </div>
+
+        <ul className="space-y-2 mb-5">
+          {affectedPhases.map((phaseId) => (
+            <li key={phaseId} className="flex items-center gap-2 text-sm text-gray-eske-70 bg-orange-50 px-3 py-2 rounded-lg">
+              <svg className="w-4 h-4 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+              {PHASE_NAMES[phaseId]}
+            </li>
+          ))}
+        </ul>
+
+        <p className="text-xs text-gray-eske-50 mb-5 leading-relaxed">
+          Moddulo ha guardado tus cambios. Te recomendamos revisar el trabajo de cada fase afectada para verificar que las decisiones sigan siendo consistentes con el nuevo Propósito.
+        </p>
+
+        <button
+          onClick={onDismiss}
+          className="w-full py-2.5 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
+        >
+          Entendido — revisar las fases afectadas
+        </button>
+      </div>
+    </div>
   );
 }

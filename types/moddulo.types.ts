@@ -175,6 +175,8 @@ export interface PhaseState {
   chatHistory: ChatMessage[];
   completedAt?: string; // ISO string
   report?: PhaseReport;
+  // Texto completo del reporte diagnóstico generado por Claude (markdown)
+  reportText?: string;
 }
 
 // ==========================================

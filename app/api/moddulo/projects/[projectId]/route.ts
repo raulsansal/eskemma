@@ -39,9 +39,9 @@ export async function GET(
         for (const [key, value] of Object.entries(recovered)) {
           const parts = key.split(".");
           if (parts[0] === "xpcto" && parts.length === 2) {
-            (project.xpcto as Record<string, unknown>)[parts[1]] = value;
+            (project.xpcto as unknown as Record<string, unknown>)[parts[1]] = value;
           } else if (parts[0] === "xpcto" && parts.length === 3) {
-            const sub = (project.xpcto as Record<string, Record<string, unknown>>)[parts[1]];
+            const sub = (project.xpcto as unknown as Record<string, Record<string, unknown>>)[parts[1]];
             if (sub) sub[parts[2]] = value;
           }
         }

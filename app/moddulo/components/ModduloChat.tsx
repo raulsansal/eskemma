@@ -11,6 +11,7 @@ interface ModduloChatProps {
   initialMessages?: ChatMessage[];
   currentFormData?: Record<string, unknown>;
   onDataExtracted?: (data: Record<string, unknown>) => void;
+  onMessagesChange?: (messages: ChatMessage[]) => void;
   className?: string;
 }
 
@@ -29,9 +30,16 @@ export default function ModduloChat({
   initialMessages = [],
   currentFormData,
   onDataExtracted,
+  onMessagesChange,
   className = "",
 }: ModduloChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+
+  // Notificar al padre cuando cambian los mensajes
+  useEffect(() => {
+    onMessagesChange?.(messages);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
