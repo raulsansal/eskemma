@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { PhaseId } from "@/types/moddulo.types";
 import { PHASE_NAMES } from "@/types/moddulo.types";
 
@@ -79,6 +80,7 @@ export default function PhaseReportView({
       <div className="flex-1 overflow-y-auto p-5 min-h-0">
         <div className="prose prose-sm max-w-none text-gray-800">
           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
             components={{
               h1: ({ children }) => (
                 <h1 className="text-base font-bold text-gray-900 mt-4 mb-2 first:mt-0 pb-1 border-b border-gray-200">{children}</h1>

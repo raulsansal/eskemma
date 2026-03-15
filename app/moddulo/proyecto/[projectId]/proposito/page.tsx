@@ -53,6 +53,7 @@ export default function PropositoPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [propagationWarning, setPropagationWarning] = useState<PhaseId[]>([]);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   // Cargar proyecto al montar
   useEffect(() => {
@@ -176,12 +177,44 @@ export default function PropositoPage() {
     });
   }, []);
 
+  // Generar reporte diagnóstico via API (usado en activo, edición y cierre)
+  const generateReport = async (formData: XPCTOForm): Promise<string | null> => {
+    setIsGeneratingReport(true);
+    try {
+      const r = await fetch(`/api/moddulo/projects/${projectId}/generate-report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          phaseId: "proposito",
+          xpcto: {
+            hito: formData.hito,
+            sujeto: formData.sujeto,
+            capacidades: formData.capacidades,
+            tiempo: formData.tiempo,
+            justificacion: formData.justificacion,
+          },
+        }),
+      });
+      if (!r.ok) return null;
+      const data = await r.json();
+      return data.reportText ?? null;
+    } catch {
+      return null;
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   // Cerrar fase — guarda el reporte y avanza
   const handleClosePhase = async () => {
     setIsClosingPhase(true);
     try {
-      // Buscar el último mensaje largo del asistente como reporte
-      const report = extractReportFromMessages(chatMessages);
+      // Usar reporte del chat si existe, sino generar automáticamente
+      let report = extractReportFromMessages(chatMessages) ?? reportText;
+      if (!report) {
+        report = await generateReport(form);
+      }
 
       await fetch(`/api/moddulo/projects/${projectId}/complete-phase`, {
         method: "POST",
@@ -194,7 +227,7 @@ export default function PropositoPage() {
       setMode("completed");
       setShowReview(false);
     } catch {
-      /* manejo de error silencioso por ahora */
+      /* silencioso */
     } finally {
       setIsClosingPhase(false);
     }
@@ -232,7 +265,11 @@ export default function PropositoPage() {
       setForm({ ...editForm });
       setLastSaved(new Date());
 
-      // Verificar si hay fases posteriores con datos (back-propagation)
+      // Regenerar reporte automáticamente con las nuevas variables
+      const newReport = await generateReport(editForm);
+      if (newReport) setReportText(newReport);
+
+      // Verificar back-propagation
       const affected = await checkBackPropagation(projectId);
       if (affected.length > 0) {
         setPropagationWarning(affected);
@@ -280,12 +317,37 @@ export default function PropositoPage() {
           </span>
 
           {mode === "active" && (
-            <button
-              onClick={() => setShowReview(true)}
-              className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
-            >
-              Cerrar Fase 1
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Botón Ver Resumen — disponible cuando XPCTO tiene datos */}
+              {(form.hito || form.sujeto) && (
+                <button
+                  onClick={async () => {
+                    const report = await generateReport(form);
+                    if (report) {
+                      setReportText(report);
+                      setMode("completed");
+                    }
+                  }}
+                  disabled={isGeneratingReport}
+                  className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40 flex items-center gap-2"
+                >
+                  {isGeneratingReport ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-bluegreen-eske/30 border-t-bluegreen-eske rounded-full animate-spin" />
+                      Generando...
+                    </>
+                  ) : (
+                    "Ver Resumen"
+                  )}
+                </button>
+              )}
+              <button
+                onClick={() => setShowReview(true)}
+                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
+              >
+                Cerrar Fase 1
+              </button>
+            </div>
           )}
 
           {mode === "completed" && (

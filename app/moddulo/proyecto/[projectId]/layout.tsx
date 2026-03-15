@@ -20,7 +20,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="min-h-screen bg-gray-eske-10 flex flex-col">
+    <div className="h-[calc(100vh-80px)] bg-gray-eske-10 flex flex-col overflow-hidden">
       {/* Top Header */}
       <header className="bg-bluegreen-eske text-white-eske py-3 px-4 shrink-0">
         <div className="flex items-center justify-between">
@@ -94,7 +94,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
         )}
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-hidden">{children}</main>
       </div>
     </div>
   );

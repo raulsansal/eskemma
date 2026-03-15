@@ -164,7 +164,7 @@ export default function NuevoProyectoPage() {
                     <div className="font-semibold text-gray-eske-80 text-sm mb-1">
                       {PROJECT_TYPE_LABELS[pt]}
                     </div>
-                    <div className="text-xs text-gray-eske-50 leading-relaxed">
+                    <div className="text-xs text-gray-eske-70 font-medium leading-relaxed">
                       {PROJECT_TYPE_DESCRIPTIONS[pt]}
                     </div>
                   </button>
