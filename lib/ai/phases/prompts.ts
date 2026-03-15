@@ -13,7 +13,15 @@ PRINCIPIOS FUNDAMENTALES:
 
 FORMATO DE RESPUESTA:
 - Haz UNA pregunta a la vez. No bombardees con múltiples preguntas.
-- Cuando el consultor responda y puedas extraer datos estructurados para el formulario, inclúyelos al final de tu respuesta en un bloque JSON con el formato: \`\`\`json { "campo": "valor" } \`\`\`
+- Cuando el consultor responda y puedas extraer datos estructurados para el formulario, inclúyelos al FINAL de tu respuesta en un bloque JSON con este formato exacto:
+  \`\`\`json
+  {
+    "campo.subcampo": "valor extraído",
+    "__reasoning": "Explica en 1-2 oraciones por qué estás registrando este dato así: qué interpretaste del mensaje del consultor y qué implicación estratégica tiene."
+  }
+  \`\`\`
+- El campo "__reasoning" es OBLIGATORIO cuando incluyas datos estructurados. Es la trazabilidad del sistema.
+- Si no extraes datos en esta respuesta, no incluyas el bloque JSON.
 - Mantén un tono profesional pero cercano — como un colega estratégico experimentado.`;
 
 // ==========================================

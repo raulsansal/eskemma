@@ -76,12 +76,12 @@ export async function POST(
         }
 
         // Al terminar el stream, intentar extraer datos estructurados
-        const extractedData = extractDataFromResponse(fullText, phaseId as PhaseId);
+        const { extractedData, reasoning } = extractDataFromResponse(fullText, phaseId as PhaseId);
 
         if (extractedData && Object.keys(extractedData).length > 0) {
           controller.enqueue(
             encoder.encode(
-              `data: ${JSON.stringify({ type: "extracted-data", extractedData })}\n\n`
+              `data: ${JSON.stringify({ type: "extracted-data", extractedData, reasoning })}\n\n`
             )
           );
         }
@@ -93,6 +93,7 @@ export async function POST(
           content: fullText,
           timestamp: new Date().toISOString(),
           extractedData: extractedData ?? undefined,
+          reasoning: reasoning ?? undefined,
         };
 
         appendChatMessage(projectId, phaseId as PhaseId, assistantMessage).catch(
@@ -138,17 +139,21 @@ export async function POST(
 
 function extractDataFromResponse(
   text: string,
-  phaseId: PhaseId
-): Record<string, unknown> | null {
-  // Buscar bloque JSON en la respuesta de Claude
-  // Claude puede incluir datos estructurados entre marcadores ```json ... ```
+  _phaseId: PhaseId
+): { extractedData: Record<string, unknown> | null; reasoning: string | null } {
   const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
-  if (!jsonMatch) return null;
+  if (!jsonMatch) return { extractedData: null, reasoning: null };
 
   try {
     const parsed = JSON.parse(jsonMatch[1]);
-    return parsed;
+    const reasoning = typeof parsed.__reasoning === "string" ? parsed.__reasoning : null;
+
+    // Separar __reasoning del resto de datos del formulario
+    const { __reasoning: _, ...formData } = parsed;
+    const extractedData = Object.keys(formData).length > 0 ? formData : null;
+
+    return { extractedData, reasoning };
   } catch {
-    return null;
+    return { extractedData: null, reasoning: null };
   }
 }

@@ -28,22 +28,20 @@ export default function ModduloChat({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll al último mensaje
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamingContent]);
 
-  // Mensaje de bienvenida inicial de Moddulo
   useEffect(() => {
     if (messages.length === 0) {
-      const welcomeMessage: ChatMessage = {
+      setMessages([{
         id: "welcome",
         role: "assistant",
         content: getWelcomeMessage(phaseId),
         timestamp: new Date().toISOString(),
-      };
-      setMessages([welcomeMessage]);
+      }]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseId]);
 
   const sendMessage = async () => {
@@ -80,6 +78,7 @@ export default function ModduloChat({
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullContent = "";
+      let lastReasoning: string | undefined;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -100,32 +99,35 @@ export default function ModduloChat({
               fullContent += parsed.content;
               setStreamingContent(fullContent);
             } else if (parsed.type === "extracted-data" && parsed.extractedData) {
+              lastReasoning = parsed.reasoning ?? undefined;
               onDataExtracted?.(parsed.extractedData);
             } else if (parsed.type === "done") {
-              // Guardar mensaje completo en la lista
               const assistantMessage: ChatMessage = {
                 id: crypto.randomUUID(),
                 role: "assistant",
                 content: fullContent,
                 timestamp: new Date().toISOString(),
+                reasoning: lastReasoning,
               };
               setMessages((prev) => [...prev, assistantMessage]);
               setStreamingContent("");
             }
           } catch {
-            // Ignorar líneas malformadas
+            // línea malformada, ignorar
           }
         }
       }
     } catch (error) {
       console.error("[ModduloChat] Error:", error);
-      const errorMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "Lo siento, tuve un problema al procesar tu mensaje. ¿Puedes intentarlo de nuevo?",
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "Lo siento, tuve un problema al procesar tu mensaje. ¿Puedes intentarlo de nuevo?",
+          timestamp: new Date().toISOString(),
+        },
+      ]);
       setStreamingContent("");
     } finally {
       setIsLoading(false);
@@ -149,33 +151,26 @@ export default function ModduloChat({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-64 max-h-96">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-64">
         {messages.map((msg) => (
           <ChatBubble key={msg.id} message={msg} />
         ))}
 
-        {/* Streaming message */}
         {streamingContent && (
           <ChatBubble
-            message={{
-              id: "streaming",
-              role: "assistant",
-              content: streamingContent,
-              timestamp: new Date().toISOString(),
-            }}
+            message={{ id: "streaming", role: "assistant", content: streamingContent, timestamp: new Date().toISOString() }}
             isStreaming
           />
         )}
 
-        {/* Loading indicator */}
         {isLoading && !streamingContent && (
           <div className="flex gap-2 items-start">
             <ModduloAvatar />
             <div className="bg-gray-eske-10 rounded-xl rounded-tl-none px-4 py-3">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-gray-eske-40 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-2 h-2 bg-gray-eske-40 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-2 h-2 bg-gray-eske-40 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                {[0, 150, 300].map((delay) => (
+                  <span key={delay} className="w-2 h-2 bg-gray-eske-40 rounded-full animate-bounce" style={{ animationDelay: `${delay}ms` }} />
+                ))}
               </div>
             </div>
           </div>
@@ -228,9 +223,10 @@ function ModduloAvatar() {
 }
 
 function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; isStreaming?: boolean }) {
+  const [reasoningOpen, setReasoningOpen] = useState(false);
   const isAssistant = message.role === "assistant";
 
-  // Limpiar los bloques ```json del contenido visible
+  // Quitar bloques ```json del texto visible
   const displayContent = message.content.replace(/```json[\s\S]*?```/g, "").trim();
 
   if (isAssistant) {
@@ -244,6 +240,26 @@ function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; is
               <span className="inline-block w-1 h-4 bg-bluegreen-eske ml-0.5 animate-pulse rounded-sm" />
             )}
           </div>
+
+          {/* Trazabilidad: ¿Por qué? */}
+          {message.reasoning && !isStreaming && (
+            <div className="mt-1 ml-1">
+              <button
+                onClick={() => setReasoningOpen((v) => !v)}
+                className="flex items-center gap-1 text-xs text-gray-eske-40 hover:text-bluegreen-eske transition-colors"
+              >
+                <svg className={`w-3 h-3 transition-transform ${reasoningOpen ? "rotate-90" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                ¿Por qué registré esto?
+              </button>
+              {reasoningOpen && (
+                <div className="mt-1 px-3 py-2 bg-bluegreen-eske/5 border border-bluegreen-eske/15 rounded-lg text-xs text-gray-eske-60 italic leading-relaxed">
+                  {message.reasoning}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -266,16 +282,15 @@ function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; is
 
 function getWelcomeMessage(phaseId: PhaseId): string {
   const welcomes: Record<PhaseId, string> = {
-    proposito: "Bienvenido a la Fase 1. Aquí vamos a definir el ADN de tu proyecto mediante las variables XPCTO.\n\nEmpecemos por lo más importante: **¿cuál es el HITO de este proyecto?** Es decir, ¿qué resultado concreto, específico y medible buscas lograr?",
-    exploracion: "Estamos en la Fase 2 — Exploración. Aquí haremos un primer escaneo del entorno para entender el contexto en el que se desarrollará el proyecto.\n\n¿Cuál es el principal factor del entorno **político** que más podría impactar (positiva o negativamente) a este proyecto en los próximos meses?",
-    investigacion: "Fase 3 — Investigación. Es el momento de trabajar con los datos de campo.\n\n¿Cuáles son los principales hallazgos de la investigación que ya tienes disponible? Puedes compartir los insights más importantes o cargar documentos para que los analice.",
-    diagnostico: "Estamos en la Fase 4 — Diagnóstico. Aquí transformamos la inteligencia recopilada en un dictamen de viabilidad.\n\nEmpecemos por el escenario de competencia. Según lo que hemos visto, ¿cómo caracterizarías el entorno actual del proyecto: de Continuidad, Ruptura, Terciopelo o Caos?",
-    estrategia: "Fase 5 — Diseño Estratégico. Este es el momento creativo donde la inteligencia se convierte en narrativa.\n\nBasándome en todo lo anterior, ¿cuál es la **propuesta de valor única** que diferencia a este proyecto de sus competidores? ¿Qué hace que valga la pena apoyarlo?",
-    tactica: "Fase 6 — Diseño Táctico. Aquí convertimos la estrategia en planes de acción concretos.\n\nComencemos por el frente más crítico. ¿Cuál de los tres frentes consideras que debe recibir la mayor atención y recursos: **Aire** (medios), **Tierra** (territorial) o **Agua** (digital)?",
-    gerencia: "Fase 7 — Gerencia. El War Room está activado. Esta fase es de mando y ejecución diaria.\n\n¿Cuál es el estado actual del proyecto en términos generales? ¿Estamos en ruta, con retrasos, o enfrentando alguna situación de crisis que debamos atender primero?",
-    seguimiento: "Fase 8 — Seguimiento. Es momento de revisar la ruta crítica y los indicadores.\n\n¿Cuáles son los KPIs que estás midiendo actualmente? Compárteme los números más recientes para poder hacer el análisis de desempeño.",
-    evaluacion: "Fase 9 — Evaluación. Cerramos el ciclo. Este es el momento de aprender y construir legado.\n\nEmpecemos con el After-Action Review. ¿El proyecto logró el **Hito (X)** que se planteó en la Fase 1? Cuéntame con franqueza — la honestidad aquí es lo que alimenta el aprendizaje.",
+    proposito: "Bienvenido a la Fase 1. Aquí vamos a definir el ADN de tu proyecto mediante las variables XPCTO.\n\nEmpecemos por lo más importante: ¿cuál es el HITO de este proyecto? Es decir, ¿qué resultado concreto, específico y medible buscas lograr?",
+    exploracion: "Estamos en la Fase 2 — Exploración. Haremos un escaneo del entorno para entender el contexto.\n\n¿Cuál es el principal factor del entorno político que más podría impactar este proyecto en los próximos meses?",
+    investigacion: "Fase 3 — Investigación. Es el momento de trabajar con los datos de campo.\n\n¿Cuáles son los principales hallazgos de la investigación que ya tienes disponible?",
+    diagnostico: "Estamos en la Fase 4 — Diagnóstico. Transformamos la inteligencia en un dictamen de viabilidad.\n\n¿Cómo caracterizarías el entorno actual del proyecto: de Continuidad, Ruptura, Terciopelo o Caos?",
+    estrategia: "Fase 5 — Diseño Estratégico. La inteligencia se convierte en narrativa.\n\n¿Cuál es la propuesta de valor única que diferencia a este proyecto de sus competidores?",
+    tactica: "Fase 6 — Diseño Táctico. La estrategia se convierte en planes de acción concretos.\n\n¿Cuál frente debe recibir la mayor atención: Aire (medios), Tierra (territorial) o Agua (digital)?",
+    gerencia: "Fase 7 — Gerencia. El War Room está activado.\n\n¿Cuál es el estado actual del proyecto? ¿Estamos en ruta, con retrasos o enfrentando alguna crisis?",
+    seguimiento: "Fase 8 — Seguimiento. Es momento de revisar la ruta crítica y los indicadores.\n\n¿Cuáles son los KPIs que estás midiendo actualmente?",
+    evaluacion: "Fase 9 — Evaluación. Cerramos el ciclo y construimos legado.\n\n¿El proyecto logró el Hito (X) que se planteó en la Fase 1? Cuéntame con franqueza.",
   };
-
   return welcomes[phaseId];
 }

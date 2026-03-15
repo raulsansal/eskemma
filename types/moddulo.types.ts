@@ -150,6 +150,7 @@ export interface ChatMessage {
   content: string;
   timestamp: string; // ISO string
   extractedData?: Record<string, unknown>;
+  reasoning?: string; // Trazabilidad: por qué Moddulo tomó esta decisión o extrajo este dato
 }
 
 // ==========================================
