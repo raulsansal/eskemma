@@ -5,7 +5,7 @@
 // CORREGIDO: Manejo consistente de fechas (string ISO en Firestore)
 // ============================================================
 
-import { db, storage } from "../../firebase/firebaseConfig";
+import { db, storage } from "../../../firebase/firebaseConfig";
 import { 
   doc, 
   getDoc, 

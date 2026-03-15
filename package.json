@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@heroicons/react": "^2.2.0",
     "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",

@@ -1,0 +1,154 @@
+// app/api/moddulo/chat/[phaseId]/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionFromRequest } from "@/lib/server/auth-helpers";
+import { anthropic, CLAUDE_MODEL } from "@/lib/ai/claude";
+import { getPhaseSystemPrompt } from "@/lib/ai/phases/prompts";
+import { appendChatMessage } from "@/lib/moddulo/project";
+import type { PhaseId, ChatRequest } from "@/types/moddulo.types";
+import { PHASE_ORDER } from "@/types/moddulo.types";
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ phaseId: string }> }
+) {
+  try {
+    // Autenticación
+    const session = await getSessionFromRequest(request);
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const { phaseId } = await params;
+
+    // Validar phaseId
+    if (!PHASE_ORDER.includes(phaseId as PhaseId)) {
+      return NextResponse.json({ error: "Fase inválida" }, { status: 400 });
+    }
+
+    const body: ChatRequest = await request.json();
+    const { message, projectId, currentFormData, chatHistory = [] } = body;
+
+    if (!message || !projectId) {
+      return NextResponse.json(
+        { error: "message y projectId son requeridos" },
+        { status: 400 }
+      );
+    }
+
+    // Construir mensajes para Claude
+    const systemPrompt = getPhaseSystemPrompt(phaseId as PhaseId, currentFormData);
+
+    const messages: { role: "user" | "assistant"; content: string }[] = [
+      // Historial previo de la conversación
+      ...chatHistory.map((msg) => ({
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+      })),
+      // Mensaje actual del usuario
+      { role: "user" as const, content: message },
+    ];
+
+    // Streaming con Claude
+    const stream = await anthropic.messages.stream({
+      model: CLAUDE_MODEL,
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages,
+    });
+
+    // Crear ReadableStream para el cliente
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        let fullText = "";
+
+        for await (const chunk of stream) {
+          if (
+            chunk.type === "content_block_delta" &&
+            chunk.delta.type === "text_delta"
+          ) {
+            const text = chunk.delta.text;
+            fullText += text;
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ type: "text", content: text })}\n\n`)
+            );
+          }
+        }
+
+        // Al terminar el stream, intentar extraer datos estructurados
+        const extractedData = extractDataFromResponse(fullText, phaseId as PhaseId);
+
+        if (extractedData && Object.keys(extractedData).length > 0) {
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({ type: "extracted-data", extractedData })}\n\n`
+            )
+          );
+        }
+
+        // Guardar el mensaje de Moddulo en Firestore (sin bloquear el stream)
+        const assistantMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant" as const,
+          content: fullText,
+          timestamp: new Date().toISOString(),
+          extractedData: extractedData ?? undefined,
+        };
+
+        appendChatMessage(projectId, phaseId as PhaseId, assistantMessage).catch(
+          (err) => console.error("[chat/route] Error guardando mensaje:", err)
+        );
+
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`)
+        );
+        controller.close();
+      },
+    });
+
+    // Guardar el mensaje del usuario en Firestore
+    appendChatMessage(projectId, phaseId as PhaseId, {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: message,
+      timestamp: new Date().toISOString(),
+    }).catch((err) =>
+      console.error("[chat/route] Error guardando mensaje de usuario:", err)
+    );
+
+    return new Response(readableStream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
+  } catch (error) {
+    console.error("[chat/route] Error:", error);
+    return NextResponse.json(
+      { error: "Error al procesar el mensaje" },
+      { status: 500 }
+    );
+  }
+}
+
+// ==========================================
+// EXTRACCIÓN DE DATOS ESTRUCTURADOS
+// ==========================================
+
+function extractDataFromResponse(
+  text: string,
+  phaseId: PhaseId
+): Record<string, unknown> | null {
+  // Buscar bloque JSON en la respuesta de Claude
+  // Claude puede incluir datos estructurados entre marcadores ```json ... ```
+  const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+  if (!jsonMatch) return null;
+
+  try {
+    const parsed = JSON.parse(jsonMatch[1]);
+    return parsed;
+  } catch {
+    return null;
+  }
+}

@@ -1,70 +1,282 @@
 // types/moddulo.types.ts
+import type { Timestamp } from "firebase/firestore";
 
-/**
- * Categorías de apps de Moddulo
- */
-export type ModduloAppCategory = 
-  | "comunicacion"
-  | "estrategia"
-  | "datos"
-  | "operaciones"
-  | "territorio";
+// ==========================================
+// ENUMERACIONES FUNDAMENTALES
+// ==========================================
 
-/**
- * Estados de una app
- */
-export type ModduloAppStatus = "active" | "locked" | "coming-soon";
+export type ProjectType =
+  | "electoral"      // Conquista del poder — votos, registros
+  | "gubernamental"  // Ejercicio del poder — administración pública
+  | "legislativo"    // Institucionalización del poder — normativa, cabildeo
+  | "ciudadano";     // Incidencia sobre el poder — sociedad civil
 
-/**
- * Tiers de Moddulo
- */
-export type ModduloAppTier = "BASIC" | "PREMIUM" | "PROFESSIONAL";
+export type PhaseId =
+  | "proposito"      // F1: ADN del proyecto, variables XPCTO
+  | "exploracion"    // F2: Escaneo PEST-L, hipótesis estratégica
+  | "investigacion"  // F3: Inteligencia de campo, datos duros
+  | "diagnostico"    // F4: Dictamen de viabilidad, MEC
+  | "estrategia"     // F5: Idea matriz, arquitectura de mensajes
+  | "tactica"        // F6: Ingeniería de operaciones
+  | "gerencia"       // F7: War Room, unidad de mando
+  | "seguimiento"    // F8: KPIs, alertas, ruta crítica
+  | "evaluacion";    // F9: Legado táctico, lecciones aprendidas
 
-/**
- * Interfaz de una app de Moddulo
- */
-export interface ModduloApp {
+export const PHASE_ORDER: PhaseId[] = [
+  "proposito",
+  "exploracion",
+  "investigacion",
+  "diagnostico",
+  "estrategia",
+  "tactica",
+  "gerencia",
+  "seguimiento",
+  "evaluacion",
+];
+
+export const PHASE_NAMES: Record<PhaseId, string> = {
+  proposito: "Propósito",
+  exploracion: "Exploración",
+  investigacion: "Investigación",
+  diagnostico: "Diagnóstico",
+  estrategia: "Diseño Estratégico",
+  tactica: "Diseño Táctico",
+  gerencia: "Gerencia",
+  seguimiento: "Seguimiento",
+  evaluacion: "Evaluación",
+};
+
+export const PHASE_DESCRIPTIONS: Record<PhaseId, string> = {
+  proposito: "Direccionamiento estratégico — ADN y variables XPCTO",
+  exploracion: "Investigación preliminar — Escaneo PEST-L y contexto",
+  investigacion: "Levantamiento de inteligencia — Datos de campo",
+  diagnostico: "Análisis de viabilidad — Dictamen y MEC",
+  estrategia: "Conceptualización — Idea matriz y activos",
+  tactica: "Programación operativa — Ingeniería de operaciones",
+  gerencia: "Mando y ejecución — Unidad de mando",
+  seguimiento: "Monitoreo permanente — Vigilancia de ruta crítica",
+  evaluacion: "Resultados y legado — Capitalización de aprendizajes",
+};
+
+export type PhaseStatus = "not-started" | "in-progress" | "completed" | "needs-review";
+
+export type CollaboratorRole = "owner" | "co-consultant" | "analyst" | "client";
+
+export type ProjectStatus = "draft" | "active" | "paused" | "completed" | "archived";
+
+export type IntegrityLevel = "green" | "yellow" | "red";
+
+export type AILevel = "minimal" | "balanced" | "maximum";
+
+// ==========================================
+// MODELO XPCTO
+// ==========================================
+
+export interface XPCTO {
+  hito: string;            // X: El resultado concreto e inamovible buscado
+  sujeto: string;          // P: El actor político del proyecto
+  capacidades: {
+    financiero: string;    // C: Presupuesto y recursos económicos
+    humano: string;        // C: Equipo y estructura organizacional
+    logistico: string;     // C: Infraestructura y medios operativos
+  };
+  tiempo: {
+    fechaLimite: string;   // T: Fecha límite inamovible (ISO string)
+    duracionMeses: number; // T: Duración total del proyecto en meses
+  };
+  justificacion: string;   // O: El propósito superior y ético que legitima el proyecto
+}
+
+// ==========================================
+// VECTORES MIA (Modelo de Interoperabilidad de Activos)
+// ==========================================
+
+export type VectorMIA =
+  | "social"          // Legitimidad social — conexión emocional con el electorado
+  | "transferencia"   // Transferencia gubernamental — ancla o motor
+  | "movilizacion"    // Movilización — capacidad estructural
+  | "opinion"         // Opinión independiente — votante racional no alineado
+  | "defensa"         // Defensa y control — logística del día D
+  | "validacion";     // Validación externa — alianzas y poderes fácticos
+
+export interface VectorMIAEvaluation {
+  vector: VectorMIA;
+  score: number;           // 0-10
+  diagnosis: string;       // Diagnóstico específico
+  recommendation: string;
+}
+
+// ==========================================
+// COLABORACIÓN
+// ==========================================
+
+export interface Collaborator {
+  uid: string;
+  email: string;
+  displayName?: string;
+  role: CollaboratorRole;
+  addedAt: Timestamp;
+  addedBy: string;
+}
+
+// ==========================================
+// BITÁCORA / CHANGELOG
+// ==========================================
+
+export type ChangeSource = "user" | "ai-suggestion" | "propagation";
+
+export interface ChangelogEntry {
   id: string;
-  slug: string;
+  timestamp: Timestamp;
+  userId: string;
+  userDisplayName?: string;
+  phaseId: PhaseId | "project";
+  action: string;
+  previousValue?: unknown;
+  newValue?: unknown;
+  reason?: string;
+  source: ChangeSource;
+}
+
+// ==========================================
+// CHAT CON MODDULO
+// ==========================================
+
+export type ChatRole = "assistant" | "user";
+
+export interface ChatMessage {
+  id: string;
+  role: ChatRole;
+  content: string;
+  timestamp: string; // ISO string
+  extractedData?: Record<string, unknown>;
+}
+
+// ==========================================
+// REPORTE DE FASE
+// ==========================================
+
+export interface PhaseReport {
+  summary: string;
+  integrity: IntegrityLevel;
+  observations: string[];
+  miaEvaluations?: VectorMIAEvaluation[];
+  generatedAt: string; // ISO string
+}
+
+// ==========================================
+// ESTADO DE FASE
+// ==========================================
+
+export interface PhaseState {
+  status: PhaseStatus;
+  data: Record<string, unknown>;
+  chatHistory: ChatMessage[];
+  completedAt?: string; // ISO string
+  report?: PhaseReport;
+}
+
+// ==========================================
+// ALERTA DE PROPAGACIÓN
+// ==========================================
+
+export interface PropagationAlert {
+  sourcePhase: PhaseId;
+  affectedPhases: PhaseId[];
+  suggestions: {
+    phaseId: PhaseId;
+    suggestion: string;
+  }[];
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+}
+
+// ==========================================
+// PROYECTO PRINCIPAL
+// ==========================================
+
+export interface ModduloProject {
+  id: string;
+  userId: string;
+  type: ProjectType;
   name: string;
-  shortDescription: string;
-  fullDescription: string;
-  category: ModduloAppCategory;
-  tier: ModduloAppTier;
-  icon: string;
-  comingSoon: boolean;
-  isPremiumUpgrade?: boolean;
-  baseAppSlug?: string;
-  features: string[];
+  description?: string;
+  xpcto: XPCTO;
+  currentPhase: PhaseId;
+  phases: Record<PhaseId, PhaseState>;
+  collaborators: Collaborator[];
+  status: ProjectStatus;
+  settings: {
+    aiLevel: AILevel;
+    language: "es";
+  };
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  lastAccessedAt: Timestamp;
 }
 
-/**
- * App con estado calculado según el plan del usuario
- */
-export interface ModduloAppWithStatus extends ModduloApp {
-  status: ModduloAppStatus;
-  requiresUpgrade: boolean;
-  requiredTier?: ModduloAppTier;
-}
+// ==========================================
+// TIPOS PARA CREAR/ACTUALIZAR
+// ==========================================
 
-/**
- * Información de una categoría
- */
-export interface ModduloCategoryInfo {
-  id: ModduloAppCategory;
+export interface CreateProjectInput {
+  type: ProjectType;
   name: string;
-  description: string;
-  icon: string;
-  color: string;
+  description?: string;
+  xpcto?: Partial<XPCTO>;
 }
 
-/**
- * Estadísticas del hub de Moddulo
- */
-export interface ModduloStats {
-  totalApps: number;
-  availableApps: number;
-  lockedApps: number;
-  comingSoonApps: number;
-  currentTier: ModduloAppTier;
+export type UpdateProjectInput = Partial<
+  Pick<ModduloProject, "name" | "description" | "xpcto" | "status" | "settings">
+>;
+
+// ==========================================
+// TIPOS PARA EL CHAT API
+// ==========================================
+
+export interface ChatRequest {
+  message: string;
+  projectId: string;
+  phaseId: PhaseId;
+  currentFormData?: Record<string, unknown>;
+  chatHistory?: ChatMessage[];
 }
+
+export interface ChatResponseChunk {
+  type: "text" | "extracted-data" | "done";
+  content?: string;
+  extractedData?: Record<string, unknown>;
+}
+
+// ==========================================
+// METADATOS DE TIPOS DE PROYECTO Y ROLES
+// ==========================================
+
+export const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
+  electoral: "Electoral",
+  gubernamental: "Gubernamental",
+  legislativo: "Legislativo",
+  ciudadano: "Ciudadano",
+};
+
+export const PROJECT_TYPE_DESCRIPTIONS: Record<ProjectType, string> = {
+  electoral: "Conquista del poder — votos, registros, participación ciudadana",
+  gubernamental: "Ejercicio del poder — administración pública, políticas",
+  legislativo: "Institucionalización del poder — normativa, cabildeo, representación",
+  ciudadano: "Incidencia sobre el poder — sociedad civil, movilización social",
+};
+
+export const COLLABORATOR_ROLE_LABELS: Record<CollaboratorRole, string> = {
+  owner: "Dueño del proyecto",
+  "co-consultant": "Co-consultor",
+  analyst: "Analista",
+  client: "Cliente / Candidato",
+};
+
+export const COLLABORATOR_ROLE_PERMISSIONS: Record<CollaboratorRole, string[]> = {
+  owner: ["read", "write", "manage-collaborators", "delete-project"],
+  "co-consultant": ["read", "write"],
+  analyst: ["read", "upload-documents"],
+  client: ["read"],
+};
