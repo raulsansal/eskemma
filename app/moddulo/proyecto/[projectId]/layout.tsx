@@ -1,7 +1,7 @@
 // app/moddulo/proyecto/[projectId]/layout.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import PhaseNav from "@/app/moddulo/components/PhaseNav";
@@ -10,6 +10,12 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   const params = useParams();
   const projectId = params?.projectId as string;
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Bloquear scroll del body — el scroll vive dentro del chat, no en la página
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
 
   if (!projectId) {
     return (

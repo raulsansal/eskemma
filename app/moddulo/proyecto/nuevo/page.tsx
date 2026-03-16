@@ -109,7 +109,7 @@ export default function NuevoProyectoPage() {
             <h1 className="text-xl font-bold text-gray-eske-80 mb-1">
               Nuevo proyecto estratégico
             </h1>
-            <p className="text-gray-eske-50 text-sm mb-6">
+            <p className="text-gray-eske-70 font-medium text-sm mb-6">
               Define el nombre y el tipo de proyecto político que vas a desarrollar.
             </p>
 
@@ -161,10 +161,10 @@ export default function NuevoProyectoPage() {
                         : "border-gray-eske-20 hover:border-gray-eske-40"
                     }`}
                   >
-                    <div className="font-semibold text-gray-eske-80 text-sm mb-1">
+                    <div className="font-bold text-gray-eske-90 text-sm mb-1">
                       {PROJECT_TYPE_LABELS[pt]}
                     </div>
-                    <div className="text-xs text-gray-eske-70 font-medium leading-relaxed">
+                    <div className="text-xs text-gray-eske-80 font-medium leading-relaxed">
                       {PROJECT_TYPE_DESCRIPTIONS[pt]}
                     </div>
                   </button>
@@ -188,7 +188,7 @@ export default function NuevoProyectoPage() {
             <h1 className="text-xl font-bold text-gray-eske-80 mb-1">
               Confirma tu proyecto
             </h1>
-            <p className="text-gray-eske-50 text-sm mb-6">
+            <p className="text-gray-eske-70 font-medium text-sm mb-6">
               Al crear el proyecto, Moddulo te guiará a través de la Fase 1 — Propósito,
               donde definirás las variables XPCTO del proyecto.
             </p>

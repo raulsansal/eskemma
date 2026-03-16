@@ -316,17 +316,15 @@ export default function PropositoPage() {
             {isSaving ? "Guardando..." : lastSaved ? `Guardado ${lastSaved.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}` : ""}
           </span>
 
+          {/* Modo activo */}
           {mode === "active" && (
             <div className="flex items-center gap-2">
-              {/* Botón Ver Resumen — disponible cuando XPCTO tiene datos */}
-              {(form.hito || form.sujeto) && (
+              {/* Ver Resumen: solo cuando los 5 campos XPCTO están completos */}
+              {isFormComplete(form) && (
                 <button
                   onClick={async () => {
                     const report = await generateReport(form);
-                    if (report) {
-                      setReportText(report);
-                      setMode("completed");
-                    }
+                    if (report) setReportText(report);
                   }}
                   disabled={isGeneratingReport}
                   className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40 flex items-center gap-2"
@@ -350,15 +348,25 @@ export default function PropositoPage() {
             </div>
           )}
 
+          {/* Modo completado */}
           {mode === "completed" && (
-            <button
-              onClick={handleStartEdit}
-              className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors"
-            >
-              Editar variables
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleStartEdit}
+                className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors"
+              >
+                Editar variables
+              </button>
+              <button
+                onClick={() => setShowReview(true)}
+                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
+              >
+                Cerrar Fase 1
+              </button>
+            </div>
           )}
 
+          {/* Modo edición */}
           {mode === "editing" && (
             <div className="flex gap-2">
               <button
@@ -370,9 +378,15 @@ export default function PropositoPage() {
               <button
                 onClick={handleSaveEdit}
                 disabled={isSaving}
-                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors disabled:opacity-40"
+                className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40"
               >
                 {isSaving ? "Guardando..." : "Guardar cambios"}
+              </button>
+              <button
+                onClick={() => setShowReview(true)}
+                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
+              >
+                Cerrar Fase 1
               </button>
             </div>
           )}
@@ -444,6 +458,19 @@ export default function PropositoPage() {
 // ==========================================
 // HELPERS
 // ==========================================
+
+// Todos los campos obligatorios del formulario deben estar llenos
+function isFormComplete(form: XPCTOForm): boolean {
+  return !!(
+    form.hito.trim() &&
+    form.sujeto.trim() &&
+    form.capacidades.financiero.trim() &&
+    form.capacidades.humano.trim() &&
+    form.capacidades.logistico.trim() &&
+    form.tiempo.fechaLimite.trim() &&
+    form.justificacion.trim()
+  );
+}
 
 function extractReportFromMessages(messages: ChatMessage[]): string | null {
   // Buscar el último mensaje del asistente que sea suficientemente largo
