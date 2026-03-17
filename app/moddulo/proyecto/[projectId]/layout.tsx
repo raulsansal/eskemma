@@ -10,6 +10,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   const params = useParams();
   const projectId = params?.projectId as string;
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
 
   // Bloquear scroll del body — el scroll vive dentro del chat, no en la página
   useEffect(() => {
@@ -31,11 +32,17 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
       <header className="bg-bluegreen-eske text-white-eske py-3 px-4 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Mobile menu */}
+            {/* Hamburger — mobile abre drawer, desktop colapsa sidebar */}
             <button
-              onClick={() => setMobileSidebarOpen(true)}
-              className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-white-eske/10 transition-colors"
-              aria-label="Abrir menú"
+              onClick={() => {
+                if (window.innerWidth >= 1024) {
+                  setDesktopSidebarOpen((v) => !v);
+                } else {
+                  setMobileSidebarOpen(true);
+                }
+              }}
+              className="p-2 -ml-2 rounded-lg hover:bg-white-eske/10 transition-colors"
+              aria-label="Menú de fases"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -72,9 +79,15 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Desktop sidebar */}
-        <div className="hidden lg:block w-56 shrink-0">
-          <PhaseNav projectId={projectId} />
+        {/* Desktop sidebar — animado con width transition */}
+        <div
+          className={`hidden lg:block shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${
+            desktopSidebarOpen ? "w-56" : "w-0"
+          }`}
+        >
+          <div className="w-56 h-full">
+            <PhaseNav projectId={projectId} />
+          </div>
         </div>
 
         {/* Mobile sidebar overlay — siempre en el DOM, animado con CSS */}

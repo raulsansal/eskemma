@@ -106,16 +106,16 @@ export default function NuevoProyectoPage() {
         {/* Step 1: Nombre y tipo */}
         {step === 1 && (
           <div className="bg-white-eske rounded-xl border border-gray-eske-20 p-6">
-            <h1 className="text-xl font-bold text-gray-eske-80 mb-1">
+            <h1 className="text-xl font-bold text-black-eske mb-1">
               Nuevo proyecto estratégico
             </h1>
-            <p className="text-gray-eske-70 font-medium text-sm mb-6">
+            <p className="text-black-eske-10 font-medium text-sm mb-6">
               Define el nombre y el tipo de proyecto político que vas a desarrollar.
             </p>
 
             {/* Nombre */}
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-eske-70 mb-2">
+              <label className="block text-sm font-medium text-black-eske-10 mb-2">
                 Nombre del proyecto <span className="text-red-500">*</span>
               </label>
               <input
@@ -123,7 +123,7 @@ export default function NuevoProyectoPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej. Campaña Municipal Guadalajara 2027"
-                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20 focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-gray-eske-80 text-sm"
+                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20 focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-black-eske text-sm"
                 maxLength={100}
                 autoFocus
               />
@@ -132,7 +132,7 @@ export default function NuevoProyectoPage() {
 
             {/* Descripción */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-eske-70 mb-2">
+              <label className="block text-sm font-medium text-black-eske-10 mb-2">
                 Descripción breve <span className="text-gray-eske-40">(opcional)</span>
               </label>
               <textarea
@@ -140,14 +140,14 @@ export default function NuevoProyectoPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Un párrafo que contextualice el proyecto..."
                 rows={2}
-                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20 focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-gray-eske-80 text-sm resize-none"
+                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20 focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-black-eske text-sm resize-none"
                 maxLength={300}
               />
             </div>
 
             {/* Tipo de proyecto */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-eske-70 mb-3">
+              <label className="block text-sm font-medium text-black-eske-10 mb-3">
                 Tipo de proyecto <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -164,7 +164,7 @@ export default function NuevoProyectoPage() {
                     <div className="font-bold text-black-eske text-sm mb-1">
                       {PROJECT_TYPE_LABELS[pt]}
                     </div>
-                    <div className="text-xs text-black-eske/70 font-medium leading-relaxed">
+                    <div className="text-xs text-black-eske-10 font-medium leading-relaxed">
                       {PROJECT_TYPE_DESCRIPTIONS[pt]}
                     </div>
                   </button>
@@ -185,10 +185,10 @@ export default function NuevoProyectoPage() {
         {/* Step 2: Confirmación */}
         {step === 2 && (
           <div className="bg-white-eske rounded-xl border border-gray-eske-20 p-6">
-            <h1 className="text-xl font-bold text-gray-eske-80 mb-1">
+            <h1 className="text-xl font-bold text-black-eske mb-1">
               Confirma tu proyecto
             </h1>
-            <p className="text-gray-eske-70 font-medium text-sm mb-6">
+            <p className="text-black-eske-10 font-medium text-sm mb-6">
               Al crear el proyecto, Moddulo te guiará a través de la Fase 1 — Propósito,
               donde definirás las variables XPCTO del proyecto.
             </p>
@@ -197,11 +197,11 @@ export default function NuevoProyectoPage() {
             <div className="bg-gray-eske-10 rounded-lg p-4 mb-6 space-y-3">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40">Nombre</span>
-                <p className="text-gray-eske-80 font-medium mt-0.5">{name}</p>
+                <p className="text-black-eske font-medium mt-0.5">{name}</p>
               </div>
               <div>
                 <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40">Tipo</span>
-                <p className="text-gray-eske-80 font-medium mt-0.5">
+                <p className="text-black-eske font-medium mt-0.5">
                   {type && PROJECT_TYPE_LABELS[type]}
                 </p>
                 <p className="text-gray-eske-50 text-xs mt-0.5">
@@ -211,7 +211,7 @@ export default function NuevoProyectoPage() {
               {description && (
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40">Descripción</span>
-                  <p className="text-gray-eske-70 text-sm mt-0.5">{description}</p>
+                  <p className="text-black-eske-10 text-sm mt-0.5">{description}</p>
                 </div>
               )}
             </div>

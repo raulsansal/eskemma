@@ -329,11 +329,11 @@ export default function PropositoPage() {
     <div className="h-full flex flex-col overflow-hidden">
       {/* ===== HEADER RESPONSIVE ===== */}
       <div className="shrink-0 px-3 sm:px-6 py-2 sm:py-3 border-b border-gray-eske-20 bg-white-eske">
-        {/* Fila 1: título + estado */}
+        {/* Fila 1: título + estado + descarga */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-xs font-bold uppercase tracking-widest text-bluegreen-eske shrink-0">F1</span>
-            <h1 className="text-sm sm:text-base font-bold text-gray-eske-80 truncate">Propósito</h1>
+            <h1 className="text-sm sm:text-base font-bold text-black-eske truncate">Propósito</h1>
             {mode === "completed" && (
               <span className="shrink-0 text-xs font-medium px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full">
                 ✓ Lista
@@ -345,9 +345,12 @@ export default function PropositoPage() {
               </span>
             )}
           </div>
-          <span className="text-xs text-gray-eske-40 shrink-0 hidden sm:block ml-2">
-            {isSaving ? "Guardando..." : lastSaved ? `✓ ${lastSaved.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}` : ""}
-          </span>
+          <div className="flex items-center gap-2 shrink-0 ml-2">
+            <span className="text-xs text-gray-eske-40 hidden sm:block">
+              {isSaving ? "Guardando..." : lastSaved ? `✓ ${lastSaved.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}` : ""}
+            </span>
+            <DownloadButton form={form} reportText={reportText} chatMessages={chatMessages} />
+          </div>
         </div>
 
         {/* Fila 2: botones — siempre visibles, compactos en mobile */}
@@ -671,7 +674,7 @@ function XPCTOFormPanel({
   );
 
   const fieldClass = (field: string) =>
-    `w-full px-3 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-gray-eske-80 bg-white-eske disabled:bg-gray-eske-10 disabled:text-gray-eske-50 ${
+    `w-full px-3 py-2 text-sm font-normal rounded-lg border focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-black-eske bg-white-eske disabled:bg-gray-eske-10 disabled:text-black-eske-10 placeholder:text-gray-eske-60 ${
       risksByField[field]
         ? risksByField[field].level === "critical"
           ? "border-red-300"
@@ -873,6 +876,123 @@ function BackPropagationModal({ affectedPhases, onDismiss }: {
           Entendido — revisar las fases afectadas
         </button>
       </div>
+    </div>
+  );
+}
+
+// ==========================================
+// DESCARGA DE ARCHIVOS — FASE 1
+// ==========================================
+
+type DownloadOption = "resumen" | "chat" | "formulario";
+
+function DownloadButton({
+  form,
+  reportText,
+  chatMessages,
+}: {
+  form: XPCTOForm;
+  reportText: string | null;
+  chatMessages: ChatMessage[];
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Cerrar al click fuera
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const download = (content: string, filename: string, mime = "text/plain") => {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    setOpen(false);
+  };
+
+  const handleDownload = (option: DownloadOption) => {
+    if (option === "resumen" && reportText) {
+      download(reportText, "F1-Proposito-Resumen.md");
+    } else if (option === "chat") {
+      const text = chatMessages
+        .map((m) => `[${m.role === "assistant" ? "Moddulo" : "Consultor"}]\n${m.content}`)
+        .join("\n\n---\n\n");
+      download(text || "(Sin mensajes)", "F1-Proposito-Chat.txt");
+    } else if (option === "formulario") {
+      const lines = [
+        "FORMULARIO XPCTO — FASE 1: PROPÓSITO",
+        "=====================================",
+        "",
+        `HITO (X):\n${form.hito || "(Sin datos)"}`,
+        "",
+        `SUJETO (P):\n${form.sujeto || "(Sin datos)"}`,
+        "",
+        "CAPACIDADES (C):",
+        `  Financiero: ${form.capacidades.financiero || "(Sin datos)"}`,
+        `  Humano: ${form.capacidades.humano || "(Sin datos)"}`,
+        `  Logístico: ${form.capacidades.logistico || "(Sin datos)"}`,
+        "",
+        "TIEMPO (T):",
+        `  Fecha límite: ${form.tiempo.fechaLimite || "(Sin datos)"}`,
+        `  Duración: ${form.tiempo.duracionMeses} meses`,
+        "",
+        `JUSTIFICACIÓN (O):\n${form.justificacion || "(Sin datos)"}`,
+      ];
+      download(lines.join("\n"), "F1-Proposito-Formulario.txt");
+    }
+  };
+
+  const options: { id: DownloadOption; label: string; available: boolean }[] = [
+    { id: "resumen", label: "Resumen diagnóstico (.md)", available: !!reportText },
+    { id: "chat", label: "Historial del chat (.txt)", available: chatMessages.length > 0 },
+    { id: "formulario", label: "Formulario XPCTO (.txt)", available: !!(form.hito || form.sujeto) },
+  ];
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        title="Descargar archivos de esta fase"
+        className="p-1.5 rounded-lg border border-gray-eske-20 text-black-eske-10 hover:border-bluegreen-eske hover:text-bluegreen-eske transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 w-56 bg-white-eske border border-gray-eske-20 rounded-xl shadow-lg z-20 overflow-hidden">
+          <div className="px-3 py-2 border-b border-gray-eske-20 bg-gray-eske-10/50">
+            <p className="text-xs font-bold text-black-eske uppercase tracking-widest">Descargar</p>
+          </div>
+          {options.map(({ id, label, available }) => (
+            <button
+              key={id}
+              onClick={() => available && handleDownload(id)}
+              disabled={!available}
+              className={`w-full text-left px-3 py-2.5 text-xs font-medium flex items-center gap-2 transition-colors ${
+                available
+                  ? "text-black-eske hover:bg-bluegreen-eske/5 hover:text-bluegreen-eske"
+                  : "text-gray-eske-40 cursor-not-allowed"
+              }`}
+            >
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              {label}
+              {!available && <span className="ml-auto text-gray-eske-40">(sin datos)</span>}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
