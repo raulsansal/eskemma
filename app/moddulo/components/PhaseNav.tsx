@@ -64,20 +64,6 @@ export default function PhaseNav({
         <p className="text-xs text-black-eske-10 font-medium mt-0.5">Metodología Eskemma · 9 fases</p>
       </div>
 
-      {/* Leyenda semáforo */}
-      <div className="px-4 py-2 border-b border-gray-eske-20 flex items-center gap-3 bg-gray-eske-10/50">
-        {[
-          { dot: "bg-gray-eske-40", label: "Pendiente" },
-          { dot: "bg-amber-400", label: "En curso" },
-          { dot: "bg-bluegreen-eske", label: "Concluida" },
-        ].map(({ dot, label }) => (
-          <span key={label} className="flex items-center gap-1">
-            <span className={`w-2 h-2 rounded-full ${dot} shrink-0`} />
-            <span className="text-xs text-black-eske-10 font-medium">{label}</span>
-          </span>
-        ))}
-      </div>
-
       {/* Phase list */}
       <div className="flex-1 overflow-y-auto py-1">
         {PHASE_ORDER.map((phaseId, index) => {
@@ -112,13 +98,9 @@ export default function PhaseNav({
 
               {/* Nombre + descripción estratégica */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  {/* Punto semáforo */}
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? "bg-bluegreen-eske" : dot}`} />
-                  <p className={`text-xs font-bold truncate leading-tight ${isActive ? "text-bluegreen-eske" : "text-black-eske"}`}>
-                    {PHASE_NAMES[phaseId]}
-                  </p>
-                </div>
+                <p className={`text-xs font-bold truncate leading-tight ${isActive ? "text-bluegreen-eske" : "text-black-eske"}`}>
+                  {PHASE_NAMES[phaseId]}
+                </p>
                 <p className="text-xs text-black-eske-10 leading-snug mt-0.5 line-clamp-1">
                   {PHASE_SHORT_DESC[phaseId]}
                 </p>
