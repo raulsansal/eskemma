@@ -380,7 +380,7 @@ function MarkdownContent({ content }: { content: string }) {
 function getWelcomeMessage(phaseId: PhaseId): string {
   const welcomes: Record<PhaseId, string> = {
     proposito: "Bienvenido a la **Fase 1 — Propósito**. Aquí vamos a definir el ADN de tu proyecto mediante las variables XPCTO.\n\nEmpecemos por lo más importante: ¿cuál es el **Hito (X)** de este proyecto? Es decir, ¿qué resultado concreto, específico y medible buscas lograr?",
-    exploracion: "Estamos en la **Fase 2 — Exploración**. Haremos un escaneo del entorno para entender el contexto.\n\n¿Cuál es el principal factor del entorno político que más podría impactar este proyecto en los próximos meses?",
+    exploracion: "Estamos en la **Fase 2 — Exploración**. Realizaremos el escaneo situacional PEST-L para contrastar las capacidades del proyecto con el entorno real.\n\n**Para comenzar:** ¿ya cuentas con información, estudios o reportes sobre el entorno del proyecto —factores políticos, económicos, sociales, tecnológicos o legales— o prefieres que yo proponga un análisis inicial a partir del Propósito que ya definimos?",
     investigacion: "**Fase 3 — Investigación**. Es el momento de trabajar con los datos de campo.\n\n¿Cuáles son los principales hallazgos de la investigación que ya tienes disponible?",
     diagnostico: "Estamos en la **Fase 4 — Diagnóstico**. Transformamos la inteligencia en un dictamen de viabilidad.\n\n¿Cómo caracterizarías el entorno actual del proyecto: de **Continuidad**, **Ruptura**, **Terciopelo** o **Caos**?",
     estrategia: "**Fase 5 — Diseño Estratégico**. La inteligencia se convierte en narrativa.\n\n¿Cuál es la propuesta de valor única que diferencia a este proyecto de sus competidores?",
