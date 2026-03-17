@@ -161,10 +161,10 @@ export default function NuevoProyectoPage() {
                         : "border-gray-eske-20 hover:border-gray-eske-40"
                     }`}
                   >
-                    <div className="font-bold text-gray-eske-90 text-sm mb-1">
+                    <div className="font-bold text-black-eske text-sm mb-1">
                       {PROJECT_TYPE_LABELS[pt]}
                     </div>
-                    <div className="text-xs text-gray-eske-80 font-medium leading-relaxed">
+                    <div className="text-xs text-black-eske/70 font-medium leading-relaxed">
                       {PROJECT_TYPE_DESCRIPTIONS[pt]}
                     </div>
                   </button>

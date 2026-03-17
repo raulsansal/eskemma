@@ -1,7 +1,7 @@
 // app/moddulo/proyecto/[projectId]/proposito/page.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ModduloChat from "@/app/moddulo/components/ModduloChat";
 import PhaseTransitionReview from "@/app/moddulo/components/PhaseTransitionReview";
@@ -46,6 +46,7 @@ export default function PropositoPage() {
   const [projectType, setProjectType] = useState<ProjectType>("electoral");
   const [mode, setMode] = useState<PageMode>("active");
   const [reportText, setReportText] = useState<string | null>(null);
+  const [showReport, setShowReport] = useState(false);  // muestra reporte en columna izquierda
   const [isSaving, setIsSaving] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [isClosingPhase, setIsClosingPhase] = useState(false);
@@ -54,6 +55,7 @@ export default function PropositoPage() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [propagationWarning, setPropagationWarning] = useState<PhaseId[]>([]);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const prevFormComplete = useRef(false);
 
   // Cargar proyecto al montar
   useEffect(() => {
@@ -206,12 +208,12 @@ export default function PropositoPage() {
     }
   };
 
-  // Cerrar fase — guarda el reporte y avanza
+  // Cerrar fase — guarda el reporte y navega a la siguiente fase
   const handleClosePhase = async () => {
     setIsClosingPhase(true);
     try {
-      // Usar reporte del chat si existe, sino generar automáticamente
-      let report = extractReportFromMessages(chatMessages) ?? reportText;
+      // Usar reporte existente o generar uno nuevo
+      let report = reportText ?? extractReportFromMessages(chatMessages);
       if (!report) {
         report = await generateReport(form);
       }
@@ -224,8 +226,9 @@ export default function PropositoPage() {
       });
 
       if (report) setReportText(report);
-      setMode("completed");
       setShowReview(false);
+      // Navegar a la siguiente fase
+      router.push(`/moddulo/proyecto/${projectId}/exploracion`);
     } catch {
       /* silencioso */
     } finally {
@@ -267,7 +270,10 @@ export default function PropositoPage() {
 
       // Regenerar reporte automáticamente con las nuevas variables
       const newReport = await generateReport(editForm);
-      if (newReport) setReportText(newReport);
+      if (newReport) {
+        setReportText(newReport);
+        setShowReport(true);  // mostrar el reporte actualizado
+      }
 
       // Verificar back-propagation
       const affected = await checkBackPropagation(projectId);
@@ -280,6 +286,19 @@ export default function PropositoPage() {
       setIsSaving(false);
     }
   };
+
+  // Detectar cuando se completa el formulario por primera vez en modo activo
+  const formComplete = isFormComplete(form);
+  useEffect(() => {
+    if (mode !== "active" || !isLoaded) return;
+    if (formComplete && !prevFormComplete.current) {
+      // Primera vez que todos los campos están llenos — notificar en consola
+      // (la UI reacciona vía el estado formComplete)
+      prevFormComplete.current = true;
+    } else if (!formComplete) {
+      prevFormComplete.current = false;
+    }
+  }, [formComplete, mode, isLoaded]);
 
   const risks = detectRisks(
     { hito: form.hito, sujeto: form.sujeto, capacidades: form.capacidades, tiempo: form.tiempo, justificacion: form.justificacion },
@@ -316,32 +335,40 @@ export default function PropositoPage() {
             {isSaving ? "Guardando..." : lastSaved ? `Guardado ${lastSaved.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}` : ""}
           </span>
 
-          {/* Modo activo */}
+          {/* Botón Ver Resumen — visible en todos los modos cuando hay datos */}
+          <VerResumenButton
+            visible={formComplete || mode === "completed" || mode === "editing"}
+            hasReport={!!reportText}
+            isGenerating={isGeneratingReport}
+            onClick={async () => {
+              if (reportText) {
+                // Ya existe reporte — mostrar sin llamada API
+                setShowReport(true);
+              } else {
+                // Generar reporte nuevo
+                const report = await generateReport(form);
+                if (report) {
+                  setReportText(report);
+                  setShowReport(true);
+                }
+              }
+            }}
+          />
+
+          {/* Modo activo: Editar variables + Cerrar Fase (habilitados solo al completar) */}
           {mode === "active" && (
             <div className="flex items-center gap-2">
-              {/* Ver Resumen: solo cuando los 5 campos XPCTO están completos */}
-              {isFormComplete(form) && (
-                <button
-                  onClick={async () => {
-                    const report = await generateReport(form);
-                    if (report) setReportText(report);
-                  }}
-                  disabled={isGeneratingReport}
-                  className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40 flex items-center gap-2"
-                >
-                  {isGeneratingReport ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-bluegreen-eske/30 border-t-bluegreen-eske rounded-full animate-spin" />
-                      Generando...
-                    </>
-                  ) : (
-                    "Ver Resumen"
-                  )}
-                </button>
-              )}
+              <button
+                onClick={handleStartEdit}
+                disabled={!formComplete}
+                className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Editar variables
+              </button>
               <button
                 onClick={() => setShowReview(true)}
-                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
+                disabled={!formComplete}
+                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Cerrar Fase 1
               </button>
@@ -397,14 +424,28 @@ export default function PropositoPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Columna izquierda: chat o reporte */}
         <div className="flex-1 flex flex-col p-4 overflow-hidden min-w-0">
-          {mode === "completed" ? (
-            <PhaseReportView
-              phaseId="proposito"
-              reportText={reportText}
-              projectId={projectId}
-              onStartEdit={handleStartEdit}
-              className="flex-1 overflow-hidden"
-            />
+          {showReport || mode === "completed" ? (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Botón volver al chat (solo cuando no es modo completed) */}
+              {showReport && mode !== "completed" && (
+                <button
+                  onClick={() => setShowReport(false)}
+                  className="shrink-0 mb-3 flex items-center gap-1.5 text-sm font-medium text-bluegreen-eske hover:text-bluegreen-eske/80 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Volver al chat
+                </button>
+              )}
+              <PhaseReportView
+                phaseId="proposito"
+                reportText={reportText}
+                projectId={projectId}
+                onStartEdit={handleStartEdit}
+                className="flex-1 overflow-hidden"
+              />
+            </div>
           ) : (
             <ModduloChat
               phaseId="proposito"
@@ -452,6 +493,90 @@ export default function PropositoPage() {
         />
       )}
     </div>
+  );
+}
+
+// ==========================================
+// HELPERS
+// ==========================================
+
+// ==========================================
+// BOTÓN VER RESUMEN
+// ==========================================
+
+function VerResumenButton({
+  visible,
+  hasReport,
+  isGenerating,
+  onClick,
+}: {
+  visible: boolean;
+  hasReport: boolean;
+  isGenerating: boolean;
+  onClick: () => void;
+}) {
+  if (!visible) return null;
+  return (
+    <button
+      onClick={onClick}
+      disabled={isGenerating}
+      className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40 flex items-center gap-2"
+    >
+      {isGenerating ? (
+        <>
+          <div className="w-3.5 h-3.5 border-2 border-bluegreen-eske/30 border-t-bluegreen-eske rounded-full animate-spin" />
+          Generando...
+        </>
+      ) : (
+        hasReport ? "Ver Resumen" : "Generar Resumen"
+      )}
+    </button>
+  );
+}
+
+// ==========================================
+// TEXTAREA AUTO-RESIZE
+// ==========================================
+
+function AutoResizeTextarea({
+  value,
+  onChange,
+  disabled,
+  placeholder,
+  minRows = 2,
+  maxRows = 10,
+  className = "",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+  placeholder?: string;
+  minRows?: number;
+  maxRows?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const lineHeight = parseInt(getComputedStyle(el).lineHeight) || 20;
+    const minH = lineHeight * minRows + 16; // padding
+    const maxH = lineHeight * maxRows + 16;
+    el.style.height = Math.min(Math.max(el.scrollHeight, minH), maxH) + "px";
+  }, [value, minRows, maxRows]);
+
+  return (
+    <textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
+      placeholder={placeholder}
+      rows={minRows}
+      className={`resize-none overflow-y-auto ${className}`}
+    />
   );
 }
 
@@ -540,25 +665,27 @@ function XPCTOFormPanel({
 
       {/* X — Hito */}
       <FormField label="Hito (X)" hint="El resultado concreto e inamovible" risk={risksByField["xpcto.hito"]}>
-        <textarea
+        <AutoResizeTextarea
           value={form.hito}
-          onChange={(e) => !readOnly && onChange({ ...form, hito: e.target.value })}
+          onChange={(v) => !readOnly && onChange({ ...form, hito: v })}
           disabled={readOnly}
           placeholder="¿Qué resultado específico y medible buscas lograr?"
-          rows={3}
-          className={fieldClass("xpcto.hito") + " resize-none"}
+          minRows={3}
+          maxRows={10}
+          className={fieldClass("xpcto.hito")}
         />
       </FormField>
 
       {/* P — Sujeto */}
       <FormField label="Sujeto (P)" hint="El actor político del proyecto">
-        <textarea
+        <AutoResizeTextarea
           value={form.sujeto}
-          onChange={(e) => !readOnly && onChange({ ...form, sujeto: e.target.value })}
+          onChange={(v) => !readOnly && onChange({ ...form, sujeto: v })}
           disabled={readOnly}
           placeholder="Nombre, cargo al que aspira, perfil general..."
-          rows={2}
-          className={fieldClass("xpcto.sujeto") + " resize-none"}
+          minRows={2}
+          maxRows={8}
+          className={fieldClass("xpcto.sujeto")}
         />
       </FormField>
 
@@ -612,13 +739,14 @@ function XPCTOFormPanel({
 
       {/* O — Justificación */}
       <FormField label="Justificación (O)" hint="El propósito ético que legitima el proyecto" risk={risksByField["xpcto.justificacion"]}>
-        <textarea
+        <AutoResizeTextarea
           value={form.justificacion}
-          onChange={(e) => !readOnly && onChange({ ...form, justificacion: e.target.value })}
+          onChange={(v) => !readOnly && onChange({ ...form, justificacion: v })}
           disabled={readOnly}
           placeholder="¿Por qué este proyecto merece existir más allá de ganar o perder?"
-          rows={3}
-          className={fieldClass("xpcto.justificacion") + " resize-none"}
+          minRows={3}
+          maxRows={10}
+          className={fieldClass("xpcto.justificacion")}
         />
       </FormField>
     </div>

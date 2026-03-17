@@ -44,11 +44,13 @@ export default function ModduloChat({
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Scroll interno al contenedor — nunca afecta el documento
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages, streamingContent]);
 
   useEffect(() => {
@@ -171,7 +173,7 @@ export default function ModduloChat({
       </div>
 
       {/* Messages — scroll interno, sin empujar el layout */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-5 min-h-0">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 space-y-5 min-h-0">
         {messages.map((msg) => (
           <ChatBubble key={msg.id} message={msg} />
         ))}
@@ -207,7 +209,7 @@ export default function ModduloChat({
           </div>
         )}
 
-        <div ref={messagesEndRef} />
+        <div />
       </div>
 
       {/* Input */}
