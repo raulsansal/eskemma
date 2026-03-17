@@ -17,6 +17,37 @@ import type {
 import { PHASE_ORDER, emptyExplorationForm } from "@/types/moddulo.types";
 
 // ==========================================
+// TIPOS SEFIX
+// ==========================================
+
+interface SefixResultados {
+  estado: string;
+  cargo: string;
+  anio: number;
+  totalVotos: number;
+  lne: number;
+  participacion: number;
+  partidos: { partido: string; votos: number; porcentaje: number }[];
+  fuente: string;
+}
+
+interface SefixPadron {
+  estado: string;
+  corte: string;
+  listaNominal: number;
+  padronElectoral: number;
+  padronHombres: number;
+  padronMujeres: number;
+  fuente: string;
+}
+
+interface SefixData {
+  estado: string;
+  resultados: SefixResultados | null;
+  padron: SefixPadron | null;
+}
+
+// ==========================================
 // TIPOS LOCALES
 // ==========================================
 
@@ -67,6 +98,7 @@ export default function ExploracionPage() {
   const [propagationWarning, setPropagationWarning] = useState<PhaseId[]>([]);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [mobileTab, setMobileTab] = useState<"chat" | "form">("chat");
+  const [sefixData, setSefixData] = useState<SefixData | null>(null);
 
   // Cargar proyecto al montar
   useEffect(() => {
@@ -106,6 +138,30 @@ export default function ExploracionPage() {
       .catch((err) => console.error("[exploracion] fetch error:", err))
       .finally(() => setIsLoaded(true));
   }, [projectId]);
+
+  // Cargar datos de Sefix para proyectos electorales/gubernamentales con estado mexicano detectado
+  useEffect(() => {
+    if (!isLoaded || !xpcto || !["electoral", "gubernamental"].includes(projectType)) return;
+    const estadoDetectado = detectEstadoFromXpcto(xpcto);
+    if (!estadoDetectado) return;
+
+    const fetchSefix = async () => {
+      try {
+        const [resR, padR] = await Promise.all([
+          fetch(`/api/sefix/resultados?estado=${encodeURIComponent(estadoDetectado)}&cargo=diputados`, { credentials: "include" }),
+          fetch(`/api/sefix/padron?estado=${encodeURIComponent(estadoDetectado)}`, { credentials: "include" }),
+        ]);
+        const resJson = resR.ok ? await resR.json() : null;
+        const padJson = padR.ok ? await padR.json() : null;
+        setSefixData({
+          estado: estadoDetectado,
+          resultados: resJson?.resultados ?? null,
+          padron: padJson?.padron ?? null,
+        });
+      } catch { /* no-op */ }
+    };
+    fetchSefix();
+  }, [isLoaded, xpcto, projectType]);
 
   // Auto-guardar (solo en modo activo, después de cargar)
   const autoSave = useCallback(async (formData: ExplorationForm) => {
@@ -152,7 +208,7 @@ export default function ExploracionPage() {
     "hipotesis.implicaciones": form.hipotesis.implicaciones,
   };
 
-  // XPCTO como contexto para el prompt del chat
+  // XPCTO como contexto para el prompt del chat (incluye datos Sefix si están disponibles)
   const xpctoContext = xpcto
     ? {
         hito: xpcto.hito,
@@ -161,6 +217,34 @@ export default function ExploracionPage() {
         tiempo: xpcto.tiempo,
         justificacion: xpcto.justificacion,
         tipoProyecto: projectType,
+        ...(sefixData
+          ? {
+              sefix: {
+                estado: sefixData.estado,
+                resultados: sefixData.resultados
+                  ? {
+                      anio: sefixData.resultados.anio,
+                      cargo: sefixData.resultados.cargo,
+                      totalVotos: sefixData.resultados.totalVotos,
+                      lne: sefixData.resultados.lne,
+                      participacion: sefixData.resultados.participacion,
+                      top4: sefixData.resultados.partidos.slice(0, 4),
+                      fuente: sefixData.resultados.fuente,
+                    }
+                  : null,
+                padron: sefixData.padron
+                  ? {
+                      corte: sefixData.padron.corte,
+                      listaNominal: sefixData.padron.listaNominal,
+                      padronElectoral: sefixData.padron.padronElectoral,
+                      padronHombres: sefixData.padron.padronHombres,
+                      padronMujeres: sefixData.padron.padronMujeres,
+                      fuente: sefixData.padron.fuente,
+                    }
+                  : null,
+              },
+            }
+          : {}),
       }
     : undefined;
 
@@ -397,6 +481,7 @@ export default function ExploracionPage() {
             onSectionChange={setActiveSection}
             readOnly={mode === "completed"}
             projectType={projectType}
+            sefixData={sefixData}
           />
         </div>
       </div>
@@ -430,7 +515,7 @@ export default function ExploracionPage() {
 // ==========================================
 
 function ExplorationFormPanel({
-  form, onChange, activeSection, onSectionChange, readOnly, projectType,
+  form, onChange, activeSection, onSectionChange, readOnly, projectType, sefixData,
 }: {
   form: ExplorationForm;
   onChange: (f: ExplorationForm) => void;
@@ -438,6 +523,7 @@ function ExplorationFormPanel({
   onSectionChange: (s: PestlSection) => void;
   readOnly: boolean;
   projectType: ProjectType;
+  sefixData: SefixData | null;
 }) {
   const fieldClass =
     "w-full px-3 py-2 text-sm font-normal rounded-lg border border-gray-eske-20 " +
@@ -475,7 +561,7 @@ function ExplorationFormPanel({
       {/* Contenido de la sección */}
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
         {activeSection === "politico" && (
-          <PoliticoSection form={form} onChange={onChange} readOnly={readOnly} fieldClass={fieldClass} projectType={projectType} />
+          <PoliticoSection form={form} onChange={onChange} readOnly={readOnly} fieldClass={fieldClass} projectType={projectType} sefixData={sefixData} />
         )}
         {activeSection === "economico" && (
           <SimpleDimSection
@@ -544,9 +630,10 @@ function ExplorationFormPanel({
 // SECCIÓN POLÍTICO
 // ==========================================
 
-function PoliticoSection({ form, onChange, readOnly, fieldClass, projectType }: {
+function PoliticoSection({ form, onChange, readOnly, fieldClass, projectType, sefixData }: {
   form: ExplorationForm; onChange: (f: ExplorationForm) => void;
   readOnly: boolean; fieldClass: string; projectType: ProjectType;
+  sefixData: SefixData | null;
 }) {
   const hint = projectType === "legislativo"
     ? "Bloques parlamentarios, presidencias de comisión, alianzas y oposición"
@@ -559,6 +646,7 @@ function PoliticoSection({ form, onChange, readOnly, fieldClass, projectType }: 
 
   return (
     <div className="space-y-3">
+      {sefixData && <SefixWidget data={sefixData} />}
       <SectionField label="Contexto político general" hint={hint}>
         <AutoResizeTextarea value={form.pestl.politico.contexto}
           onChange={(v) => upd({ contexto: v })} disabled={readOnly}
@@ -926,6 +1014,72 @@ function DownloadButton({ form, reportText, chatMessages }: {
 }
 
 // ==========================================
+// SEFIX WIDGET
+// ==========================================
+
+function SefixWidget({ data }: { data: SefixData }) {
+  const { resultados, padron } = data;
+  if (!resultados && !padron) return null;
+
+  const fmtN = (n: number) =>
+    n >= 1_000_000
+      ? `${(n / 1_000_000).toFixed(2).replace(/\.?0+$/, "")}M`
+      : n >= 1_000
+      ? `${(n / 1_000).toFixed(0)}K`
+      : String(n);
+
+  const top3 = resultados?.partidos.slice(0, 3) ?? [];
+
+  return (
+    <div className="rounded-lg border border-bluegreen-eske/20 bg-bluegreen-eske/5 p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-bold uppercase tracking-widest text-bluegreen-eske">
+          Datos Sefix — {data.estado}
+        </p>
+        <span className="text-xs text-gray-eske-40">INE / DERFE</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {padron && (
+          <>
+            <div className="bg-white-eske rounded-lg px-2.5 py-2">
+              <p className="text-xs text-gray-eske-50 mb-0.5">Lista Nominal</p>
+              <p className="text-sm font-bold text-black-eske">{fmtN(padron.listaNominal)}</p>
+              <p className="text-xs text-gray-eske-40">al {padron.corte}</p>
+            </div>
+            <div className="bg-white-eske rounded-lg px-2.5 py-2">
+              <p className="text-xs text-gray-eske-50 mb-0.5">Padrón Electoral</p>
+              <p className="text-sm font-bold text-black-eske">{fmtN(padron.padronElectoral)}</p>
+              <p className="text-xs text-gray-eske-40">
+                H: {fmtN(padron.padronHombres)} · M: {fmtN(padron.padronMujeres)}
+              </p>
+            </div>
+          </>
+        )}
+        {resultados && (
+          <div className="col-span-2 bg-white-eske rounded-lg px-2.5 py-2">
+            <p className="text-xs text-gray-eske-50 mb-1">
+              Última elección — {resultados.cargo} {resultados.anio}
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              {top3.map((p) => (
+                <div key={p.partido} className="text-xs">
+                  <span className="font-bold text-black-eske">{p.partido}</span>
+                  <span className="ml-1 text-gray-eske-50">{p.porcentaje}%</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-eske-40 mt-1">
+              Participación: {resultados.participacion}% · {fmtN(resultados.totalVotos)} votos
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
 // HELPERS
 // ==========================================
 
@@ -952,6 +1106,33 @@ function mergePhaseData(base: ExplorationForm, data: Record<string, unknown>): E
   if (data.semaforo && typeof data.semaforo === "object") Object.assign(merged.semaforo, data.semaforo);
   if (data.hipotesis && typeof data.hipotesis === "object") Object.assign(merged.hipotesis, data.hipotesis);
   return merged;
+}
+
+// Detecta un estado mexicano a partir del XPCTO (hito + sujeto)
+const ESTADOS_MEXICO = [
+  "aguascalientes", "baja california sur", "baja california",
+  "campeche", "chiapas", "chihuahua", "coahuila", "colima",
+  "ciudad de mexico", "cdmx", "durango", "estado de mexico",
+  "guanajuato", "guerrero", "hidalgo", "jalisco", "michoacan",
+  "morelos", "nayarit", "nuevo leon", "oaxaca", "puebla",
+  "queretaro", "quintana roo", "san luis potosi", "sinaloa",
+  "sonora", "tabasco", "tamaulipas", "tlaxcala", "veracruz",
+  "yucatan", "zacatecas",
+];
+
+function detectEstadoFromXpcto(xpcto: XPCTO): string | null {
+  const text = `${xpcto.hito ?? ""} ${xpcto.sujeto ?? ""} ${xpcto.justificacion ?? ""}`
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  // Ordenar de más largo a más corto para evitar falsos positivos (e.g. "baja california" vs "baja california sur")
+  const sorted = [...ESTADOS_MEXICO].sort((a, b) => b.length - a.length);
+  for (const estado of sorted) {
+    const normalized = estado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (text.includes(normalized)) return estado;
+  }
+  return null;
 }
 
 async function checkBackPropagation(projectId: string): Promise<PhaseId[]> {
