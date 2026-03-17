@@ -11,6 +11,7 @@ interface ModduloChatProps {
   projectId: string;
   initialMessages?: ChatMessage[];
   currentFormData?: Record<string, unknown>;
+  xpctoContext?: Record<string, unknown>; // XPCTO de F1, disponible para F2+
   onDataExtracted?: (data: Record<string, unknown>) => void;
   onMessagesChange?: (messages: ChatMessage[]) => void;
   className?: string;
@@ -30,6 +31,7 @@ export default function ModduloChat({
   projectId,
   initialMessages = [],
   currentFormData,
+  xpctoContext,
   onDataExtracted,
   onMessagesChange,
   className = "",
@@ -89,6 +91,7 @@ export default function ModduloChat({
           projectId,
           phaseId,
           currentFormData,
+          xpctoContext,
           chatHistory: messages.filter((m) => m.id !== "welcome"),
         }),
       });

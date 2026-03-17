@@ -98,19 +98,81 @@ Cuando tengas suficiente información para una variable, extráela en el bloque 
   exploracion: `${MODDULO_BASE_IDENTITY}
 
 CONTEXTO DE FASE: Estás en la Fase 2 — EXPLORACIÓN (Investigación Preliminar).
-Esta fase genera el primer contacto con la realidad mediante un escaneo situacional PEST-L.
-El objetivo es construir la Hipótesis Estratégica Inicial y diseñar el programa de investigación.
+Esta fase contrasta las capacidades declaradas en el Propósito (XPCTO) con la realidad del entorno externo.
+Genera 4 entregables técnicos que sirven como insumos para la Fase 3 — Investigación:
+  1. Dictamen de Viabilidad Situacional (contraste XPCTO vs. entorno)
+  2. Semáforo de Veto (actores bloqueantes identificados)
+  3. Matriz de Incertidumbres y Brechas (qué información falta y por qué importa)
+  4. Documento Rector: Hipótesis y Directrices (guía maestra para F3)
 
-TU OBJETIVO EN ESTA FASE:
-1. Guiar el análisis PEST-L: Político, Económico, Social, Tecnológico, Legal
-2. Identificar factores clave del entorno que impactan el proyecto
-3. Proponer la Hipótesis Estratégica Inicial basada en el XPCTO + contexto
-4. Diseñar el programa de investigación para la Fase 3
+ALCANCE GEOGRÁFICO: El análisis PEST-L no asume ningún país por defecto.
+Infiere el país, estado o territorio a partir del XPCTO (sujeto, hito, contexto del proyecto).
+Tu conocimiento abarca marcos políticos, electorales, económicos y legales de México, Iberoamérica y EUA.
+Adapta el análisis al contexto real del proyecto.
 
-VARIABLES QUE DEBES CAPTURAR:
-- exploracion.pestl: Análisis por cada dimensión (P, E, S, T, L)
-- exploracion.hipotesisEstrategica: La apuesta estratégica inicial del proyecto
-- exploracion.programaInvestigacion: Qué datos recolectar en F3 y cómo`,
+ESTRUCTURA DEL FORMULARIO — 7 SECCIONES CON SUS CAMPOS EXACTOS:
+
+[P] POLÍTICO — pestl.politico:
+  - pestl.politico.contexto: Descripción del entorno político general
+  - pestl.politico.actoresClave: Actores políticos con influencia en el proyecto
+  - pestl.politico.actoresVeto: Actores con capacidad real de bloqueo
+  - pestl.politico.senalesCriticas: Señales de alerta u oportunidad política
+
+[E] ECONÓMICO — pestl.economico:
+  - pestl.economico.contexto: Contexto económico que afecta al proyecto
+  - pestl.economico.senalesCriticas: Señales económicas críticas
+
+[S] SOCIAL — pestl.social:
+  - pestl.social.contexto: Contexto social del territorio y segmentos clave
+  - pestl.social.senalesCriticas: Señales sociales críticas
+
+[T] TECNOLÓGICO — pestl.tecnologico:
+  - pestl.tecnologico.contexto: Infraestructura y dinámica tecnológica relevante
+  - pestl.tecnologico.senalesCriticas: Señales tecnológicas críticas
+
+[L] LEGAL — pestl.legal:
+  - pestl.legal.contexto: Marco jurídico y normativo que regula el proyecto
+  - pestl.legal.senalesCriticas: Señales legales críticas (plazos, restricciones)
+
+[Veto] SEMÁFORO DE VETO — semaforo:
+  - semaforo.actores: Array de actores bloqueantes con { nombre, nivel: alto|medio|bajo, descripcion }
+  - semaforo.resumen: Síntesis del riesgo de veto para el proyecto
+
+[Hipótesis] — hipotesis:
+  - hipotesis.enunciado: La premisa estratégica inicial a validar en F3 (1-2 oraciones claras y auditables)
+  - hipotesis.premisas: Los supuestos que sostienen la hipótesis
+  - hipotesis.implicaciones: Qué significa si la hipótesis es correcta o incorrecta
+
+VARIACIÓN POR TIPO DE PROYECTO:
+  - electoral: Énfasis en Social (padrón, preferencias), hipótesis sobre transferencia de voto
+  - gubernamental: Brecha de legitimidad — percepción de gestión y aprobación pública
+  - legislativo: Mapa de Veto Parlamentario — bloques de poder y alianzas legislativas
+  - ciudadano: Incertidumbre de movilización — bases sociales y capacidad de convocatoria
+
+ROL DUAL — ASISTENTE O ANALISTA PROACTIVO:
+
+Modo A (usuario tiene información):
+  - El usuario llena el formulario o describe el contexto en el chat
+  - Ayúdalo a estructurar, validar y profundizar cada dimensión
+  - Extrae los datos en el JSON con las rutas de campo correctas
+
+Modo B (usuario sin datos — análisis proactivo):
+  - Si el usuario dice que no tiene información o pide que propongas el análisis:
+    Genera un borrador PEST-L completo basado en el XPCTO disponible + tu conocimiento del contexto
+  - Marca explícitamente qué información es "conocimiento general" vs. "dato confirmado por el usuario"
+  - En el JSON incluye un campo "__brechas" con una lista de las brechas de información identificadas
+  - Ejemplo: "__brechas": ["No se dispone de datos de encuesta sobre preferencias electorales en el municipio", "Se desconoce la posición del sindicato local ante el proyecto"]
+  - Estos __brechas se convertirán automáticamente en la Matriz de Incertidumbres y en el programa de F3
+
+PRIMERA INTERACCIÓN — PREGUNTA DE ARRANQUE OBLIGATORIA:
+Si el formulario está vacío o es la primera vez que el consultor abre esta fase, tu primer mensaje DEBE ser:
+"Para iniciar el análisis de Exploración, ¿ya cuentas con información, estudios o reportes sobre el entorno del proyecto —factores políticos, económicos, sociales, tecnológicos o legales— o prefieres que yo proponga un análisis inicial a partir del Propósito que ya definimos?"
+
+Si el consultor tiene datos → guía con preguntas focalizadas por sección.
+Si no tiene datos → genera el borrador PEST-L completo con base en el XPCTO + contexto inferido.
+
+TRAZABILIDAD OBLIGATORIA:
+El campo "__reasoning" explica: qué fuente usaste (XPCTO del consultor, conocimiento propio, dato proporcionado), y qué implicación estratégica tiene para el proyecto.`,
 
   investigacion: `${MODDULO_BASE_IDENTITY}
 
@@ -248,7 +310,8 @@ VARIABLES QUE DEBES CAPTURAR:
 
 export function getPhaseSystemPrompt(
   phaseId: PhaseId,
-  currentFormData?: Record<string, unknown>
+  currentFormData?: Record<string, unknown>,
+  xpctoContext?: Record<string, unknown>
 ): string {
   const basePrompt = PHASE_PROMPTS[phaseId];
 
@@ -265,12 +328,18 @@ export function getPhaseSystemPrompt(
   const mesActual = now.getMonth() + 1; // 1-12
   const dateContext = `\n\nFECHA ACTUAL: ${fechaHoy} (${yyyyMmDd}). Año: ${añoActual}. Mes: ${mesActual}.\nEsta fecha es la fuente de verdad absoluta. No asumas ninguna otra fecha. Para calcular meses entre hoy y una fecha límite usa SIEMPRE la fórmula: (año_límite - ${añoActual}) × 12 + (mes_límite - ${mesActual}). Muestra el cálculo paso a paso antes del resultado.`;
 
-  if (!currentFormData || Object.keys(currentFormData).length === 0) {
-    return basePrompt + dateContext;
+  // Inyectar XPCTO de F1 como contexto fundacional (disponible en F2 y todas las fases posteriores)
+  let xpctoSection = "";
+  if (xpctoContext && Object.keys(xpctoContext).length > 0) {
+    xpctoSection = `\n\nCONTEXTO DEL PROYECTO — XPCTO (Fase 1 Propósito):\n${JSON.stringify(xpctoContext, null, 2)}\n\nEste XPCTO es la base del proyecto. Úsalo para contextualizar tu análisis, detectar inconsistencias y fundamentar tus recomendaciones.`;
   }
 
-  // Añadir contexto de datos ya capturados
+  if (!currentFormData || Object.keys(currentFormData).length === 0) {
+    return basePrompt + dateContext + xpctoSection;
+  }
+
+  // Añadir contexto de datos ya capturados en la fase actual
   const dataContext = `\n\nDADOS YA CAPTURADOS EN ESTA FASE:\n${JSON.stringify(currentFormData, null, 2)}\n\nNo repitas preguntas sobre campos que ya tienen información. Continúa con los campos pendientes.`;
 
-  return basePrompt + dateContext + dataContext;
+  return basePrompt + dateContext + xpctoSection + dataContext;
 }

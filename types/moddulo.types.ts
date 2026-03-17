@@ -235,6 +235,61 @@ export type UpdateProjectInput = Partial<
 >;
 
 // ==========================================
+// FASE 2 — EXPLORACIÓN
+// ==========================================
+
+export interface PestlDimension {
+  contexto: string;          // Descripción del entorno en esta dimensión
+  senalesCriticas: string;   // Señales de alerta u oportunidad identificadas
+}
+
+export interface PestlPolitico extends PestlDimension {
+  actoresClave: string;      // Actores políticos con influencia en el proyecto
+  actoresVeto: string;       // Actores con capacidad de bloqueo
+}
+
+export interface VetoActor {
+  nombre: string;
+  nivel: "alto" | "medio" | "bajo";
+  descripcion: string;
+}
+
+export interface ExplorationForm {
+  pestl: {
+    politico: PestlPolitico;
+    economico: PestlDimension;
+    social: PestlDimension;
+    tecnologico: PestlDimension;
+    legal: PestlDimension;
+  };
+  semaforo: {
+    actores: VetoActor[];
+    resumen: string;
+  };
+  hipotesis: {
+    enunciado: string;       // La premisa estratégica a validar en F3
+    premisas: string;        // Supuestos que la sostienen
+    implicaciones: string;   // Qué significa si es correcta o incorrecta
+  };
+  // Generados por Moddulo al cerrar la fase
+  dictamenViabilidad?: string;
+  matrizBrechas?: string;
+  documentoRector?: string;
+}
+
+export const emptyExplorationForm = (): ExplorationForm => ({
+  pestl: {
+    politico:    { contexto: "", senalesCriticas: "", actoresClave: "", actoresVeto: "" },
+    economico:   { contexto: "", senalesCriticas: "" },
+    social:      { contexto: "", senalesCriticas: "" },
+    tecnologico: { contexto: "", senalesCriticas: "" },
+    legal:       { contexto: "", senalesCriticas: "" },
+  },
+  semaforo: { actores: [], resumen: "" },
+  hipotesis: { enunciado: "", premisas: "", implicaciones: "" },
+});
+
+// ==========================================
 // TIPOS PARA EL CHAT API
 // ==========================================
 
@@ -244,6 +299,7 @@ export interface ChatRequest {
   phaseId: PhaseId;
   currentFormData?: Record<string, unknown>;
   chatHistory?: ChatMessage[];
+  xpctoContext?: Record<string, unknown>; // XPCTO de F1, disponible para F2+
 }
 
 export interface ChatResponseChunk {

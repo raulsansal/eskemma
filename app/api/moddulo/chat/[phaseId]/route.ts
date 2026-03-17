@@ -28,7 +28,7 @@ export async function POST(
     }
 
     const body: ChatRequest = await request.json();
-    const { message, projectId, currentFormData, chatHistory = [] } = body;
+    const { message, projectId, currentFormData, chatHistory = [], xpctoContext } = body;
 
     if (!message || !projectId) {
       return NextResponse.json(
@@ -37,8 +37,8 @@ export async function POST(
       );
     }
 
-    // Construir mensajes para Claude
-    const systemPrompt = getPhaseSystemPrompt(phaseId as PhaseId, currentFormData);
+    // Construir mensajes para Claude — inyectar XPCTO como contexto fundacional si está disponible
+    const systemPrompt = getPhaseSystemPrompt(phaseId as PhaseId, currentFormData, xpctoContext);
 
     const messages: { role: "user" | "assistant"; content: string }[] = [
       // Historial previo de la conversación
@@ -102,22 +102,32 @@ export async function POST(
           (err) => console.error("[chat/route] Error guardando mensaje:", err)
         );
 
-        // Si hay datos extraídos con campos xpcto.*, guardarlos DIRECTAMENTE
-        // en project.xpcto usando dot-notation para actualización granular.
-        // Esto asegura persistencia sin depender del auto-save del cliente.
+        // Auto-persistencia de datos extraídos por fase:
+        // - F1: campos xpcto.* → project.xpcto (dot-notation)
+        // - F2+: campos pestl.*, semaforo.*, hipotesis.*, etc. → phases[phaseId].data (dot-notation)
         if (extractedData && Object.keys(extractedData).length > 0) {
           const xpctoUpdates: Record<string, unknown> = {};
+          const phaseDataUpdates: Record<string, unknown> = {};
+
           for (const [key, value] of Object.entries(extractedData)) {
             if (key.startsWith("xpcto.")) {
               xpctoUpdates[key] = value;
+            } else if (
+              key.startsWith("pestl.") ||
+              key.startsWith("semaforo.") ||
+              key.startsWith("hipotesis.")
+            ) {
+              phaseDataUpdates[`phases.${phaseId as string}.data.${key}`] = value;
             }
           }
-          if (Object.keys(xpctoUpdates).length > 0) {
+
+          const combinedUpdates = { ...xpctoUpdates, ...phaseDataUpdates };
+          if (Object.keys(combinedUpdates).length > 0) {
             adminDb
               .collection("moddulo_projects")
               .doc(projectId)
-              .update({ ...xpctoUpdates, updatedAt: FieldValue.serverTimestamp() })
-              .catch((err) => console.error("[chat/route] Error guardando xpcto:", err));
+              .update({ ...combinedUpdates, updatedAt: FieldValue.serverTimestamp() })
+              .catch((err) => console.error("[chat/route] Error guardando datos:", err));
           }
         }
 

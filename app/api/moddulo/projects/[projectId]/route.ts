@@ -1,8 +1,8 @@
 // app/api/moddulo/projects/[projectId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/server/auth-helpers";
-import { getProject, updateProject } from "@/lib/moddulo/project";
-import type { UpdateProjectInput, ModduloProject } from "@/types/moddulo.types";
+import { getProject, updateProject, updatePhaseData } from "@/lib/moddulo/project";
+import type { UpdateProjectInput, ModduloProject, PhaseId } from "@/types/moddulo.types";
 
 // GET: Obtener proyecto individual
 export async function GET(
@@ -80,7 +80,7 @@ function recoverXpctoFromChatHistory(project: ModduloProject): Record<string, un
   return Object.keys(merged).length > 0 ? merged : null;
 }
 
-// PATCH: Actualizar proyecto
+// PATCH: Actualizar proyecto o datos de una fase
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
@@ -90,9 +90,17 @@ export async function PATCH(
     if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
     const { projectId } = await params;
-    const input: UpdateProjectInput = await request.json();
+    const body = await request.json();
 
-    await updateProject(projectId, session.uid, input);
+    // Si se envía phaseData, guardar datos de la fase específica
+    if (body.phaseData) {
+      const { phaseId, data } = body.phaseData as { phaseId: PhaseId; data: Record<string, unknown> };
+      await updatePhaseData(projectId, session.uid, phaseId, data);
+    } else {
+      // Actualización de campos del proyecto (xpcto, name, status, etc.)
+      const input = body as UpdateProjectInput;
+      await updateProject(projectId, session.uid, input);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
