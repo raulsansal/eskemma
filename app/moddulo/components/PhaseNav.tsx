@@ -3,14 +3,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PHASE_ORDER, PHASE_NAMES, PHASE_DESCRIPTIONS } from "@/types/moddulo.types";
+import { PHASE_ORDER, PHASE_NAMES } from "@/types/moddulo.types";
 import type { PhaseId, PhaseStatus } from "@/types/moddulo.types";
 
 interface PhaseNavProps {
   projectId: string;
   phaseStatuses?: Partial<Record<PhaseId, PhaseStatus>>;
   currentPhase?: PhaseId;
-  collapsed?: boolean;
+  onLinkClick?: () => void;
 }
 
 const STATUS_STYLES: Record<PhaseStatus, string> = {
@@ -20,78 +20,106 @@ const STATUS_STYLES: Record<PhaseStatus, string> = {
   "needs-review": "bg-amber-100 text-amber-700",
 };
 
-const STATUS_ICON: Record<PhaseStatus, string> = {
-  "not-started": "○",
-  "in-progress": "◉",
-  completed: "✓",
-  "needs-review": "⚠",
+const STATUS_LABEL: Record<PhaseStatus, string> = {
+  "not-started": "Pendiente",
+  "in-progress": "En progreso",
+  completed: "Completada",
+  "needs-review": "En revisión",
 };
 
 export default function PhaseNav({
   projectId,
   phaseStatuses = {},
   currentPhase,
-  collapsed = false,
+  onLinkClick,
 }: PhaseNavProps) {
   const pathname = usePathname();
 
   return (
     <nav className="h-full flex flex-col bg-white-eske border-r border-gray-eske-20">
       {/* Header */}
-      {!collapsed && (
-        <div className="px-4 py-3 border-b border-gray-eske-20">
-          <p className="text-xs font-semibold uppercase tracking-widest text-gray-eske-50">
-            Fases del proyecto
-          </p>
-        </div>
-      )}
+      <div className="px-4 py-4 border-b border-gray-eske-20 bg-bluegreen-eske/5">
+        <p className="text-xs font-bold uppercase tracking-widest text-bluegreen-eske">
+          Fases del proyecto
+        </p>
+        <p className="text-xs text-gray-eske-50 mt-0.5 font-medium">Metodología Eskemma · 9 fases</p>
+      </div>
 
       {/* Phase list */}
       <div className="flex-1 overflow-y-auto py-2">
         {PHASE_ORDER.map((phaseId, index) => {
           const href = `/moddulo/proyecto/${projectId}/${phaseId}`;
           const isActive = pathname.includes(`/${phaseId}`);
-          const isCurrent = currentPhase === phaseId;
           const status = phaseStatuses[phaseId] ?? "not-started";
+          const isCompleted = status === "completed";
 
           return (
             <Link
               key={phaseId}
               href={href}
+              onClick={onLinkClick}
               className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-gray-eske-10 ${
                 isActive ? "bg-bluegreen-eske/5 border-r-2 border-bluegreen-eske" : ""
               }`}
             >
-              {/* Phase number + status */}
-              <div className="shrink-0 flex flex-col items-center gap-1">
+              {/* Number bubble + connector */}
+              <div className="shrink-0 flex flex-col items-center gap-0.5 pt-0.5">
                 <span
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${STATUS_STYLES[status]}`}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                    isActive
+                      ? "bg-bluegreen-eske text-white-eske shadow-sm"
+                      : STATUS_STYLES[status]
+                  }`}
                 >
-                  {status === "completed" ? "✓" : index + 1}
+                  {isCompleted ? "✓" : index + 1}
                 </span>
                 {index < PHASE_ORDER.length - 1 && (
-                  <div className="w-px h-3 bg-gray-eske-20" />
+                  <div
+                    className={`w-px h-4 mt-0.5 ${
+                      isCompleted ? "bg-green-300" : "bg-gray-eske-20"
+                    }`}
+                  />
                 )}
               </div>
 
               {/* Phase info */}
-              {!collapsed && (
-                <div className="flex-1 min-w-0 pt-0.5">
-                  <p
-                    className={`text-sm font-medium truncate ${
-                      isActive ? "text-bluegreen-eske" : "text-gray-eske-70"
-                    }`}
-                  >
-                    {PHASE_NAMES[phaseId]}
-                  </p>
-                  {isCurrent && status === "in-progress" && (
-                    <span className="text-xs text-bluegreen-eske font-medium">En progreso</span>
-                  )}
-                </div>
-              )}
+              <div className="flex-1 min-w-0 pb-1">
+                <p
+                  className={`text-sm font-semibold truncate leading-tight ${
+                    isActive ? "text-bluegreen-eske" : "text-gray-eske-80"
+                  }`}
+                >
+                  {PHASE_NAMES[phaseId]}
+                </p>
+                <span
+                  className={`text-xs font-medium ${
+                    status === "in-progress"
+                      ? "text-bluegreen-eske"
+                      : isCompleted
+                      ? "text-green-600"
+                      : "text-gray-eske-40"
+                  }`}
+                >
+                  {STATUS_LABEL[status]}
+                </span>
+              </div>
             </Link>
           );
         })}
+      </div>
+
+      {/* Footer con link a hub */}
+      <div className="shrink-0 border-t border-gray-eske-20 px-4 py-3">
+        <Link
+          href="/moddulo"
+          onClick={onLinkClick}
+          className="flex items-center gap-2 text-xs font-medium text-gray-eske-50 hover:text-bluegreen-eske transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Hub de Moddulo
+        </Link>
       </div>
     </nav>
   );

@@ -77,27 +77,50 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
           <PhaseNav projectId={projectId} />
         </div>
 
-        {/* Mobile sidebar overlay */}
-        {mobileSidebarOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex">
-            <div
-              className="fixed inset-0 bg-black-eske/50"
-              onClick={() => setMobileSidebarOpen(false)}
-            />
-            <div className="relative w-64 max-w-[85vw] bg-white-eske shadow-xl">
+        {/* Mobile sidebar overlay — siempre en el DOM, animado con CSS */}
+        <div
+          className={`lg:hidden fixed inset-0 z-50 flex transition-all duration-300 ${
+            mobileSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+
+          {/* Drawer */}
+          <div
+            className={`relative w-72 max-w-[85vw] bg-white-eske shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
+              mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm">Moddulo</span>
+                <span className="text-white-eske/50 text-xs">/ Proyecto</span>
+              </div>
               <button
                 onClick={() => setMobileSidebarOpen(false)}
-                className="absolute top-3 right-3 p-2 rounded-lg hover:bg-gray-eske-10 text-gray-eske-60 z-10"
+                className="p-1.5 rounded-lg hover:bg-white-eske/10 transition-colors"
                 aria-label="Cerrar menú"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <PhaseNav projectId={projectId} />
+            </div>
+
+            {/* Phase nav */}
+            <div className="flex-1 overflow-hidden">
+              <PhaseNav
+                projectId={projectId}
+                onLinkClick={() => setMobileSidebarOpen(false)}
+              />
             </div>
           </div>
-        )}
+        </div>
 
         {/* Page content */}
         <main className="flex-1 overflow-hidden">{children}</main>

@@ -56,6 +56,7 @@ export default function PropositoPage() {
   const [propagationWarning, setPropagationWarning] = useState<PhaseId[]>([]);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const prevFormComplete = useRef(false);
+  const [mobileTab, setMobileTab] = useState<"chat" | "form">("chat");
 
   // Cargar proyecto al montar
   useEffect(() => {
@@ -309,124 +310,151 @@ export default function PropositoPage() {
   // RENDER
   // ==========================================
 
+  // Callback compartido para el botón Ver Resumen
+  const handleVerResumen = async () => {
+    if (reportText) {
+      setShowReport(true);
+      setMobileTab("chat"); // el reporte se muestra en la columna de chat
+    } else {
+      const report = await generateReport(form);
+      if (report) {
+        setReportText(report);
+        setShowReport(true);
+        setMobileTab("chat");
+      }
+    }
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="shrink-0 px-6 py-4 border-b border-gray-eske-20 bg-white-eske flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold uppercase tracking-widest text-bluegreen-eske">Fase 1</span>
-          <div className="flex items-center gap-2 mt-0.5">
-            <h1 className="text-lg font-bold text-gray-eske-80">Propósito</h1>
+      {/* ===== HEADER RESPONSIVE ===== */}
+      <div className="shrink-0 px-3 sm:px-6 py-2 sm:py-3 border-b border-gray-eske-20 bg-white-eske">
+        {/* Fila 1: título + estado */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-xs font-bold uppercase tracking-widest text-bluegreen-eske shrink-0">F1</span>
+            <h1 className="text-sm sm:text-base font-bold text-gray-eske-80 truncate">Propósito</h1>
             {mode === "completed" && (
-              <span className="text-xs font-medium px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
-                Completada
+              <span className="shrink-0 text-xs font-medium px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full">
+                ✓ Lista
               </span>
             )}
             {mode === "editing" && (
-              <span className="text-xs font-medium px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full">
+              <span className="shrink-0 text-xs font-medium px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded-full">
                 Editando
               </span>
             )}
           </div>
+          <span className="text-xs text-gray-eske-40 shrink-0 hidden sm:block ml-2">
+            {isSaving ? "Guardando..." : lastSaved ? `✓ ${lastSaved.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}` : ""}
+          </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-eske-40">
-            {isSaving ? "Guardando..." : lastSaved ? `Guardado ${lastSaved.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}` : ""}
-          </span>
-
-          {/* Botón Ver Resumen — visible en todos los modos cuando hay datos */}
-          <VerResumenButton
-            visible={formComplete || mode === "completed" || mode === "editing"}
-            hasReport={!!reportText}
-            isGenerating={isGeneratingReport}
-            onClick={async () => {
-              if (reportText) {
-                // Ya existe reporte — mostrar sin llamada API
-                setShowReport(true);
-              } else {
-                // Generar reporte nuevo
-                const report = await generateReport(form);
-                if (report) {
-                  setReportText(report);
-                  setShowReport(true);
-                }
-              }
-            }}
-          />
-
-          {/* Modo activo: Editar variables + Cerrar Fase (habilitados solo al completar) */}
-          {mode === "active" && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleStartEdit}
-                disabled={!formComplete}
-                className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Editar variables
-              </button>
-              <button
-                onClick={() => setShowReview(true)}
-                disabled={!formComplete}
-                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Cerrar Fase 1
-              </button>
-            </div>
+        {/* Fila 2: botones — siempre visibles, compactos en mobile */}
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {/* Ver / Generar Resumen */}
+          {(formComplete || mode === "completed" || mode === "editing") && (
+            <button
+              onClick={handleVerResumen}
+              disabled={isGeneratingReport}
+              className="flex items-center gap-1 px-2.5 py-1.5 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-xs font-semibold hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40"
+            >
+              {isGeneratingReport ? (
+                <><div className="w-3 h-3 border-2 border-bluegreen-eske/30 border-t-bluegreen-eske rounded-full animate-spin" /> Generando</>
+              ) : reportText ? "Ver Resumen" : "Generar Resumen"}
+            </button>
           )}
+
+          {/* Modo activo */}
+          {mode === "active" && (<>
+            <button
+              onClick={handleStartEdit}
+              disabled={!formComplete}
+              className="px-2.5 py-1.5 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-xs font-semibold hover:bg-gray-eske-10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Editar variables
+            </button>
+            <button
+              onClick={() => setShowReview(true)}
+              disabled={!formComplete}
+              className="px-2.5 py-1.5 bg-bluegreen-eske text-white-eske rounded-lg text-xs font-semibold hover:bg-bluegreen-eske/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Cerrar Fase 1
+            </button>
+          </>)}
 
           {/* Modo completado */}
-          {mode === "completed" && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleStartEdit}
-                className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors"
-              >
-                Editar variables
-              </button>
-              <button
-                onClick={() => setShowReview(true)}
-                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
-              >
-                Cerrar Fase 1
-              </button>
-            </div>
-          )}
+          {mode === "completed" && (<>
+            <button
+              onClick={handleStartEdit}
+              className="px-2.5 py-1.5 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-xs font-semibold hover:bg-gray-eske-10 transition-colors"
+            >
+              Editar variables
+            </button>
+            <button
+              onClick={() => setShowReview(true)}
+              className="px-2.5 py-1.5 bg-bluegreen-eske text-white-eske rounded-lg text-xs font-semibold hover:bg-bluegreen-eske/90 transition-colors"
+            >
+              Cerrar Fase 1
+            </button>
+          </>)}
 
           {/* Modo edición */}
-          {mode === "editing" && (
-            <div className="flex gap-2">
-              <button
-                onClick={handleCancelEdit}
-                className="px-4 py-2 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-sm font-medium hover:bg-gray-eske-10 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSaveEdit}
-                disabled={isSaving}
-                className="px-4 py-2 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40"
-              >
-                {isSaving ? "Guardando..." : "Guardar cambios"}
-              </button>
-              <button
-                onClick={() => setShowReview(true)}
-                className="px-4 py-2 bg-bluegreen-eske text-white-eske rounded-lg text-sm font-medium hover:bg-bluegreen-eske/90 transition-colors"
-              >
-                Cerrar Fase 1
-              </button>
-            </div>
-          )}
+          {mode === "editing" && (<>
+            <button
+              onClick={handleCancelEdit}
+              className="px-2.5 py-1.5 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-xs font-semibold hover:bg-gray-eske-10 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleSaveEdit}
+              disabled={isSaving}
+              className="px-2.5 py-1.5 border border-bluegreen-eske text-bluegreen-eske rounded-lg text-xs font-semibold hover:bg-bluegreen-eske/5 transition-colors disabled:opacity-40"
+            >
+              {isSaving ? "Guardando..." : "Guardar cambios"}
+            </button>
+            <button
+              onClick={() => setShowReview(true)}
+              className="px-2.5 py-1.5 bg-bluegreen-eske text-white-eske rounded-lg text-xs font-semibold hover:bg-bluegreen-eske/90 transition-colors"
+            >
+              Cerrar Fase 1
+            </button>
+          </>)}
         </div>
       </div>
 
-      {/* Contenido principal */}
+      {/* ===== TABS MOBILE (solo < lg) ===== */}
+      <div className="lg:hidden shrink-0 flex border-b border-gray-eske-20 bg-white-eske">
+        <button
+          onClick={() => setMobileTab("chat")}
+          className={`flex-1 py-2 text-xs font-semibold transition-colors border-b-2 ${
+            mobileTab === "chat"
+              ? "border-bluegreen-eske text-bluegreen-eske"
+              : "border-transparent text-gray-eske-50"
+          }`}
+        >
+          {showReport || mode === "completed" ? "📋 Resumen" : "💬 Chat"}
+        </button>
+        <button
+          onClick={() => setMobileTab("form")}
+          className={`flex-1 py-2 text-xs font-semibold transition-colors border-b-2 ${
+            mobileTab === "form"
+              ? "border-bluegreen-eske text-bluegreen-eske"
+              : "border-transparent text-gray-eske-50"
+          }`}
+        >
+          📝 Formulario XPCTO
+        </button>
+      </div>
+
+      {/* ===== CONTENIDO PRINCIPAL ===== */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Columna izquierda: chat o reporte */}
-        <div className="flex-1 flex flex-col p-4 overflow-hidden min-w-0">
+
+        {/* Columna izquierda: chat / reporte — visible en mobile solo si tab=chat */}
+        <div className={`flex-1 flex-col p-3 sm:p-4 overflow-hidden min-w-0 ${mobileTab === "chat" ? "flex" : "hidden lg:flex"}`}>
           {showReport || mode === "completed" ? (
             <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Botón volver al chat (solo cuando no es modo completed) */}
               {showReport && mode !== "completed" && (
                 <button
                   onClick={() => setShowReport(false)}
@@ -458,8 +486,8 @@ export default function PropositoPage() {
           )}
         </div>
 
-        {/* Columna derecha: formulario XPCTO */}
-        <div className="w-80 xl:w-96 shrink-0 border-l border-gray-eske-20 overflow-y-auto bg-gray-eske-10/50 p-4">
+        {/* Columna derecha: formulario XPCTO — visible en mobile solo si tab=form */}
+        <div className={`flex-col w-full lg:w-80 xl:w-96 shrink-0 border-t lg:border-t-0 lg:border-l border-gray-eske-20 overflow-y-auto bg-gray-eske-10/50 p-3 sm:p-4 ${mobileTab === "form" ? "flex" : "hidden lg:block"}`}>
           <XPCTOFormPanel
             form={mode === "editing" ? editForm : form}
             onChange={mode === "editing" ? setEditForm : (mode === "active" ? setForm : () => {})}
