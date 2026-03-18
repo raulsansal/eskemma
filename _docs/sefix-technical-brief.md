@@ -1,7 +1,8 @@
-# Sefix — Technical Brief: Migración de Shiny/R a Next.js
+# Sefix — Technical Brief: APIs y roadmap Next.js
 
-> Documento de referencia para el desarrollo de Sefix como sección nativa de Eskemma.
-> Última actualización: 2026-03-17
+> **Alcance:** Este documento cubre el lado **Next.js/API** de la integración Sefix en Eskemma.
+> Para el desarrollo del app Shiny en R, ver: [`sefix-shiny-brief.md`](./sefix-shiny-brief.md)
+> Última actualización: 2026-03-18
 
 ---
 
