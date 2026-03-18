@@ -1,7 +1,7 @@
 // app/api/moddulo/projects/[projectId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/server/auth-helpers";
-import { getProject, updateProject, updatePhaseData } from "@/lib/moddulo/project";
+import { getProject, updateProject, updatePhaseData, savePhaseReportDraft } from "@/lib/moddulo/project";
 import type { UpdateProjectInput, ModduloProject, PhaseId } from "@/types/moddulo.types";
 
 // GET: Obtener proyecto individual
@@ -96,6 +96,10 @@ export async function PATCH(
     if (body.phaseData) {
       const { phaseId, data } = body.phaseData as { phaseId: PhaseId; data: Record<string, unknown> };
       await updatePhaseData(projectId, session.uid, phaseId, data);
+    } else if (body.reportDraft) {
+      // Guardar borrador del reporte sin completar la fase
+      const { phaseId, reportText } = body.reportDraft as { phaseId: PhaseId; reportText: string };
+      await savePhaseReportDraft(projectId, session.uid, phaseId, reportText);
     } else {
       // Actualización de campos del proyecto (xpcto, name, status, etc.)
       const input = body as UpdateProjectInput;

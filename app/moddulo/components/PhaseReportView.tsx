@@ -11,13 +11,53 @@ interface PhaseReportViewProps {
   phaseId: PhaseId;
   reportText: string | null;
   projectId: string;
+  /** Si es false (borrador), muestra el banner de siguiente paso. Default: true */
+  isCompleted?: boolean;
   onStartEdit?: () => void;
   className?: string;
+}
+
+function getReportLabel(phaseId: PhaseId): string {
+  const labels: Partial<Record<PhaseId, string>> = {
+    proposito: "Resumen de Propósito",
+    exploracion: "Resultado Exploratorio",
+    investigacion: "Reporte de Investigación",
+    diagnostico: "Dictamen Diagnóstico",
+    estrategia: "Diseño Estratégico",
+    tactica: "Plan Táctico",
+    gerencia: "Reporte de Gerencia",
+    seguimiento: "Seguimiento de KPIs",
+    evaluacion: "Evaluación Final",
+  };
+  return labels[phaseId] ?? PHASE_NAMES[phaseId];
+}
+
+function getNextStep(phaseId: PhaseId): { action: string; next: string } {
+  const steps: Partial<Record<PhaseId, { action: string; next: string }>> = {
+    exploracion: { action: "Cerrar Fase 2", next: "Fase 3 — Investigación" },
+    investigacion: { action: "Cerrar Fase 3", next: "Fase 4 — Diagnóstico" },
+    diagnostico: { action: "Cerrar Fase 4", next: "Fase 5 — Estrategia" },
+    estrategia: { action: "Cerrar Fase 5", next: "Fase 6 — Táctica" },
+    tactica: { action: "Cerrar Fase 6", next: "Fase 7 — Gerencia" },
+  };
+  return steps[phaseId] ?? { action: `Cerrar ${PHASE_NAMES[phaseId]}`, next: "la siguiente fase" };
+}
+
+function getFooterText(phaseId: PhaseId): string {
+  const texts: Partial<Record<PhaseId, string>> = {
+    proposito: "Documento rector de la Fase 1. Úsalo como referencia para las siguientes fases.",
+    exploracion: "Resultado exploratorio de la Fase 2. Documenta el escaneo situacional PEST-L del proyecto.",
+    investigacion: "Reporte de investigación de campo. Valida o refuta la hipótesis planteada en F2.",
+    diagnostico: "Dictamen diagnóstico de la Fase 4. Base para el diseño estratégico.",
+    estrategia: "Diseño estratégico de la Fase 5. Define la narrativa y posicionamiento del proyecto.",
+  };
+  return texts[phaseId] ?? `Documento de referencia — ${PHASE_NAMES[phaseId]}.`;
 }
 
 export default function PhaseReportView({
   phaseId,
   reportText,
+  isCompleted = true,
   onStartEdit,
   className = "",
 }: PhaseReportViewProps) {
@@ -66,13 +106,15 @@ export default function PhaseReportView({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <span className="text-sm font-semibold text-green-800">Reporte diagnóstico — {PHASE_NAMES[phaseId]}</span>
+          <span className="text-sm font-semibold text-green-800">{getReportLabel(phaseId)}</span>
         </div>
         <div className="flex items-center gap-2">
           {isGenerating && (
             <div className="w-4 h-4 border-2 border-bluegreen-eske/30 border-t-bluegreen-eske rounded-full animate-spin" />
           )}
-          <span className="text-xs text-green-600 font-medium">Fase completada</span>
+          <span className="text-xs text-green-600 font-medium">
+            {isCompleted ? "Fase completada" : "Borrador generado"}
+          </span>
         </div>
       </div>
 
@@ -127,12 +169,28 @@ export default function PhaseReportView({
             {reportText}
           </ReactMarkdown>
         </div>
+
+        {/* Banner de siguiente paso — solo cuando la fase aún no está cerrada */}
+        {!isCompleted && (() => {
+          const { action, next } = getNextStep(phaseId);
+          return (
+            <div className="mt-5 p-4 bg-bluegreen-eske/5 border border-bluegreen-eske/25 rounded-lg">
+              <p className="text-xs font-bold uppercase tracking-wide text-bluegreen-eske mb-1">Siguiente paso</p>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                Revisa el resultado. Cuando estés conforme, pulsa{" "}
+                <strong className="text-black-eske">{action}</strong>{" "}
+                en la parte superior para consolidar el análisis y avanzar a la{" "}
+                <strong className="text-black-eske">{next}</strong>.
+              </p>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Footer */}
       <div className="shrink-0 px-4 py-3 border-t border-gray-eske-20 bg-gray-eske-10/30 flex items-center justify-between">
         <p className="text-xs text-gray-eske-40">
-          Documento rector de la Fase 1. Úsalo como referencia para las siguientes fases.
+          {getFooterText(phaseId)}
         </p>
         {onStartEdit && (
           <button

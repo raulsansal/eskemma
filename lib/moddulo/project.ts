@@ -189,6 +189,30 @@ export async function updatePhaseData(
 }
 
 // ==========================================
+// GUARDAR BORRADOR DE REPORTE (sin completar la fase)
+// ==========================================
+
+export async function savePhaseReportDraft(
+  projectId: string,
+  userId: string,
+  phaseId: PhaseId,
+  reportText: string
+): Promise<void> {
+  const project = await getProject(projectId, userId);
+  if (!project) throw new Error("Proyecto no encontrado o sin acceso.");
+
+  const collaborator = project.collaborators.find((c) => c.uid === userId);
+  if (!collaborator || collaborator.role === "analyst" || collaborator.role === "client") {
+    throw new Error("Sin permisos para editar fases.");
+  }
+
+  await adminDb.collection(COLLECTION).doc(projectId).update({
+    [`phases.${phaseId}.reportText`]: reportText,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+// ==========================================
 // GUARDAR MENSAJE DE CHAT EN UNA FASE
 // ==========================================
 

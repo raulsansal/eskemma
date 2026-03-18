@@ -129,11 +129,11 @@ export default function ExploracionPage() {
 
         // Detectar si la fase está completada
         const phaseStatus = p.phases?.exploracion?.status;
-        if (phaseStatus === "completed") {
-          setMode("completed");
-          const savedReport = p.phases?.exploracion?.reportText;
-          if (savedReport) setReportText(savedReport);
-        }
+        if (phaseStatus === "completed") setMode("completed");
+
+        // Cargar reporte guardado (borrador o final) independientemente del estado de la fase
+        const savedReport = p.phases?.exploracion?.reportText;
+        if (savedReport) setReportText(savedReport);
       })
       .catch((err) => console.error("[exploracion] fetch error:", err))
       .finally(() => setIsLoaded(true));
@@ -293,7 +293,18 @@ export default function ExploracionPage() {
   const handleVerResultado = async () => {
     if (reportText) { setShowReport(true); setMobileTab("chat"); return; }
     const report = await generateReport(form);
-    if (report) { setReportText(report); setShowReport(true); setMobileTab("chat"); }
+    if (report) {
+      setReportText(report);
+      setShowReport(true);
+      setMobileTab("chat");
+      // Persistir el borrador en Firestore para que sobreviva un refresh
+      fetch(`/api/moddulo/projects/${projectId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ reportDraft: { phaseId: "exploracion", reportText: report } }),
+      }).catch(() => {});
+    }
   };
 
   const handleClosePhase = async () => {
@@ -327,7 +338,16 @@ export default function ExploracionPage() {
       setForm(structuredClone(editForm));
       setLastSaved(new Date());
       const newReport = await generateReport(editForm);
-      if (newReport) { setReportText(newReport); setShowReport(true); }
+      if (newReport) {
+        setReportText(newReport);
+        setShowReport(true);
+        fetch(`/api/moddulo/projects/${projectId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ reportDraft: { phaseId: "exploracion", reportText: newReport } }),
+        }).catch(() => {});
+      }
       const affected = await checkBackPropagation(projectId);
       if (affected.length > 0) setPropagationWarning(affected);
       else setMode("completed");
@@ -455,6 +475,7 @@ export default function ExploracionPage() {
                 phaseId="exploracion"
                 reportText={reportText}
                 projectId={projectId}
+                isCompleted={mode === "completed"}
                 onStartEdit={handleStartEdit}
                 className="flex-1 overflow-hidden"
               />
