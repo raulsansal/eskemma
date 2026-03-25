@@ -1,0 +1,377 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========== FUNCIÓN AUXILIAR ==========
+    function onlyViewsChanged() {
+      let affectedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      return affectedKeys.hasOnly(["views"]);
+    }
+
+    // ========== COLECCIÓN "users" ==========
+    match /users/{userId} {
+
+      // Usuario autenticado puede leer/escribir solo su propio documento
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // ✅ PERMITIR CONSULTAS PARA VALIDAR userName
+      allow list: if request.auth != null &&
+                  request.query.limit <= 1;
+
+      // ✅ PERMITIR CREACIÓN DE NUEVOS USUARIOS
+      allow create: if request.auth != null &&
+                    request.resource.data.keys().hasAll([
+                      "uid", "email", "userName", "role", "profileCompleted",
+                      "emailVerified", "showOnboardingModal", "createdAt"
+                    ]) &&
+                    request.resource.data.uid == request.auth.uid &&
+                    request.resource.data.role in [
+                      "visitor", "registered", "user", "basic", "premium",
+                      "professional", "unsubscribed-basic", "unsubscribed-premium",
+                      "unsubscribed-professional", "expired", "admin"
+                    ];
+
+      // ✅ PERMITIR ACTUALIZACIÓN
+      allow update: if request.auth != null &&
+                    request.auth.uid == userId &&
+                    request.resource.data.role in [
+                      "visitor", "registered", "user", "basic", "premium",
+                      "professional", "unsubscribed-basic", "unsubscribed-premium",
+                      "unsubscribed-professional", "expired", "admin"
+                    ];
+
+      // ========== SUBCOLLECTION "savedPosts" ==========
+      match /savedPosts/{postId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create, delete: if request.auth != null &&
+                                request.auth.uid == userId &&
+                                request.resource.data.keys().hasAll(["postId", "savedAt", "postTitle", "postSlug"]);
+      }
+    }
+
+
+    // ========== COLECCIÓN "posts" ==========
+    match /posts/{postId} {
+      allow get: if resource.data.status == "published" ||
+                 (request.auth != null &&
+                  (request.auth.uid == resource.data.author.uid ||
+                   request.auth.token.role == "admin"));
+
+      allow list: if true;
+
+      allow create: if request.auth != null &&
+                    request.resource.data.keys().hasAll([
+                      "title", "content", "slug", "author", "status", "category"
+                    ]) &&
+                    request.resource.data.author is map &&
+                    request.resource.data.author.uid == request.auth.uid &&
+                    request.resource.data.author.email is string &&
+                    request.resource.data.author.displayName is string &&
+                    request.resource.data.title is string &&
+                    request.resource.data.title.size() > 0 &&
+                    request.resource.data.content is string &&
+                    request.resource.data.content.size() > 0 &&
+                    request.resource.data.slug is string &&
+                    request.resource.data.slug.size() > 0 &&
+                    request.resource.data.category is string &&
+                    request.resource.data.category.size() > 0 &&
+                    request.resource.data.status in ["draft", "published"] &&
+                    (!request.resource.data.keys().hasAny(["secondaryImages"]) ||
+                     request.resource.data.secondaryImages is list);
+
+      allow update: if request.auth != null &&
+                    (
+                      (onlyViewsChanged() && request.auth != null) ||
+                      ((request.auth.uid == resource.data.author.uid ||
+                       request.auth.token.role == "admin") &&
+                       (!request.resource.data.keys().hasAny(["secondaryImages"]) ||
+                        request.resource.data.secondaryImages is list))
+                    );
+
+      allow delete: if request.auth != null &&
+                    request.auth.token.role == "admin";
+
+      // ========== SUBCOLLECTION "comments" ==========
+      match /comments/{commentId} {
+        allow read: if true;
+
+        allow create: if request.auth != null &&
+                      request.resource.data.keys().hasAll(["content", "author", "createdAt", "postId"]) &&
+                      request.resource.data.author.uid == request.auth.uid &&
+                      request.resource.data.content is string &&
+                      request.resource.data.content.size() >= 1 &&
+                      request.resource.data.content.size() <= 500 &&
+                      (!request.resource.data.keys().hasAny(["parentId"]) ||
+                       request.resource.data.parentId == null ||
+                       request.resource.data.parentId is string);
+
+        allow delete: if request.auth != null &&
+                      (request.auth.uid == resource.data.author.uid ||
+                       request.auth.token.role == "admin");
+
+        allow update: if request.auth != null &&
+                      request.auth.token.role == "admin" &&
+                      request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(["isApproved", "moderationStatus"]);
+      }
+    }
+
+    // ========== COLECCIÓN "subscriptions" ==========
+    match /subscriptions/{subscriptionId} {
+      allow read: if request.auth != null &&
+                  resource.data.userId == request.auth.uid;
+
+      allow create, update: if request.auth != null &&
+                            request.auth.token.role == "admin";
+    }
+
+    // ========== COLECCIÓN "payments" ==========
+    match /payments/{paymentId} {
+      allow read: if request.auth != null &&
+                  resource.data.userId == request.auth.uid;
+
+      allow create: if request.auth != null &&
+                    request.auth.token.role == "admin";
+    }
+
+    // ========== COLECCIÓN "contactMessages" ==========
+    match /contactMessages/{messageId} {
+      allow create: if request.resource.data.keys().hasAll([
+        "name", "email", "message", "status", "createdAt"
+      ]) &&
+      request.resource.data.name is string &&
+      request.resource.data.name.size() >= 2 &&
+      request.resource.data.email is string &&
+      request.resource.data.email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$") &&
+      request.resource.data.message is string &&
+      request.resource.data.message.size() >= 10 &&
+      request.resource.data.message.size() <= 5000 &&
+      request.resource.data.status == "new";
+
+      allow read, update: if request.auth != null &&
+                          request.auth.token.role == "admin";
+
+      allow delete: if false;
+    }
+
+    // ========== COLECCIÓN "newsletter_subscribers" ==========
+    match /newsletter_subscribers/{subscriberId} {
+      allow create: if request.resource.data.keys().hasAll([
+        "email", "status", "subscribedAt", "source"
+      ]) &&
+      request.resource.data.email is string &&
+      request.resource.data.email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$") &&
+      request.resource.data.status in ["pending", "confirmed", "unsubscribed"] &&
+      request.resource.data.subscribedAt is timestamp;
+
+      allow read: if request.auth != null &&
+                  request.auth.token.role == "admin";
+
+      allow update: if request.auth != null &&
+                    (request.auth.token.role == "admin" ||
+                     (request.auth.uid != null &&
+                      resource.data.userId == request.auth.uid));
+
+      allow delete: if request.auth != null &&
+                    request.auth.token.role == "admin";
+    }
+
+    // ========== COLECCIÓN "resources" ==========
+    match /resources/{resourceId} {
+      allow read: if resource.data.status == "active";
+
+      allow create, update, delete: if request.auth != null &&
+                                      request.auth.token.role == "admin";
+    }
+
+    // ========== COLECCIÓN "notifications" ==========
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null &&
+                  resource.data.userId == request.auth.uid;
+
+      allow create: if false;
+
+      allow update: if request.auth != null &&
+                    resource.data.userId == request.auth.uid &&
+                    request.resource.data.diff(resource.data).affectedKeys()
+                      .hasOnly(["isRead"]);
+
+      allow delete: if request.auth != null &&
+                    resource.data.userId == request.auth.uid;
+    }
+
+    // ========== COLECCIÓN "moddulo_redactor_projects" ==========
+    match /moddulo_redactor_projects/{projectId} {
+      allow read: if request.auth != null &&
+                  resource.data.userId == request.auth.uid;
+
+      allow create: if request.auth != null &&
+                    request.resource.data.keys().hasAll([
+                      "userId", "name", "createdAt", "updatedAt", "lastAccessedAt",
+                      "stats", "isActive", "isArchived"
+                    ]) &&
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.name is string &&
+                    request.resource.data.name.size() >= 3 &&
+                    request.resource.data.name.size() <= 50 &&
+                    request.resource.data.stats is map &&
+                    request.resource.data.stats.totalGenerations == 0 &&
+                    request.resource.data.isArchived == false;
+
+      allow update: if request.auth != null &&
+                    resource.data.userId == request.auth.uid &&
+                    (
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(["name", "description", "updatedAt"]) ||
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(["configuration", "updatedAt"]) ||
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(["isActive", "lastAccessedAt"]) ||
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(["stats", "updatedAt"]) ||
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(["isArchived", "isActive", "updatedAt"])
+                    );
+
+      allow delete: if request.auth != null &&
+                    resource.data.userId == request.auth.uid;
+    }
+
+    // ========== COLECCIÓN "moddulo_redactor_generations" ==========
+    match /moddulo_redactor_generations/{generationId} {
+      allow read: if request.auth != null &&
+                  resource.data.userId == request.auth.uid;
+
+      allow create: if request.auth != null &&
+                    request.resource.data.keys().hasAll([
+                      "userId", "projectId", "timestamp", "input", "output", "userPlan", "isFreemium"
+                    ]) &&
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.projectId is string &&
+                    request.resource.data.input is map &&
+                    request.resource.data.input.keys().hasAll(["tema", "publico", "tono"]) &&
+                    request.resource.data.output is map &&
+                    request.resource.data.output.keys().hasAll(["variantes", "hashtags", "imagenDescripcion"]) &&
+                    request.resource.data.userPlan in ["freemium", "basic", "premium", "professional"];
+
+      allow update: if request.auth != null &&
+                    resource.data.userId == request.auth.uid &&
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(["selected", "exported"]);
+
+      allow delete: if request.auth != null &&
+                    resource.data.userId == request.auth.uid;
+    }
+
+    // ========== COLECCIÓN "moddulo_redactor_usage" ==========
+    match /moddulo_redactor_usage/{usageId} {
+      allow read: if request.auth != null &&
+                  usageId == request.auth.uid;
+
+      allow create, update: if request.auth != null &&
+                            usageId == request.auth.uid &&
+                            request.resource.data.keys().hasAll([
+                              "userId", "totalGenerations", "lastGeneration", "isFreemium"
+                            ]) &&
+                            request.resource.data.userId == request.auth.uid;
+    }
+
+    // ========== COLECCIÓN "moddulo_projects" (Tercera Vía) ==========
+    match /moddulo_projects/{projectId} {
+
+      // ✅ LECTURA: Solo el propietario o colaboradores
+      allow read: if request.auth != null &&
+                  (resource.data.userId == request.auth.uid ||
+                   request.auth.uid in resource.data.settings.collaborators);
+
+      // ✅ CREACIÓN: Usuario autenticado con campos requeridos
+      allow create: if request.auth != null &&
+                    request.resource.data.keys().hasAll([
+                      "id", "userId", "createdAt", "updatedAt", "lastAccessedAt",
+                      "projectName", "mode", "campaignType", "jurisdiction", "userRole",
+                      "status", "viabilityStatus", "currentPhase", "completedPhases",
+                      "phaseProgress", "fundacion", "estrategia", "operacion",
+                      "uploadedDocuments", "exports", "settings"
+                    ]) &&
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.projectName is string &&
+                    request.resource.data.projectName.size() >= 1 &&
+                    request.resource.data.projectName.size() <= 100 &&
+                    request.resource.data.mode in ["generador", "refinador"] &&
+                    request.resource.data.campaignType in [
+                      "electoral-ejecutivo", "electoral-legislativo", "electoral-partido",
+                      "gobierno", "movimiento", "corporativo"
+                    ] &&
+                    request.resource.data.userRole in [
+                      "candidato", "consultor", "partido", "gobierno",
+                      "ciudadano", "academico", "ong"
+                    ] &&
+                    request.resource.data.status in ["draft", "active", "paused", "completed", "archived"] &&
+                    request.resource.data.viabilityStatus in ["pending", "viable", "conditional", "not-viable"] &&
+                    request.resource.data.currentPhase in [
+                      "proposito", "exploracion", "diagnostico",
+                      "estrategia", "tactica", "planeacion",
+                      "orquesta", "pulso", "evaluacion"
+                    ] &&
+                    request.resource.data.completedPhases is list &&
+                    request.resource.data.phaseProgress is map &&
+                    request.resource.data.fundacion is map &&
+                    request.resource.data.estrategia is map &&
+                    request.resource.data.operacion is map &&
+                    request.resource.data.uploadedDocuments is list &&
+                    request.resource.data.exports is list &&
+                    request.resource.data.settings is map;
+
+      // ✅ ACTUALIZACIÓN: Solo el propietario puede actualizar
+      allow update: if request.auth != null &&
+                    resource.data.userId == request.auth.uid &&
+                    request.resource.data.userId == resource.data.userId &&
+                    request.resource.data.id == resource.data.id &&
+                    request.resource.data.status in ["draft", "active", "paused", "completed", "archived"] &&
+                    request.resource.data.viabilityStatus in ["pending", "viable", "conditional", "not-viable"] &&
+                    request.resource.data.currentPhase in [
+                      "proposito", "exploracion", "diagnostico",
+                      "estrategia", "tactica", "planeacion",
+                      "orquesta", "pulso", "evaluacion"
+                    ];
+
+      // ✅ ELIMINACIÓN: Solo el propietario puede eliminar
+      allow delete: if request.auth != null &&
+                    resource.data.userId == request.auth.uid;
+    }
+
+    // ========== CENTINELA: Configuraciones de Monitoreo ==========
+    match /centinela_configs/{configId} {
+      allow read, update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+    }
+
+    // ========== CENTINELA: Feeds PEST-L ==========
+    // Lectura: solo el dueño. Escritura: exclusiva de Cloud Functions (Admin SDK).
+    match /centinela_feeds/{feedId} {
+      allow read: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+      allow write: if false;
+    }
+
+    // ========== CENTINELA: Jobs de Scraping ==========
+    match /centinela_jobs/{jobId} {
+      allow read: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+      allow write: if false;
+    }
+
+    // ========== CENTINELA: Alertas ==========
+    // El usuario solo puede marcar su alerta como leída (campo readAt).
+    match /centinela_alerts/{userId}/items/{alertId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(["readAt"]);
+      allow create, delete: if false;
+    }
+
+    // ========== Cola de Emails (Firebase Extension: Trigger Email) ==========
+    match /mail/{mailId} {
+      allow read, write: if false;
+    }
+
+  }
+}

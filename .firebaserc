@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "eskemma-3c4c3"
-  }
+  },
+  "targets": {
+    "eskemma-3c4c3": {
+      "storage": {
+        "default": [
+          "eskemma-3c4c3.firebasestorage.app"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

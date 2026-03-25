@@ -58,7 +58,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
   return (
     <main className="min-h-screen overflow-x-hidden w-full">
       {/* Hero Section */}
-      <section className="relative min-h-[650px] max-sm:min-h-[50vh] w-full flex items-center justify-center overflow-hidden bg-bluegreen-eske">
+      <section className="relative min-h-162.5 max-sm:min-h-[50vh] w-full flex items-center justify-center overflow-hidden bg-bluegreen-eske">
         <Image
           src="/images/hero2.webp"
           alt=""
@@ -72,11 +72,11 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           className="absolute inset-0 bg-bluegreen-eske opacity-20"
           aria-hidden="true"
         ></div>
-        <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full">
+        <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full">
           <h1 className="text-[48px] max-sm:text-2xl leading-tight font-bold">
             Consultoría política
           </h1>
-          <p className="mt-8 max-sm:mt-4 text-[32px] max-sm:text-xl leading-[1.25] font-light">
+          <p className="mt-8 max-sm:mt-4 text-[32px] max-sm:text-xl leading-tight font-light">
             <span>Un ecosistema digital</span>
             <br />
             <span>para tu proyecto político</span>
@@ -90,10 +90,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Blog Section */}
       <section
-        className="bg-gray-eske-10 min-h-[580px] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+        className="bg-gray-eske-10 min-h-145 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
         aria-labelledby="blog-heading"
       >
-        <div className="w-[90%] mx-auto max-w-screen-xl">
+        <div className="w-[90%] mx-auto max-w-7xl">
           <h2
             id="blog-heading"
             className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8"
@@ -156,7 +156,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   </div>
 
                   {/* Botón - con mt-auto para empujarlo al fondo */}
-                  <div className="mt-auto w-full max-w-[200px]">
+                  <div className="mt-auto w-full max-w-50">
                     <Link
                       href={`/blog/${post.slug}`}
                       className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 max-sm:py-1.5 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px] max-sm:text-xs focus-ring-light"
@@ -173,10 +173,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Información Relevante Section */}
       <section
-        className="bg-white-eske min-h-[500px] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+        className="bg-white-eske min-h-125 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
         aria-labelledby="info-heading"
       >
-        <div className="w-[90%] mx-auto max-w-screen-xl">
+        <div className="w-[90%] mx-auto max-w-7xl">
           <h2
             id="info-heading"
             className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8"
@@ -195,14 +195,14 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 className="w-full h-auto object-contain rounded-lg mb-4 max-sm:mb-2"
                 unoptimized={true}
               />
-              <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 flex-grow">
+              <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 grow">
                 Participación electoral por circunscripción{" "}
                 <br className="max-sm:hidden" />
                 en las elecciones federales de México 2006-2021
               </p>
 
               {/* Wrapper del botón con mt-auto para empujarlo al fondo */}
-              <div className="mt-auto w-full max-w-[250px]">
+              <div className="mt-auto w-full max-w-62.5">
                 <Link
                   href="/monitor"
                   className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 max-sm:py-1.5 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px] max-sm:text-xs focus-ring-light"
@@ -222,14 +222,14 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 className="w-full h-auto object-contain rounded-lg mb-4 max-sm:mb-2"
                 unoptimized={true}
               />
-              <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 flex-grow">
+              <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 grow">
                 ¿Por qué la participación electoral aumenta en las{" "}
                 <br className="max-sm:hidden" />
                 elecciones presidenciales en México?
               </p>
 
               {/* Wrapper del botón con mt-auto para empujarlo al fondo */}
-              <div className="mt-auto w-full max-w-[250px]">
+              <div className="mt-auto w-full max-w-62.5">
                 <Link
                   href="/monitor"
                   className="block text-center w-full bg-bluegreen-eske text-white-eske py-2 max-sm:py-1.5 rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-all duration-300 text-[14px] max-sm:text-xs focus-ring-light"
@@ -262,14 +262,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             <p className="text-[18px] max-sm:text-base font-light mb-4 max-sm:mb-3 leading-relaxed">
               <span className="block">Nunca es demasiado pronto.</span>
               <span className="block">Comencemos a planear tu estrategia.</span>
-            </p>
-            <p className="mt-6 max-sm:mt-4 text-[18px] max-sm:text-base font-light leading-relaxed max-sm:hidden">
-              <span className="block">Haz que cada decisión sea efectiva</span>
-              <span className="block">en el contexto de tu proyecto.</span>
-            </p>
+            </p> 
 
-            {/* Párrafo Adicional */}
-            <p className="text-[18px] max-sm:text-base font-light mb-4 max-sm:mb-3 leading-relaxed">
+            <p className="text-[18px] max-sm:text-base font-light mb-12 max-sm:mb-3 leading-relaxed">
               <span className="mt-6 block">
                 Podemos colaborar desde ahora con una{" "}
               </span>
@@ -392,12 +387,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Sección - Testimonios - OPTIMIZADA CON ALTERNANCIA MOBILE */}
       <section
-        className="bg-gray-eske-10 min-h-[600px] max-sm:min-h-[400px] py-20 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        className="bg-gray-eske-10 min-h-150 max-sm:min-h-100 py-20 max-sm:py-12 px-4 sm:px-6 md:px-8"
         aria-labelledby="testimonials-heading"
       >
-        <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 id="testimonials-heading" className="sr-only">
-            Testimonios de clientes
+        <div className="w-[90%] mx-auto max-w-7xl">
+          <h2
+            id="testimonials-heading"
+            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8"
+          >
+            ¿Qué opinan nuestros clientes?
           </h2>
 
           {/* Contenedor de Testimonios */}
@@ -406,9 +404,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             {/* Testimonio 1 - MOBILE: IZQUIERDA */}
             <figure className="flex flex-col sm:flex-row items-center max-sm:items-start sm:items-start sm:space-x-8 space-y-4 sm:space-y-0">
               {/* Avatar + Datos - Desktop: columna centrada, Mobile: fila alineada izquierda */}
-              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 flex-shrink-0">
+              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 shrink-0">
                 {/* Avatar */}
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-60 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-60 flex items-center justify-center overflow-hidden shrink-0">
                   <img
                     src="https://untitledui.com/images/avatars/brianna-ware"
                     alt=""

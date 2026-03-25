@@ -39,7 +39,7 @@ export default function ModduloPage() {
   return (
     <main className="min-h-screen bg-white-eske">
       {/* Hero — mismo patrón que servicios/ */}
-      <section className="relative min-h-[200px] max-sm:min-h-[160px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
+      <section className="relative min-h-50 max-sm:min-h-40 w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
         <Image
           src="/images/yanmin_yang.jpg"
           alt="Imagen de fondo Moddulo"
@@ -50,7 +50,7 @@ export default function ModduloPage() {
           aria-hidden="true"
         />
         <div className="absolute inset-0 bg-bluegreen-eske opacity-75" aria-hidden="true" />
-        <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full py-8 max-sm:py-6">
+        <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full py-8 max-sm:py-6">
           <h1 className="text-[36px] max-sm:text-2xl leading-tight font-bold">
             Moddulo
           </h1>
@@ -62,7 +62,7 @@ export default function ModduloPage() {
 
       {/* Cuerpo del hub */}
       <section className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
-        <div className="w-[90%] mx-auto max-w-screen-xl">
+        <div className="w-[90%] mx-auto max-w-7xl">
 
           {/* Encabezado de sección + CTA */}
           <div className="flex items-center justify-between mb-8 gap-4">
