@@ -14,12 +14,13 @@ import {
   fetchBanxicoSeries,
   BANXICO_DEFAULT_SERIES,
 } from "./scrapers/banxico";
+import {generateFeedFromRawData} from "./generateFeed";
 
 export const scrapeAndAnalyze = onRequest(
   {
     timeoutSeconds: 540,
     memory: "512MiB",
-    secrets: ["INEGI_TOKEN", "BANXICO_TOKEN"],
+    secrets: ["INEGI_TOKEN", "BANXICO_TOKEN", "ANTHROPIC_API_KEY"],
   },
   async (req, res) => {
     if (req.method !== "POST") {
@@ -124,16 +125,29 @@ export const scrapeAndAnalyze = onRequest(
         articlesCount: articles.length,
       });
 
-      // 5. Marcar job como completado
+      // 5. Clasificar artículos y generar feed PEST-L
+      const anthropicKey = process.env.ANTHROPIC_API_KEY ?? "";
+      const feedId = await generateFeedFromRawData({
+        jobId,
+        configId,
+        userId,
+        modo: configData?.modo ?? "ciudadano",
+        anthropicKey,
+        db,
+      });
+
+      // 6. Marcar job como completado con feedId
       await jobRef.update({
         status: "completed",
         completedAt: admin.firestore.FieldValue.serverTimestamp(),
         rawDataId: jobId,
+        feedId,
       });
 
       res.status(200).json({
         success: true,
         jobId,
+        feedId,
         articlesCount: articles.length,
       });
     } catch (error) {
