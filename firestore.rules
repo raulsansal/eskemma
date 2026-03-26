@@ -368,6 +368,14 @@ service cloud.firestore {
       allow create, delete: if false;
     }
 
+    // ========== CENTINELA: Datos Crudos de Scraping ==========
+    // Escritura exclusiva del Admin SDK (Cloud Functions). Lectura solo para el dueño.
+    match /centinela_raw_articles/{docId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
     // ========== Cola de Emails (Firebase Extension: Trigger Email) ==========
     match /mail/{mailId} {
       allow read, write: if false;

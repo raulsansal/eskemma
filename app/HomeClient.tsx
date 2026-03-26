@@ -124,7 +124,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   )}
 
                   {/* Título - con flex-grow para ocupar espacio variable */}
-                  <h3 className="text-xl max-sm:text-base text-bluegreen-eske-60 font-semibold mb-2 max-sm:mb-1 hover:text-bluegreen-eske transition-colors duration-300 flex-grow-0">
+                  <h3 className="text-xl max-sm:text-base text-bluegreen-eske-60 font-semibold mb-2 max-sm:mb-1 hover:text-bluegreen-eske transition-colors duration-300 grow-0">
                     <Link
                       href={`/blog/${post.slug}`}
                       className="focus-ring-primary rounded"
@@ -134,7 +134,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   </h3>
 
                   {/* Contenido - con flex-grow para ocupar espacio variable */}
-                  <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90 mb-4 max-sm:mb-2 line-clamp-3 flex-grow">
+                  <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90 mb-4 max-sm:mb-2 line-clamp-3 grow">
                     {post.content.substring(0, 160)}...
                   </p>
 
@@ -244,10 +244,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Propuesta Section */}
       <section
-        className="bg-bluegreen-eske min-h-[500px] max-sm:min-h-[400px] py-18 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        className="bg-bluegreen-eske min-h-125 max-sm:min-h-100 py-18 max-sm:py-12 px-4 sm:px-6 md:px-8"
         aria-labelledby="propuesta-heading"
       >
-        <div className="w-[90%] mx-auto max-w-screen-xl flex flex-col md:flex-row items-center justify-between">
+        <div className="w-[90%] mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between">
           <div className="w-full md:w-1/3 flex justify-center">
             <PropAnimation />
           </div>
@@ -272,7 +272,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             </p>
 
             {/* Botón "AGENDAR ASESORÍA GRATUITA" */}
-            <div className="text-center mt-6 max-w-[300px] mx-auto">
+            <div className="text-center mt-6 max-w-75 mx-auto">
               <Button
                 label="AGENDAR ASESORÍA GRATUITA"
                 variant="secondary"
@@ -310,7 +310,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
         className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
         aria-labelledby="about-heading"
       >
-        <div className="w-[90%] mx-auto max-w-screen-xl text-center">
+        <div className="w-[90%] mx-auto max-w-7xl text-center">
           {/* Subtítulo */}
           <h2
             id="about-heading"
@@ -325,7 +325,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           </p>
 
           {/* Recuadro para el Video - CON SPINNER */}
-          <div className="relative w-full max-w-[680px] mx-auto overflow-hidden shadow-lg mb-8 max-sm:mb-6 rounded-lg bg-black">
+          <div className="relative w-full max-w-170 mx-auto overflow-hidden shadow-lg mb-8 max-sm:mb-6 rounded-lg bg-black">
             {isVideoLoading && (
               <div
                 className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black"
@@ -442,9 +442,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             {/* Testimonio 2 - MOBILE: DERECHA */}
             <figure className="flex flex-col sm:flex-row-reverse items-center max-sm:items-end sm:items-start sm:space-x-reverse sm:space-x-8 space-y-4 sm:space-y-0">
               {/* Avatar + Datos - Desktop: columna centrada, Mobile: fila alineada derecha */}
-              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 flex-shrink-0">
+              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 shrink-0">
                 {/* Avatar */}
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-orange-60 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-orange-60 flex items-center justify-center overflow-hidden shrink-0">
                   <img
                     src="https://untitledui.com/images/avatars/drew-cano"
                     alt=""
@@ -480,9 +480,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             {/* Testimonio 3 - MOBILE: IZQUIERDA */}
             <figure className="flex flex-col sm:flex-row items-center max-sm:items-start sm:items-start sm:space-x-8 space-y-4 sm:space-y-0">
               {/* Avatar + Datos - Desktop: columna centrada, Mobile: fila alineada izquierda */}
-              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 flex-shrink-0">
+              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 shrink-0">
                 {/* Avatar */}
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-green-60 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-green-60 flex items-center justify-center overflow-hidden shrink-0">
                   <img
                     src="https://untitledui.com/images/avatars/ethan-valdez"
                     alt=""
@@ -518,9 +518,9 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             {/* Testimonio 4 - MOBILE: DERECHA */}
             <figure className="flex flex-col sm:flex-row-reverse items-center max-sm:items-end sm:items-start sm:space-x-reverse sm:space-x-8 space-y-4 sm:space-y-0">
               {/* Avatar + Datos - Desktop: columna centrada, Mobile: fila alineada derecha */}
-              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 flex-shrink-0">
+              <div className="flex flex-row max-sm:flex-row sm:flex-col items-center sm:items-center gap-3 max-sm:gap-3 sm:gap-2 shrink-0">
                 {/* Avatar */}
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-60 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-60 flex items-center justify-center overflow-hidden shrink-0">
                   <img
                     src="https://untitledui.com/images/avatars/ava-bentley"
                     alt=""
@@ -559,10 +559,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       {/* Sección - Planes de suscripción */}
       <section
         id="suscripciones"
-        className="bg-white-eske min-h-[800px] py-18 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        className="bg-white-eske min-h-200 py-18 max-sm:py-12 px-4 sm:px-6 md:px-8"
         aria-labelledby="subscriptions-heading"
       >
-        <div className="w-[90%] mx-auto max-w-screen-xl">
+        <div className="w-[90%] mx-auto max-w-7xl">
           {/* Título de la Sección */}
           <h2
             id="subscriptions-heading"
@@ -572,7 +572,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           </h2>
 
           {/* Párrafo Descriptivo */}
-          <p className="mt-12 max-sm:mt-6 text-2xl max-sm:text-lg font-light text-center text-black-eske mb-24 max-sm:mb-12 max-w-[600px] mx-auto">
+          <p className="mt-12 max-sm:mt-6 text-2xl max-sm:text-lg font-light text-center text-black-eske mb-24 max-sm:mb-12 max-w-150 mx-auto">
             <span>Suscríbete y accede al</span>
             <br />
             <span>ecosistema digital de Eskemma</span>
@@ -581,10 +581,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           {/* Contenedor de las Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-sm:gap-6">
             {/* Card 1 - Sólo un producto (Plan Básico) */}
-            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-2 sm:order-none">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col order-2 sm:order-">
               {/* Encabezado con fondo white-eske */}
               <div
-                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-black-eske text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
+                className="absolute -top-3.75 left-1/2 transform -translate-x-1/2 bg-white-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-black-eske text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
                 aria-hidden="true"
               >
@@ -592,14 +592,14 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </div>
 
               {/* Contenido de la card */}
-              <div className="flex flex-col flex-grow">
+              <div className="flex flex-col grow">
                 {/* Título del Plan */}
                 <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3">
                   Plan Básico
                 </h3>
 
                 {/* Detalles del Plan */}
-                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 flex-grow">
+                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow">
                   <p className="text-center">Mensual | Para 1 persona</p>                   
                   <p className="mt-4 max-sm:mt-2 text-[16px] text-center max-sm:text-[9px]">
                     <strong>Ideal para candidatos locales y equipos pequeños.</strong>
@@ -644,10 +644,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             </article>
 
             {/* Card 2 - Todo Eskemma (Plan Premium) */}
-            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-1 sm:order-none">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col order-1 sm:order-0">
               {/* Encabezado con fondo black-eske */}
               <div
-                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-black-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-white-eske text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
+                className="absolute -top-3.75 left-1/2 transform -translate-x-1/2 bg-black-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-white-eske text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
                 aria-hidden="true"
               >
@@ -655,14 +655,14 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </div>
 
               {/* Contenido de la card */}
-              <div className="flex flex-col flex-grow">
+              <div className="flex flex-col grow">
                 {/* Título del Plan */}
                 <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3">
                   Plan Premium
                 </h3>
 
                 {/* Detalles del Plan */}
-                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 flex-grow">
+                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow">
                   <p className="text-center">Mensual | Hasta 5 personas</p> 
                   <p className="mt-4 max-sm:mt-2 text-[16px] text-center max-sm:text-[9px]">
                     <strong>Ideal para equipos de 5-15 personas</strong>
@@ -707,10 +707,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             </article>
 
             {/* Card 3 - Trabajo colaborativo (Plan Grupal) */}
-            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-[350px] mx-auto flex flex-col order-3 sm:order-none">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col order-3 sm:order-0">
               {/* Encabezado con fondo white-eske */}
               <div
-                className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-black text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
+                className="absolute -top-3.75 left-1/2 transform -translate-x-1/2 bg-white-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-black text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
                 aria-hidden="true"
               >
@@ -718,14 +718,14 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               </div>
 
               {/* Contenido de la card */}
-              <div className="flex flex-col flex-grow">
+              <div className="flex flex-col grow">
                 {/* Título del Plan */}
                 <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3">
                   Plan Profesional
                 </h3>
 
                 {/* Detalles del Plan */}
-                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 flex-grow">
+                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow">
                   <p className="text-center">Mensual | Usuarios ilimitados</p>
                   <p className="mt-4 max-sm:mt-2 text-center text-[16px] max-sm:text-sm">
                     <strong>Ideal para equipos de 15-50+ personas</strong>
@@ -817,10 +817,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Enlaces Rápidos Section */}
       <section
-        className="bg-white-eske min-h-[500px] py-16 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        className="bg-white-eske min-h-125 py-16 max-sm:py-12 px-4 sm:px-6 md:px-8"
         aria-labelledby="quick-links-heading"
       >
-        <div className="w-[90%] mx-auto max-w-screen-xl">
+        <div className="w-[90%] mx-auto max-w-7xl">
           <h2
             id="quick-links-heading"
             className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-14 max-sm:mb-8"

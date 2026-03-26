@@ -1,9 +1,9 @@
 // functions/src/index.ts
 
 // ── Centinela ──────────────────────────────────────────────────────────────
-export { scrapeAndAnalyze } from "./centinela/scrapeAndAnalyze";
-export { scheduledMonitor } from "./centinela/scheduledMonitor";
-export { feedSync } from "./centinela/feedSync";
+export {scrapeAndAnalyze} from "./centinela/scrapeAndAnalyze";
+export {scheduledMonitor} from "./centinela/scheduledMonitor";
+export {feedSync} from "./centinela/feedSync";
 
 // ── Core ───────────────────────────────────────────────────────────────────
 import {
