@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
     startedAt: job.startedAt ?? null,
     completedAt: job.completedAt ?? null,
     rawDataId: job.rawDataId ?? null,
+    feedId: job.feedId ?? null,
     error: job.error ?? null,
   });
 }

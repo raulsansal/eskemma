@@ -28,9 +28,10 @@ export const scrapeAndAnalyze = onRequest(
       return;
     }
 
-    const {configId, userId} = req.body as {
+    const {configId, userId, jobId: providedJobId} = req.body as {
       configId?: string;
       userId?: string;
+      jobId?: string;
     };
 
     if (!configId || !userId) {
@@ -57,16 +58,26 @@ export const scrapeAndAnalyze = onRequest(
     const territorioNombre: string =
       configData?.territorio?.nombre ?? "México";
 
-    // 2. Crear job con status "running"
-    const jobRef = db.collection("centinela_jobs").doc();
+    // 2. Usar el jobId pre-creado por el trigger o crear uno nuevo
+    const jobRef = providedJobId ?
+      db.collection("centinela_jobs").doc(providedJobId) :
+      db.collection("centinela_jobs").doc();
     const jobId = jobRef.id;
 
-    await jobRef.set({
-      configId,
-      userId,
-      status: "running",
-      startedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    if (providedJobId) {
+      // El trigger ya creó el doc; solo actualizamos a "running"
+      await jobRef.update({
+        status: "running",
+        startedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } else {
+      await jobRef.set({
+        configId,
+        userId,
+        status: "running",
+        startedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
 
     try {
       // 3. Scrapers en paralelo — allSettled para no bloquear si uno falla
@@ -125,36 +136,46 @@ export const scrapeAndAnalyze = onRequest(
         articlesCount: articles.length,
       });
 
-      // 5. Clasificar artículos y generar feed PEST-L
-      const anthropicKey = process.env.ANTHROPIC_API_KEY ?? "";
-      const feedId = await generateFeedFromRawData({
-        jobId,
-        configId,
-        userId,
-        modo: configData?.modo ?? "ciudadano",
-        anthropicKey,
-        db,
-      });
-
-      // 6. Marcar job como completado con feedId
-      await jobRef.update({
-        status: "completed",
-        completedAt: admin.firestore.FieldValue.serverTimestamp(),
-        rawDataId: jobId,
-        feedId,
-      });
-
+      // 5. Responder inmediatamente — clasificación continúa en background.
+      // Cloud Run (Gen2) sigue ejecutando hasta que el event loop quede vacío.
       res.status(200).json({
         success: true,
         jobId,
-        feedId,
         articlesCount: articles.length,
       });
+
+      // 6. Clasificación y generación de feed en segundo plano
+      const anthropicKey = process.env.ANTHROPIC_API_KEY ?? "";
+      try {
+        const feedId = await generateFeedFromRawData({
+          jobId,
+          configId,
+          userId,
+          modo: configData?.modo ?? "ciudadano",
+          anthropicKey,
+          db,
+        });
+        await jobRef.update({
+          status: "completed",
+          completedAt: admin.firestore.FieldValue.serverTimestamp(),
+          rawDataId: jobId,
+          feedId,
+        });
+      } catch (bgError) {
+        const message =
+          bgError instanceof Error ? bgError.message : "Error desconocido";
+        console.error("[scrapeAndAnalyze] Clasificación falló:", bgError);
+        await jobRef.update({
+          status: "failed",
+          error: message,
+          completedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Error desconocido";
 
-      console.error("[scrapeAndAnalyze] Error fatal:", error);
+      console.error("[scrapeAndAnalyze] Error fatal en scraping:", error);
 
       await jobRef.update({
         status: "failed",

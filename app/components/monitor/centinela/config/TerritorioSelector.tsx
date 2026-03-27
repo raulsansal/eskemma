@@ -1,22 +1,121 @@
-// app/components/monitor/centinela/config/TerritorioSelector.tsx
 "use client";
 
-import type { Territorio } from "@/types/centinela.types";
+import {useState} from "react";
 
 interface TerritorioSelectorProps {
-  value: Territorio;
-  onChange: (territorio: Territorio) => void;
+  onConfigCreated: (configId: string, territorioNombre: string) => void;
 }
 
 export default function TerritorioSelector({
-  value,
-  onChange,
+  onConfigCreated,
 }: TerritorioSelectorProps) {
-  void value;
-  void onChange;
+  const [territorioNombre, setTerritorioNombre] = useState("");
+  const [modo, setModo] = useState<"ciudadano" | "gubernamental">("ciudadano");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!territorioNombre.trim()) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/monitor/centinela/config", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          territorioNombre: territorioNombre.trim(),
+          modo,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = (await res.json()) as {error?: string};
+        throw new Error(data.error ?? "Error al guardar configuración");
+      }
+
+      const data = (await res.json()) as {configId: string};
+      onConfigCreated(data.configId, territorioNombre.trim());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error desconocido");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="p-4 bg-white-eske rounded-lg border border-gray-100 text-gray-400 text-sm">
-      [ TerritorioSelector — pendiente ]
+    <div className="bg-white-eske rounded-xl shadow-md p-8 max-w-lg mx-auto">
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-bluegreen-eske-60 mb-1">
+          Configurar monitoreo
+        </h2>
+        <p className="text-sm text-gray-eske-90">
+          Define el territorio y el tipo de análisis que deseas monitorear.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="territorio"
+            className="text-sm font-medium text-gray-700"
+          >
+            Territorio
+          </label>
+          <input
+            id="territorio"
+            type="text"
+            value={territorioNombre}
+            onChange={(e) => setTerritorioNombre(e.target.value)}
+            placeholder="ej. Ciudad de México, Jalisco, México"
+            className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
+              focus:outline-none focus:ring-2 focus:ring-bluegreen-eske
+              placeholder:text-gray-eske-60"
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="modo"
+            className="text-sm font-medium text-gray-700"
+          >
+            Tipo de análisis
+          </label>
+          <select
+            id="modo"
+            value={modo}
+            onChange={(e) =>
+              setModo(e.target.value as "ciudadano" | "gubernamental")
+            }
+            className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
+              focus:outline-none focus:ring-2 focus:ring-bluegreen-eske
+              bg-white-eske"
+          >
+            <option value="ciudadano">Ciudadano</option>
+            <option value="gubernamental">Gubernamental</option>
+          </select>
+        </div>
+
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading || !territorioNombre.trim()}
+          className="mt-1 px-4 py-2.5 bg-bluegreen-eske text-white
+            rounded-lg text-sm font-medium transition-colors duration-200
+            hover:bg-bluegreen-eske-60
+            disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Guardando…" : "Guardar configuración"}
+        </button>
+      </form>
     </div>
   );
 }

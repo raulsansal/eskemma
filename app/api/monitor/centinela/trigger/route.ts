@@ -1,12 +1,13 @@
 // app/api/monitor/centinela/trigger/route.ts
 // POST /api/monitor/centinela/trigger
-// Dispara un ciclo de scraping manual en Firebase Cloud Function.
 // Body: { configId: string }
-// Responde con { jobId } una vez que el Cloud Function completa el scraping.
+// Responde inmediatamente con { jobId } sin esperar al Cloud Function.
+// El Cloud Function corre en segundo plano y actualiza el job en Firestore.
 
 import {type NextRequest, NextResponse} from "next/server";
 import {getSessionFromRequest} from "@/lib/server/auth-helpers";
 import {adminDb} from "@/lib/firebase-admin";
+import {FieldValue} from "firebase-admin/firestore";
 
 export async function POST(request: NextRequest) {
   const session = await getSessionFromRequest(request);
@@ -42,41 +43,26 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Llamar Cloud Function y esperar resultado
-  // El tiempo esperado de scraping es < 30s para la mayoría de territorios
-  let cfResponse: Response;
-  try {
-    cfResponse = await fetch(`${functionsUrl}/scrapeAndAnalyze`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({configId, userId: session.uid}),
-      signal: AbortSignal.timeout(55000), // 55s — margen bajo el límite de Vercel
-    });
-  } catch (error) {
-    console.error("[trigger] Error al llamar Cloud Function:", error);
-    return NextResponse.json(
-      {error: "No se pudo conectar con el servicio de scraping"},
-      {status: 502}
-    );
-  }
-
-  if (!cfResponse.ok) {
-    const errorBody = (await cfResponse.json().catch(() => ({}))) as {
-      error?: string;
-    };
-    return NextResponse.json(
-      {error: errorBody.error || "Error en el servicio de scraping"},
-      {status: 502}
-    );
-  }
-
-  const data = (await cfResponse.json()) as {
-    jobId: string;
-    articlesCount: number;
-  };
-
-  return NextResponse.json({
-    jobId: data.jobId,
-    articlesCount: data.articlesCount,
+  // 1. Crear el job en Firestore antes de llamar al CF
+  const jobRef = adminDb.collection("centinela_jobs").doc();
+  const jobId = jobRef.id;
+  await jobRef.set({
+    configId,
+    userId: session.uid,
+    status: "pending",
+    startedAt: FieldValue.serverTimestamp(),
   });
+
+  // 2. Llamar al CF sin esperar la respuesta (fire and forget)
+  //    El CF actualizará el job a "running" → "completed" | "failed"
+  fetch(`${functionsUrl}/scrapeAndAnalyze`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({configId, userId: session.uid, jobId}),
+  }).catch((err) => {
+    console.error("[trigger] CF call failed:", err);
+  });
+
+  // 3. Responder inmediatamente con el jobId
+  return NextResponse.json({jobId, articlesCount: 0});
 }

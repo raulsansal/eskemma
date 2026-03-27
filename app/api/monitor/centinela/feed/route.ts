@@ -3,16 +3,47 @@
 // Retorna el feed PEST-L más reciente para el territorio configurado.
 // Consumido por Moddulo F2 para inyectar contexto en xpctoContext.
 
-import { type NextRequest, NextResponse } from "next/server";
-import { getSessionFromRequest } from "@/lib/server/auth-helpers";
+// app/api/monitor/centinela/feed/route.ts
+// GET /api/monitor/centinela/feed?configId=X
+// Retorna el feed PEST-L vigente para la config dada.
+// Consumido por el dashboard de Centinela y por Moddulo F2.
+
+import {type NextRequest, NextResponse} from "next/server";
+import {getSessionFromRequest} from "@/lib/server/auth-helpers";
+import {adminDb} from "@/lib/firebase-admin";
 
 export async function GET(request: NextRequest) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    return NextResponse.json({error: "No autorizado"}, {status: 401});
   }
 
-  // TODO (Fase 4): Leer centinela_feeds desde Firestore
-  // Parámetros: ?userId=X&territorio=Y
-  return NextResponse.json({ status: "not_implemented" }, { status: 501 });
+  const configId = request.nextUrl.searchParams.get("configId");
+  if (!configId) {
+    return NextResponse.json({error: "configId es requerido"}, {status: 400});
+  }
+
+  // Verificar que la config pertenece al usuario
+  const configSnap = await adminDb
+    .collection("centinela_configs")
+    .doc(configId)
+    .get();
+
+  if (!configSnap.exists || configSnap.data()?.userId !== session.uid) {
+    return NextResponse.json({error: "Config no encontrada"}, {status: 404});
+  }
+
+  const snap = await adminDb
+    .collection("centinela_feeds")
+    .where("configId", "==", configId)
+    .where("vigente", "==", true)
+    .limit(1)
+    .get();
+
+  if (snap.empty) {
+    return NextResponse.json({feed: null});
+  }
+
+  const doc = snap.docs[0];
+  return NextResponse.json({feed: {id: doc.id, ...doc.data()}});
 }

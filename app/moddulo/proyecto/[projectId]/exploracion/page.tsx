@@ -15,6 +15,7 @@ import type {
   VetoActor,
 } from "@/types/moddulo.types";
 import { PHASE_ORDER, emptyExplorationForm } from "@/types/moddulo.types";
+import type { CentinelaFeed, DimensionPESTL } from "@/types/centinela.types";
 
 // ==========================================
 // TIPOS SEFIX
@@ -99,6 +100,81 @@ export default function ExploracionPage() {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [mobileTab, setMobileTab] = useState<"chat" | "form">("chat");
   const [sefixData, setSefixData] = useState<SefixData | null>(null);
+  const [centinelaImporting, setCentinelaImporting] = useState(false);
+  const [centinelaFeedPending, setCentinelaFeedPending] =
+    useState<CentinelaFeed | null>(null);
+
+  // Mapear CentinelaFeed → ExplorationForm.pestl
+  function mapCentinelaFeed(feed: CentinelaFeed): Partial<ExplorationForm> {
+    const mapDim = (dim: DimensionPESTL) => ({
+      contexto: dim.contexto,
+      senalesCriticas: dim.factores
+        .map((f) => `• ${f.descripcion} [${f.impacto}]`)
+        .join("\n"),
+    });
+    return {
+      pestl: {
+        politico: {
+          ...mapDim(feed.pestl.politico),
+          actoresClave: "",
+          actoresVeto: "",
+        },
+        economico: mapDim(feed.pestl.economico),
+        social: mapDim(feed.pestl.social),
+        tecnologico: mapDim(feed.pestl.tecnologico),
+        legal: mapDim(feed.pestl.legal),
+      },
+    };
+  }
+
+  async function handleImportCentinela() {
+    setCentinelaImporting(true);
+    try {
+      // Obtener config activa
+      const configRes = await fetch("/api/monitor/centinela/config");
+      const configData = (await configRes.json()) as {
+        config: {id: string} | null;
+      };
+      if (!configData.config) {
+        alert("No tienes una configuración de Centinela. Créala en Monitor → Centinela.");
+        return;
+      }
+      // Obtener feed vigente
+      const feedRes = await fetch(
+        `/api/monitor/centinela/feed?configId=${configData.config.id}`
+      );
+      const feedData = (await feedRes.json()) as {feed: CentinelaFeed | null};
+      if (!feedData.feed) {
+        alert("No hay análisis de Centinela disponible. Ejecuta un análisis primero.");
+        return;
+      }
+      setCentinelaFeedPending(feedData.feed);
+    } finally {
+      setCentinelaImporting(false);
+    }
+  }
+
+  function handleConfirmCentinelaImport() {
+    if (!centinelaFeedPending) return;
+    const mapped = mapCentinelaFeed(centinelaFeedPending);
+    setForm((prev) => {
+      const next = structuredClone(prev);
+      if (mapped.pestl) {
+        next.pestl.politico.contexto = mapped.pestl.politico.contexto;
+        next.pestl.politico.senalesCriticas = mapped.pestl.politico.senalesCriticas;
+        next.pestl.economico.contexto = mapped.pestl.economico.contexto;
+        next.pestl.economico.senalesCriticas = mapped.pestl.economico.senalesCriticas;
+        next.pestl.social.contexto = mapped.pestl.social.contexto;
+        next.pestl.social.senalesCriticas = mapped.pestl.social.senalesCriticas;
+        next.pestl.tecnologico.contexto = mapped.pestl.tecnologico.contexto;
+        next.pestl.tecnologico.senalesCriticas = mapped.pestl.tecnologico.senalesCriticas;
+        next.pestl.legal.contexto = mapped.pestl.legal.contexto;
+        next.pestl.legal.senalesCriticas = mapped.pestl.legal.senalesCriticas;
+      }
+      return next;
+    });
+    setCentinelaFeedPending(null);
+  }
 
   // Cargar proyecto al montar
   useEffect(() => {
@@ -402,6 +478,19 @@ export default function ExploracionPage() {
           )}
 
           {mode === "active" && (<>
+            <button
+              onClick={handleImportCentinela}
+              disabled={centinelaImporting}
+              className="px-2.5 py-1.5 border border-bluegreen-eske/40
+                text-bluegreen-eske rounded-lg text-xs font-semibold
+                hover:bg-bluegreen-eske/5 transition-colors
+                disabled:opacity-40 flex items-center gap-1">
+              {centinelaImporting
+                ? <><div className="w-3 h-3 border-2 border-bluegreen-eske/30
+                    border-t-bluegreen-eske rounded-full animate-spin" />
+                    Cargando…</>
+                : "⚡ Importar Centinela"}
+            </button>
             <button onClick={handleStartEdit} disabled={!formComplete}
               className="px-2.5 py-1.5 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-xs font-semibold hover:bg-gray-eske-10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
               Editar análisis
@@ -526,6 +615,45 @@ export default function ExploracionPage() {
           affectedPhases={propagationWarning}
           onDismiss={() => { setPropagationWarning([]); setMode("completed"); }}
         />
+      )}
+
+      {/* Modal confirmación importar Centinela */}
+      {centinelaFeedPending && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center
+          justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full
+            flex flex-col gap-4">
+            <h3 className="font-semibold text-bluegreen-eske-60">
+              Importar análisis de Centinela
+            </h3>
+            <p className="text-sm text-gray-700">
+              Se importará el análisis PEST-L de{" "}
+              <strong>{centinelaFeedPending.territorio}</strong> generado por
+              Centinela. Esto sobrescribirá el contexto y las señales críticas
+              de las 5 dimensiones. Los actores clave, actores de veto, semáforo
+              e hipótesis no se modificarán.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setCentinelaFeedPending(null)}
+                className="px-4 py-2 text-sm border border-gray-200 rounded-lg
+                  hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmCentinelaImport}
+                className="px-4 py-2 text-sm bg-bluegreen-eske text-white
+                  rounded-lg hover:bg-bluegreen-eske-60 transition-colors
+                  font-medium"
+              >
+                Importar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
