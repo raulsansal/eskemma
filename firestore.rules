@@ -334,7 +334,7 @@ service cloud.firestore {
                     resource.data.userId == request.auth.uid;
     }
 
-    // ========== CENTINELA: Configuraciones de Monitoreo ==========
+    // ========== CENTINELA: Configuraciones de Monitoreo (legacy) ==========
     match /centinela_configs/{configId} {
       allow read, update, delete: if request.auth != null
         && request.auth.uid == resource.data.userId;
@@ -342,7 +342,46 @@ service cloud.firestore {
         && request.auth.uid == request.resource.data.userId;
     }
 
-    // ========== CENTINELA: Feeds PEST-L ==========
+    // ========== CENTINELA: Proyectos V2 ==========
+    match /centinela_projects/{projectId} {
+      allow read, update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+    }
+
+    // ========== CENTINELA: Config de Variables PEST-L (E3) ==========
+    // Written by API route (Admin SDK). Readable only by owner.
+    match /centinela_variable_configs/{projectId} {
+      allow read: if request.auth != null
+        && resource.data.projectId == projectId;
+      allow write: if false;
+    }
+
+    // ========== CENTINELA: Análisis V2 ==========
+    // Written by Cloud Functions (Admin SDK). Readable/updatable by owner.
+    match /centinela_analyses/{analysisId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      // Only allow updating biasAlerts (acknowledge) from client
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasAny(["biasAlerts", "status", "updatedAt"]);
+      allow create, delete: if false;
+    }
+
+    // ========== CENTINELA: Fuentes manuales de datos (E4) ==========
+    match /centinela_data_sources/{docId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ========== CENTINELA: Feeds PEST-L (legacy V1) ==========
     // Lectura: solo el dueño. Escritura: exclusiva de Cloud Functions (Admin SDK).
     match /centinela_feeds/{feedId} {
       allow read: if request.auth != null

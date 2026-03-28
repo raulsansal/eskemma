@@ -1,6 +1,7 @@
 // functions/src/centinela/scrapeAndAnalyze.ts
-// Cloud Function HTTP: recibe { configId, userId }, ejecuta scrapers en
-// paralelo y guarda los datos crudos en centinela_raw_articles.
+// Cloud Function HTTP: receives { projectId, userId } (V2)
+// or { configId, userId } (V1 legacy), runs scrapers in parallel,
+// saves raw data, then runs classification in the background.
 
 import {onRequest} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
@@ -14,7 +15,7 @@ import {
   fetchBanxicoSeries,
   BANXICO_DEFAULT_SERIES,
 } from "./scrapers/banxico";
-import {generateFeedFromRawData} from "./generateFeed";
+import {generateAnalysisV2, generateFeedFromRawData} from "./generateFeed";
 
 export const scrapeAndAnalyze = onRequest(
   {
@@ -28,51 +29,83 @@ export const scrapeAndAnalyze = onRequest(
       return;
     }
 
-    const {configId, userId, jobId: providedJobId} = req.body as {
+    const body = req.body as {
+      projectId?: string;
       configId?: string;
       userId?: string;
       jobId?: string;
     };
 
-    if (!configId || !userId) {
-      res.status(400).json({error: "configId y userId son requeridos"});
+    const {projectId, configId, userId, jobId: providedJobId} = body;
+
+    if (!userId) {
+      res.status(400).json({error: "userId es requerido"});
+      return;
+    }
+
+    // V2 path requires projectId; V1 legacy requires configId
+    const isV2 = Boolean(projectId);
+    const isV1 = Boolean(configId);
+
+    if (!isV2 && !isV1) {
+      res.status(400).json({
+        error: "projectId o configId es requerido",
+      });
       return;
     }
 
     const db = admin.firestore();
 
-    // 1. Verificar que la config existe y pertenece al usuario
-    const configSnap = await db
-      .collection("centinela_configs")
-      .doc(configId)
-      .get();
+    // ----- Resolve territory and data for scraping -----
+    let territorioNombre = "México";
+    let projectData: Record<string, unknown> | null = null;
 
-    if (!configSnap.exists || configSnap.data()?.userId !== userId) {
-      res.status(403).json({
-        error: "Configuración no encontrada o sin permisos",
-      });
-      return;
+    if (isV2) {
+      const projectSnap = await db
+        .collection("centinela_projects")
+        .doc(projectId as string)
+        .get();
+
+      if (!projectSnap.exists || projectSnap.data()?.userId !== userId) {
+        res.status(403).json({error: "Proyecto no encontrado o sin permisos"});
+        return;
+      }
+      projectData = projectSnap.data() as Record<string, unknown>;
+      const territorio =
+        projectData.territorio as {nombre?: string} | undefined;
+      territorioNombre = territorio?.nombre ?? "México";
+    } else {
+      const configSnap = await db
+        .collection("centinela_configs")
+        .doc(configId as string)
+        .get();
+
+      if (!configSnap.exists || configSnap.data()?.userId !== userId) {
+        res.status(403).json({
+          error: "Configuración no encontrada o sin permisos",
+        });
+        return;
+      }
+      const configData = configSnap.data() as Record<string, unknown>;
+      const territorio =
+        configData.territorio as {nombre?: string} | undefined;
+      territorioNombre = territorio?.nombre ?? "México";
     }
 
-    const configData = configSnap.data();
-    const territorioNombre: string =
-      configData?.territorio?.nombre ?? "México";
-
-    // 2. Usar el jobId pre-creado por el trigger o crear uno nuevo
+    // ----- Job document -----
     const jobRef = providedJobId ?
       db.collection("centinela_jobs").doc(providedJobId) :
       db.collection("centinela_jobs").doc();
     const jobId = jobRef.id;
 
     if (providedJobId) {
-      // El trigger ya creó el doc; solo actualizamos a "running"
       await jobRef.update({
         status: "running",
         startedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     } else {
       await jobRef.set({
-        configId,
+        ...(isV2 ? {projectId} : {configId}),
         userId,
         status: "running",
         startedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -80,7 +113,7 @@ export const scrapeAndAnalyze = onRequest(
     }
 
     try {
-      // 3. Scrapers en paralelo — allSettled para no bloquear si uno falla
+      // ----- Scrapers in parallel -----
       const [newsResult, dofResult, inegiResult, banxicoResult] =
         await Promise.allSettled([
           fetchGoogleNewsRSS(territorioNombre),
@@ -92,17 +125,12 @@ export const scrapeAndAnalyze = onRequest(
         ]);
 
       const articles = [
-        ...(newsResult.status === "fulfilled" ?
-          newsResult.value :
-          []),
-        ...(dofResult.status === "fulfilled" ?
-          dofResult.value :
-          []),
+        ...(newsResult.status === "fulfilled" ? newsResult.value : []),
+        ...(dofResult.status === "fulfilled" ? dofResult.value : []),
       ];
 
       const inegiData =
         inegiResult.status === "fulfilled" ? inegiResult.value : [];
-
       const banxicoData =
         banxicoResult.status === "fulfilled" ?
           banxicoResult.value.flat() :
@@ -121,50 +149,89 @@ export const scrapeAndAnalyze = onRequest(
         console.error("[scrapeAndAnalyze] Banxico:", banxicoResult.reason);
       }
 
-      // 4. Guardar datos crudos
+      // ----- Save raw articles -----
       await db.collection("centinela_raw_articles").doc(jobId).set({
         jobId,
-        configId,
+        ...(isV2 ? {projectId} : {configId}),
         userId,
         territorio: territorioNombre,
         generadoEn: admin.firestore.FieldValue.serverTimestamp(),
         articles,
-        economicData: {
-          inegi: inegiData,
-          banxico: banxicoData,
-        },
+        economicData: {inegi: inegiData, banxico: banxicoData},
         articlesCount: articles.length,
       });
 
-      // 5. Responder inmediatamente — clasificación continúa en background.
-      // Cloud Run (Gen2) sigue ejecutando hasta que el event loop quede vacío.
+      // ----- Respond immediately (fire-and-forget background) -----
       res.status(200).json({
         success: true,
         jobId,
         articlesCount: articles.length,
       });
 
-      // 6. Clasificación y generación de feed en segundo plano
+      // ----- Background: analysis -----
       const anthropicKey = process.env.ANTHROPIC_API_KEY ?? "";
+
       try {
-        const feedId = await generateFeedFromRawData({
-          jobId,
-          configId,
-          userId,
-          modo: configData?.modo ?? "ciudadano",
-          anthropicKey,
-          db,
-        });
-        await jobRef.update({
-          status: "completed",
-          completedAt: admin.firestore.FieldValue.serverTimestamp(),
-          rawDataId: jobId,
-          feedId,
-        });
+        if (isV2 && projectData) {
+          // V2: 5 parallel dimension calls
+          const varConfigSnap = await db
+            .collection("centinela_variable_configs")
+            .doc(projectId as string)
+            .get();
+
+          const variableConfigs = varConfigSnap.exists ?
+            (varConfigSnap.data()?.dimensions ?? []) :
+            [];
+
+          const analysisId = await generateAnalysisV2({
+            jobId,
+            projectId: projectId as string,
+            userId,
+            tipo: projectData.tipo as string ?? "ciudadano",
+            territorio: territorioNombre,
+            horizonte: projectData.horizonte as number ?? 6,
+            variableConfigs,
+            anthropicKey,
+            db,
+          });
+
+          await jobRef.update({
+            status: "completed",
+            completedAt: admin.firestore.FieldValue.serverTimestamp(),
+            rawDataId: jobId,
+            analysisId,
+          });
+        } else {
+          // V1 legacy: batch classification
+          const configSnap = await db
+            .collection("centinela_configs")
+            .doc(configId as string)
+            .get();
+          const configData = configSnap.data() as Record<string, unknown>;
+
+          const feedId = await generateFeedFromRawData({
+            jobId,
+            configId: configId as string,
+            userId,
+            modo: configData?.modo as "ciudadano" | "gubernamental" ??
+              "ciudadano",
+            anthropicKey,
+            db,
+          });
+
+          await jobRef.update({
+            status: "completed",
+            completedAt: admin.firestore.FieldValue.serverTimestamp(),
+            rawDataId: jobId,
+            feedId,
+          });
+        }
       } catch (bgError) {
         const message =
           bgError instanceof Error ? bgError.message : "Error desconocido";
-        console.error("[scrapeAndAnalyze] Clasificación falló:", bgError);
+        console.error(
+          "[scrapeAndAnalyze] Background analysis failed:", bgError
+        );
         await jobRef.update({
           status: "failed",
           error: message,
@@ -174,15 +241,12 @@ export const scrapeAndAnalyze = onRequest(
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Error desconocido";
-
-      console.error("[scrapeAndAnalyze] Error fatal en scraping:", error);
-
+      console.error("[scrapeAndAnalyze] Fatal scraping error:", error);
       await jobRef.update({
         status: "failed",
         error: message,
         completedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-
       res.status(500).json({success: false, error: message});
     }
   }

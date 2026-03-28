@@ -1,7 +1,8 @@
 // functions/src/centinela/classifier/claudePESTL.ts
-// Clasifica artículos crudos en dimensiones PEST-L usando Claude API.
-// Procesa hasta 10 artículos por llamada (batching para control de costos).
-// Principio de trazabilidad: cada factor incluye título + URL de la fuente.
+// Two modes of operation:
+// V1 (legacy): classifyArticlesWithClaude — batch classification
+// V2 (new): analyzeDimension — per-dimension deep analysis
+//            buildImpactChains — cross-dimensional chains
 
 import Anthropic from "@anthropic-ai/sdk";
 import type {RawArticle} from "../scrapers/googleNewsRSS";
@@ -9,6 +10,10 @@ import type {RawArticle} from "../scrapers/googleNewsRSS";
 const CLAUDE_MODEL = "claude-sonnet-4-6";
 const BATCH_SIZE = 10;
 const MIN_TITLE_LENGTH = 20;
+
+// ============================================================
+// V1 TYPES (legacy — kept for backward compat)
+// ============================================================
 
 export type PESTLCategory =
   | "Político"
@@ -36,10 +41,298 @@ interface ClaudeClassificationResult {
   factor: string;
 }
 
+// ============================================================
+// V2 TYPES
+// ============================================================
+
+export type DimensionCode = "P" | "E" | "S" | "T" | "L";
+
+export interface DimensionVariable {
+  name: string;
+  weight: number;
+}
+
+export interface DimensionAnalysisResult {
+  code: DimensionCode;
+  trend: "ASCENDENTE" | "DESCENDENTE" | "ESTABLE";
+  intensity: "ALTA" | "MEDIA" | "BAJA";
+  mainSignal: string;
+  narrative: string;
+  classification: "OPORTUNIDAD" | "AMENAZA" | "NEUTRAL";
+  confidence: number;
+}
+
+export interface ImpactChainResult {
+  dimensions: DimensionCode[];
+  description: string;
+  riskLevel: "CRÍTICO" | "MODERADO" | "BAJO";
+  recommendation: string;
+}
+
+interface DimensionRawOutput {
+  tendencia: "ASCENDENTE" | "DESCENDENTE" | "ESTABLE";
+  intensidad: "ALTA" | "MEDIA" | "BAJA";
+  señal_principal: string;
+  narrativa: string;
+  clasificación: "OPORTUNIDAD" | "AMENAZA" | "NEUTRAL";
+  confianza: number;
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+const DIMENSION_NAMES: Record<DimensionCode, string> = {
+  P: "Político",
+  E: "Económico",
+  S: "Social",
+  T: "Tecnológico",
+  L: "Legal / Ambiental",
+};
+
+const TIPO_DESCRIPTIONS: Record<string, string> = {
+  electoral: "campaña política o proceso electoral",
+  gubernamental: "gestión de un gobierno en ejercicio",
+  legislativo: "proceso legislativo o actuación de una bancada",
+  ciudadano: "movimiento social u organización civil",
+};
+
 /**
- * Extrae un JSON array del texto de respuesta de Claude.
- * @param {string} text Texto de respuesta de Claude
- * @return {ClaudeClassificationResult[]} Array de resultados parseados
+ * Extracts a JSON value from a Claude response string.
+ * @param {string} text Raw response text from Claude
+ * @return {unknown} Parsed JSON value or null
+ */
+function extractJson(text: string): unknown {
+  const arrayMatch = text.match(/\[[\s\S]*\]/);
+  if (arrayMatch) {
+    try {
+      return JSON.parse(arrayMatch[0]);
+    } catch {
+      // fall through
+    }
+  }
+  const objMatch = text.match(/\{[\s\S]*\}/);
+  if (objMatch) {
+    try {
+      return JSON.parse(objMatch[0]);
+    } catch {
+      // fall through
+    }
+  }
+  return null;
+}
+
+// ============================================================
+// V2: PER-DIMENSION ANALYSIS
+// ============================================================
+
+/**
+ * Builds the per-dimension PEST-L analysis prompt.
+ * @param {object} params Prompt parameters
+ * @param {DimensionCode} params.code Dimension code
+ * @param {string} params.tipo Project type
+ * @param {string} params.territorio Territory name
+ * @param {number} params.horizonte Horizon in months
+ * @param {DimensionVariable[]} params.variables Variables with weights
+ * @param {string} params.rawData Articles and manual data as text
+ * @return {string} Formatted prompt
+ */
+function buildDimensionPrompt(params: {
+  code: DimensionCode;
+  tipo: string;
+  territorio: string;
+  horizonte: number;
+  variables: DimensionVariable[];
+  rawData: string;
+}): string {
+  const {code, tipo, territorio, horizonte, variables, rawData} = params;
+  const dimName = DIMENSION_NAMES[code];
+  const tipoDesc = TIPO_DESCRIPTIONS[tipo] ?? tipo;
+  const varsText = variables
+    .map((v) => `- ${v.name} (peso ${v.weight}/5)`)
+    .join("\n");
+
+  return `Eres un consultor experto en comunicación política en \
+Latinoamérica. Analiza la dimensión ${dimName} del análisis PEST-L.
+
+CONTEXTO DEL PROYECTO:
+- Tipo de proyecto: ${tipoDesc}
+- Territorio: ${territorio}
+- Horizonte temporal: ${horizonte} meses
+
+VARIABLES MONITOREADAS:
+${varsText}
+
+DATOS RECOLECTADOS:
+${rawData || "Sin datos disponibles para este período."}
+
+Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta:
+{
+  "tendencia": "ASCENDENTE" | "DESCENDENTE" | "ESTABLE",
+  "intensidad": "ALTA" | "MEDIA" | "BAJA",
+  "señal_principal": "máx. 150 caracteres describiendo el hallazgo clave",
+  "narrativa": "2-3 párrafos con el análisis detallado",
+  "clasificación": "OPORTUNIDAD" | "AMENAZA" | "NEUTRAL",
+  "confianza": número entre 0 y 100
+}
+
+La confianza debe reflejar la calidad y cantidad de datos disponibles.
+Sin datos suficientes asigna confianza menor a 50.`;
+}
+
+/**
+ * Calls Claude to analyze one PEST-L dimension in depth.
+ * @param {object} params Analysis parameters
+ * @param {DimensionCode} params.code Dimension to analyze
+ * @param {string} params.tipo Project type
+ * @param {string} params.territorio Territory name
+ * @param {number} params.horizonte Horizon in months
+ * @param {DimensionVariable[]} params.variables Variables with weights
+ * @param {string} params.rawData Scraped + manual data as text
+ * @param {string} params.anthropicKey Anthropic API key
+ * @return {Promise<DimensionAnalysisResult>} Dimension analysis
+ */
+export async function analyzeDimension(params: {
+  code: DimensionCode;
+  tipo: string;
+  territorio: string;
+  horizonte: number;
+  variables: DimensionVariable[];
+  rawData: string;
+  anthropicKey: string;
+}): Promise<DimensionAnalysisResult> {
+  const {code, anthropicKey} = params;
+  const client = new Anthropic({apiKey: anthropicKey});
+  const prompt = buildDimensionPrompt(params);
+
+  let raw: DimensionRawOutput = {
+    tendencia: "ESTABLE",
+    intensidad: "BAJA",
+    señal_principal: "Sin datos suficientes.",
+    narrativa: "No hay información disponible para esta dimensión.",
+    clasificación: "NEUTRAL",
+    confianza: 0,
+  };
+
+  try {
+    const response = await client.messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: 1024,
+      messages: [{role: "user", content: prompt}],
+    });
+
+    const text = response.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+
+    const parsed = extractJson(text) as DimensionRawOutput | null;
+    if (parsed && typeof parsed === "object") {
+      raw = {...raw, ...parsed};
+    }
+  } catch (error) {
+    console.error(`[claudePESTL] analyzeDimension ${code} failed:`, error);
+  }
+
+  return {
+    code,
+    trend: raw.tendencia ?? "ESTABLE",
+    intensity: raw.intensidad ?? "BAJA",
+    mainSignal: (raw.señal_principal ?? "").substring(0, 150),
+    narrative: raw.narrativa ?? "",
+    classification: raw.clasificación ?? "NEUTRAL",
+    confidence: Math.max(0, Math.min(100, raw.confianza ?? 0)),
+  };
+}
+
+// ============================================================
+// V2: IMPACT CHAINS
+// ============================================================
+
+/**
+ * Generates cross-dimensional impact chains from dimension narratives.
+ * @param {object} params Parameters
+ * @param {Array} params.dimensions Analyzed dimensions
+ * @param {string} params.tipo Project type
+ * @param {string} params.territorio Territory name
+ * @param {string} params.anthropicKey Anthropic API key
+ * @return {Promise<ImpactChainResult[]>} 2-5 impact chains
+ */
+export async function buildImpactChains(params: {
+  dimensions: DimensionAnalysisResult[];
+  tipo: string;
+  territorio: string;
+  anthropicKey: string;
+}): Promise<ImpactChainResult[]> {
+  const {dimensions, tipo, territorio, anthropicKey} = params;
+  const client = new Anthropic({apiKey: anthropicKey});
+
+  const narratives = dimensions
+    .map(
+      (d) =>
+        `${DIMENSION_NAMES[d.code]} (${d.classification}):\n` +
+        `Señal: ${d.mainSignal}\n` +
+        `Narrativa: ${d.narrative.substring(0, 300)}`
+    )
+    .join("\n\n");
+
+  const tipoDesc = TIPO_DESCRIPTIONS[tipo] ?? tipo;
+
+  const prompt = `Eres un analista experto en comunicación política. \
+Basado en el siguiente análisis PEST-L para un proyecto de ${tipoDesc} \
+en ${territorio}, identifica 2-5 cadenas de impacto transversales.
+
+${narratives}
+
+Una cadena de impacto describe cómo un factor en una dimensión \
+desencadena efectos en otras dimensiones.
+
+Responde ÚNICAMENTE con un JSON array:
+[{
+  "dimensions": ["P","E"] (2+ códigos de dimensión involucrados),
+  "description": "máx. 200 caracteres describiendo la cadena",
+  "riskLevel": "CRÍTICO" | "MODERADO" | "BAJO",
+  "recommendation": "máx. 100 caracteres con acción recomendada"
+}]`;
+
+  try {
+    const response = await client.messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: 1024,
+      messages: [{role: "user", content: prompt}],
+    });
+
+    const text = response.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+
+    const parsed = extractJson(text) as ImpactChainResult[] | null;
+    if (Array.isArray(parsed)) {
+      return parsed
+        .slice(0, 5)
+        .map((c) => ({
+          dimensions: (c.dimensions ?? []).slice(0, 5) as DimensionCode[],
+          description: (c.description ?? "").substring(0, 200),
+          riskLevel: c.riskLevel ?? "BAJO",
+          recommendation: (c.recommendation ?? "").substring(0, 100),
+        }));
+    }
+  } catch (error) {
+    console.error("[claudePESTL] buildImpactChains failed:", error);
+  }
+
+  return [];
+}
+
+// ============================================================
+// V1: LEGACY BATCH CLASSIFICATION (kept for legacy feeds)
+// ============================================================
+
+/**
+ * Extracts a JSON array from a Claude response string.
+ * @param {string} text Raw response text from Claude
+ * @return {ClaudeClassificationResult[]} Parsed results or empty array
  */
 function extractJsonFromResponse(
   text: string
@@ -54,45 +347,44 @@ function extractJsonFromResponse(
 }
 
 /**
- * Construye el prompt para clasificar un batch de artículos.
- * @param {RawArticle[]} articles Artículos a clasificar
- * @return {string} Prompt formateado
+ * Builds the batch classification prompt.
+ * @param {RawArticle[]} articles Articles to classify
+ * @return {string} Formatted prompt
  */
 function buildClassificationPrompt(articles: RawArticle[]): string {
   const articlesList = articles
     .map((a, i) => `[${i + 1}] Título: ${a.title}\nContenido: ${a.content}`)
     .join("\n\n");
 
-  return `Eres un analista político especializado en México. Analiza las \
-siguientes ${articles.length} noticias y clasifícalas según el marco PEST-L.
+  return `Eres un analista político especializado en México. Analiza \
+las siguientes ${articles.length} noticias y clasifícalas según PEST-L.
 
 Para cada noticia proporciona:
 - categories: array con una o más de \
 ["Político","Económico","Social","Tecnológico","Legal"]
 - impact: "alto" | "medio" | "bajo"
-- sentiment: número de -1.0 (muy negativo) a 1.0 (muy positivo)
-- factor: resumen breve del factor identificado (máx. 100 caracteres)
+- sentiment: número de -1.0 a 1.0
+- factor: resumen del factor identificado (máx. 100 caracteres)
 
 NOTICIAS:
 ${articlesList}
 
-Responde ÚNICAMENTE con un JSON array sin explicaciones adicionales:
-[{"index":1,"categories":[...],"impact":"...","sentiment":0.0,"factor":"..."}]`;
+Responde ÚNICAMENTE con un JSON array:
+[{"index":1,"categories":[...],"impact":"...","sentiment":0.0,\
+"factor":"..."}]`;
 }
 
 /**
- * Clasifica un batch de artículos con Claude y retorna los resultados
- * fusionados con los metadatos originales (título, link, fuente).
- * @param {RawArticle[]} batch Artículos del batch
- * @param {Anthropic} client Cliente de Anthropic
- * @return {Promise<ClassifiedArticle[]>} Artículos clasificados
+ * Classifies one batch of articles with Claude.
+ * @param {RawArticle[]} batch Articles in the batch
+ * @param {Anthropic} client Anthropic client instance
+ * @return {Promise<ClassifiedArticle[]>} Classified articles
  */
 async function classifyBatch(
   batch: RawArticle[],
   client: Anthropic
 ): Promise<ClassifiedArticle[]> {
   const prompt = buildClassificationPrompt(batch);
-
   const response = await client.messages.create({
     model: CLAUDE_MODEL,
     max_tokens: 2048,
@@ -105,7 +397,6 @@ async function classifyBatch(
     .join("");
 
   const results = extractJsonFromResponse(text);
-
   return results
     .filter((r) => r.index >= 1 && r.index <= batch.length)
     .map((r) => {
@@ -124,35 +415,33 @@ async function classifyBatch(
 }
 
 /**
- * Clasifica un arreglo de artículos crudos en dimensiones PEST-L
- * usando Claude API, procesando en batches de hasta 10 artículos.
- * @param {RawArticle[]} articles Artículos crudos a clasificar
- * @param {string} anthropicKey API key de Anthropic
- * @return {Promise<ClassifiedArticle[]>} Artículos clasificados con PEST-L
+ * Legacy: classifies raw articles into PEST-L dimensions using Claude.
+ * Processes in batches of up to 10 articles.
+ * @param {RawArticle[]} articles Raw articles to classify
+ * @param {string} anthropicKey Anthropic API key
+ * @return {Promise<ClassifiedArticle[]>} Classified articles with PEST-L
  */
 export async function classifyArticlesWithClaude(
   articles: RawArticle[],
   anthropicKey: string
 ): Promise<ClassifiedArticle[]> {
   if (!anthropicKey) {
-    console.warn("[claudePESTL] ANTHROPIC_API_KEY no configurado — saltando");
+    console.warn("[claudePESTL] ANTHROPIC_API_KEY not set — skipping");
     return [];
   }
 
-  // Filtrar artículos con título demasiado corto (ruido)
   const filtered = articles.filter(
     (a) => a.title && a.title.length >= MIN_TITLE_LENGTH
   );
 
   if (filtered.length === 0) {
-    console.warn("[claudePESTL] No hay artículos válidos para clasificar");
+    console.warn("[claudePESTL] No valid articles to classify");
     return [];
   }
 
   const client = new Anthropic({apiKey: anthropicKey});
   const classified: ClassifiedArticle[] = [];
 
-  // Dividir en chunks de BATCH_SIZE
   for (let i = 0; i < filtered.length; i += BATCH_SIZE) {
     const batch = filtered.slice(i, i + BATCH_SIZE);
     try {
@@ -160,24 +449,22 @@ export async function classifyArticlesWithClaude(
       classified.push(...batchResults);
       console.log(
         `[claudePESTL] Batch ${Math.floor(i / BATCH_SIZE) + 1}: ` +
-          `${batchResults.length}/${batch.length} clasificados`
+          `${batchResults.length}/${batch.length} classified`
       );
     } catch (error) {
       console.error(
-        `[claudePESTL] Error en batch ${Math.floor(i / BATCH_SIZE) + 1}:`,
+        `[claudePESTL] Batch ${Math.floor(i / BATCH_SIZE) + 1} error:`,
         error
       );
-      // Continuar con el siguiente batch
     }
 
-    // Pausa breve entre batches para respetar rate limits
     if (i + BATCH_SIZE < filtered.length) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
   console.log(
-    `[claudePESTL] Total clasificados: ${classified.length}/${filtered.length}`
+    `[claudePESTL] Total: ${classified.length}/${filtered.length}`
   );
   return classified;
 }

@@ -1,73 +1,100 @@
 "use client";
 
-import {useState, useEffect} from "react";
-import Link from "next/link";
-import {useRouter} from "next/navigation";
-import type {CentinelaConfig, CentinelaFeed} from "@/types/centinela.types";
-
-// ── Tipos locales ─────────────────────────────────────────────
-
-interface AnalysisCard {
-  config: CentinelaConfig;
-  feed: CentinelaFeed | null;
-  loadingFeed: boolean;
-}
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import type { CentinelaProject } from "@/types/centinela.types";
 
 // ── Helpers ───────────────────────────────────────────────────
 
-function riskLevel(v: number): {label: string; cls: string} {
-  if (v >= 70) return {label: "Alto",     cls: "bg-red-100 text-red-700"};
-  if (v >= 40) return {label: "Moderado", cls: "bg-yellow-100 text-yellow-700"};
-  return              {label: "Bajo",     cls: "bg-green-100 text-green-700"};
-}
-
 function formatDate(value: unknown): string {
-  if (!value) return "Sin análisis";
+  if (!value) return "";
   try {
     const d =
       typeof value === "string"
         ? new Date(value)
-        : new Date((value as {_seconds: number})._seconds * 1000);
+        : new Date((value as { _seconds: number })._seconds * 1000);
     return d.toLocaleString("es-MX", {
       day: "numeric",
       month: "short",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   } catch {
-    return "fecha desconocida";
+    return "";
   }
 }
 
-// ── Card de análisis ──────────────────────────────────────────
+const TYPE_LABELS: Record<string, string> = {
+  electoral: "Electoral",
+  gubernamental: "Gubernamental",
+  legislativo: "Legislativo",
+  ciudadano: "Ciudadano",
+};
 
-function AnalysisCardItem({card}: {card: AnalysisCard}) {
-  const {config, feed, loadingFeed} = card;
+const TYPE_ICONS: Record<string, string> = {
+  electoral: "🗳️",
+  gubernamental: "🏛️",
+  legislativo: "📜",
+  ciudadano: "✊",
+};
+
+const STAGE_LABELS: Record<number, string> = {
+  1: "Tipo de proyecto",
+  2: "Territorio",
+  3: "Variables PEST-L",
+  4: "Datos",
+  5: "Análisis IA",
+  6: "Interpretación",
+  7: "Informes",
+  8: "Monitoreo",
+};
+
+// ── Project card ──────────────────────────────────────────────
+
+function ProjectCard({ project }: { project: CentinelaProject & { id: string } }) {
+  const router = useRouter();
+  const stage = project.currentStage ?? 1;
+
+  function handleClick() {
+    if (stage <= 3) {
+      router.push(`/monitor/centinela/nuevo`);
+    } else if (stage === 4) {
+      router.push(`/monitor/centinela/${project.id}/datos`);
+    } else {
+      router.push(`/monitor/centinela/${project.id}/analisis`);
+    }
+  }
 
   return (
-    <Link
-      href={`/monitor/centinela/analisis/${config.id}`}
-      className="group bg-white-eske rounded-xl shadow-sm border
+    <button
+      type="button"
+      onClick={handleClick}
+      className="group text-left bg-white-eske rounded-xl shadow-sm border
         border-gray-eske-20 p-5 flex flex-col gap-4
-        hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+        hover:shadow-md hover:-translate-y-0.5 transition-all duration-200
+        w-full"
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <h3
-            className="font-semibold text-bluegreen-eske-60
-              group-hover:text-bluegreen-eske transition-colors truncate"
-          >
-            {config.territorio.nombre}
-          </h3>
-          <p className="text-xs text-gray-400 mt-0.5 capitalize">
-            Análisis {config.modo}
-          </p>
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <span className="text-2xl shrink-0" aria-hidden="true">
+            {TYPE_ICONS[project.tipo] ?? "📊"}
+          </span>
+          <div className="min-w-0">
+            <h3
+              className="font-semibold text-bluegreen-eske-60
+                group-hover:text-bluegreen-eske transition-colors truncate"
+            >
+              {project.nombre}
+            </h3>
+            <p className="text-xs text-gray-eske-60 mt-0.5">
+              {TYPE_LABELS[project.tipo] ?? project.tipo} ·{" "}
+              {project.territorio?.nombre ?? ""}
+            </p>
+          </div>
         </div>
         <svg
-          className="w-4 h-4 text-gray-300 group-hover:text-bluegreen-eske
-            transition-colors shrink-0 mt-0.5"
+          className="w-4 h-4 text-gray-eske-30 group-hover:text-bluegreen-eske
+            transition-colors shrink-0 mt-1"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -82,257 +109,144 @@ function AnalysisCardItem({card}: {card: AnalysisCard}) {
         </svg>
       </div>
 
-      {/* Feed info */}
-      {loadingFeed ? (
-        <div className="flex gap-2">
-          <div className="h-5 w-20 bg-gray-100 rounded-full animate-pulse" />
-          <div className="h-5 w-32 bg-gray-100 rounded-full animate-pulse" />
-        </div>
-      ) : feed ? (
-        <div className="flex items-center gap-3 flex-wrap">
-          <span
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full
-              ${riskLevel(feed.vectorRiesgo).cls}`}
-          >
-            Riesgo {riskLevel(feed.vectorRiesgo).label} · {Math.round(feed.vectorRiesgo)}/100
-          </span>
-          <span className="text-xs text-gray-400">
-            {formatDate(feed.generadoEn)}
-          </span>
-        </div>
-      ) : (
-        <span className="text-xs text-gray-400 italic">
-          Sin análisis — haz clic para ejecutar
+      {/* Stage + date */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <span className="text-xs bg-bluegreen-eske/10 text-bluegreen-eske
+          px-2.5 py-1 rounded-full font-medium">
+          Etapa {stage} — {STAGE_LABELS[stage] ?? ""}
         </span>
-      )}
-    </Link>
+        {project.createdAt && (
+          <span className="text-xs text-gray-eske-50">
+            {formatDate(project.createdAt)}
+          </span>
+        )}
+      </div>
+
+      {/* Horizon */}
+      <p className="text-xs text-gray-eske-60">
+        Horizonte: {project.horizonte}{" "}
+        {project.horizonte === 1 ? "mes" : "meses"}
+      </p>
+    </button>
   );
 }
 
-// ── Formulario nuevo análisis ─────────────────────────────────
-
-function NewAnalysisForm({
-  onCreated,
-}: {
-  onCreated: (configId: string) => void;
-}) {
-  const [nombre, setNombre] = useState("");
-  const [modo, setModo] = useState<"ciudadano" | "gubernamental">("ciudadano");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!nombre.trim()) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/monitor/centinela/config", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          territorioNombre: nombre.trim(),
-          modo,
-        }),
-      });
-      const data = (await res.json()) as {configId?: string; error?: string};
-      if (!res.ok) throw new Error(data.error ?? "Error al crear análisis");
-      onCreated(data.configId!);
-      setNombre("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <form
-      onSubmit={submit}
-      className="flex flex-col sm:flex-row gap-3 items-start sm:items-end"
-    >
-      <div className="flex-1 min-w-0 flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-500">Territorio</label>
-        <input
-          type="text"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          placeholder="ej. Ciudad de México, Jalisco, Atizapán…"
-          className="w-full px-3 py-2 border border-gray-eske-30 rounded-lg
-            text-sm focus:outline-none focus:ring-2 focus:ring-bluegreen-eske
-            placeholder:text-gray-eske-60"
-          required
-        />
-      </div>
-      <div className="flex flex-col gap-1 shrink-0">
-        <label className="text-xs font-medium text-gray-500">
-          Tipo de análisis
-        </label>
-        <select
-          value={modo}
-          onChange={(e) =>
-            setModo(e.target.value as "ciudadano" | "gubernamental")
-          }
-          className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
-            focus:outline-none focus:ring-2 focus:ring-bluegreen-eske
-            bg-white-eske"
-        >
-          <option value="ciudadano">Ciudadano</option>
-          <option value="gubernamental">Gubernamental</option>
-        </select>
-      </div>
-      <button
-        type="submit"
-        disabled={loading || !nombre.trim()}
-        className="shrink-0 px-5 py-2 bg-bluegreen-eske text-white
-          rounded-lg text-sm font-medium hover:bg-bluegreen-eske-60
-          transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-          self-end"
-      >
-        {loading ? "Creando…" : "Crear análisis"}
-      </button>
-      {error && (
-        <p className="w-full text-xs text-red-600 bg-red-50 px-3 py-1.5
-          rounded-lg">
-          {error}
-        </p>
-      )}
-    </form>
-  );
-}
-
-// ── Página Hub ────────────────────────────────────────────────
+// ── Hub page ──────────────────────────────────────────────────
 
 export default function CentinelaHubPage() {
   const router = useRouter();
-  const [cards, setCards] = useState<AnalysisCard[]>([]);
-  const [pageLoading, setPageLoading] = useState(true);
+  const [projects, setProjects] = useState<
+    (CentinelaProject & { id: string })[]
+  >([]);
+  const [loading, setLoading] = useState(true);
 
-  async function loadConfigs() {
-    const res = await fetch("/api/monitor/centinela/config");
-    if (!res.ok) return;
-    const data = (await res.json()) as {configs: CentinelaConfig[]};
-    const configs = data.configs ?? [];
-
-    // Inicializar cards con loadingFeed = true
-    setCards(
-      configs.map((c) => ({config: c, feed: null, loadingFeed: true}))
-    );
-
-    // Cargar feeds en paralelo
-    await Promise.all(
-      configs.map(async (c) => {
-        try {
-          const fr = await fetch(
-            `/api/monitor/centinela/feed?configId=${c.id}`
-          );
-          const fd = (await fr.json()) as {feed: CentinelaFeed | null};
-          setCards((prev) =>
-            prev.map((card) =>
-              card.config.id === c.id
-                ? {...card, feed: fd.feed ?? null, loadingFeed: false}
-                : card
-            )
-          );
-        } catch {
-          setCards((prev) =>
-            prev.map((card) =>
-              card.config.id === c.id
-                ? {...card, loadingFeed: false}
-                : card
-            )
-          );
-        }
-      })
-    );
-  }
-
-  useEffect(() => {
-    loadConfigs().finally(() => setPageLoading(false));
+  const loadProjects = useCallback(async () => {
+    try {
+      const res = await fetch("/api/monitor/centinela/project");
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        projects: (CentinelaProject & { id: string })[];
+      };
+      setProjects(data.projects ?? []);
+    } catch {
+      // Silent — show empty state
+    }
   }, []);
 
-  function handleConfigCreated(configId: string) {
-    // Navegar directamente a la página del nuevo análisis
-    router.push(`/monitor/centinela/analisis/${configId}`);
-  }
+  useEffect(() => {
+    loadProjects().finally(() => setLoading(false));
+  }, [loadProjects]);
 
-  if (pageLoading) {
+  if (loading) {
     return (
       <main className="min-h-screen bg-white-eske-40 flex items-center
         justify-center">
         <div
           className="w-6 h-6 border-2 border-bluegreen-eske
             border-t-transparent rounded-full animate-spin"
+          aria-label="Cargando"
         />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-white-eske-40">
+    <main className="min-h-screen bg-gray-eske-10">
       {/* Header */}
       <div className="bg-bluegreen-eske">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex items-start gap-4">
-            <span className="text-4xl" aria-hidden="true">🛡️</span>
+            <span className="text-4xl" aria-hidden="true">
+              🛡️
+            </span>
             <div>
               <h1 className="text-2xl font-bold text-white">Centinela</h1>
-              <p className="text-sm text-bluegreen-eske-10/80 mt-1
-                max-w-xl leading-relaxed">
-                Monitor de entorno político en tiempo real. Analiza el contexto
-                PEST-L de cualquier territorio mexicano con datos de Google
-                News, DOF, INEGI y Banxico, clasificados con inteligencia
-                artificial.
+              <p className="text-sm text-white/75 mt-1 max-w-xl leading-relaxed">
+                Análisis PEST-L con IA para proyectos de comunicación política.
+                Define el territorio, configura las variables y obtén un análisis
+                estratégico trazable y potenciado por IA.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col
-        gap-8">
-
-        {/* Sección: Nuevo análisis */}
-        <section>
-          <h2 className="text-sm font-bold uppercase tracking-wider
-            text-gray-400 mb-4">
-            Nuevo análisis
-          </h2>
-          <div className="bg-white-eske rounded-xl shadow-sm border
-            border-gray-eske-20 p-5">
-            <NewAnalysisForm onCreated={handleConfigCreated} />
-          </div>
-        </section>
-
-        {/* Sección: Análisis guardados */}
-        <section>
-          <h2 className="text-sm font-bold uppercase tracking-wider
-            text-gray-400 mb-4">
-            Análisis guardados
-            {cards.length > 0 && (
-              <span className="ml-2 text-xs font-normal normal-case
-                text-gray-400">
-                ({cards.length})
-              </span>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-8">
+        {/* CTA */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-black-eske">
+              Mis proyectos
+            </h2>
+            {projects.length > 0 && (
+              <p className="text-sm text-gray-eske-60 mt-0.5">
+                {projects.length}{" "}
+                {projects.length === 1 ? "proyecto activo" : "proyectos activos"}
+              </p>
             )}
-          </h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/monitor/centinela/nuevo")}
+            className="flex items-center gap-2 px-5 py-2.5 bg-orange-eske
+              text-white rounded-lg text-sm font-medium
+              hover:bg-orange-eske-60 transition-colors shadow-sm"
+          >
+            <span aria-hidden="true">+</span> Nuevo proyecto
+          </button>
+        </div>
 
-          {cards.length === 0 ? (
-            <div className="text-center py-12 bg-white-eske rounded-xl
-              border border-dashed border-gray-eske-30">
-              <p className="text-sm text-gray-400">
-                Aún no tienes análisis. Crea uno arriba para comenzar.
+        {/* Project grid */}
+        {projects.length === 0 ? (
+          <div className="flex flex-col items-center gap-6 py-16 bg-white-eske
+            rounded-xl border border-dashed border-gray-eske-30 text-center">
+            <span className="text-5xl" aria-hidden="true">
+              🛡️
+            </span>
+            <div>
+              <p className="font-semibold text-black-eske">
+                No tienes proyectos todavía
+              </p>
+              <p className="text-sm text-gray-eske-60 mt-1 max-w-sm">
+                Crea tu primer proyecto para comenzar un análisis PEST-L con IA.
               </p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
-              gap-4">
-              {cards.map((card) => (
-                <AnalysisCardItem key={card.config.id} card={card} />
-              ))}
-            </div>
-          )}
-        </section>
+            <button
+              type="button"
+              onClick={() => router.push("/monitor/centinela/nuevo")}
+              className="px-6 py-2.5 bg-bluegreen-eske text-white rounded-lg
+                text-sm font-medium hover:bg-bluegreen-eske-60 transition-colors"
+            >
+              Crear primer proyecto →
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

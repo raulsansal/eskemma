@@ -11,43 +11,215 @@ export type NivelTerritorial =
   | "municipal"   // Un municipio (ej. Zapopan)
   | "distrito";   // Un distrito electoral específico
 
+/** @deprecated Use TipoProyecto instead */
 export type ModoAnalisis =
-  | "ciudadano"     // Enfoque en percepción ciudadana
-  | "gubernamental"; // Enfoque en gestión pública
+  | "ciudadano"
+  | "gubernamental";
+
+export type TipoProyecto =
+  | "electoral"
+  | "gubernamental"
+  | "legislativo"
+  | "ciudadano";
 
 export type TendenciaPESTL =
-  | "creciente"    // Factor en aumento
-  | "estable"      // Sin cambios significativos
-  | "decreciente"; // Factor en descenso
+  | "creciente"
+  | "estable"
+  | "decreciente";
 
+/** @deprecated Use Trend (ASCENDENTE/DESCENDENTE/ESTABLE) instead */
 export type ImpactoFactor =
-  | "alto"   // Impacto alto en la estrategia
-  | "medio"  // Impacto moderado
-  | "bajo";  // Impacto leve
+  | "alto"
+  | "medio"
+  | "bajo";
 
 export type JobStatus =
-  | "pending"    // En cola, aún no inicia
-  | "running"    // Ejecutándose en Cloud Function
-  | "completed"  // Finalizado con éxito
-  | "failed";    // Error durante la ejecución
+  | "pending"
+  | "running"
+  | "completed"
+  | "failed";
+
+export type DimensionCode = "P" | "E" | "S" | "T" | "L";
+
+export type Trend = "ASCENDENTE" | "DESCENDENTE" | "ESTABLE";
+
+export type Intensity = "ALTA" | "MEDIA" | "BAJA";
+
+export type Classification = "OPORTUNIDAD" | "AMENAZA" | "NEUTRAL";
+
+export type ReliabilityLevel = "HIGH" | "MEDIUM" | "LOW";
+
+export type IndicatorType = "QUANTITATIVE" | "QUALITATIVE";
+
+export type RiskLevel = "CRÍTICO" | "MODERADO" | "BAJO";
+
+export type AnalysisStatus = "PENDING_REVIEW" | "REVIEWED" | "APPROVED";
 
 // ==========================================
-// INTERFACES DE CONFIGURACIÓN
+// INTERFACES COMPARTIDAS
 // ==========================================
 
 export interface Territorio {
   nivel: NivelTerritorial;
-  estado?: string;    // Requerido si nivel >= estatal (ej. "Jalisco")
-  municipio?: string; // Requerido si nivel >= municipal (ej. "Zapopan")
-  nombre: string;     // Nombre legible: "Jalisco > Zapopan > Distrito 10"
+  estado?: string;
+  municipio?: string;
+  nombre: string;
 }
 
 export interface AlertasConfig {
-  vectorRiesgoUmbral: number;  // 0-100: dispara alerta cuando vectorRiesgo >= umbral
-  notificarEmail: boolean;     // Enviar email vía Firebase Trigger Email
-  notificarInApp: boolean;     // Mostrar banner en dashboard al recargar
+  vectorRiesgoUmbral: number;
+  notificarEmail: boolean;
+  notificarInApp: boolean;
 }
 
+// ==========================================
+// NUEVAS INTERFACES — ETAPA 1-3
+// ==========================================
+
+export interface CentinelaProject {
+  id: string;
+  userId: string;
+  nombre: string;         // e.g. "Campaña Atizapán 2027"
+  tipo: TipoProyecto;
+  territorio: Territorio;
+  horizonte: number;      // months, e.g. 6
+  isActive: boolean;
+  alertas: AlertasConfig;
+  currentStage: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  createdAt: Timestamp | string;
+  updatedAt: Timestamp | string;
+}
+
+export interface PestlIndicator {
+  description: string;
+  type: IndicatorType;
+  dataSource: string;
+  isCustom: boolean;
+}
+
+export interface PestlVariable {
+  id: string;
+  name: string;
+  weight: 1 | 2 | 3 | 4 | 5;
+  isPriority: boolean;
+  isDefault: boolean;
+  indicators: PestlIndicator[];
+}
+
+export interface PestlDimensionConfig {
+  code: DimensionCode;
+  variables: PestlVariable[];
+}
+
+export interface PestlConfig {
+  projectId: string;
+  dimensions: PestlDimensionConfig[];
+  templateId?: string;
+  savedAt: Timestamp | string;
+}
+
+// ==========================================
+// NUEVAS INTERFACES — ETAPA 4
+// ==========================================
+
+export interface DataSource {
+  id: string;
+  projectId: string;
+  userId: string;
+  content: string;           // raw text or extracted content
+  dimensionCode: DimensionCode;
+  source: string;            // source name or URL
+  capturedAt: Timestamp | string;
+  reliabilityLevel: ReliabilityLevel;
+  isManual: boolean;
+}
+
+export interface CoverageStatus {
+  code: DimensionCode;
+  status: "green" | "yellow" | "red";
+  variablesWithData: number;
+  confidence: number;        // 0-100
+}
+
+// ==========================================
+// NUEVAS INTERFACES — ETAPA 5
+// ==========================================
+
+export interface DimensionAnalysis {
+  code: DimensionCode;
+  trend: Trend;
+  intensity: Intensity;
+  mainSignal: string;        // max 150 chars
+  narrative: string;         // 2-3 paragraphs
+  classification: Classification;
+  confidence: number;        // 0-100
+}
+
+export interface ImpactChain {
+  dimensions: DimensionCode[];
+  description: string;       // max 200 chars
+  riskLevel: RiskLevel;
+  recommendation: string;    // max 100 chars
+}
+
+export interface BiasAlert {
+  type: string;
+  description: string;
+  acknowledgedAt?: Timestamp | string;
+  acknowledgedBy?: string;
+}
+
+export interface PestlAnalysisV2 {
+  id: string;
+  projectId: string;
+  version: number;
+  analyzedAt: Timestamp | string;
+  globalConfidence: number;  // weighted average
+  dimensions: DimensionAnalysis[];
+  impactChains: ImpactChain[];
+  biasAlerts: BiasAlert[];
+  status: AnalysisStatus;
+  vigente: boolean;
+}
+
+// ==========================================
+// NUEVAS INTERFACES — ETAPA 6
+// ==========================================
+
+export interface HumanAdjustment {
+  adjustedBy: string;
+  adjustedAt: Timestamp | string;
+  originalClassification: Classification;
+  newClassification: Classification;
+  justification: string;
+  originalPosition: { x: number; y: number };
+  newPosition: { x: number; y: number };
+}
+
+// ==========================================
+// UPDATED JOB INTERFACE
+// ==========================================
+
+export interface CentinelaJob {
+  id: string;
+  projectId: string;       // replaces configId (legacy field kept @deprecated)
+  /** @deprecated Use projectId */
+  configId?: string;
+  userId: string;
+  status: JobStatus;
+  startedAt: Timestamp | string;
+  completedAt?: Timestamp | string;
+  error?: string;
+  analysisId?: string;     // replaces feedId for V2 analyses
+  /** @deprecated Use analysisId */
+  feedId?: string;
+}
+
+// ==========================================
+// LEGACY INTERFACES — @deprecated
+// ==========================================
+
+/** @deprecated Use CentinelaProject instead */
 export interface CentinelaConfig {
   id: string;
   userId: string;
@@ -59,25 +231,24 @@ export interface CentinelaConfig {
   updatedAt: Timestamp | string;
 }
 
-// ==========================================
-// INTERFACES DE ANÁLISIS PEST-L
-// ==========================================
-
+/** @deprecated Use DimensionAnalysis instead */
 export interface Factor {
-  descripcion: string;    // Descripción del factor identificado
+  descripcion: string;
   impacto: ImpactoFactor;
-  sentiment: number;      // Puntuación de sentimiento: -1.0 (muy negativo) a 1.0 (muy positivo)
-  fuente: string;         // Fuente de la información (ej. "Jornada Jalisco, 20/03/2026")
-  isManual: boolean;      // true si fue agregado manualmente por el usuario
+  sentiment: number;
+  fuente: string;
+  isManual: boolean;
 }
 
+/** @deprecated Use DimensionAnalysis instead */
 export interface DimensionPESTL {
-  contexto: string;       // Resumen generado por Claude de la dimensión
-  factores: Factor[];     // Lista de factores identificados
+  contexto: string;
+  factores: Factor[];
   tendencia: TendenciaPESTL;
-  fuentes: string[];      // URLs de fuentes consultadas
+  fuentes: string[];
 }
 
+/** @deprecated Use PestlAnalysisV2 instead */
 export interface PESTLAnalysis {
   politico: DimensionPESTL;
   economico: DimensionPESTL;
@@ -86,38 +257,20 @@ export interface PESTLAnalysis {
   legal: DimensionPESTL;
 }
 
-// ==========================================
-// INTERFACES DE FEEDS Y JOBS
-// ==========================================
-
+/** @deprecated Use PestlAnalysisV2 instead */
 export interface CentinelaFeed {
-  id: string;
-  configId: string;         // Referencia a centinela_configs
-  userId: string;           // Desnormalizado para queries directas
-  generadoEn: Timestamp | string;
-  territorio: string;       // Territorio desnormalizado (ej. "Jalisco")
-  vigente: boolean;         // true = es el análisis más reciente
-  pestl: PESTLAnalysis;
-  vectorRiesgo: number;         // 0-100: índice global de riesgo del entorno
-  indicePresionSocial: number;  // 0-100: presión social acumulada
-  indiceClimaInversion: number; // 0-100: favorabilidad para inversión
-  syncedToModdulo: boolean;     // true si fue consultado por Moddulo F2
-}
-
-export interface CentinelaJob {
   id: string;
   configId: string;
   userId: string;
-  status: JobStatus;
-  startedAt: Timestamp | string;
-  completedAt?: Timestamp | string;
-  error?: string;    // Mensaje si status === "failed"
-  feedId?: string;   // ID del feed generado si status === "completed"
+  generadoEn: Timestamp | string;
+  territorio: string;
+  vigente: boolean;
+  pestl: PESTLAnalysis;
+  vectorRiesgo: number;
+  indicePresionSocial: number;
+  indiceClimaInversion: number;
+  syncedToModdulo: boolean;
 }
-
-// ==========================================
-// INTERFACES DE ALERTAS
-// ==========================================
 
 export interface CentinelaAlert {
   id: string;
@@ -125,5 +278,5 @@ export interface CentinelaAlert {
   territorio: string;
   vectorRiesgo: number;
   generadoEn: Timestamp | string;
-  readAt?: Timestamp | string | null; // null = alerta no leída
+  readAt?: Timestamp | string | null;
 }

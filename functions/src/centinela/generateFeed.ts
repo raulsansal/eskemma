@@ -1,22 +1,366 @@
 // functions/src/centinela/generateFeed.ts
-// Orquestador interno: toma datos crudos de centinela_raw_articles,
-// clasifica con Claude, calcula índices de riesgo y guarda centinela_feeds.
-// Principio de trazabilidad: cada Factor incluye título + URL de la fuente.
+// Two orquestrators:
+// V2 (new): generateAnalysisV2 — 5 parallel dimension calls + chains + bias
+// V1 (legacy): generateFeedFromRawData — kept for existing feeds
 
 import * as admin from "firebase-admin";
 import type {Firestore} from "firebase-admin/firestore";
-import {classifyArticlesWithClaude} from "./classifier/claudePESTL";
-import type {ClassifiedArticle, PESTLCategory} from "./classifier/claudePESTL";
+import {
+  analyzeDimension,
+  buildImpactChains,
+  classifyArticlesWithClaude,
+} from "./classifier/claudePESTL";
+import type {
+  ClassifiedArticle,
+  PESTLCategory,
+  DimensionCode,
+  DimensionAnalysisResult,
+} from "./classifier/claudePESTL";
 import {calculateRiskVector} from "./risk/vectorCalculator";
 import type {InegiDataPoint} from "./scrapers/inegi";
 import type {BanxicoDataPoint} from "./scrapers/banxico";
 
-// Tipos que reflejan centinela.types.ts del proyecto Next.js
+// ============================================================
+// SHARED TYPES
+// ============================================================
+
+interface RawArticlesDoc {
+  articles: Array<{
+    title: string;
+    link: string;
+    pubDate: string;
+    content: string;
+    source: "google_news" | "dof";
+  }>;
+  economicData: {
+    inegi: InegiDataPoint[];
+    banxico: BanxicoDataPoint[];
+  };
+  territorio: string;
+}
+
+interface PestlVariableConfig {
+  id: string;
+  name: string;
+  weight: number;
+}
+
+interface PestlDimensionConfig {
+  code: DimensionCode;
+  variables: PestlVariableConfig[];
+}
+
+// ============================================================
+// V2: BIAS DETECTION (deterministic — no Claude call)
+// ============================================================
+
+interface BiasAlert {
+  type: string;
+  description: string;
+}
+
+/**
+ * Detects bias patterns in the collected data.
+ * @param {object} params Detection parameters
+ * @param {DimensionAnalysisResult[]} params.dimensions Analyzed dimensions
+ * @param {number} params.manualSourcesCount Number of manual data entries
+ * @param {number} params.totalArticles Total articles scraped
+ * @return {BiasAlert[]} Detected bias alerts
+ */
+function detectBiases(params: {
+  dimensions: DimensionAnalysisResult[];
+  manualSourcesCount: number;
+  totalArticles: number;
+}): BiasAlert[] {
+  const {dimensions, manualSourcesCount, totalArticles} = params;
+  const alerts: BiasAlert[] = [];
+
+  // Urban bias: if territory is a capital/metro area
+  // (heuristic: check all dimensions have low confidence without manual data)
+  const avgConfidence =
+    dimensions.reduce((s, d) => s + d.confidence, 0) / dimensions.length;
+
+  if (avgConfidence < 60 && manualSourcesCount === 0) {
+    alerts.push({
+      type: "sesgo_digital",
+      description:
+        "El análisis se basa únicamente en fuentes digitales. " +
+        "Considera agregar datos de campo o encuestas propias " +
+        "para reducir el sesgo digital.",
+    });
+  }
+
+  // Coverage bias: dimensions with very low confidence
+  const lowConfDims = dimensions.filter((d) => d.confidence < 40);
+  if (lowConfDims.length > 0) {
+    const names = lowConfDims.map((d) => d.code).join(", ");
+    alerts.push({
+      type: "cobertura_insuficiente",
+      description:
+        `Dimensiones con cobertura insuficiente: ${names}. ` +
+        "Confianza menor al 40%. Agrega más fuentes antes de " +
+        "avanzar a la interpretación.",
+    });
+  }
+
+  // Age bias: no manual data after many articles (all digital)
+  const digitalRatio =
+    totalArticles > 0 ?
+      (totalArticles - manualSourcesCount) / totalArticles :
+      1;
+
+  if (digitalRatio > 0.85 && totalArticles > 10) {
+    alerts.push({
+      type: "sesgo_etario",
+      description:
+        "Más del 85% de las fuentes son digitales. Los grupos " +
+        "sin acceso a internet pueden estar subrepresentados " +
+        "en el análisis.",
+    });
+  }
+
+  return alerts;
+}
+
+// ============================================================
+// V2: MAIN ORCHESTRATOR
+// ============================================================
+
+/**
+ * Generates a V2 analysis (PestlAnalysisV2) from project data.
+ * Runs 5 parallel Claude calls (one per PEST-L dimension) plus
+ * 1 call for impact chains. Saves to centinela_analyses.
+ * @param {object} params Orchestration parameters
+ * @param {string} params.jobId Job document ID (= raw_articles doc)
+ * @param {string} params.projectId Project ID
+ * @param {string} params.userId User UID
+ * @param {string} params.tipo Project type
+ * @param {string} params.territorio Territory name
+ * @param {number} params.horizonte Horizon in months
+ * @param {PestlDimensionConfig[]} params.variableConfigs Variable configs
+ * @param {string} params.anthropicKey Anthropic API key
+ * @param {Firestore} params.db Firestore instance
+ * @return {Promise<string>} analysisId of the created document
+ */
+export async function generateAnalysisV2(params: {
+  jobId: string;
+  projectId: string;
+  userId: string;
+  tipo: string;
+  territorio: string;
+  horizonte: number;
+  variableConfigs: PestlDimensionConfig[];
+  anthropicKey: string;
+  db: Firestore;
+}): Promise<string> {
+  const {
+    jobId,
+    projectId,
+    userId,
+    tipo,
+    territorio,
+    horizonte,
+    variableConfigs,
+    anthropicKey,
+    db,
+  } = params;
+
+  // 1. Read scraped articles
+  const rawSnap = await db
+    .collection("centinela_raw_articles")
+    .doc(jobId)
+    .get();
+
+  const rawArticles: RawArticlesDoc["articles"] = rawSnap.exists ?
+    (rawSnap.data() as RawArticlesDoc).articles :
+    [];
+
+  // 2. Read manual data sources
+  const sourcesSnap = await db
+    .collection("centinela_data_sources")
+    .where("projectId", "==", projectId)
+    .get();
+
+  const manualByDim: Record<DimensionCode, string[]> = {
+    P: [], E: [], S: [], T: [], L: [],
+  };
+  for (const doc of sourcesSnap.docs) {
+    const d = doc.data();
+    const code = d.dimensionCode as DimensionCode;
+    if (manualByDim[code]) {
+      manualByDim[code].push(d.content as string);
+    }
+  }
+
+  // 3. Build raw data text per dimension
+  const articlesByDim: Record<DimensionCode, string[]> = {
+    P: [], E: [], S: [], T: [], L: [],
+  };
+
+  const dimKeywords: Record<DimensionCode, string[]> = {
+    P: [
+      "político", "gobierno", "partido", "elección", "candidato",
+      "congreso", "diputado", "senador", "presidente",
+    ],
+    E: [
+      "economía", "inflación", "empleo", "desempleo", "peso",
+      "inversión", "pib", "precio", "banco", "finanza",
+    ],
+    S: [
+      "social", "inseguridad", "violencia", "comunidad", "salud",
+      "educación", "pobreza", "migración", "protesta",
+    ],
+    T: [
+      "tecnología", "digital", "internet", "red social", "app",
+      "ia", "inteligencia artificial", "datos", "ciberseguridad",
+    ],
+    L: [
+      "ley", "legal", "reforma", "constitución", "decreto",
+      "ambiental", "medio ambiente", "reglamento", "norma",
+    ],
+  };
+
+  for (const article of rawArticles) {
+    const text =
+      `${article.title} ${article.content}`.toLowerCase();
+    const assigned = new Set<DimensionCode>();
+    for (const [code, kws] of Object.entries(dimKeywords)) {
+      if (kws.some((kw) => text.includes(kw))) {
+        assigned.add(code as DimensionCode);
+      }
+    }
+    if (assigned.size === 0) assigned.add("P");
+    for (const code of assigned) {
+      articlesByDim[code].push(
+        `[${article.source}] ${article.title}: ${article.content}`
+      );
+    }
+  }
+
+  const rawDataPerDim: Record<DimensionCode, string> = {
+    P: "", E: "", S: "", T: "", L: "",
+  };
+  const CODES: DimensionCode[] = ["P", "E", "S", "T", "L"];
+  for (const code of CODES) {
+    const parts: string[] = [];
+    if (articlesByDim[code].length > 0) {
+      parts.push(
+        "NOTICIAS:\n" + articlesByDim[code].slice(0, 15).join("\n")
+      );
+    }
+    if (manualByDim[code].length > 0) {
+      parts.push("DATOS MANUALES:\n" + manualByDim[code].join("\n"));
+    }
+    rawDataPerDim[code] = parts.join("\n\n");
+  }
+
+  // 4. 5 parallel dimension calls
+  console.log("[generateFeed] Starting 5 parallel dimension analyses...");
+  const dimensionPromises = CODES.map((code) => {
+    const dimConfig = variableConfigs.find((d) => d.code === code);
+    const variables = dimConfig ?
+      dimConfig.variables.map((v) => ({name: v.name, weight: v.weight})) :
+      [];
+    return analyzeDimension({
+      code,
+      tipo,
+      territorio,
+      horizonte,
+      variables,
+      rawData: rawDataPerDim[code],
+      anthropicKey,
+    });
+  });
+
+  const dimResults = await Promise.all(dimensionPromises);
+  console.log("[generateFeed] Dimension analyses completed");
+
+  // 5. Impact chains (1 additional call)
+  const impactChains = await buildImpactChains({
+    dimensions: dimResults,
+    tipo,
+    territorio,
+    anthropicKey,
+  });
+
+  // 6. Bias detection (deterministic)
+  const biasAlerts = detectBiases({
+    dimensions: dimResults,
+    manualSourcesCount: sourcesSnap.size,
+    totalArticles: rawArticles.length + sourcesSnap.size,
+  });
+
+  // 7. Weighted global confidence
+  let totalWeight = 0;
+  let weightedSum = 0;
+  for (const dim of dimResults) {
+    const dimConfig = variableConfigs.find((d) => d.code === dim.code);
+    const dimWeight = dimConfig ?
+      dimConfig.variables.reduce((s, v) => s + v.weight, 0) :
+      3;
+    weightedSum += dim.confidence * dimWeight;
+    totalWeight += dimWeight;
+  }
+  const globalConfidence =
+    totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+
+  const status =
+    globalConfidence < 50 ? "PENDING_REVIEW" : "REVIEWED";
+
+  // 8. Invalidate previous analyses for this project
+  const prevSnap = await db
+    .collection("centinela_analyses")
+    .where("projectId", "==", projectId)
+    .where("vigente", "==", true)
+    .get();
+
+  const batch = db.batch();
+  prevSnap.forEach((doc) => batch.update(doc.ref, {vigente: false}));
+  await batch.commit();
+
+  // 9. Save PestlAnalysisV2
+  const analysisRef = db.collection("centinela_analyses").doc();
+  const prevVersion =
+    prevSnap.empty ? 0 : (prevSnap.docs[0].data().version as number ?? 0);
+
+  await analysisRef.set({
+    projectId,
+    userId,
+    version: prevVersion + 1,
+    analyzedAt: admin.firestore.FieldValue.serverTimestamp(),
+    globalConfidence,
+    dimensions: dimResults,
+    impactChains,
+    biasAlerts,
+    status,
+    vigente: true,
+  });
+
+  // 10. Update project stage to 5
+  await db
+    .collection("centinela_projects")
+    .doc(projectId)
+    .update({
+      currentStage: 5,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+  console.log(
+    `[generateFeed] V2 analysis created: ${analysisRef.id} ` +
+      `— confidence: ${globalConfidence}`
+  );
+  return analysisRef.id;
+}
+
+// ============================================================
+// V1: LEGACY ORCHESTRATOR (kept for existing feeds)
+// ============================================================
+
 interface Factor {
   descripcion: string;
   impacto: "alto" | "medio" | "bajo";
   sentiment: number;
-  fuente: string; // "Título del artículo — https://link.com"
+  fuente: string;
   isManual: boolean;
 }
 
@@ -35,22 +379,6 @@ interface PESTLAnalysis {
   legal: DimensionPESTL;
 }
 
-interface RawArticlesDoc {
-  articles: Array<{
-    title: string;
-    link: string;
-    pubDate: string;
-    content: string;
-    source: "google_news" | "dof";
-  }>;
-  economicData: {
-    inegi: InegiDataPoint[];
-    banxico: BanxicoDataPoint[];
-  };
-  territorio: string;
-}
-
-/** Mapa de categoría PEST-L → clave en PESTLAnalysis */
 const CATEGORY_TO_KEY: Record<PESTLCategory, keyof PESTLAnalysis> = {
   "Político": "politico",
   "Económico": "economico",
@@ -60,9 +388,9 @@ const CATEGORY_TO_KEY: Record<PESTLCategory, keyof PESTLAnalysis> = {
 };
 
 /**
- * Determina la tendencia de una dimensión según el promedio de sentiment.
- * @param {ClassifiedArticle[]} articles Artículos de la dimensión
- * @return {"creciente"|"estable"|"decreciente"} Tendencia calculada
+ * Calculates trend from classified articles.
+ * @param {ClassifiedArticle[]} articles Articles in the dimension
+ * @return {"creciente"|"estable"|"decreciente"} Calculated trend
  */
 function calcTendencia(
   articles: ClassifiedArticle[]
@@ -70,16 +398,15 @@ function calcTendencia(
   if (articles.length === 0) return "estable";
   const avg =
     articles.reduce((sum, a) => sum + a.sentiment, 0) / articles.length;
-  if (avg < -0.3) return "creciente"; // riesgo en aumento
-  if (avg > 0.3) return "decreciente"; // riesgo bajando
+  if (avg < -0.3) return "creciente";
+  if (avg > 0.3) return "decreciente";
   return "estable";
 }
 
 /**
- * Construye una DimensionPESTL a partir de los artículos clasificados
- * en esa categoría. Incluye título + URL en cada Factor (trazabilidad).
- * @param {ClassifiedArticle[]} articles Artículos de la categoría
- * @return {DimensionPESTL} Dimensión construida
+ * Builds a DimensionPESTL from classified articles.
+ * @param {ClassifiedArticle[]} articles Articles in the category
+ * @return {DimensionPESTL} Dimension object with factors and sources
  */
 function buildDimension(articles: ClassifiedArticle[]): DimensionPESTL {
   const factores: Factor[] = articles.map((a) => ({
@@ -95,20 +422,14 @@ function buildDimension(articles: ClassifiedArticle[]): DimensionPESTL {
       factores.map((f) => f.descripcion).join(". ") :
       "Sin factores identificados en este período.";
 
-  // URLs únicas para la lista de fuentes de la dimensión
   const fuentes = [...new Set(articles.map((a) => a.link).filter(Boolean))];
 
-  return {
-    contexto,
-    factores,
-    tendencia: calcTendencia(articles),
-    fuentes,
-  };
+  return {contexto, factores, tendencia: calcTendencia(articles), fuentes};
 }
 
 /**
- * Crea una dimensión vacía (cuando no hay artículos en esa categoría).
- * @return {DimensionPESTL} Dimensión vacía
+ * Returns an empty DimensionPESTL for dimensions with no data.
+ * @return {DimensionPESTL} Empty dimension object
  */
 function emptyDimension(): DimensionPESTL {
   return {
@@ -120,16 +441,16 @@ function emptyDimension(): DimensionPESTL {
 }
 
 /**
- * Lee centinela_raw_articles, clasifica con Claude, calcula riesgo
- * y guarda el resultado en centinela_feeds. Retorna el feedId generado.
- * @param {object} params Parámetros del feed
- * @param {string} params.jobId ID del job (= ID del doc en raw_articles)
- * @param {string} params.configId ID de la configuración
- * @param {string} params.userId UID del usuario
- * @param {"ciudadano"|"gubernamental"} params.modo Modo de análisis
- * @param {string} params.anthropicKey API key de Anthropic
- * @param {Firestore} params.db Instancia de Firestore
- * @return {Promise<string>} feedId del documento creado
+ * Legacy orchestrator: reads raw articles, classifies with Claude,
+ * calculates risk indices and saves to centinela_feeds.
+ * @param {object} params Feed generation parameters
+ * @param {string} params.jobId Job / raw_articles doc ID
+ * @param {string} params.configId Config document ID
+ * @param {string} params.userId User UID
+ * @param {"ciudadano"|"gubernamental"} params.modo Analysis mode
+ * @param {string} params.anthropicKey Anthropic API key
+ * @param {Firestore} params.db Firestore instance
+ * @return {Promise<string>} feedId of the created document
  */
 export async function generateFeedFromRawData(params: {
   jobId: string;
@@ -141,29 +462,26 @@ export async function generateFeedFromRawData(params: {
 }): Promise<string> {
   const {jobId, configId, userId, modo, anthropicKey, db} = params;
 
-  // 1. Leer datos crudos
   const rawSnap = await db
     .collection("centinela_raw_articles")
     .doc(jobId)
     .get();
 
   if (!rawSnap.exists) {
-    throw new Error(`centinela_raw_articles/${jobId} no encontrado`);
+    throw new Error(`centinela_raw_articles/${jobId} not found`);
   }
 
   const raw = rawSnap.data() as RawArticlesDoc;
 
-  // 2. Clasificar artículos con Claude
   console.log(
-    `[generateFeed] Clasificando ${raw.articles.length} artículos...`
+    `[generateFeed] Classifying ${raw.articles.length} articles...`
   );
   const classified = await classifyArticlesWithClaude(
     raw.articles,
     anthropicKey
   );
-  console.log(`[generateFeed] ${classified.length} artículos clasificados`);
+  console.log(`[generateFeed] ${classified.length} articles classified`);
 
-  // 3. Agrupar por dimensión PEST-L
   const byDimension: Record<keyof PESTLAnalysis, ClassifiedArticle[]> = {
     politico: [],
     economico: [],
@@ -197,7 +515,6 @@ export async function generateFeedFromRawData(params: {
       emptyDimension(),
   };
 
-  // 4. Calcular índices de riesgo
   const {vectorRiesgo, indicePresionSocial, indiceClimaInversion} =
     calculateRiskVector({
       classifiedArticles: classified,
@@ -205,7 +522,6 @@ export async function generateFeedFromRawData(params: {
       modo,
     });
 
-  // 5. Marcar feeds anteriores del mismo configId como no vigentes
   const prevFeeds = await db
     .collection("centinela_feeds")
     .where("configId", "==", configId)
@@ -216,7 +532,6 @@ export async function generateFeedFromRawData(params: {
   prevFeeds.forEach((doc) => batch.update(doc.ref, {vigente: false}));
   await batch.commit();
 
-  // 6. Guardar el nuevo feed
   const feedRef = db.collection("centinela_feeds").doc();
   await feedRef.set({
     id: feedRef.id,
@@ -233,7 +548,8 @@ export async function generateFeedFromRawData(params: {
   });
 
   console.log(
-    `[generateFeed] Feed creado: ${feedRef.id} — vectorRiesgo: ${vectorRiesgo}`
+    `[generateFeed] Legacy feed created: ${feedRef.id} ` +
+      `— riesgo: ${vectorRiesgo}`
   );
   return feedRef.id;
 }
