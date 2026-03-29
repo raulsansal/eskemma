@@ -1,0 +1,296 @@
+"use client";
+
+// app/monitor/centinela/[projectId]/monitoreo/page.tsx
+// E8 — Continuous monitoring dashboard: dimension status, history chart, alerts feed.
+
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
+import DimensionStatusGrid from "@/app/components/monitor/centinela/monitoreo/DimensionStatusGrid";
+import HistoryChart from "@/app/components/monitor/centinela/monitoreo/HistoryChart";
+import AlertsFeed from "@/app/components/monitor/centinela/monitoreo/AlertsFeed";
+import CrisisBanner from "@/app/components/monitor/centinela/monitoreo/CrisisBanner";
+import type {
+  CentinelaProject,
+  PestlAnalysisV2,
+  CentinelaAlertV2,
+} from "@/types/centinela.types";
+
+interface HistoryEntry {
+  id: string;
+  version: number;
+  globalConfidence: number;
+  analyzedAt: string;
+}
+
+function formatDate(value: unknown): string {
+  if (!value) return "";
+  try {
+    const d =
+      typeof value === "string"
+        ? new Date(value)
+        : new Date((value as { _seconds: number })._seconds * 1000);
+    return d.toLocaleString("es-MX", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
+export default function MonitoreoPage() {
+  const { projectId } = useParams<{ projectId: string }>();
+  const router = useRouter();
+
+  const [project, setProject] = useState<CentinelaProject | null>(null);
+  const [analysis, setAnalysis] = useState<
+    (PestlAnalysisV2 & { id: string }) | null
+  >(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [alerts, setAlerts] = useState<CentinelaAlertV2[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadAll = useCallback(async () => {
+    try {
+      // 1. Project
+      const projRes = await fetch("/api/monitor/centinela/project");
+      if (!projRes.ok) throw new Error("No se pudo cargar el proyecto.");
+      const projData = (await projRes.json()) as {
+        projects: (CentinelaProject & { id: string })[];
+      };
+      const found = projData.projects.find((p) => p.id === projectId);
+      if (!found) throw new Error("Proyecto no encontrado.");
+      setProject(found);
+
+      // 2. Latest analysis
+      const latestRes = await fetch(
+        `/api/monitor/centinela/project/${projectId}/latest-analysis`
+      );
+      if (latestRes.ok) {
+        const latestData = (await latestRes.json()) as {
+          analysisId: string | null;
+        };
+        if (latestData.analysisId) {
+          const analysisRes = await fetch(
+            `/api/monitor/centinela/analysis/${latestData.analysisId}`
+          );
+          if (analysisRes.ok) {
+            const analysisData = (await analysisRes.json()) as {
+              analysis: PestlAnalysisV2 & { id: string };
+            };
+            setAnalysis(analysisData.analysis);
+          }
+        }
+      }
+
+      // 3. History
+      const histRes = await fetch(
+        `/api/monitor/centinela/project/${projectId}/history`
+      );
+      if (histRes.ok) {
+        const histData = (await histRes.json()) as { history: HistoryEntry[] };
+        setHistory(histData.history);
+      }
+
+      // 4. Advance stage to 8 if needed (silent)
+      if (found.currentStage < 8) {
+        fetch(`/api/monitor/centinela/project/${projectId}/stage`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stage: 8 }),
+        }).catch(() => {/* non-critical */});
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al cargar datos.");
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId]);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
+
+  // ── Loading ────────────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center">
+        <div
+          className="w-8 h-8 border-4 border-bluegreen-eske border-t-transparent
+            rounded-full animate-spin"
+          aria-label="Cargando"
+        />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center px-6">
+        <div className="bg-white-eske rounded-xl p-8 max-w-md text-center shadow-sm border border-gray-eske-20">
+          <p className="font-semibold text-red-eske">{error}</p>
+          <button
+            onClick={() => router.push("/monitor/centinela")}
+            className="mt-4 px-4 py-2 bg-bluegreen-eske text-white rounded-lg text-sm"
+          >
+            Volver a Centinela
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-eske-10">
+      {/* ── Header ── */}
+      <div className="bg-bluegreen-eske text-white px-6 py-5">
+        <div className="max-w-4xl mx-auto">
+          <button
+            onClick={() => router.push("/monitor/centinela")}
+            className="text-sm text-white/70 hover:text-white mb-2 flex items-center
+              gap-1 transition-colors"
+            aria-label="Volver a Centinela"
+          >
+            ← Centinela
+          </button>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h1 className="text-2xl font-semibold">
+                {project?.nombre ?? "Proyecto"}
+              </h1>
+              <p className="text-white/80 text-sm mt-0.5">
+                {project?.territorio?.nombre ?? ""} ·{" "}
+                <span className="capitalize">{project?.tipo ?? ""}</span>
+                {" · "}
+                <span className="font-medium">Etapa 8 — Monitoreo</span>
+              </p>
+            </div>
+            <button
+              onClick={() =>
+                router.push(`/monitor/centinela/${projectId}/informes`)
+              }
+              className="px-4 py-2 border border-white/30 text-white text-sm rounded-lg
+                hover:bg-white/10 transition-colors"
+            >
+              ← Informes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-6">
+        {/* ── Crisis banner ── */}
+        <CrisisBanner alerts={alerts} projectId={projectId} />
+
+        {/* ── Dimension status ── */}
+        {analysis && (
+          <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-semibold text-black-eske">
+                  Estado actual — PEST-L
+                </h2>
+                <p className="text-xs text-gray-eske-60 mt-0.5">
+                  Análisis v{analysis.version} ·{" "}
+                  {formatDate(analysis.analyzedAt)} ·{" "}
+                  {analysis.globalConfidence}% confianza global
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(
+                    `/monitor/centinela/${projectId}/analisis`
+                  )
+                }
+                className="text-xs text-bluegreen-eske hover:underline shrink-0"
+              >
+                Ver análisis completo →
+              </button>
+            </div>
+            <DimensionStatusGrid dimensions={analysis.dimensions} />
+          </section>
+        )}
+
+        {/* ── 2-col grid: History + Alerts ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* History chart */}
+          <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
+            <h2 className="font-semibold text-black-eske mb-1">
+              Tendencia de confianza
+            </h2>
+            <p className="text-xs text-gray-eske-60 mb-3">
+              Confianza global a través de los análisis realizados
+            </p>
+            <HistoryChart history={history} />
+            {history.length > 0 && (
+              <p className="text-xs text-gray-eske-50 mt-2 text-right">
+                {history.length} análisis · v1 – v{history[history.length - 1]?.version}
+              </p>
+            )}
+          </section>
+
+          {/* Alerts feed */}
+          <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="font-semibold text-black-eske">Alertas</h2>
+              {alerts.filter((a) => !a.readAt).length > 0 && (
+                <span className="inline-flex items-center justify-center w-5 h-5
+                  bg-red-eske text-white text-xs rounded-full font-bold">
+                  {alerts.filter((a) => !a.readAt).length}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-eske-60 mb-3">
+              Actualizadas cada 30 segundos
+            </p>
+            <AlertsFeed
+              projectId={projectId}
+              onAlertsChange={setAlerts}
+            />
+          </section>
+        </div>
+
+        {/* ── Next analysis ── */}
+        <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h2 className="font-semibold text-black-eske">
+                Ejecutar nuevo análisis
+              </h2>
+              <p className="text-xs text-gray-eske-60 mt-0.5">
+                El sistema ejecuta análisis automáticos cada 6 horas.
+                También puedes ejecutar uno manualmente en cualquier momento.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                router.push(`/monitor/centinela/${projectId}/datos`)
+              }
+              className="px-5 py-2.5 bg-bluegreen-eske text-white text-sm font-semibold
+                rounded-lg hover:bg-bluegreen-eske/90 transition-colors shadow-sm shrink-0"
+            >
+              Ir a Datos →
+            </button>
+          </div>
+        </section>
+
+        {/* ── Footer ── */}
+        <div className="flex justify-start pt-2">
+          <button
+            type="button"
+            onClick={() => router.push("/monitor/centinela")}
+            className="px-6 py-2.5 border border-gray-eske-20 text-gray-eske-60
+              rounded-lg text-sm hover:bg-gray-eske-10 transition-colors"
+          >
+            ← Ir a Centinela
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

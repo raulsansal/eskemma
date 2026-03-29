@@ -86,6 +86,7 @@ export interface CentinelaProject {
   isActive: boolean;
   alertas: AlertasConfig;
   currentStage: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  alertRules?: AlertRule[];
   createdAt: Timestamp | string;
   updatedAt: Timestamp | string;
 }
@@ -180,6 +181,8 @@ export interface PestlAnalysisV2 {
   biasAlerts: BiasAlert[];
   status: AnalysisStatus;
   vigente: boolean;
+  // E6 — human-in-the-loop adjustments (max 5, one per dimension)
+  adjustments?: HumanAdjustment[];
 }
 
 // ==========================================
@@ -187,6 +190,7 @@ export interface PestlAnalysisV2 {
 // ==========================================
 
 export interface HumanAdjustment {
+  dimensionCode: DimensionCode;
   adjustedBy: string;
   adjustedAt: Timestamp | string;
   originalClassification: Classification;
@@ -194,6 +198,29 @@ export interface HumanAdjustment {
   justification: string;
   originalPosition: { x: number; y: number };
   newPosition: { x: number; y: number };
+}
+
+// ==========================================
+// NUEVAS INTERFACES — ETAPA 8
+// ==========================================
+
+export interface AlertRule {
+  id: string;
+  type: "mentions_spike" | "sentiment_drop" | "economic_change";
+  dimensionCode?: DimensionCode;
+  threshold: number;  // percentage or absolute value
+  enabled: boolean;
+}
+
+export interface CentinelaAlertV2 {
+  id: string;
+  projectId: string;
+  type: AlertRule["type"] | "bias_detected" | "coverage_low";
+  dimensionCode?: DimensionCode;
+  description: string;
+  isCrisis: boolean;
+  generadoEn: Timestamp | string;
+  readAt?: Timestamp | string | null;
 }
 
 // ==========================================

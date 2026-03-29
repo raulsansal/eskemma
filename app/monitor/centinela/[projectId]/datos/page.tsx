@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import InfoTooltip from "@/app/components/ui/InfoTooltip";
 import type {
   CentinelaProject,
   CoverageStatus,
@@ -37,7 +38,7 @@ const STATUS_CONFIG: Record<
   },
   yellow: {
     label: "Fuentes automáticas",
-    color: "text-yellow-eske",
+    color: "text-black-eske",
     bg: "bg-yellow-eske/10",
     icon: "🟡",
   },
@@ -61,6 +62,7 @@ export default function DatosPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Manual data form
+  const [inputTab, setInputTab] = useState<"text" | "file">("text");
   const [manualContent, setManualContent] = useState("");
   const [manualDimension, setManualDimension] = useState<DimensionCode>("P");
   const [manualSource, setManualSource] = useState("");
@@ -68,6 +70,11 @@ export default function DatosPage() {
     useState<ReliabilityLevel>("MEDIUM");
   const [savingManual, setSavingManual] = useState(false);
   const [manualSuccess, setManualSuccess] = useState(false);
+  const [manualSuccessMsg, setManualSuccessMsg] = useState("");
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadProject = useCallback(async () => {
     try {
@@ -132,12 +139,64 @@ export default function DatosPage() {
 
       setManualContent("");
       setManualSource("");
+      setManualSuccessMsg("✓ Dato guardado. El semáforo ha sido actualizado.");
       setManualSuccess(true);
       setTimeout(() => setManualSuccess(false), 3000);
       // Refresh coverage after adding data
       await loadCoverage();
     } catch {
       setError("No se pudo guardar el dato.");
+    } finally {
+      setSavingManual(false);
+    }
+  }
+
+  async function handleUploadFile(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedFile) return;
+
+    setSavingManual(true);
+    setManualSuccess(false);
+    setFileError(null);
+
+    try {
+      const form = new FormData();
+      form.append("file", selectedFile);
+      form.append("dimensionCode", manualDimension);
+      form.append("source", manualSource.trim() || selectedFile.name);
+      form.append("reliabilityLevel", manualReliability);
+
+      const res = await fetch(
+        `/api/monitor/centinela/project/${projectId}/upload-source`,
+        { method: "POST", body: form }
+      );
+
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        throw new Error(data.error ?? "Error al procesar archivo");
+      }
+
+      const data = (await res.json()) as {
+        extractedLength: number;
+        method: "text" | "vision";
+      };
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setManualSource("");
+      const visionNote =
+        data.method === "vision"
+          ? " Las páginas con gráficas e imágenes fueron interpretadas con IA."
+          : "";
+      setManualSuccessMsg(
+        `✓ Archivo guardado correctamente. Será incluido como fuente en el análisis.${visionNote}`
+      );
+      setManualSuccess(true);
+      setTimeout(() => setManualSuccess(false), 6000);
+      await loadCoverage();
+    } catch (err) {
+      setFileError(
+        err instanceof Error ? err.message : "Error al procesar archivo"
+      );
     } finally {
       setSavingManual(false);
     }
@@ -303,34 +362,135 @@ export default function DatosPage() {
               Encuestas propias, notas de campo, entrevistas u otros datos
               que la IA no puede recopilar automáticamente.
             </p>
-            <form onSubmit={handleSaveManual} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="manual-content"
-                  className="text-sm font-medium text-black-eske"
-                >
+            <form
+              onSubmit={inputTab === "text" ? handleSaveManual : handleUploadFile}
+              className="flex flex-col gap-4"
+            >
+              {/* Input mode tabs */}
+              <div>
+                <label className="text-sm font-medium text-black-eske flex items-center gap-1.5 mb-2">
                   Contenido
+                  <InfoTooltip
+                    content="Información que tú o tu equipo recopilaron en campo y que la IA no puede obtener automáticamente. Se integra al análisis con la ponderación que asignes."
+                    example="42% aprueba la gestión del alcalde — Encuesta telefónica, n=300, marzo 2026"
+                  />
                 </label>
-                <textarea
-                  id="manual-content"
-                  value={manualContent}
-                  onChange={(e) => setManualContent(e.target.value)}
-                  placeholder="Pega aquí el texto de la encuesta, nota de campo o entrevista…"
-                  rows={4}
-                  className="px-3 py-2.5 border border-gray-eske-30 rounded-lg text-sm
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske
-                    placeholder:text-gray-eske-50 resize-none"
-                  required
-                />
+                {/* Tabs */}
+                <div className="flex border-b border-gray-eske-20 mb-3" role="tablist">
+                  {(["text", "file"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      role="tab"
+                      aria-selected={inputTab === tab}
+                      onClick={() => {
+                        setInputTab(tab);
+                        setFileError(null);
+                      }}
+                      className={[
+                        "px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
+                        inputTab === tab
+                          ? "border-bluegreen-eske text-bluegreen-eske"
+                          : "border-transparent text-gray-eske-60 hover:text-black-eske",
+                      ].join(" ")}
+                    >
+                      {tab === "text" ? "Texto" : "Archivo"}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Text tab */}
+                {inputTab === "text" && (
+                  <textarea
+                    id="manual-content"
+                    value={manualContent}
+                    onChange={(e) => setManualContent(e.target.value)}
+                    placeholder="Pega aquí el texto de la encuesta, nota de campo o entrevista…"
+                    rows={4}
+                    className="w-full px-3 py-2.5 border border-gray-eske-30 rounded-lg
+                      text-sm focus:outline-none focus-visible:ring-2
+                      focus-visible:ring-bluegreen-eske placeholder:text-gray-eske-50
+                      resize-none"
+                    required={inputTab === "text"}
+                  />
+                )}
+
+                {/* File tab */}
+                {inputTab === "file" && (
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="file-upload"
+                      className={[
+                        "flex flex-col items-center justify-center gap-2",
+                        "border-2 border-dashed rounded-lg px-4 py-6 cursor-pointer",
+                        "transition-colors text-center",
+                        selectedFile
+                          ? "border-bluegreen-eske bg-bluegreen-eske/5"
+                          : "border-gray-eske-30 hover:border-bluegreen-eske/60",
+                      ].join(" ")}
+                    >
+                      <span className="text-2xl" aria-hidden="true">
+                        {selectedFile ? "📄" : "⬆️"}
+                      </span>
+                      {selectedFile ? (
+                        <span className="text-sm font-medium text-bluegreen-eske">
+                          {selectedFile.name}
+                          <span className="ml-2 text-xs text-gray-eske-60 font-normal">
+                            ({(selectedFile.size / 1024).toFixed(0)} KB)
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-eske-60">
+                          Arrastra un archivo o{" "}
+                          <span className="text-bluegreen-eske font-medium underline">
+                            haz clic para seleccionar
+                          </span>
+                        </span>
+                      )}
+                      <span className="text-xs text-gray-eske-50">
+                        PDF, Word (.docx) o texto plano — máx. 10 MB
+                      </span>
+                      <input
+                        id="file-upload"
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf,.docx,.doc,.txt,.md"
+                        className="sr-only"
+                        onChange={(e) => {
+                          setSelectedFile(e.target.files?.[0] ?? null);
+                          setFileError(null);
+                        }}
+                        required={inputTab === "file"}
+                      />
+                    </label>
+                    {fileError && (
+                      <p className="text-xs text-red-eske">{fileError}</p>
+                    )}
+                    {selectedFile && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFile(null)}
+                        className="text-xs text-gray-eske-60 hover:text-red-eske
+                          transition-colors self-start"
+                      >
+                        ✕ Quitar archivo
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="manual-dim"
-                    className="text-sm font-medium text-black-eske"
+                    className="text-sm font-medium text-black-eske flex items-center gap-1.5"
                   >
                     Dimensión
+                    <InfoTooltip
+                      content="Indica a qué dimensión PEST-L pertenece este dato para que el sistema lo incorpore en el análisis correcto."
+                      example="Una encuesta de seguridad → Dimensión S (Social)"
+                    />
                   </label>
                   <select
                     id="manual-dim"
@@ -355,9 +515,13 @@ export default function DatosPage() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="manual-source"
-                    className="text-sm font-medium text-black-eske"
+                    className="text-sm font-medium text-black-eske flex items-center gap-1.5"
                   >
                     Fuente
+                    <InfoTooltip
+                      content="Nombre de la fuente para que el análisis pueda citarla en las narrativas."
+                      example="Encuesta telefónica interna, n=300, marzo 2026"
+                    />
                   </label>
                   <input
                     id="manual-source"
@@ -374,9 +538,13 @@ export default function DatosPage() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="manual-reliability"
-                    className="text-sm font-medium text-black-eske"
+                    className="text-sm font-medium text-black-eske flex items-center gap-1.5"
                   >
                     Confiabilidad
+                    <InfoTooltip
+                      content="Alta = datos propios verificados. Media = estimaciones o fuentes secundarias. Baja = rumores o datos sin verificar. Afecta el semáforo de cobertura."
+                      example="Datos de INEGI → Alta; percepción de un informante clave → Baja"
+                    />
                   </label>
                   <select
                     id="manual-reliability"
@@ -401,19 +569,31 @@ export default function DatosPage() {
 
               {manualSuccess && (
                 <p className="text-sm text-green-eske bg-green-eske/10 px-3 py-2 rounded-lg">
-                  ✓ Dato guardado. El semáforo ha sido actualizado.
+                  {manualSuccessMsg}
                 </p>
               )}
 
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  disabled={savingManual || !manualContent.trim()}
+                  disabled={
+                    savingManual ||
+                    (inputTab === "text" && !manualContent.trim()) ||
+                    (inputTab === "file" && !selectedFile)
+                  }
                   className="px-5 py-2.5 bg-bluegreen-eske text-white rounded-lg
                     text-sm font-medium hover:bg-bluegreen-eske-60 transition-colors
                     disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {savingManual ? "Guardando…" : "Guardar dato"}
+                  {savingManual
+                    ? inputTab === "file"
+                      ? selectedFile?.name.endsWith(".pdf")
+                        ? "Analizando con IA…"
+                        : "Procesando…"
+                      : "Guardando…"
+                    : inputTab === "file"
+                    ? "Extraer y guardar"
+                    : "Guardar dato"}
                 </button>
               </div>
             </form>
@@ -448,12 +628,16 @@ export default function DatosPage() {
               </li>
               <li className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-bluegreen-eske shrink-0" aria-hidden="true" />
+                INE — resultados de elecciones y datos del Padrón y LNE
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-bluegreen-eske shrink-0" aria-hidden="true" />
                 Banxico — series financieras y monetarias
               </li>
             </ul>
             <p className="text-xs text-bluegreen-eske mt-3 font-medium">
               Puedes ejecutar el análisis con solo estas fuentes automáticas.
-              Los datos manuales que agregues arriba enriquecen el análisis,
+              Los datos que agregues manualmente enriquecen el análisis,
               pero no son obligatorios.
             </p>
           </div>
@@ -474,18 +658,23 @@ export default function DatosPage() {
               Revisa o elimina esos datos antes de continuar.
             </p>
           )}
-          <button
-            type="button"
-            onClick={handleTrigger}
-            disabled={!canTrigger || triggering}
-            className="px-8 py-3 bg-orange-eske text-white rounded-xl text-base
-              font-semibold hover:bg-orange-eske-60 transition-colors
-              disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
-          >
-            {triggering ? "Iniciando análisis…" : "Ejecutar análisis IA"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleTrigger}
+              disabled={!canTrigger || triggering}
+              className="px-8 py-3 bg-orange-eske text-white rounded-xl text-base
+                font-semibold hover:bg-orange-eske-60 transition-colors
+                disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+            >
+              {triggering ? "Iniciando análisis…" : "Ejecutar análisis IA"}
+            </button>
+            <InfoTooltip
+              content="Inicia el análisis con IA usando todas las fuentes disponibles. El proceso tarda 2-8 minutos y no se puede cancelar una vez iniciado."
+            />
+          </div>
           <p className="text-xs text-gray-eske-60 text-center max-w-sm">
-            El análisis puede tardar 2-3 minutos. Serás redirigido
+            El análisis puede tardar 2-8 minutos. Serás redirigido
             automáticamente al completarse.
           </p>
         </div>

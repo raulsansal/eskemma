@@ -8,6 +8,10 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/server/auth-helpers";
 import { adminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import {
+  getResultadosByEstado,
+  getPadronByEstado,
+} from "@/lib/sefix/storage";
 
 export async function POST(request: NextRequest) {
   const session = await getSessionFromRequest(request);
@@ -40,7 +44,34 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 1. Pre-create job document
+  // 1. Fetch Sefix electoral data for the project territory (best-effort)
+  const territorio = projectSnap.data()?.territorio as
+    | { estado?: string; nivel?: string }
+    | undefined;
+  const estadoNombre = territorio?.estado ?? null;
+  const isNacional = !estadoNombre || territorio?.nivel === "nacional";
+
+  let sefixData: {
+    resultados: unknown;
+    padron: unknown;
+  } | null = null;
+
+  if (!isNacional && estadoNombre) {
+    const [resultados, padron] = await Promise.allSettled([
+      getResultadosByEstado(estadoNombre, "diputados"),
+      getPadronByEstado(estadoNombre),
+    ]);
+    sefixData = {
+      resultados: resultados.status === "fulfilled" ? resultados.value : null,
+      padron: padron.status === "fulfilled" ? padron.value : null,
+    };
+    console.log(
+      `[trigger] Sefix data fetched for ${estadoNombre}: ` +
+        `resultados=${resultados.status} padron=${padron.status}`
+    );
+  }
+
+  // 2. Pre-create job document
   const jobRef = adminDb.collection("centinela_jobs").doc();
   const jobId = jobRef.id;
   await jobRef.set({
@@ -50,14 +81,19 @@ export async function POST(request: NextRequest) {
     startedAt: FieldValue.serverTimestamp(),
   });
 
-  // 2. Fire-and-forget: CF updates job asynchronously
+  // 3. Fire-and-forget: CF updates job asynchronously
   const cfUrl = `${functionsUrl}/scrapeAndAnalyze`;
   console.log(`[trigger] Calling CF: ${cfUrl} — jobId: ${jobId}`);
 
   fetch(cfUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ projectId, userId: session.uid, jobId }),
+    body: JSON.stringify({
+      projectId,
+      userId: session.uid,
+      jobId,
+      sefixData,
+    }),
   })
     .then(async (cfRes) => {
       const text = await cfRes.text().catch(() => "(no body)");
@@ -67,6 +103,6 @@ export async function POST(request: NextRequest) {
       console.error("[trigger] CF call failed:", err);
     });
 
-  // 3. Return immediately
+  // 4. Return immediately
   return NextResponse.json({ jobId });
 }

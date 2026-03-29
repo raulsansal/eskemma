@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { Territorio, NivelTerritorial } from "@/types/centinela.types";
+import InfoTooltip from "@/app/components/ui/InfoTooltip";
 
 const ESTADOS_MEXICO = [
   "Aguascalientes", "Baja California", "Baja California Sur", "Campeche",
@@ -75,8 +76,12 @@ export default function WizardStep2Territorio({
 
       {/* Nivel */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="nivel" className="text-sm font-medium text-black-eske">
+        <label htmlFor="nivel" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
           Nivel territorial
+          <InfoTooltip
+            content="Define la escala geográfica del monitoreo. Afecta qué fuentes se consultan y la profundidad del análisis electoral."
+            example="Municipal si tu proyecto es una presidencia municipal"
+          />
         </label>
         <select
           id="nivel"
@@ -96,8 +101,12 @@ export default function WizardStep2Territorio({
       {/* Estado */}
       {requiresEstado && (
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="estado" className="text-sm font-medium text-black-eske">
+          <label htmlFor="estado" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
             Estado
+            <InfoTooltip
+              content="Limita el scraping de noticias y los datos electorales al estado seleccionado, mejorando la relevancia del análisis."
+              example="Morelos"
+            />
           </label>
           <select
             id="estado"
@@ -120,8 +129,12 @@ export default function WizardStep2Territorio({
       {/* Municipio */}
       {requiresMunicipio && (
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="municipio" className="text-sm font-medium text-black-eske">
+          <label htmlFor="municipio" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
             {nivel === "distrito" ? "Distrito / descripción" : "Municipio"}
+            <InfoTooltip
+              content="Permite segmentar noticias y datos electorales al nivel más específico posible dentro del estado."
+              example={nivel === "distrito" ? "Distrito 02 Jiutepec" : "Jiutepec"}
+            />
           </label>
           <input
             id="municipio"

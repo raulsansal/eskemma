@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getPreset } from "@/lib/monitor/centinela/presets";
+import InfoTooltip from "@/app/components/ui/InfoTooltip";
 import type {
   TipoProyecto,
   PestlDimensionConfig,
@@ -142,17 +143,20 @@ export default function WizardStep3Variables({
               key={dim.code}
               className="border border-gray-eske-20 rounded-xl overflow-hidden"
             >
-              {/* Accordion header */}
-              <button
-                type="button"
-                onClick={() => setOpenDimension(isOpen ? ("" as DimensionCode) : dim.code)}
-                className="w-full flex items-center justify-between px-4 py-3
-                  bg-white-eske hover:bg-gray-eske-10 transition-colors"
-                aria-expanded={isOpen}
-              >
-                <div className="flex items-center gap-3">
+              {/* Accordion header — wrapper div prevents nested <button> */}
+              <div className="flex items-center justify-between px-4 py-3
+                bg-white-eske hover:bg-gray-eske-10 transition-colors">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenDimension(isOpen ? ("" as DimensionCode) : dim.code)
+                  }
+                  className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                  aria-expanded={isOpen}
+                >
                   <span className="w-7 h-7 rounded-full bg-bluegreen-eske/10
-                    text-bluegreen-eske text-xs font-bold flex items-center justify-center">
+                    text-bluegreen-eske text-xs font-bold flex items-center
+                    justify-center shrink-0">
                     {dim.code}
                   </span>
                   <span className="font-medium text-black-eske text-sm">
@@ -167,15 +171,21 @@ export default function WizardStep3Variables({
                       ⚠ Cobertura limitada
                     </span>
                   )}
+                </button>
+                {/* InfoTooltip and chevron sit outside the button to avoid nesting */}
+                <div className="flex items-center gap-2 shrink-0 pl-2">
+                  <InfoTooltip
+                    content="Agrupa los factores que el análisis PEST-L monitoreará para esta dimensión. Se recomienda mínimo 3 variables para un análisis robusto."
+                  />
+                  <span
+                    className="text-gray-eske-60 transition-transform"
+                    aria-hidden="true"
+                    style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                  >
+                    ▾
+                  </span>
                 </div>
-                <span
-                  className="text-gray-eske-60 transition-transform"
-                  aria-hidden="true"
-                  style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-                >
-                  ▾
-                </span>
-              </button>
+              </div>
 
               {/* Accordion body */}
               {isOpen && (
@@ -196,7 +206,7 @@ export default function WizardStep3Variables({
                           bg-gray-eske-10 group"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-black-eske truncate">
+                          <p className="text-sm text-black-eske break-words">
                             {v.name}
                             {!v.isDefault && (
                               <span className="ml-2 text-xs text-blue-eske bg-blue-eske/10
@@ -215,6 +225,11 @@ export default function WizardStep3Variables({
                           >
                             Peso
                           </label>
+                          <InfoTooltip
+                            content="Qué tan determinante es esta variable para el proyecto. Peso 5 = crítico para la estrategia; Peso 1 = referencial."
+                            example="Seguridad pública → Peso 5 en campaña con alta incidencia delictiva"
+                            placement="left"
+                          />
                           <select
                             id={`weight-${v.id}`}
                             value={v.weight}
@@ -272,7 +287,7 @@ export default function WizardStep3Variables({
 
                   {/* Add variable */}
                   {totalVars < 30 && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                       <input
                         type="text"
                         value={newVarInputs[dim.code]}
@@ -293,6 +308,11 @@ export default function WizardStep3Variables({
                           text-xs focus:outline-none focus-visible:ring-2
                           focus-visible:ring-bluegreen-eske placeholder:text-gray-eske-50"
                         aria-label={`Agregar variable a ${DIMENSION_LABELS[dim.code]}`}
+                      />
+                      <InfoTooltip
+                        content="Variables personalizadas no incluidas en el preset base. Úsalas para factores locales o específicos de tu proyecto."
+                        example="Conflicto por agua en Cuautla"
+                        placement="left"
                       />
                       <button
                         type="button"

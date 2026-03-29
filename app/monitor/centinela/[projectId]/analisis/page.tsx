@@ -158,12 +158,16 @@ export default function AnalisisPage() {
   const loadLatestAnalysis = useCallback(async () => {
     if (jobIdParam) return; // polling handles it
     try {
-      // We don't have a "latest" endpoint — use the analyses list approach.
-      // For now skip if there's no specific analysisId already loaded.
+      const res = await fetch(
+        `/api/monitor/centinela/project/${projectId}/latest-analysis`
+      );
+      if (!res.ok) return;
+      const data = (await res.json()) as { analysisId: string | null };
+      if (data.analysisId) await loadAnalysis(data.analysisId);
     } catch {
-      // Silent
+      // Silent — no analysis yet is a valid state
     }
-  }, [jobIdParam]);
+  }, [jobIdParam, projectId, loadAnalysis]);
 
   useEffect(() => {
     Promise.all([loadProject(), loadLatestAnalysis()]).finally(() =>
@@ -264,7 +268,7 @@ export default function AnalisisPage() {
               </p>
               <p className="text-sm text-gray-eske-60 mt-1">
                 Centinela está procesando las 5 dimensiones PEST-L en
-                paralelo. Este proceso tarda entre 2 y 8 minutos.
+                paralelo. Este proceso tarda entre 2 y 8 minutos. Por favor, espera.
               </p>
               {elapsedSeconds > 0 && (
                 <p className="text-xs text-gray-eske-50 mt-2">
@@ -303,13 +307,33 @@ export default function AnalisisPage() {
         {/* Analysis result */}
         {analysis && (
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-black-eske">
-                Etapa 5 — Resultados del análisis IA
-              </h2>
-              <p className="text-xs text-gray-eske-60">
-                {formatDate(analysis.analyzedAt)}
-              </p>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-black-eske">
+                  Etapa 5 — Resultados del análisis IA
+                </h2>
+                <p className="text-xs text-gray-eske-60">
+                  {formatDate(analysis.analyzedAt)}
+                </p>
+              </div>
+              {(analysis.status === "REVIEWED" ||
+                analysis.status === "APPROVED") && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(
+                      `/monitor/centinela/${projectId}/interpretacion`
+                    )
+                  }
+                  className="px-5 py-2 bg-orange-eske text-white rounded-lg
+                    text-sm font-semibold hover:bg-orange-eske-60 transition-colors
+                    shadow-sm shrink-0"
+                >
+                  {analysis.status === "APPROVED"
+                    ? "Ver interpretación →"
+                    : "Continuar a Interpretación →"}
+                </button>
+              )}
             </div>
             <PESTLPanelV2
               analysis={analysis}
@@ -318,8 +342,8 @@ export default function AnalisisPage() {
           </div>
         )}
 
-        {/* Empty state */}
-        {!isPolling && !analysis && !error && (
+        {/* Empty state — only show when not loading and no pending job */}
+        {!loading && !isPolling && !jobIdParam && !analysis && !error && (
           <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20
             p-12 flex flex-col items-center gap-5 text-center">
             <span className="text-5xl" aria-hidden="true">🔍</span>

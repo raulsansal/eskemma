@@ -1,6 +1,7 @@
 "use client";
 
 import type { TipoProyecto } from "@/types/centinela.types";
+import InfoTooltip from "@/app/components/ui/InfoTooltip";
 
 interface Props {
   tipo: TipoProyecto | null;
@@ -65,8 +66,12 @@ export default function WizardStep1Tipo({
     <div className="flex flex-col gap-8">
       {/* Type selection */}
       <div>
-        <h2 className="text-lg font-semibold text-black-eske mb-1">
+        <h2 className="text-lg font-semibold text-black-eske mb-1 flex items-center gap-1.5">
           ¿Qué tipo de proyecto es?
+          <InfoTooltip
+            content="Define el marco metodológico del análisis. Cada tipo activa un conjunto distinto de variables PEST-L por defecto, ajustado a su contexto político."
+            example="Si coordinas una campaña a diputado local → Electoral"
+          />
         </h2>
         <p className="text-sm text-gray-eske-70 mb-4">
           El tipo define las variables PEST-L que se activan por defecto.
@@ -97,8 +102,12 @@ export default function WizardStep1Tipo({
 
       {/* Project name */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="project-name" className="text-sm font-medium text-black-eske">
+        <label htmlFor="project-name" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
           Nombre del proyecto
+          <InfoTooltip
+            content="Identificador interno del proyecto. No es público. Usa un nombre que permita distinguirlo de otros proyectos."
+            example="Campaña Distrito 5 Morelos 2025"
+          />
         </label>
         <input
           id="project-name"
@@ -119,8 +128,12 @@ export default function WizardStep1Tipo({
       {/* Horizon slider */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <label htmlFor="horizonte" className="text-sm font-medium text-black-eske">
+          <label htmlFor="horizonte" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
             Horizonte temporal
+            <InfoTooltip
+              content="Período futuro que el análisis debe anticipar. Más meses implica mayor incertidumbre pero mayor utilidad para planeación estratégica."
+              example="6 meses para una campaña de temporada media"
+            />
           </label>
           <span className="text-sm font-semibold text-bluegreen-eske">
             {horizonte} {horizonte === 1 ? "mes" : "meses"}

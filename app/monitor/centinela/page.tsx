@@ -59,8 +59,14 @@ function ProjectCard({ project }: { project: CentinelaProject & { id: string } }
       router.push(`/monitor/centinela/nuevo`);
     } else if (stage === 4) {
       router.push(`/monitor/centinela/${project.id}/datos`);
-    } else {
+    } else if (stage === 5) {
       router.push(`/monitor/centinela/${project.id}/analisis`);
+    } else if (stage === 6) {
+      router.push(`/monitor/centinela/${project.id}/interpretacion`);
+    } else if (stage === 7) {
+      router.push(`/monitor/centinela/${project.id}/informes`);
+    } else {
+      router.push(`/monitor/centinela/${project.id}/monitoreo`);
     }
   }
 

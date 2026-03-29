@@ -298,7 +298,7 @@ function DimensionPanel({ dim }: { dim: DimensionAnalysis }) {
           tracking-wide mb-2">
           Narrativa
         </h4>
-        <div className="text-sm text-gray-eske-90 leading-relaxed whitespace-pre-line">
+        <div className="text-sm text-black-eske leading-relaxed whitespace-pre-line">
           {dim.narrative}
         </div>
       </div>
@@ -381,7 +381,7 @@ function ImpactChainCard({ chain }: { chain: ImpactChain }) {
           {chain.riskLevel}
         </span>
       </div>
-      <p className="text-sm text-gray-eske-90 mt-2">{chain.description}</p>
+      <p className="text-sm text-black-eske mt-2">{chain.description}</p>
       {chain.recommendation && (
         <p className="text-xs text-bluegreen-eske mt-2 font-medium">
           → {chain.recommendation}

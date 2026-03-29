@@ -82,6 +82,15 @@ interface DimensionRawOutput {
 // HELPERS
 // ============================================================
 
+export interface EconomicDataPoint {
+  series?: string;
+  name?: string;
+  value?: number | string;
+  date?: string;
+  period?: string;
+  source?: "INEGI" | "Banxico";
+}
+
 const DIMENSION_NAMES: Record<DimensionCode, string> = {
   P: "Político",
   E: "Económico",
@@ -96,6 +105,19 @@ const TIPO_DESCRIPTIONS: Record<string, string> = {
   legislativo: "proceso legislativo o actuación de una bancada",
   ciudadano: "movimiento social u organización civil",
 };
+
+// Marco legal-electoral vigente en México (actualizado 2024).
+// Inyectar en prompts de tipo "electoral" y "gubernamental".
+const MEXICAN_LEGAL_CONTEXT = `
+MARCO LEGAL VIGENTE EN MÉXICO (usar solo esta terminología):
+- INE: Instituto Nacional Electoral (reemplazó al IFE en 2014)
+- LGIPE: Ley General de Instituciones y Procedimientos Electorales (2014)
+- LGPP: Ley General de Partidos Políticos (2014)
+- TEPJF: Tribunal Electoral del Poder Judicial de la Federación
+- OPLES: Organismos Públicos Locales Electorales (antes IEE)
+- SCJN: Suprema Corte de Justicia de la Nación
+NO mencionar: COFIPE, IFE, TRIFE (derogados/extintos).
+`.trim();
 
 /**
  * Extracts a JSON value from a Claude response string.
@@ -127,6 +149,25 @@ function extractJson(text: string): unknown {
 // ============================================================
 
 /**
+ * Formats economic data points for inclusion in a prompt.
+ * @param {EconomicDataPoint[]} points Data points to format
+ * @return {string} Formatted text block
+ */
+function formatEconomicData(points: EconomicDataPoint[]): string {
+  if (!points || points.length === 0) return "";
+  return points
+    .slice(0, 20)
+    .map((p) => {
+      const label = p.name ?? p.series ?? "Indicador";
+      const val = p.value ?? "N/D";
+      const period = p.period ?? p.date ?? "";
+      const src = p.source ?? "INEGI";
+      return `- ${label}: ${val} | período: ${period} | fuente: ${src}`;
+    })
+    .join("\n");
+}
+
+/**
  * Builds the per-dimension PEST-L analysis prompt.
  * @param {object} params Prompt parameters
  * @param {DimensionCode} params.code Dimension code
@@ -135,6 +176,8 @@ function extractJson(text: string): unknown {
  * @param {number} params.horizonte Horizon in months
  * @param {DimensionVariable[]} params.variables Variables with weights
  * @param {string} params.rawData Articles and manual data as text
+ * @param {EconomicDataPoint[]} params.inegiData INEGI indicators (dim E)
+ * @param {EconomicDataPoint[]} params.banxicoData Banxico series (dim E)
  * @return {string} Formatted prompt
  */
 function buildDimensionPrompt(params: {
@@ -144,13 +187,32 @@ function buildDimensionPrompt(params: {
   horizonte: number;
   variables: DimensionVariable[];
   rawData: string;
+  inegiData?: EconomicDataPoint[];
+  banxicoData?: EconomicDataPoint[];
 }): string {
-  const {code, tipo, territorio, horizonte, variables, rawData} = params;
+  const {
+    code, tipo, territorio, horizonte, variables, rawData,
+    inegiData, banxicoData,
+  } = params;
   const dimName = DIMENSION_NAMES[code];
   const tipoDesc = TIPO_DESCRIPTIONS[tipo] ?? tipo;
   const varsText = variables
     .map((v) => `- ${v.name} (peso ${v.weight}/5)`)
     .join("\n");
+
+  const useLegalCtx =
+    tipo === "electoral" || tipo === "gubernamental";
+
+  const inegiText = formatEconomicData(inegiData ?? []);
+  const banxicoText = formatEconomicData(banxicoData ?? []);
+  const hasEconomicData = code === "E" &&
+    (inegiText.length > 0 || banxicoText.length > 0);
+
+  const economicBlock = hasEconomicData ?
+    "\nDATOS ECONÓMICOS CUANTITATIVOS (INEGI/Banxico):\n" +
+    (inegiText ? `INEGI:\n${inegiText}\n` : "") +
+    (banxicoText ? `Banxico:\n${banxicoText}\n` : "") :
+    "";
 
   return `Eres un consultor experto en comunicación política en \
 Latinoamérica. Analiza la dimensión ${dimName} del análisis PEST-L.
@@ -159,18 +221,24 @@ CONTEXTO DEL PROYECTO:
 - Tipo de proyecto: ${tipoDesc}
 - Territorio: ${territorio}
 - Horizonte temporal: ${horizonte} meses
-
+${useLegalCtx ? `\n${MEXICAN_LEGAL_CONTEXT}\n` : ""}
 VARIABLES MONITOREADAS:
 ${varsText}
 
 DATOS RECOLECTADOS:
 ${rawData || "Sin datos disponibles para este período."}
+${economicBlock}
+INSTRUCCIONES:
+- Cuando menciones un hecho específico en la narrativa, cita la \
+fuente entre paréntesis: (Fuente: nombre, fecha). Máx. 3-4 citas.
+- Si no hay fuente clara para un hecho, no cites.
+- Usa solo terminología vigente para el contexto mexicano.
 
 Responde ÚNICAMENTE con un objeto JSON con esta estructura exacta:
 {
   "tendencia": "ASCENDENTE" | "DESCENDENTE" | "ESTABLE",
   "intensidad": "ALTA" | "MEDIA" | "BAJA",
-  "señal_principal": "máx. 150 caracteres describiendo el hallazgo clave",
+  "señal_principal": "máx. 150 chars describiendo el hallazgo clave",
   "narrativa": "2-3 párrafos con el análisis detallado",
   "clasificación": "OPORTUNIDAD" | "AMENAZA" | "NEUTRAL",
   "confianza": número entre 0 y 100
@@ -189,6 +257,8 @@ Sin datos suficientes asigna confianza menor a 50.`;
  * @param {number} params.horizonte Horizon in months
  * @param {DimensionVariable[]} params.variables Variables with weights
  * @param {string} params.rawData Scraped + manual data as text
+ * @param {EconomicDataPoint[]} params.inegiData INEGI indicators (E dim)
+ * @param {EconomicDataPoint[]} params.banxicoData Banxico series (E dim)
  * @param {string} params.anthropicKey Anthropic API key
  * @return {Promise<DimensionAnalysisResult>} Dimension analysis
  */
@@ -199,6 +269,8 @@ export async function analyzeDimension(params: {
   horizonte: number;
   variables: DimensionVariable[];
   rawData: string;
+  inegiData?: EconomicDataPoint[];
+  banxicoData?: EconomicDataPoint[];
   anthropicKey: string;
 }): Promise<DimensionAnalysisResult> {
   const {code, anthropicKey} = params;
@@ -217,7 +289,7 @@ export async function analyzeDimension(params: {
   try {
     const response = await client.messages.create({
       model: CLAUDE_MODEL,
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [{role: "user", content: prompt}],
     });
 

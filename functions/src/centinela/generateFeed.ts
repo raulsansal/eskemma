@@ -15,6 +15,7 @@ import type {
   PESTLCategory,
   DimensionCode,
   DimensionAnalysisResult,
+  EconomicDataPoint,
 } from "./classifier/claudePESTL";
 import {calculateRiskVector} from "./risk/vectorCalculator";
 import type {InegiDataPoint} from "./scrapers/inegi";
@@ -126,6 +127,61 @@ function detectBiases(params: {
 // V2: MAIN ORCHESTRATOR
 // ============================================================
 
+interface SefixData {
+  resultados: {
+    estado: string;
+    cargo: string;
+    anio: number;
+    totalVotos: number;
+    participacion: number;
+    partidos: { partido: string; votos: number; porcentaje: number }[];
+    fuente: string;
+  } | null;
+  padron: {
+    estado: string;
+    padronElectoral: number;
+    listaNominal: number;
+    corte: string;
+    fuente: string;
+  } | null;
+}
+
+/**
+ * Formats Sefix electoral data as text for the Political dimension prompt.
+ * @param {SefixData|null} data Sefix data
+ * @return {string} Formatted text block or empty string
+ */
+function formatSefixForPrompt(data: SefixData | null): string {
+  if (!data || (!data.resultados && !data.padron)) return "";
+
+  const parts: string[] = [
+    "DATOS ELECTORALES (INE / DERFE):",
+  ];
+
+  if (data.resultados) {
+    const r = data.resultados;
+    const top3 = r.partidos.slice(0, 3)
+      .map((p) => `${p.partido}: ${p.porcentaje}%`)
+      .join(", ");
+    parts.push(
+      `- Última elección: ${r.cargo} ${r.anio} | ` +
+      `Participación: ${r.participacion}% | ` +
+      `Top partidos: ${top3} | Fuente: ${r.fuente}`
+    );
+  }
+
+  if (data.padron) {
+    const p = data.padron;
+    parts.push(
+      `- Padrón electoral: ${p.padronElectoral.toLocaleString()} | ` +
+      `Lista nominal: ${p.listaNominal.toLocaleString()} | ` +
+      `Corte: ${p.corte} | Fuente: ${p.fuente}`
+    );
+  }
+
+  return parts.join("\n");
+}
+
 /**
  * Generates a V2 analysis (PestlAnalysisV2) from project data.
  * Runs 5 parallel Claude calls (one per PEST-L dimension) plus
@@ -138,6 +194,7 @@ function detectBiases(params: {
  * @param {string} params.territorio Territory name
  * @param {number} params.horizonte Horizon in months
  * @param {PestlDimensionConfig[]} params.variableConfigs Variable configs
+ * @param {SefixData|null} params.sefixData Electoral data (optional)
  * @param {string} params.anthropicKey Anthropic API key
  * @param {Firestore} params.db Firestore instance
  * @return {Promise<string>} analysisId of the created document
@@ -150,6 +207,7 @@ export async function generateAnalysisV2(params: {
   territorio: string;
   horizonte: number;
   variableConfigs: PestlDimensionConfig[];
+  sefixData?: SefixData | null;
   anthropicKey: string;
   db: Firestore;
 }): Promise<string> {
@@ -161,19 +219,26 @@ export async function generateAnalysisV2(params: {
     territorio,
     horizonte,
     variableConfigs,
+    sefixData,
     anthropicKey,
     db,
   } = params;
 
-  // 1. Read scraped articles
+  // 1. Read scraped articles and economic data
   const rawSnap = await db
     .collection("centinela_raw_articles")
     .doc(jobId)
     .get();
 
-  const rawArticles: RawArticlesDoc["articles"] = rawSnap.exists ?
-    (rawSnap.data() as RawArticlesDoc).articles :
-    [];
+  const rawDoc = rawSnap.exists ?
+    (rawSnap.data() as RawArticlesDoc) :
+    null;
+
+  const rawArticles: RawArticlesDoc["articles"] = rawDoc?.articles ?? [];
+  const inegiData: EconomicDataPoint[] =
+    (rawDoc?.economicData?.inegi as EconomicDataPoint[] | undefined) ?? [];
+  const banxicoData: EconomicDataPoint[] =
+    (rawDoc?.economicData?.banxico as EconomicDataPoint[] | undefined) ?? [];
 
   // 2. Read manual data sources
   const sourcesSnap = await db
@@ -231,8 +296,10 @@ export async function generateAnalysisV2(params: {
     }
     if (assigned.size === 0) assigned.add("P");
     for (const code of assigned) {
+      const url = article.link ? ` | url: ${article.link}` : "";
       articlesByDim[code].push(
-        `[${article.source}] ${article.title}: ${article.content}`
+        `[${article.source}] ${article.title}${url}: ` +
+        article.content
       );
     }
   }
@@ -241,6 +308,8 @@ export async function generateAnalysisV2(params: {
     P: "", E: "", S: "", T: "", L: "",
   };
   const CODES: DimensionCode[] = ["P", "E", "S", "T", "L"];
+  const sefixText = formatSefixForPrompt(sefixData ?? null);
+
   for (const code of CODES) {
     const parts: string[] = [];
     if (articlesByDim[code].length > 0) {
@@ -250,6 +319,10 @@ export async function generateAnalysisV2(params: {
     }
     if (manualByDim[code].length > 0) {
       parts.push("DATOS MANUALES:\n" + manualByDim[code].join("\n"));
+    }
+    // Append Sefix electoral data to Political dimension
+    if (code === "P" && sefixText) {
+      parts.push(sefixText);
     }
     rawDataPerDim[code] = parts.join("\n\n");
   }
@@ -268,6 +341,9 @@ export async function generateAnalysisV2(params: {
       horizonte,
       variables,
       rawData: rawDataPerDim[code],
+      // Only pass economic data to the Economic dimension
+      inegiData: code === "E" ? inegiData : undefined,
+      banxicoData: code === "E" ? banxicoData : undefined,
       anthropicKey,
     });
   });

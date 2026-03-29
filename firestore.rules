@@ -363,11 +363,27 @@ service cloud.firestore {
     match /centinela_analyses/{analysisId} {
       allow read: if request.auth != null
         && resource.data.userId == request.auth.uid;
-      // Only allow updating biasAlerts (acknowledge) from client
+      // Allow updating: bias acknowledgement (E5), human adjustments (E6), approval (E6)
       allow update: if request.auth != null
         && resource.data.userId == request.auth.uid
         && request.resource.data.diff(resource.data)
-             .affectedKeys().hasAny(["biasAlerts", "status", "updatedAt"]);
+             .affectedKeys().hasAny([
+               "biasAlerts", "status", "updatedAt",
+               "adjustments", "approvedAt", "approvedBy"
+             ]);
+      allow create, delete: if false;
+    }
+
+    // ========== CENTINELA: Alertas V2 (E8) ==========
+    // Flat collection. Written by Cloud Functions; readable by project owner.
+    // Client can only mark as read (readAt field).
+    match /centinela_alerts/{alertId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data)
+             .affectedKeys().hasOnly(["readAt"]);
       allow create, delete: if false;
     }
 

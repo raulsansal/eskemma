@@ -315,6 +315,26 @@ No propongas alternativas sin consultar primero.
    dimensión PEST-L debe mostrarse desde la Etapa 4 y mantenerse visible
    en las Etapas 5 y 6. Un análisis no avanza si alguna dimensión está en rojo.
 
+### Principios de diseño de Centinela
+
+Estos principios rigen las decisiones de UX y arquitectura del sistema. No
+son negociables y aplican a todas las etapas, incluyendo las futuras E6-E8.
+
+1. **Transparencia metodológica.** Toda salida de IA debe incluir su nivel
+   de confianza y las fuentes que la respaldan. El usuario siempre sabe qué
+   datos usó el sistema y qué tan confiables son. Las narrativas deben citar
+   sus fuentes con el formato `(Fuente: nombre, fecha)`.
+
+2. **Trazabilidad.** Cada análisis debe poder reconstruirse: qué artículos
+   se usaron, qué variables estaban activas, qué fecha. Los documentos
+   `centinela_analyses` conservan el `jobId` de origen que apunta al
+   documento `centinela_raw_articles` con los datos crudos.
+
+3. **Colaborador estratégico, no oráculo.** Centinela propone; el analista
+   decide. Los outputs de IA son insumos para el juicio profesional, no
+   recomendaciones definitivas. Ningún output es definitivo sin validación
+   explícita del usuario (E6 human-in-the-loop).
+
 ---
 
 ## Moddulo — Arquitectura
@@ -430,3 +450,4 @@ firebase functions:log
 | 26-03-26 | Centinela F3 inicio | 1ª versión UI dashboard Centinela |
 | 26-03-27 | Centinela F3 cont. | Hub multi-territorio + página análisis individual |
 | 26-03-27 | Centinela rediseño E1-E5 | Rediseño completo alineado con specs: wizard E1-E3, semáforo E4, análisis por dimensión E5, tipos V2, nuevas colecciones Firestore |
+| 26-03-28 | Centinela correcciones post-E5 | Persistencia análisis (latest-analysis endpoint), fix economicData INEGI/Banxico→Claude, contexto legal LGIPE/INE, citación fuentes, integración Sefix (datos electorales dim-P), semáforo amarillo texto negro, principios de diseño en CLAUDE.md |

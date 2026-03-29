@@ -34,9 +34,15 @@ export const scrapeAndAnalyze = onRequest(
       configId?: string;
       userId?: string;
       jobId?: string;
+      sefixData?: unknown;
     };
 
-    const {projectId, configId, userId, jobId: providedJobId} = body;
+    const {
+      projectId, configId, userId,
+      jobId: providedJobId,
+    } = body;
+    const sefixData = (body.sefixData ?? null) as
+      Parameters<typeof generateAnalysisV2>[0]["sefixData"];
 
     if (!userId) {
       res.status(400).json({error: "userId es requerido"});
@@ -191,6 +197,7 @@ export const scrapeAndAnalyze = onRequest(
             territorio: territorioNombre,
             horizonte: projectData.horizonte as number ?? 6,
             variableConfigs,
+            sefixData: sefixData ?? null,
             anthropicKey,
             db,
           });
