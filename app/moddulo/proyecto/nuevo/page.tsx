@@ -1,27 +1,45 @@
 // app/moddulo/proyecto/nuevo/page.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PROJECT_TYPE_LABELS, PROJECT_TYPE_DESCRIPTIONS } from "@/types/moddulo.types";
 import type { ProjectType } from "@/types/moddulo.types";
 
 type Step = 1 | 2 | 3;
 
-export default function NuevoProyectoPage() {
+// Separated so useSearchParams is inside a Suspense boundary
+function NuevoProyectoContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [step, setStep] = useState<Step>(1);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Formulario
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<ProjectType | null>(null);
 
-  const projectTypes: ProjectType[] = ["electoral", "gubernamental", "legislativo", "ciudadano"];
+  // Centinela integration — query params
+  const centinelaProjectId = searchParams.get("centinelaProjectId");
+  const centinelaProjectName = searchParams.get("centinelaProjectName");
+  const centinelaProjectType = searchParams.get("centinelaProjectType") as ProjectType | null;
+  const fromCentinela = searchParams.get("from") === "centinela" && !!centinelaProjectId;
 
+  // Pre-fill if coming from Centinela
+  useEffect(() => {
+    if (fromCentinela) {
+      if (centinelaProjectName) setName(centinelaProjectName);
+      const validTypes: ProjectType[] = ["electoral", "gubernamental", "legislativo", "ciudadano"];
+      if (centinelaProjectType && validTypes.includes(centinelaProjectType)) {
+        setType(centinelaProjectType);
+      }
+    }
+  }, [fromCentinela, centinelaProjectName, centinelaProjectType]);
+
+  const projectTypes: ProjectType[] = ["electoral", "gubernamental", "legislativo", "ciudadano"];
   const canAdvanceStep1 = name.trim().length >= 3 && type !== null;
 
   const handleCreate = async () => {
@@ -34,7 +52,12 @@ export default function NuevoProyectoPage() {
       const response = await fetch("/api/moddulo/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, name: name.trim(), description: description.trim() }),
+        body: JSON.stringify({
+          type,
+          name: name.trim(),
+          description: description.trim(),
+          centinelaProjectId: fromCentinela ? centinelaProjectId : undefined,
+        }),
         credentials: "include",
       });
 
@@ -45,7 +68,6 @@ export default function NuevoProyectoPage() {
         return;
       }
 
-      // Redirigir a la Fase 1 del nuevo proyecto
       router.push(`/moddulo/proyecto/${data.project.id}/proposito`);
     } catch {
       setError("Error de conexión. Intenta de nuevo.");
@@ -63,7 +85,7 @@ export default function NuevoProyectoPage() {
             href="/moddulo/proyecto"
             className="text-white-eske/70 hover:text-white-eske text-sm flex items-center gap-1 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Mis Proyectos
@@ -73,8 +95,24 @@ export default function NuevoProyectoPage() {
         </div>
       </div>
 
-      {/* Contenido */}
       <div className="max-w-2xl mx-auto p-6">
+        {/* Banner Centinela */}
+        {fromCentinela && (
+          <div className="mb-6 flex items-start gap-3 bg-bluegreen-eske/10 border border-bluegreen-eske/30
+            rounded-xl px-4 py-3">
+            <span className="text-lg shrink-0" aria-hidden="true">🛡️</span>
+            <div>
+              <p className="text-sm font-semibold text-bluegreen-eske-60">
+                Proyecto vinculado a Centinela
+              </p>
+              <p className="text-xs text-gray-eske-60 mt-0.5">
+                El análisis PEST-L de{" "}
+                <strong>{centinelaProjectName ?? "tu proyecto Centinela"}</strong>{" "}
+                estará disponible para importar en la Fase 2 — Exploración.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Indicador de pasos */}
         <div className="flex items-center gap-2 mb-8">
@@ -115,45 +153,52 @@ export default function NuevoProyectoPage() {
 
             {/* Nombre */}
             <div className="mb-5">
-              <label className="block text-sm font-medium text-black-eske-10 mb-2">
-                Nombre del proyecto <span className="text-red-500">*</span>
+              <label htmlFor="project-name" className="block text-sm font-medium text-black-eske-10 mb-2">
+                Nombre del proyecto <span className="text-red-eske">*</span>
               </label>
               <input
+                id="project-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej. Campaña Municipal Guadalajara 2027"
-                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20 focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-black-eske text-sm"
+                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske/30
+                  focus-visible:border-bluegreen-eske text-black-eske text-sm"
                 maxLength={100}
-                autoFocus
+                autoFocus={!fromCentinela}
               />
               <p className="text-xs text-gray-eske-40 mt-1">{name.length}/100</p>
             </div>
 
             {/* Descripción */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-black-eske-10 mb-2">
+              <label htmlFor="project-description" className="block text-sm font-medium text-black-eske-10 mb-2">
                 Descripción breve <span className="text-gray-eske-40">(opcional)</span>
               </label>
               <textarea
+                id="project-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Un párrafo que contextualice el proyecto..."
                 rows={2}
-                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20 focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske text-black-eske text-sm resize-none"
+                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske/30
+                  focus-visible:border-bluegreen-eske text-black-eske text-sm resize-none"
                 maxLength={300}
               />
             </div>
 
             {/* Tipo de proyecto */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-black-eske-10 mb-3">
-                Tipo de proyecto <span className="text-red-500">*</span>
-              </label>
+              <p className="text-sm font-medium text-black-eske-10 mb-3">
+                Tipo de proyecto <span className="text-red-eske">*</span>
+              </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {projectTypes.map((pt) => (
                   <button
                     key={pt}
+                    type="button"
                     onClick={() => setType(pt)}
                     className={`text-left p-4 rounded-lg border-2 transition-all ${
                       type === pt
@@ -173,9 +218,12 @@ export default function NuevoProyectoPage() {
             </div>
 
             <button
+              type="button"
               onClick={() => setStep(2)}
               disabled={!canAdvanceStep1}
-              className="w-full py-3 bg-bluegreen-eske text-white-eske rounded-lg font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-bluegreen-eske/90 transition-colors"
+              className="w-full py-3 bg-bluegreen-eske text-white-eske rounded-lg font-medium
+                text-sm disabled:opacity-40 disabled:cursor-not-allowed
+                hover:bg-bluegreen-eske/90 transition-colors"
             >
               Continuar
             </button>
@@ -214,30 +262,43 @@ export default function NuevoProyectoPage() {
                   <p className="text-black-eske-10 text-sm mt-0.5">{description}</p>
                 </div>
               )}
+              {fromCentinela && (
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40">Vinculado a Centinela</span>
+                  <p className="text-bluegreen-eske text-sm font-medium mt-0.5">
+                    🛡️ {centinelaProjectName ?? centinelaProjectId}
+                  </p>
+                </div>
+              )}
             </div>
 
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="mb-4 p-3 bg-red-eske/10 border border-red-eske/30 rounded-lg text-red-eske text-sm">
                 {error}
               </div>
             )}
 
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setStep(1)}
                 disabled={isCreating}
-                className="flex-1 py-3 border border-gray-eske-20 text-gray-eske-60 rounded-lg font-medium text-sm hover:bg-gray-eske-10 transition-colors disabled:opacity-40"
+                className="flex-1 py-3 border border-gray-eske-20 text-gray-eske-60 rounded-lg
+                  font-medium text-sm hover:bg-gray-eske-10 transition-colors disabled:opacity-40"
               >
                 Regresar
               </button>
               <button
+                type="button"
                 onClick={handleCreate}
                 disabled={isCreating}
-                className="flex-[2] py-3 bg-bluegreen-eske text-white-eske rounded-lg font-medium text-sm disabled:opacity-60 hover:bg-bluegreen-eske/90 transition-colors flex items-center justify-center gap-2"
+                className="flex-[2] py-3 bg-bluegreen-eske text-white-eske rounded-lg font-medium
+                  text-sm disabled:opacity-60 hover:bg-bluegreen-eske/90 transition-colors
+                  flex items-center justify-center gap-2"
               >
                 {isCreating ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white-eske/30 border-t-white-eske rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-white-eske/30 border-t-white-eske rounded-full animate-spin" aria-hidden="true" />
                     Creando proyecto...
                   </>
                 ) : (
@@ -249,5 +310,13 @@ export default function NuevoProyectoPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function NuevoProyectoPage() {
+  return (
+    <Suspense>
+      <NuevoProyectoContent />
+    </Suspense>
   );
 }

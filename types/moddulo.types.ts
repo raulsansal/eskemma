@@ -228,6 +228,7 @@ export interface CreateProjectInput {
   name: string;
   description?: string;
   xpcto?: Partial<XPCTO>;
+  centinelaProjectId?: string;
 }
 
 export type UpdateProjectInput = Partial<

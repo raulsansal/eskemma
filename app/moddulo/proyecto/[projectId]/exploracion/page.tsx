@@ -15,7 +15,11 @@ import type {
   VetoActor,
 } from "@/types/moddulo.types";
 import { PHASE_ORDER, emptyExplorationForm } from "@/types/moddulo.types";
-import type { CentinelaFeed, DimensionPESTL } from "@/types/centinela.types";
+import type {
+  CentinelaProject,
+  DimensionAnalysis,
+  PestlAnalysisV2,
+} from "@/types/centinela.types";
 
 // ==========================================
 // TIPOS SEFIX
@@ -101,28 +105,42 @@ export default function ExploracionPage() {
   const [mobileTab, setMobileTab] = useState<"chat" | "form">("chat");
   const [sefixData, setSefixData] = useState<SefixData | null>(null);
   const [centinelaImporting, setCentinelaImporting] = useState(false);
-  const [centinelaFeedPending, setCentinelaFeedPending] =
-    useState<CentinelaFeed | null>(null);
+  // V2: selection modal state
+  const [centinelaProjects, setCentinelaProjects] = useState<
+    (CentinelaProject & { id: string })[] | null
+  >(null);
+  const [centinelaAnalysisPending, setCentinelaAnalysisPending] = useState<
+    (PestlAnalysisV2 & { id: string; projectName: string }) | null
+  >(null);
 
-  // Mapear CentinelaFeed → ExplorationForm.pestl
-  function mapCentinelaFeed(feed: CentinelaFeed): Partial<ExplorationForm> {
-    const mapDim = (dim: DimensionPESTL) => ({
-      contexto: dim.contexto,
-      senalesCriticas: dim.factores
-        .map((f) => `• ${f.descripcion} [${f.impacto}]`)
-        .join("\n"),
-    });
+  // Mapear DimensionAnalysis[] → ExplorationForm.pestl (V2)
+  function mapCentinelaAnalysis(
+    analysis: PestlAnalysisV2,
+  ): Partial<ExplorationForm> {
+    const dimByCode = Object.fromEntries(
+      analysis.dimensions.map((d) => [d.code, d]),
+    ) as Record<string, DimensionAnalysis>;
+
+    const mapDim = (code: string) => {
+      const d = dimByCode[code];
+      if (!d) return { contexto: "", senalesCriticas: "" };
+      const chains = analysis.impactChains
+        .filter((c) => c.dimensions.includes(code as never))
+        .map((c) => `• ${c.description}`)
+        .join("\n");
+      return {
+        contexto: d.narrative,
+        senalesCriticas: [d.mainSignal, chains].filter(Boolean).join("\n\n"),
+      };
+    };
+
     return {
       pestl: {
-        politico: {
-          ...mapDim(feed.pestl.politico),
-          actoresClave: "",
-          actoresVeto: "",
-        },
-        economico: mapDim(feed.pestl.economico),
-        social: mapDim(feed.pestl.social),
-        tecnologico: mapDim(feed.pestl.tecnologico),
-        legal: mapDim(feed.pestl.legal),
+        politico: { ...mapDim("P"), actoresClave: "", actoresVeto: "" },
+        economico: mapDim("E"),
+        social: mapDim("S"),
+        tecnologico: mapDim("T"),
+        legal: mapDim("L"),
       },
     };
   }
@@ -130,33 +148,70 @@ export default function ExploracionPage() {
   async function handleImportCentinela() {
     setCentinelaImporting(true);
     try {
-      // Obtener config activa
-      const configRes = await fetch("/api/monitor/centinela/config");
-      const configData = (await configRes.json()) as {
-        config: {id: string} | null;
+      // Fetch V2 projects
+      const projRes = await fetch("/api/monitor/centinela/project");
+      if (!projRes.ok) return;
+      const projData = (await projRes.json()) as {
+        projects: (CentinelaProject & { id: string })[];
       };
-      if (!configData.config) {
-        alert("No tienes una configuración de Centinela. Créala en Monitor → Centinela.");
-        return;
-      }
-      // Obtener feed vigente
-      const feedRes = await fetch(
-        `/api/monitor/centinela/feed?configId=${configData.config.id}`
+      const withAnalysis = projData.projects.filter((p) =>
+        (p.currentStage ?? 1) >= 5,
       );
-      const feedData = (await feedRes.json()) as {feed: CentinelaFeed | null};
-      if (!feedData.feed) {
-        alert("No hay análisis de Centinela disponible. Ejecuta un análisis primero.");
+      if (withAnalysis.length === 0) {
+        alert(
+          "No tienes proyectos de Centinela con análisis completados. " +
+            "Ejecuta al menos un análisis primero.",
+        );
         return;
       }
-      setCentinelaFeedPending(feedData.feed);
+      if (withAnalysis.length === 1) {
+        // Auto-select the only project
+        await fetchAndConfirmAnalysis(withAnalysis[0]);
+      } else {
+        // Show project selection modal
+        setCentinelaProjects(withAnalysis);
+      }
     } finally {
       setCentinelaImporting(false);
     }
   }
 
+  async function fetchAndConfirmAnalysis(
+    project: CentinelaProject & { id: string },
+  ) {
+    const latestRes = await fetch(
+      `/api/monitor/centinela/project/${project.id}/latest-analysis`,
+    );
+    if (!latestRes.ok) {
+      alert("No se pudo obtener el análisis del proyecto seleccionado.");
+      return;
+    }
+    const latestData = (await latestRes.json()) as {
+      analysisId: string | null;
+    };
+    if (!latestData.analysisId) {
+      alert("Este proyecto no tiene análisis disponibles todavía.");
+      return;
+    }
+    const analysisRes = await fetch(
+      `/api/monitor/centinela/analysis/${latestData.analysisId}`,
+    );
+    if (!analysisRes.ok) {
+      alert("No se pudo cargar el análisis.");
+      return;
+    }
+    const analysisData = (await analysisRes.json()) as {
+      analysis: PestlAnalysisV2 & { id: string };
+    };
+    setCentinelaAnalysisPending({
+      ...analysisData.analysis,
+      projectName: project.nombre,
+    });
+  }
+
   function handleConfirmCentinelaImport() {
-    if (!centinelaFeedPending) return;
-    const mapped = mapCentinelaFeed(centinelaFeedPending);
+    if (!centinelaAnalysisPending) return;
+    const mapped = mapCentinelaAnalysis(centinelaAnalysisPending);
     setForm((prev) => {
       const next = structuredClone(prev);
       if (mapped.pestl) {
@@ -173,7 +228,7 @@ export default function ExploracionPage() {
       }
       return next;
     });
-    setCentinelaFeedPending(null);
+    setCentinelaAnalysisPending(null);
   }
 
   // Cargar proyecto al montar
@@ -617,28 +672,84 @@ export default function ExploracionPage() {
         />
       )}
 
-      {/* Modal confirmación importar Centinela */}
-      {centinelaFeedPending && (
+      {/* Modal selección de proyecto Centinela (cuando hay más de uno) */}
+      {centinelaProjects && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center
           justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full
+          <div className="bg-white-eske rounded-xl shadow-xl p-6 max-w-md w-full
+            flex flex-col gap-4">
+            <h3 className="font-semibold text-bluegreen-eske-60">
+              Selecciona el proyecto de Centinela
+            </h3>
+            <p className="text-sm text-gray-eske-60">
+              Elige el análisis PEST-L que deseas importar:
+            </p>
+            <ul className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+              {centinelaProjects.map((p) => (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setCentinelaProjects(null);
+                      setCentinelaImporting(true);
+                      try {
+                        await fetchAndConfirmAnalysis(p);
+                      } finally {
+                        setCentinelaImporting(false);
+                      }
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-lg border
+                      border-gray-eske-20 hover:border-bluegreen-eske
+                      hover:bg-bluegreen-eske/5 transition-colors"
+                  >
+                    <p className="font-semibold text-black-eske text-sm">
+                      {p.nombre}
+                    </p>
+                    <p className="text-xs text-gray-eske-60 mt-0.5">
+                      {p.territorio?.nombre ?? ""} · {p.tipo}
+                    </p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setCentinelaProjects(null)}
+                className="px-4 py-2 text-sm border border-gray-eske-20 rounded-lg
+                  hover:bg-gray-eske-10 transition-colors text-gray-eske-60"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal confirmación importar análisis Centinela V2 */}
+      {centinelaAnalysisPending && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center
+          justify-center p-4">
+          <div className="bg-white-eske rounded-xl shadow-xl p-6 max-w-md w-full
             flex flex-col gap-4">
             <h3 className="font-semibold text-bluegreen-eske-60">
               Importar análisis de Centinela
             </h3>
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-gray-eske-60">
               Se importará el análisis PEST-L de{" "}
-              <strong>{centinelaFeedPending.territorio}</strong> generado por
-              Centinela. Esto sobrescribirá el contexto y las señales críticas
-              de las 5 dimensiones. Los actores clave, actores de veto, semáforo
-              e hipótesis no se modificarán.
+              <strong>{centinelaAnalysisPending.projectName}</strong> (v
+              {centinelaAnalysisPending.version},{" "}
+              {centinelaAnalysisPending.globalConfidence}% confianza). Esto
+              sobrescribirá el contexto y las señales críticas de las 5
+              dimensiones. Los actores clave, actores de veto, semáforo e
+              hipótesis no se modificarán.
             </p>
             <div className="flex gap-2 justify-end">
               <button
                 type="button"
-                onClick={() => setCentinelaFeedPending(null)}
-                className="px-4 py-2 text-sm border border-gray-200 rounded-lg
-                  hover:bg-gray-50 transition-colors"
+                onClick={() => setCentinelaAnalysisPending(null)}
+                className="px-4 py-2 text-sm border border-gray-eske-20 rounded-lg
+                  hover:bg-gray-eske-10 transition-colors text-gray-eske-60"
               >
                 Cancelar
               </button>

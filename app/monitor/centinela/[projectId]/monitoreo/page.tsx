@@ -280,7 +280,7 @@ export default function MonitoreoPage() {
         </section>
 
         {/* ── Footer ── */}
-        <div className="flex justify-start pt-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
           <button
             type="button"
             onClick={() => router.push("/monitor/centinela")}
@@ -288,6 +288,24 @@ export default function MonitoreoPage() {
               rounded-lg text-sm hover:bg-gray-eske-10 transition-colors"
           >
             ← Ir a Centinela
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const params = new URLSearchParams({
+                from: "centinela",
+                centinelaProjectId: projectId,
+                centinelaProjectName: project?.nombre ?? "",
+                centinelaProjectType: project?.tipo ?? "",
+              });
+              router.push(`/moddulo/proyecto/nuevo?${params.toString()}`);
+            }}
+            className="flex items-center gap-2 px-5 py-2.5 bg-orange-eske text-white
+              rounded-lg text-sm font-semibold hover:bg-orange-eske-60
+              transition-colors shadow-sm"
+          >
+            <span aria-hidden="true">⚡</span>
+            Iniciar proyecto en Moddulo
           </button>
         </div>
       </div>

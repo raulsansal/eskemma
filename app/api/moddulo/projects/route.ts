@@ -11,7 +11,6 @@ export async function GET(request: NextRequest) {
     if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
     const url = new URL(request.url);
-    const status = url.searchParams.get("status") as CreateProjectInput["type"] | null;
     const limit = url.searchParams.get("limit");
 
     const projects = await listUserProjects(session.uid, {
@@ -32,7 +31,7 @@ export async function POST(request: NextRequest) {
     if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
     const body = await request.json();
-    const { type, name, description } = body;
+    const { type, name, description, centinelaProjectId } = body;
 
     if (!type || !name) {
       return NextResponse.json(
@@ -46,7 +45,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Tipo de proyecto inválido" }, { status: 400 });
     }
 
-    const input: CreateProjectInput = { type, name: name.trim(), description };
+    const input: CreateProjectInput = {
+      type,
+      name: name.trim(),
+      description,
+      centinelaProjectId: typeof centinelaProjectId === "string" ? centinelaProjectId : undefined,
+    };
     const project = await createProject(session.uid, input);
 
     return NextResponse.json({ project }, { status: 201 });

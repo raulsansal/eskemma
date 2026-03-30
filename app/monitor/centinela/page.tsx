@@ -53,6 +53,7 @@ const STAGE_LABELS: Record<number, string> = {
 function ProjectCard({ project }: { project: CentinelaProject & { id: string } }) {
   const router = useRouter();
   const stage = project.currentStage ?? 1;
+  const hasAnalysis = stage >= 5;
 
   function handleClick() {
     if (stage <= 3) {
@@ -70,70 +71,108 @@ function ProjectCard({ project }: { project: CentinelaProject & { id: string } }
     }
   }
 
+  function handleCreateModduloProject(e: React.MouseEvent) {
+    e.stopPropagation();
+    const params = new URLSearchParams({
+      from: "centinela",
+      centinelaProjectId: project.id,
+      centinelaProjectName: project.nombre,
+      centinelaProjectType: project.tipo,
+    });
+    router.push(`/moddulo/proyecto/nuevo?${params.toString()}`);
+  }
+
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className="group text-left bg-white-eske rounded-xl shadow-sm border
+    <div
+      className="group bg-white-eske rounded-xl shadow-sm border
         border-gray-eske-20 p-5 flex flex-col gap-4
         hover:shadow-md hover:-translate-y-0.5 transition-all duration-200
         w-full"
     >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          <span className="text-2xl shrink-0" aria-hidden="true">
-            {TYPE_ICONS[project.tipo] ?? "📊"}
-          </span>
-          <div className="min-w-0">
-            <h3
-              className="font-semibold text-bluegreen-eske-60
-                group-hover:text-bluegreen-eske transition-colors truncate"
-            >
-              {project.nombre}
-            </h3>
-            <p className="text-xs text-gray-eske-60 mt-0.5">
-              {TYPE_LABELS[project.tipo] ?? project.tipo} ·{" "}
-              {project.territorio?.nombre ?? ""}
-            </p>
+      {/* Clickable body */}
+      <button
+        type="button"
+        onClick={handleClick}
+        className="text-left flex flex-col gap-4 flex-1"
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <span className="text-2xl shrink-0" aria-hidden="true">
+              {TYPE_ICONS[project.tipo] ?? "📊"}
+            </span>
+            <div className="min-w-0">
+              <h3
+                className="font-semibold text-bluegreen-eske-60
+                  group-hover:text-bluegreen-eske transition-colors truncate"
+              >
+                {project.nombre}
+              </h3>
+              <p className="text-xs text-gray-eske-60 mt-0.5">
+                {TYPE_LABELS[project.tipo] ?? project.tipo} ·{" "}
+                {project.territorio?.nombre ?? ""}
+              </p>
+            </div>
           </div>
+          <svg
+            className="w-4 h-4 text-gray-eske-30 group-hover:text-bluegreen-eske
+              transition-colors shrink-0 mt-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
         </div>
-        <svg
-          className="w-4 h-4 text-gray-eske-30 group-hover:text-bluegreen-eske
-            transition-colors shrink-0 mt-1"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </div>
 
-      {/* Stage + date */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <span className="text-xs bg-bluegreen-eske/10 text-bluegreen-eske
-          px-2.5 py-1 rounded-full font-medium">
-          Etapa {stage} — {STAGE_LABELS[stage] ?? ""}
-        </span>
-        {project.createdAt && (
-          <span className="text-xs text-gray-eske-50">
-            {formatDate(project.createdAt)}
+        {/* Stage + date */}
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <span className="text-xs bg-bluegreen-eske/10 text-bluegreen-eske
+            px-2.5 py-1 rounded-full font-medium">
+            Etapa {stage} — {STAGE_LABELS[stage] ?? ""}
           </span>
-        )}
-      </div>
+          {project.createdAt && (
+            <span className="text-xs text-gray-eske-50">
+              {formatDate(project.createdAt)}
+            </span>
+          )}
+        </div>
 
-      {/* Horizon */}
-      <p className="text-xs text-gray-eske-60">
-        Horizonte: {project.horizonte}{" "}
-        {project.horizonte === 1 ? "mes" : "meses"}
-      </p>
-    </button>
+        {/* Horizon */}
+        <p className="text-xs text-gray-eske-60">
+          Horizonte: {project.horizonte}{" "}
+          {project.horizonte === 1 ? "mes" : "meses"}
+        </p>
+      </button>
+
+      {/* Iniciar en Moddulo */}
+      <div className="border-t border-gray-eske-20 pt-3">
+        <button
+          type="button"
+          onClick={handleCreateModduloProject}
+          disabled={!hasAnalysis}
+          title={
+            hasAnalysis
+              ? "Crear un proyecto en Moddulo usando este análisis PEST-L"
+              : "Completa al menos un análisis para habilitar esta acción"
+          }
+          className="w-full flex items-center justify-center gap-2 px-3 py-2
+            text-xs font-semibold rounded-lg transition-colors
+            disabled:opacity-40 disabled:cursor-not-allowed
+            border border-orange-eske/40 text-orange-eske
+            hover:bg-orange-eske/5 disabled:hover:bg-transparent"
+        >
+          <span aria-hidden="true">⚡</span>
+          Iniciar proyecto en Moddulo
+        </button>
+      </div>
+    </div>
   );
 }
 

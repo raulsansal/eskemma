@@ -54,7 +54,7 @@ export async function createProject(
   const now = FieldValue.serverTimestamp();
   const nowDate = new Date().toISOString(); // Para campos dentro de arrays
 
-  const data = {
+  const data: Record<string, unknown> = {
     userId,
     type: input.type,
     name: input.name,
@@ -80,6 +80,10 @@ export async function createProject(
     updatedAt: now,
     lastAccessedAt: now,
   };
+
+  if (input.centinelaProjectId) {
+    data.centinelaProjectId = input.centinelaProjectId;
+  }
 
   const ref = await adminDb.collection(COLLECTION).add(data);
   const snap = await ref.get();
