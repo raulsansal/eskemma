@@ -6,6 +6,7 @@
 // verify bias alerts, review field evidence, and approve the analysis.
 
 import { useEffect, useState, useCallback } from "react";
+import CentinelaStageNav from "@/app/components/monitor/centinela/CentinelaStageNav";
 import { useParams, useRouter } from "next/navigation";
 import type {
   PestlAnalysisV2,
@@ -35,6 +36,8 @@ export default function InterpretacionPage() {
   const [saving, setSaving] = useState(false);
   const [approving, setApproving] = useState(false);
   const [activeSection, setActiveSection] = useState<ActiveSection>("matrix");
+  // Stage nav — minimum 6 (we're in E6); updated from project data
+  const [projectCurrentStage, setProjectCurrentStage] = useState(6);
 
   // Load the latest approved/reviewed analysis for this project
   const loadAnalysis = useCallback(async () => {
@@ -90,10 +93,19 @@ export default function InterpretacionPage() {
   }, [projectId]);
 
   useEffect(() => {
+    // Load project currentStage for StageNav (non-blocking)
+    fetch("/api/monitor/centinela/project")
+      .then((r) => r.json())
+      .then((data: { projects: { id: string; currentStage?: number }[] }) => {
+        const p = data.projects.find((pr) => pr.id === projectId);
+        if (p?.currentStage) setProjectCurrentStage(p.currentStage);
+      })
+      .catch(() => {/* non-critical */});
+
     Promise.all([loadAnalysis(), loadPreviousAnalysis(), loadSources()]).finally(
       () => setLoading(false)
     );
-  }, [loadAnalysis, loadPreviousAnalysis, loadSources]);
+  }, [loadAnalysis, loadPreviousAnalysis, loadSources, projectId]);
 
   async function handleAdjust(
     code: DimensionCode,
@@ -278,6 +290,13 @@ export default function InterpretacionPage() {
         </div>
       </div>
 
+      {/* Navegación de etapas */}
+      <CentinelaStageNav
+        projectId={projectId}
+        currentStage={projectCurrentStage}
+        activeStage={6}
+      />
+
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-6">
         {/* Error banner */}
         {error && (
@@ -332,7 +351,7 @@ export default function InterpretacionPage() {
                 <h2 className="text-base font-semibold text-black-eske mb-1">
                   Matriz de impacto / probabilidad
                 </h2>
-                <p className="text-xs text-gray-eske-60">
+                <p className="text-xs text-black-eske">
                   La IA posicionó cada dimensión según el análisis.
                   {!analysis.status || analysis.status !== "APPROVED"
                     ? " Arrastra los puntos para ajustar. Se requiere justificación."
@@ -348,14 +367,14 @@ export default function InterpretacionPage() {
               />
               {(analysis.adjustments ?? []).length > 0 && (
                 <div className="mt-2">
-                  <h3 className="text-xs font-semibold text-gray-eske-70 mb-2">
+                  <h3 className="text-xs font-semibold text-black-eske mb-2">
                     Ajustes realizados
                   </h3>
                   <div className="flex flex-col gap-1.5">
                     {(analysis.adjustments ?? []).map((adj) => (
                       <div
                         key={adj.dimensionCode}
-                        className="text-xs text-gray-eske-70 px-3 py-2
+                        className="text-xs text-black-eske px-3 py-2
                           bg-orange-eske/5 border border-orange-eske/20 rounded-lg"
                       >
                         <span className="font-semibold text-orange-eske mr-1.5">
@@ -376,7 +395,7 @@ export default function InterpretacionPage() {
                 <h2 className="text-base font-semibold text-black-eske mb-1">
                   Verificación de sesgos
                 </h2>
-                <p className="text-xs text-gray-eske-60">
+                <p className="text-xs text-black-eske">
                   Revisa las alertas de sesgo detectadas por la IA y confirma
                   los puntos de control metodológico.
                 </p>
@@ -395,7 +414,7 @@ export default function InterpretacionPage() {
                 <h2 className="text-base font-semibold text-black-eske mb-1">
                   Voces del territorio
                 </h2>
-                <p className="text-xs text-gray-eske-60">
+                <p className="text-xs text-black-eske">
                   Fuentes manuales cargadas por el equipo en la Etapa 4.
                   Contrasta estos testimonios con la clasificación de la IA.
                 </p>
@@ -410,7 +429,7 @@ export default function InterpretacionPage() {
                 <h2 className="text-base font-semibold text-black-eske mb-1">
                   Comparativa con análisis anterior
                 </h2>
-                <p className="text-xs text-gray-eske-60">
+                <p className="text-xs text-black-eske">
                   Cambios en la clasificación de dimensiones respecto a la
                   versión anterior del análisis.
                 </p>
@@ -421,7 +440,7 @@ export default function InterpretacionPage() {
                   previousDimensions={previousAnalysis.dimensions}
                 />
               ) : (
-                <p className="text-sm text-gray-eske-60 text-center py-4">
+                <p className="text-sm text-black-eske text-center py-4">
                   No hay análisis anterior con el que comparar.
                 </p>
               )}
@@ -437,7 +456,7 @@ export default function InterpretacionPage() {
               router.push(`/monitor/centinela/${projectId}/analisis`)
             }
             disabled={approving}
-            className="px-5 py-2.5 border border-gray-eske-30 text-gray-eske-80
+            className="px-5 py-2.5 border border-gray-eske-30 text-black-eske
               rounded-lg text-sm font-medium hover:bg-gray-eske-10 transition-colors
               disabled:opacity-50"
           >

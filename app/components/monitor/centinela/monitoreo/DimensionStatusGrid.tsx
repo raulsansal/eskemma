@@ -51,7 +51,7 @@ const INTENSITY_LABELS: Record<string, string> = {
 export default function DimensionStatusGrid({ dimensions }: Props) {
   if (!dimensions || dimensions.length === 0) {
     return (
-      <p className="text-sm text-gray-eske-60">
+      <p className="text-sm text-black-eske">
         No hay datos de dimensiones disponibles.
       </p>
     );
@@ -91,7 +91,7 @@ export default function DimensionStatusGrid({ dimensions }: Props) {
 
             {/* Signal */}
             <p
-              className="text-xs text-gray-eske-60 leading-snug line-clamp-2"
+              className="text-xs text-black-eske leading-snug line-clamp-2"
               title={dim.mainSignal}
             >
               {dim.mainSignal}
@@ -100,7 +100,7 @@ export default function DimensionStatusGrid({ dimensions }: Props) {
             {/* Confidence bar */}
             <div className="flex flex-col gap-0.5">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-eske-50">Confianza</span>
+                <span className="text-xs text-black-eske">Confianza</span>
                 <span className={`text-xs font-semibold ${styles.text}`}>
                   {dim.confidence}%
                 </span>
@@ -120,7 +120,7 @@ export default function DimensionStatusGrid({ dimensions }: Props) {
             </div>
 
             {/* Trend + Intensity */}
-            <div className="flex items-center justify-between text-xs text-gray-eske-60 pt-0.5">
+            <div className="flex items-center justify-between text-xs text-black-eske pt-0.5">
               <span>
                 <span className={styles.text}>
                   {TREND_ICONS[dim.trend] ?? "→"}

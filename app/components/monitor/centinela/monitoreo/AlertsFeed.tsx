@@ -109,7 +109,7 @@ export default function AlertsFeed({ projectId, onAlertsChange }: Props) {
         <p className="text-sm font-medium text-black-eske">
           Sin alertas recientes
         </p>
-        <p className="text-xs text-gray-eske-60 mt-1">
+        <p className="text-xs text-black-eske mt-1">
           El sistema monitoreará automáticamente cada 6 horas.
         </p>
       </div>
@@ -135,7 +135,7 @@ export default function AlertsFeed({ projectId, onAlertsChange }: Props) {
               <p className="text-sm text-black-eske leading-snug">
                 {alert.description}
               </p>
-              <p className="text-xs text-gray-eske-50 mt-0.5">
+              <p className="text-xs text-black-eske mt-0.5">
                 {formatRelative(alert.generadoEn)}
                 {alert.isCrisis && (
                   <span className="ml-2 inline-block px-1.5 py-0.5 bg-red-eske/10

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import CentinelaStageNav from "@/app/components/monitor/centinela/CentinelaStageNav";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import PESTLPanelV2 from "@/app/components/monitor/centinela/dashboard/PESTLPanelV2";
 import type {
@@ -252,6 +253,15 @@ export default function AnalisisPage() {
         </div>
       </div>
 
+      {/* Navegación de etapas */}
+      {project && (
+        <CentinelaStageNav
+          projectId={projectId}
+          currentStage={project.currentStage ?? 5}
+          activeStage={5}
+        />
+      )}
+
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Polling state */}
         {isPolling && (
@@ -266,12 +276,12 @@ export default function AnalisisPage() {
               <p className="font-semibold text-black-eske">
                 Analizando con IA…
               </p>
-              <p className="text-sm text-gray-eske-60 mt-1">
+              <p className="text-sm text-black-eske mt-1">
                 Centinela está procesando las 5 dimensiones PEST-L en
                 paralelo. Este proceso tarda entre 2 y 8 minutos. Por favor, espera.
               </p>
               {elapsedSeconds > 0 && (
-                <p className="text-xs text-gray-eske-50 mt-2">
+                <p className="text-xs text-black-eske mt-2">
                   Tiempo transcurrido:{" "}
                   {Math.floor(elapsedSeconds / 60) > 0
                     ? `${Math.floor(elapsedSeconds / 60)} min `
@@ -312,7 +322,7 @@ export default function AnalisisPage() {
                 <h2 className="text-lg font-semibold text-black-eske">
                   Etapa 5 — Resultados del análisis IA
                 </h2>
-                <p className="text-xs text-gray-eske-60">
+                <p className="text-xs text-black-eske">
                   {formatDate(analysis.analyzedAt)}
                 </p>
               </div>
@@ -351,7 +361,7 @@ export default function AnalisisPage() {
               <p className="font-semibold text-black-eske text-lg">
                 No hay análisis para este proyecto
               </p>
-              <p className="text-sm text-gray-eske-60 mt-1">
+              <p className="text-sm text-black-eske mt-1">
                 Agrega fuentes de datos y ejecuta el primer análisis IA.
               </p>
             </div>

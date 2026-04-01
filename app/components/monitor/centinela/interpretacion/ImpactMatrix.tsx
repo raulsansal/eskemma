@@ -7,6 +7,7 @@
 // Triggers AdjustmentModal when a meaningful drag ends.
 
 import { useState, useRef, useCallback } from "react";
+import InfoTooltip from "@/app/components/ui/InfoTooltip";
 import type {
   DimensionAnalysis,
   HumanAdjustment,
@@ -167,10 +168,18 @@ export default function ImpactMatrix({
   return (
     <>
       <div className="flex flex-col gap-2">
+        {/* Info tooltip row */}
+        <div className="flex items-center justify-end mb-1">
+          <InfoTooltip
+            content="La matriz posiciona cada factor PEST-L según probabilidad (eje horizontal, baja→alta) e impacto en el proyecto (eje vertical, bajo→alto). Cuadrantes: Prioridad crítica (alta prob. + alto impacto) → acción inmediata; Vigilar (baja prob. + alto impacto) → monitoreo estrecho; Atención moderada (alta prob. + bajo impacto) → gestión rutinaria; Monitoreo básico → atención mínima. Los puntos de la IA pueden ajustarse arrastrándolos."
+            placement="left"
+          />
+        </div>
+
         {/* Axis labels */}
         <div className="flex items-end gap-2">
           <div
-            className="flex flex-col items-center gap-1 text-xs text-gray-eske-60"
+            className="flex flex-col items-center gap-1 text-xs text-black-eske"
             aria-hidden="true"
           >
             <span className="[writing-mode:vertical-rl] rotate-180 leading-none
@@ -316,7 +325,7 @@ export default function ImpactMatrix({
               </div>
             </div>
             {/* X axis label */}
-            <p className="text-xs text-gray-eske-60 text-center"
+            <p className="text-xs text-black-eske text-center"
               aria-hidden="true">
               Probabilidad →
             </p>
@@ -324,7 +333,7 @@ export default function ImpactMatrix({
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-3 mt-1 text-xs text-gray-eske-60">
+        <div className="flex flex-wrap gap-3 mt-1 text-xs text-black-eske">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full bg-bluegreen-eske
               inline-block shrink-0" aria-hidden="true" />

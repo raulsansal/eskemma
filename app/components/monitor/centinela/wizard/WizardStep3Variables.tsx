@@ -206,7 +206,7 @@ export default function WizardStep3Variables({
                           bg-gray-eske-10 group"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-black-eske break-words">
+                          <p className="text-sm text-black-eske wrap-break-words">
                             {v.name}
                             {!v.isDefault && (
                               <span className="ml-2 text-xs text-blue-eske bg-blue-eske/10

@@ -81,7 +81,7 @@ export default function AdjustmentModal({
               {DIMENSION_LABELS[dimensionCode]}
             </span>
           </h2>
-          <p className="text-xs text-gray-eske-60 mt-0.5">
+          <p className="text-xs text-black-eske mt-0.5">
             Explica por qué reposicionas este factor. Mínimo 20 caracteres.
           </p>
         </div>
@@ -124,7 +124,7 @@ export default function AdjustmentModal({
             className="text-sm font-medium text-black-eske"
           >
             Clasificación{" "}
-            <span className="text-gray-eske-50 font-normal">(opcional)</span>
+            <span className="text-black-eske font-normal">(opcional)</span>
           </label>
           <select
             id="adj-classification"
@@ -152,7 +152,7 @@ export default function AdjustmentModal({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="px-4 py-2 border border-gray-eske-30 text-gray-eske-80
+            className="px-4 py-2 border border-gray-eske-30 text-black-eske
               rounded-lg text-sm font-medium hover:bg-gray-eske-10
               transition-colors disabled:opacity-50"
           >

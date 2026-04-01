@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import CentinelaStageNav from "@/app/components/monitor/centinela/CentinelaStageNav";
 import { useParams, useRouter } from "next/navigation";
 import InfoTooltip from "@/app/components/ui/InfoTooltip";
 import type {
@@ -254,34 +255,47 @@ export default function DatosPage() {
         </div>
       </div>
 
+      {/* Navegación de etapas */}
+      {project && (
+        <CentinelaStageNav
+          projectId={projectId}
+          currentStage={project.currentStage ?? 4}
+          activeStage={4}
+        />
+      )}
+
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-8">
         {/* Coverage semaphore */}
         <section aria-labelledby="coverage-heading">
           <h2
             id="coverage-heading"
-            className="text-lg font-semibold text-black-eske mb-4"
+            className="text-lg font-semibold text-black-eske mb-4 flex items-center gap-2"
           >
             Semáforo de cobertura
+            <InfoTooltip
+              content="El semáforo indica si cada dimensión PEST-L tiene suficientes datos para un análisis confiable. 🟢 Verde (≥60% confianza): la dimensión puede analizarse. 🟡 Amarillo (30-59%): se recomienda agregar más fuentes. 🔴 Rojo (<30%): cobertura insuficiente, el análisis no puede ejecutarse hasta alcanzar el mínimo. La columna 'Confianza' refleja la calidad y cantidad de fuentes disponibles, ponderada por su nivel de confiabilidad."
+              placement="right"
+            />
           </h2>
           <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 overflow-hidden">
             {coverage.length === 0 ? (
-              <div className="p-6 text-sm text-gray-eske-60 text-center">
+              <div className="p-6 text-sm text-black-eske text-center">
                 Sin datos aún. Agrega fuentes para ver el estado de cobertura.
               </div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-eske-10 bg-gray-eske-10">
-                    <th className="text-left px-4 py-3 font-medium text-gray-eske-70">
+                    <th className="text-left px-4 py-3 font-medium text-black-eske">
                       Dimensión
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-eske-70">
+                    <th className="text-left px-4 py-3 font-medium text-black-eske">
                       Estado
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-eske-70">
+                    <th className="text-left px-4 py-3 font-medium text-black-eske">
                       Fuentes
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-eske-70">
+                    <th className="text-left px-4 py-3 font-medium text-black-eske">
                       Confianza
                     </th>
                   </tr>
@@ -313,7 +327,7 @@ export default function DatosPage() {
                             {config.label}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-eske-70">
+                        <td className="px-4 py-3 text-black-eske">
                           {c.variablesWithData}
                         </td>
                         <td className="px-4 py-3">
@@ -335,7 +349,7 @@ export default function DatosPage() {
                                 aria-valuemax={100}
                               />
                             </div>
-                            <span className="text-xs text-gray-eske-60 w-10">
+                            <span className="text-xs text-black-eske w-10">
                               {c.confidence}%
                             </span>
                           </div>
@@ -358,7 +372,7 @@ export default function DatosPage() {
             Agregar dato manualmente
           </h2>
           <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-6">
-            <p className="text-sm text-gray-eske-70 mb-5">
+            <p className="text-sm text-black-eske mb-5">
               Encuestas propias, notas de campo, entrevistas u otros datos
               que la IA no puede recopilar automáticamente.
             </p>
@@ -435,19 +449,19 @@ export default function DatosPage() {
                       {selectedFile ? (
                         <span className="text-sm font-medium text-bluegreen-eske">
                           {selectedFile.name}
-                          <span className="ml-2 text-xs text-gray-eske-60 font-normal">
+                          <span className="ml-2 text-xs text-black-eske font-normal">
                             ({(selectedFile.size / 1024).toFixed(0)} KB)
                           </span>
                         </span>
                       ) : (
-                        <span className="text-sm text-gray-eske-60">
+                        <span className="text-sm text-black-eske">
                           Arrastra un archivo o{" "}
                           <span className="text-bluegreen-eske font-medium underline">
                             haz clic para seleccionar
                           </span>
                         </span>
                       )}
-                      <span className="text-xs text-gray-eske-50">
+                      <span className="text-xs text-black-eske">
                         PDF, Word (.docx) o texto plano — máx. 10 MB
                       </span>
                       <input
@@ -609,11 +623,11 @@ export default function DatosPage() {
             Fuentes automáticas
           </h2>
           <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-6">
-            <p className="text-sm text-gray-eske-70 mb-3">
+            <p className="text-sm text-black-eske mb-3">
               Al ejecutar el análisis, Centinela recopila automáticamente datos
               de las siguientes fuentes públicas para el territorio configurado:
             </p>
-            <ul className="text-sm text-gray-eske-70 list-none flex flex-col gap-1.5">
+            <ul className="text-sm text-black-eske list-none flex flex-col gap-1.5">
               <li className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-bluegreen-eske shrink-0" aria-hidden="true" />
                 Google News — noticias recientes del territorio
@@ -673,7 +687,7 @@ export default function DatosPage() {
               content="Inicia el análisis con IA usando todas las fuentes disponibles. El proceso tarda 2-8 minutos y no se puede cancelar una vez iniciado."
             />
           </div>
-          <p className="text-xs text-gray-eske-60 text-center max-w-sm">
+          <p className="text-xs text-black-eske text-center max-w-sm">
             El análisis puede tardar 2-8 minutos. Serás redirigido
             automáticamente al completarse.
           </p>

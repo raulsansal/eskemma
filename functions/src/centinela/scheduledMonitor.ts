@@ -1,6 +1,6 @@
 // functions/src/centinela/scheduledMonitor.ts
-// Cloud Function programada: cada 6 horas itera configs activas y
-// dispara scrapeAndAnalyze para cada una.
+// Cloud Function programada: cada 6 horas itera proyectos V2 activos y
+// dispara scrapeAndAnalyze para cada uno.
 
 import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
@@ -16,56 +16,56 @@ export const scheduledMonitor = onSchedule(
     const db = admin.firestore();
 
     const snapshot = await db
-      .collection("centinela_configs")
+      .collection("centinela_projects")
       .where("isActive", "==", true)
       .get();
 
     if (snapshot.empty) {
-      logger.info("[scheduledMonitor] No hay configuraciones activas.");
+      logger.info("[scheduledMonitor] No hay proyectos activos.");
       return;
     }
 
     logger.info(
-      `[scheduledMonitor] Procesando ${snapshot.size} configs activas.`
+      `[scheduledMonitor] Procesando ${snapshot.size} proyectos activos.`
     );
 
     const firebaseConfig = process.env.FIREBASE_CONFIG ?
       JSON.parse(process.env.FIREBASE_CONFIG) :
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ({} as any);
-    const projectId =
+    const gcProjectId =
       process.env.GCLOUD_PROJECT ||
       firebaseConfig.projectId ||
       "eskemma-3c4c3";
     const cfUrl =
-      `https://us-central1-${projectId}.cloudfunctions.net` +
+      `https://us-central1-${gcProjectId}.cloudfunctions.net` +
       "/scrapeAndAnalyze";
 
     const results = await Promise.allSettled(
       snapshot.docs.map(async (doc) => {
-        const config = doc.data();
+        const project = doc.data();
         const response = await fetch(cfUrl, {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
-            configId: doc.id,
-            userId: config.userId,
+            projectId: doc.id,
+            userId: project.userId,
           }),
           signal: AbortSignal.timeout(60000),
         });
-        return {configId: doc.id, httpStatus: response.status};
+        return {projectId: doc.id, httpStatus: response.status};
       })
     );
 
     results.forEach((result, i) => {
-      const configId = snapshot.docs[i].id;
+      const docId = snapshot.docs[i].id;
       if (result.status === "fulfilled") {
         logger.info(
-          `[scheduledMonitor] ${configId}: HTTP ${result.value.httpStatus}`
+          `[scheduledMonitor] ${docId}: HTTP ${result.value.httpStatus}`
         );
       } else {
         logger.error(
-          `[scheduledMonitor] ${configId} falló:`,
+          `[scheduledMonitor] ${docId} falló:`,
           result.reason
         );
       }

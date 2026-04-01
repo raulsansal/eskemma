@@ -43,25 +43,25 @@ export function buildReportPrompt(
       return {
         systemPrompt: SYSTEM_CONSULTANT,
         userPrompt: `${base}\n\n${EXECUTIVE_INSTRUCTIONS(ctx.projectType)}`,
-        maxTokens: 2500,
+        maxTokens: 4000,
       };
     case "technical":
       return {
         systemPrompt: SYSTEM_CONSULTANT,
         userPrompt: `${base}\n\n${TECHNICAL_INSTRUCTIONS}`,
-        maxTokens: 4096,
+        maxTokens: 6000,
       };
     case "foda":
       return {
         systemPrompt: SYSTEM_CONSULTANT,
         userPrompt: `${base}\n\n${FODA_INSTRUCTIONS}`,
-        maxTokens: 1000,
+        maxTokens: 2000,
       };
     case "scenarios":
       return {
         systemPrompt: SYSTEM_CONSULTANT,
         userPrompt: buildScenariosPrompt(base, ctx),
-        maxTokens: 3500,
+        maxTokens: 6000,
       };
   }
 }

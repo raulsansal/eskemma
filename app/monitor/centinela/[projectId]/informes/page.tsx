@@ -4,6 +4,7 @@
 // E7 — Report generation: 4 formats with Claude streaming + PDF/DOCX export.
 
 import { useState, useEffect, useCallback } from "react";
+import CentinelaStageNav from "@/app/components/monitor/centinela/CentinelaStageNav";
 import { useParams, useRouter } from "next/navigation";
 import ScorecardTable from "@/app/components/monitor/centinela/informes/ScorecardTable";
 import ReportViewer from "@/app/components/monitor/centinela/informes/ReportViewer";
@@ -304,6 +305,15 @@ export default function InformesPage() {
         </div>
       </div>
 
+      {/* Navegación de etapas */}
+      {project && (
+        <CentinelaStageNav
+          projectId={projectId}
+          currentStage={project.currentStage ?? 7}
+          activeStage={7}
+        />
+      )}
+
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-6">
         {/* ── Scorecard ── */}
         {scorecard && analysis && (
@@ -312,7 +322,7 @@ export default function InformesPage() {
               <h2 className="font-semibold text-black-eske">
                 Scorecard ponderado
               </h2>
-              <p className="text-xs text-gray-eske-60 mt-0.5">
+              <p className="text-xs text-black-eske mt-0.5">
                 Calculado con los pesos configurados en la Etapa 3
               </p>
             </div>
@@ -330,7 +340,7 @@ export default function InformesPage() {
           <h2 className="font-semibold text-black-eske mb-1">
             Generar informe
           </h2>
-          <p className="text-xs text-gray-eske-60 mb-4">
+          <p className="text-xs text-black-eske mb-4">
             Selecciona el formato y Centinela generará el texto en tiempo real.
             Los informes ya generados se guardan en esta sesión.
           </p>
@@ -364,7 +374,7 @@ export default function InformesPage() {
                   <span className="font-medium text-sm text-black-eske pr-4">
                     {opt.label}
                   </span>
-                  <span className="text-xs text-gray-eske-60 leading-snug">
+                  <span className="text-xs text-black-eske leading-snug">
                     {opt.description}
                   </span>
                 </button>
@@ -390,7 +400,7 @@ export default function InformesPage() {
                   </span>
                 )}
                 {!generating && activeFormat && (
-                  <span className="text-xs font-medium text-gray-eske-60">
+                  <span className="text-xs font-medium text-black-eske">
                     {FORMAT_OPTIONS.find((f) => f.id === activeFormat)?.label}{" "}
                     — listo
                   </span>

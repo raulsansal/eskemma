@@ -1,6 +1,9 @@
+"use client";
+
 // app/components/monitor/centinela/informes/ScorecardTable.tsx
 // Weighted scorecard table for E7 — shows per-dimension scores and global score.
 
+import InfoTooltip from "@/app/components/ui/InfoTooltip";
 import type { Scorecard } from "@/lib/centinela/matrizUtils";
 import type { DimensionAnalysis } from "@/types/centinela.types";
 
@@ -33,22 +36,58 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
               Dimensión
             </th>
             <th className="text-left py-2 px-3 font-semibold text-black-eske">
-              Señal
+              <span className="inline-flex items-center gap-1">
+                Señal
+                <InfoTooltip
+                  content="El hecho o tendencia más relevante identificado en esta dimensión."
+                  placement="right"
+                />
+              </span>
             </th>
             <th className="text-center py-2 px-3 font-semibold text-black-eske">
-              Tendencia
+              <span className="inline-flex items-center justify-center gap-1">
+                Tendencia
+                <InfoTooltip
+                  content="Dirección del cambio: ↑ creciente, ↓ decreciente, → estable."
+                  placement="right"
+                />
+              </span>
             </th>
             <th className="text-center py-2 px-3 font-semibold text-black-eske">
-              Clasificación
+              <span className="inline-flex items-center justify-center gap-1">
+                Clasificación
+                <InfoTooltip
+                  content="Oportunidad (factor favorable), Amenaza (factor adverso) o Neutro."
+                  placement="right"
+                />
+              </span>
             </th>
             <th className="text-center py-2 px-3 font-semibold text-black-eske">
-              Confianza
+              <span className="inline-flex items-center justify-center gap-1">
+                Confianza
+                <InfoTooltip
+                  content="Certeza del análisis IA para esta dimensión (0-100%), según cantidad y calidad de fuentes."
+                  placement="right"
+                />
+              </span>
             </th>
             <th className="text-center py-2 px-3 font-semibold text-black-eske">
-              Peso
+              <span className="inline-flex items-center justify-center gap-1">
+                Peso
+                <InfoTooltip
+                  content="Importancia relativa configurada en E3 Variables. Dimensiones de mayor peso tienen más influencia en el score global."
+                  placement="right"
+                />
+              </span>
             </th>
             <th className="text-center py-2 px-3 font-semibold text-black-eske">
-              Score
+              <span className="inline-flex items-center justify-center gap-1">
+                Score
+                <InfoTooltip
+                  content="Valor ponderado: clasificación × confianza × peso. Positivo = oportunidad, negativo = amenaza."
+                  placement="left"
+                />
+              </span>
             </th>
           </tr>
         </thead>
@@ -69,7 +108,7 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                     {DIMENSION_LABELS[ds.code]}
                   </span>
                 </td>
-                <td className="py-2.5 px-3 text-gray-eske-60 max-w-[200px]">
+                <td className="py-2.5 px-3 text-black-eske max-w-[200px]">
                   <span
                     className="block truncate"
                     title={dim.mainSignal}
@@ -89,10 +128,10 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                     {dim.classification}
                   </span>
                 </td>
-                <td className="py-2.5 px-3 text-center text-gray-eske-60">
+                <td className="py-2.5 px-3 text-center text-black-eske">
                   {dim.confidence}%
                 </td>
-                <td className="py-2.5 px-3 text-center text-gray-eske-60">
+                <td className="py-2.5 px-3 text-center text-black-eske">
                   {ds.dimWeight}
                 </td>
                 <td className="py-2.5 px-3 text-center">
@@ -108,14 +147,20 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
               colSpan={6}
               className="py-3 px-3 font-semibold text-black-eske text-right"
             >
-              Score global ponderado
+              <span className="inline-flex items-center justify-end gap-1">
+                Score global ponderado
+                <InfoTooltip
+                  content="Promedio ponderado de los 5 scores. Indica la posición estratégica general del proyecto en el entorno analizado. Rango típico: -100 (todo amenazas) a +100 (todo oportunidades)."
+                  placement="left"
+                />
+              </span>
             </td>
             <td className="py-3 px-3 text-center">
               <span
                 className={`text-lg font-bold ${globalScoreColor(scorecard.globalScore)}`}
               >
                 {scorecard.globalScore}
-                <span className="text-sm font-normal text-gray-eske-60">
+                <span className="text-sm font-normal text-black-eske">
                   /100
                 </span>
               </span>
@@ -131,9 +176,9 @@ function TrendBadge({ trend }: { trend: string }) {
   const map: Record<string, { label: string; color: string }> = {
     ASCENDENTE: { label: "↑ Asc.", color: "text-orange-eske" },
     DESCENDENTE: { label: "↓ Desc.", color: "text-bluegreen-eske" },
-    ESTABLE: { label: "→ Estable", color: "text-gray-eske-60" },
+    ESTABLE: { label: "→ Estable", color: "text-black-eske" },
   };
-  const entry = map[trend] ?? { label: trend, color: "text-gray-eske-60" };
+  const entry = map[trend] ?? { label: trend, color: "text-black-eske" };
   return (
     <span className={`text-xs font-medium ${entry.color}`}>{entry.label}</span>
   );

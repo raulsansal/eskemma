@@ -30,7 +30,7 @@ function formatDate(iso: string): string {
 export default function HistoryChart({ history }: Props) {
   if (!history || history.length < 2) {
     return (
-      <div className="flex items-center justify-center h-20 text-xs text-gray-eske-50 text-center px-4">
+      <div className="flex items-center justify-center h-20 text-xs text-black-eske text-center px-4">
         Se necesitan al menos 2 análisis para mostrar la tendencia de confianza.
       </div>
     );
@@ -87,7 +87,7 @@ export default function HistoryChart({ history }: Props) {
             textAnchor="end"
             dominantBaseline="middle"
             fontSize={9}
-            fill="#9CA3AF"
+            fill="#1F2937"
           >
             {val}
           </text>
@@ -131,7 +131,7 @@ export default function HistoryChart({ history }: Props) {
             y={CHART_HEIGHT - 4}
             textAnchor="middle"
             fontSize={9}
-            fill="#9CA3AF"
+            fill="#1F2937"
           >
             v{history[i].version}
           </text>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import InfoTooltip from "@/app/components/ui/InfoTooltip";
 import type {
   PestlAnalysisV2,
   DimensionAnalysis,
@@ -195,32 +196,41 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
       {/* Impact chains */}
       {analysis.impactChains.length > 0 && (
         <section aria-labelledby="chains-heading">
-          <button
-            id="chains-heading"
-            type="button"
-            onClick={() => setChainsExpanded((v) => !v)}
-            className="w-full flex items-center justify-between font-semibold
-              text-black-eske mb-0 hover:text-bluegreen-eske transition-colors"
-            aria-expanded={chainsExpanded}
-          >
-            <span>
-              Cadenas de impacto transversal ({analysis.impactChains.length})
-            </span>
+          <div className="flex items-center justify-between">
             <span
-              className="text-gray-eske-60"
-              aria-hidden="true"
-              style={{
-                transform: chainsExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                display: "inline-block",
-                transition: "transform 0.2s",
-              }}
+              id="chains-heading"
+              className="inline-flex items-center gap-1.5 font-semibold text-black-eske"
             >
-              ▾
+              Cadenas de impacto transversal ({analysis.impactChains.length})
+              <InfoTooltip
+                content="Las cadenas de impacto muestran cómo un evento en una dimensión PEST-L provoca efectos en cascada en otras. Por ejemplo, un cambio legal (L) puede afectar la economía (E) y generar tensión social (S). Identificar estas conexiones permite anticipar consecuencias indirectas que no son evidentes al analizar cada dimensión de forma aislada."
+                example="Una reforma electoral (P) puede tensionar la agenda legislativa (L) y activar movilización ciudadana (S)."
+                placement="right"
+              />
             </span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setChainsExpanded((v) => !v)}
+              className="text-black-eske hover:text-bluegreen-eske transition-colors"
+              aria-expanded={chainsExpanded}
+              aria-controls="chains-list"
+              aria-label={chainsExpanded ? "Colapsar cadenas" : "Expandir cadenas"}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  transform: chainsExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                  display: "inline-block",
+                  transition: "transform 0.2s",
+                }}
+              >
+                ▾
+              </span>
+            </button>
+          </div>
 
           {chainsExpanded && (
-            <div className="flex flex-col gap-3 mt-3">
+            <div id="chains-list" className="flex flex-col gap-3 mt-3">
               {analysis.impactChains.map((chain, i) => (
                 <ImpactChainCard key={i} chain={chain} />
               ))}
@@ -251,11 +261,11 @@ function DimensionPanel({ dim }: { dim: DimensionAnalysis }) {
           >
             {config.label}
           </span>
-          <span className="text-xs text-gray-eske-70 bg-gray-eske-10
+          <span className="text-xs text-black-eske bg-gray-eske-10
             px-2.5 py-1 rounded-full">
             Tendencia {TREND_ICONS[dim.trend]} {dim.trend.toLowerCase()}
           </span>
-          <span className="text-xs text-gray-eske-70 bg-gray-eske-10
+          <span className="text-xs text-black-eske bg-gray-eske-10
             px-2.5 py-1 rounded-full">
             Intensidad {dim.intensity.toLowerCase()}
           </span>
@@ -267,7 +277,7 @@ function DimensionPanel({ dim }: { dim: DimensionAnalysis }) {
 
       {/* Confidence */}
       <div className="flex items-center gap-3">
-        <span className="text-xs text-gray-eske-60 w-20 shrink-0">
+        <span className="text-xs text-black-eske w-20 shrink-0">
           Confianza
         </span>
         <div className="flex-1 h-1.5 bg-gray-eske-20 rounded-full">
@@ -287,14 +297,14 @@ function DimensionPanel({ dim }: { dim: DimensionAnalysis }) {
             aria-valuemax={100}
           />
         </div>
-        <span className="text-xs text-gray-eske-60 w-10 text-right">
+        <span className="text-xs text-black-eske w-10 text-right">
           {dim.confidence}%
         </span>
       </div>
 
       {/* Narrative */}
       <div>
-        <h4 className="text-xs font-semibold text-gray-eske-60 uppercase
+        <h4 className="text-xs font-semibold text-black-eske uppercase
           tracking-wide mb-2">
           Narrativa
         </h4>
@@ -333,7 +343,7 @@ function BiasAlertCard({
         <p className="text-sm font-medium text-black-eske capitalize">
           {alert.type.replace(/_/g, " ")}
         </p>
-        <p className="text-xs text-gray-eske-70 mt-0.5">{alert.description}</p>
+        <p className="text-xs text-black-eske mt-0.5">{alert.description}</p>
         {isAcknowledged && (
           <p className="text-xs text-gray-eske-50 mt-1">Revisado</p>
         )}
