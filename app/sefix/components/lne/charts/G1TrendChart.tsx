@@ -35,21 +35,12 @@ export default function G1TrendChart({ data }: Props) {
   const now = new Date();
   const mesHoyLabel = `${MESES_ES[now.getMonth()]} ${now.getFullYear()}`;
 
-  // Dataset mergeado: actual + proyección con punto puente en el último mes real
+  // Dataset: datos reales + proyecciones sin repetir el último punto real.
+  // La línea proyectada empieza en el mes siguiente al último dato real.
   const merged: Record<string, string | number>[] = [];
 
   for (const p of actual) {
     merged.push({ name: p.label, lista: p.lista, padron: p.padron });
-  }
-
-  // Punto puente: el último mes real inicia las líneas proyectadas
-  if (actual.length > 0 && projected.length > 0) {
-    const last = actual[actual.length - 1];
-    merged[merged.length - 1] = {
-      ...merged[merged.length - 1],
-      listaProyectada: last.lista,
-      padronProyectado: last.padron,
-    };
   }
 
   for (const p of projected) {

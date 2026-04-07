@@ -38,7 +38,7 @@ function LoadingState() {
     <div className="flex flex-col items-center py-24" role="status" aria-live="polite">
       <div className="w-10 h-10 border-4 border-gray-eske-20 border-t-blue-eske rounded-full animate-spin mb-4" />
       <p className="text-sm font-medium text-black-eske-10 mb-1">Cargando datos de la consulta</p>
-      <p className="text-xs text-black-eske-60">Por favor, espera.</p>
+      <p className="text-xs text-black-eske-60 text-center max-w-xs">Por favor, espera.</p>
     </div>
   );
 }
@@ -205,16 +205,30 @@ export default function HistoricoView() {
                 </p>
               </div>
 
-              {/* G3 — Evolución anual por sexo */}
+              {/* G3 — Evolución anual por sexo (solo ámbito nacional) */}
               <div>
                 <SectionHeader
                   title={`Evolución Anual por Sexo (${yearRange}) — ${ambitoLabel}`}
-                  subtitle={`${subtituloGeo}${ambito === "nacional" ? ". Lista estimada por proporcionalidad del Padrón." : ""}`}
+                  subtitle={subtituloGeo}
                 />
-                {g3SexData.length === 0 ? (
+                {ambito === "extranjero" ? (
+                  <div className="flex items-center justify-center h-40 rounded-lg bg-gray-eske-10 text-sm text-black-eske-60">
+                    El desglose por sexo no está disponible para el ámbito Extranjero.
+                  </div>
+                ) : g3SexData.length === 0 ? (
                   <ChartSkeleton height={320} />
                 ) : (
-                  <G3SexChart data={g3SexData} nbLatest={nbLatest} />
+                  <G3SexChart
+                    data={g3SexData}
+                    nbLatest={nbLatest}
+                    nbScope={
+                      geoInfo.municipio !== "Todos"
+                        ? geoInfo.municipio
+                        : geoInfo.entidad !== "Nacional"
+                        ? geoInfo.entidad
+                        : "Nacional"
+                    }
+                  />
                 )}
                 <p className="text-[11px] text-black-eske-60 mt-2 text-center">
                   Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado

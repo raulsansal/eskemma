@@ -33,9 +33,11 @@ const LEGEND_LABELS: Record<string, string> = {
 interface Props {
   data: G3SexPoint[];
   nbLatest?: { padron: number; lista: number } | null;
+  /** Etiqueta de alcance para la card NB (ej. "JALISCO", "COLOTLAN", "Nacional") */
+  nbScope?: string;
 }
 
-export default function G3SexChart({ data, nbLatest }: Props) {
+export default function G3SexChart({ data, nbLatest, nbScope = "Nacional" }: Props) {
   const latestYear = data[data.length - 1]?.year;
   const [nbHovered, setNbHovered] = useState(false);
 
@@ -134,11 +136,11 @@ export default function G3SexChart({ data, nbLatest }: Props) {
               <p className="text-black-eske-60 font-medium">{latestYear}</p>
             )}
             <p className="text-black-eske-60">
-              Padrón Nacional:{" "}
+              Padrón:{" "}
               <span className="font-medium text-black-eske">{FMT.format(nbLatest.padron)}</span>
             </p>
             <p className="text-black-eske-60">
-              Lista Nacional:{" "}
+              Lista:{" "}
               <span className="font-medium text-black-eske">{FMT.format(nbLatest.lista)}</span>
             </p>
             <p className="text-black-eske-40 mt-1 italic">(Ver desglose)</p>
@@ -151,7 +153,7 @@ export default function G3SexChart({ data, nbLatest }: Props) {
               style={{ zIndex: 40 }}
             >
               <p className="font-semibold text-black-eske mb-2 border-b border-gray-eske-20 pb-1">
-                Desglose anual — Nacional
+                No Binario — {nbScope}
               </p>
               <table className="w-full text-left">
                 <thead>
@@ -170,7 +172,7 @@ export default function G3SexChart({ data, nbLatest }: Props) {
                 </tbody>
               </table>
               <p className="text-black-eske-40 mt-2 italic leading-relaxed">
-                Datos del último corte semanal disponible.
+                Último corte semanal disponible.
               </p>
             </div>
           )}

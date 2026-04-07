@@ -93,3 +93,6 @@ app/secrets/
 # Documentos de metodología y archivos históricos (uso local)
 /_archive/
 /_moddulo-docs/
+
+# Datos electorales locales (archivos grandes ~2GB, no van al repositorio)
+/data/

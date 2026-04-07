@@ -489,6 +489,8 @@ export async function getResultadosAllYears(
 
 // ==========================================
 // FILTRO GEOGRÁFICO PARA SERIES HISTÓRICAS
+// Arquitectura: archivos JSON pre-generados por entidad en Firebase Storage.
+// Se generan offline con scripts/pregenerate-sefix.ts, no en tiempo de consulta.
 // ==========================================
 
 export interface HistoricoGeoFilter {
@@ -508,219 +510,195 @@ export interface HistoricoGeoFilter {
   secciones?: string[];
 }
 
-/**
- * Fila cruda de un archivo _base.csv filtrada a una entidad específica.
- * Se cachea en memoria para evitar re-leer Storage en cada consulta con distinto filtro.
- */
-interface EntidadRawRow {
-  fecha: string;
-  year: number;
-  month: number;
-  cabecera_distrital: string;
-  nombre_municipio: string;
-  seccion: string;
-  padron: number;
-  lista: number;
-  padronH: number;
-  padronM: number;
-  isExt: boolean;
+/** Datos de una sección electoral en el JSON pre-generado (columnar format) */
+interface SeccionData {
+  s: string;    // seccion
+  m: string;    // nombre_municipio
+  d: string;    // cabecera_distrital
+  cvm: string;  // cve_municipio
+  cvd: string;  // cve_distrito
+  p:   number[]; // padronNacional per period index
+  l:   number[]; // listaNacional per period index
+  ph:  number[]; // padronHombres per period index
+  pm:  number[]; // padronMujeres per period index
+  pnb: number[]; // padronNoBinario per period index
+  pe:  number[]; // padronExtranjero per period index
+  le:  number[]; // listaExtranjero per period index
 }
 
+/** JSON pre-generado con todos los meses de un año para una entidad */
+interface EntidadYearCache {
+  entidad: string;
+  year: number;
+  months: number[];
+  secciones: SeccionData[];
+}
+
+/** JSON pre-generado con el último mes de cada año (para G2/G3) */
+interface EntidadAnualCache {
+  entidad: string;
+  years: number[];
+  secciones: SeccionData[];
+}
+
+/** Caches en módulo — persisten por lifetime del proceso (warm Vercel instance) */
+const entidadYearMemCache = new Map<string, EntidadYearCache>();
+const entidadAnualMemCache = new Map<string, EntidadAnualCache>();
+
 /**
- * Caché en memoria por entidad DERFE (persiste por lifetime del proceso).
- * Permite servir múltiples filtros distintos de la misma entidad sin releer Storage.
+ * Convierte nombre de entidad DERFE al key usado en Storage.
+ * "ESTADO DE MEXICO" (DERFE: "MEXICO") → "MEXICO"
+ * "JALISCO" → "JALISCO"
+ * Espacios → _, quita acentos.
  */
-const entidadRowsCache = new Map<string, EntidadRawRow[]>();
-
-/** Deduplicación de cargas concurrentes para la misma entidad */
-const entidadRowsLoading = new Map<string, Promise<EntidadRawRow[]>>();
-
-// ── Caché persistente en Firebase Storage ──────────────────────────────────
-// Patrón: primera carga lenta (~30-120s) → guarda JSON en Storage →
-// siguientes cargas rápidas (~1-3s) incluso tras reiniciar el servidor.
-
-function entidadStorageCachePath(derfeEntidad: string): string {
-  // Normalizar nombre para usar como nombre de archivo
-  const key = derfeEntidad
+export function toStorageKey(derfeNombre: string): string {
+  if (derfeNombre === "__EXTRANJERO__") return "__EXTRANJERO__";
+  return derfeNombre
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, "_")
     .replace(/[^A-Z0-9_]/g, "");
-  return `sefix/pdln/historico_entidad/${key}.json`;
 }
 
-/** Lee el JSON pre-agregado de una entidad desde Firebase Storage (~1-3s) */
-async function loadEntidadStorageCache(derfeEntidad: string): Promise<EntidadRawRow[] | null> {
+/** Descarga el archivo anual de una entidad desde Storage */
+async function loadEntidadAnual(storageKey: string): Promise<EntidadAnualCache | null> {
+  const memKey = `${storageKey}_anual`;
+  if (entidadAnualMemCache.has(memKey)) return entidadAnualMemCache.get(memKey)!;
   try {
-    const path = entidadStorageCachePath(derfeEntidad);
+    const path = `sefix/pdln/historico_entidad/${storageKey}_anual.json`;
     const file = getBucket().file(path);
     const [exists] = await file.exists();
     if (!exists) return null;
     const [contents] = await file.download();
-    return JSON.parse(contents.toString("utf-8")) as EntidadRawRow[];
+    const data = JSON.parse(contents.toString("utf-8")) as EntidadAnualCache;
+    entidadAnualMemCache.set(memKey, data);
+    return data;
   } catch {
-    return null; // Si falla la lectura, continuar con el método lento
+    return null;
   }
 }
 
-/**
- * Guarda las filas de una entidad en Firebase Storage para consultas futuras.
- * No-bloqueante: se ejecuta en background tras la primera carga lenta.
- */
-async function saveEntidadStorageCache(
-  derfeEntidad: string,
-  rows: EntidadRawRow[]
-): Promise<void> {
+/** Descarga el archivo mensual de una entidad+año desde Storage */
+async function loadEntidadYear(storageKey: string, year: number): Promise<EntidadYearCache | null> {
+  const memKey = `${storageKey}_${year}`;
+  if (entidadYearMemCache.has(memKey)) return entidadYearMemCache.get(memKey)!;
   try {
-    const path = entidadStorageCachePath(derfeEntidad);
+    const path = `sefix/pdln/historico_entidad/${storageKey}_${year}.json`;
     const file = getBucket().file(path);
-    await file.save(Buffer.from(JSON.stringify(rows)), {
-      contentType: "application/json",
-      metadata: { cacheControl: "private, max-age=3600" },
-    });
-    console.log(`[sefix] Caché de entidad guardada: ${path} (${rows.length} filas)`);
-  } catch (e) {
-    console.warn(`[sefix] No se pudo guardar caché de entidad ${derfeEntidad}:`, e);
+    const [exists] = await file.exists();
+    if (!exists) return null;
+    const [contents] = await file.download();
+    const data = JSON.parse(contents.toString("utf-8")) as EntidadYearCache;
+    entidadYearMemCache.set(memKey, data);
+    return data;
+  } catch {
+    return null;
   }
-}
-
-/**
- * Lee todos los archivos _base.csv históricos filtrando a una entidad.
- * Primera llamada: lenta (~30-120s dependiendo de red). Resultado se cachea en
- * Firebase Storage para llamadas futuras (~1-3s) y en módulo (instantáneo).
- */
-async function loadEntidadRawRows(derfeEntidad: string): Promise<EntidadRawRow[]> {
-  // 1. Caché en memoria (instantáneo, persiste por lifetime del proceso)
-  const cached = entidadRowsCache.get(derfeEntidad);
-  if (cached) return cached;
-
-  // 2. Deduplicar cargas concurrentes
-  const inFlight = entidadRowsLoading.get(derfeEntidad);
-  if (inFlight) return inFlight;
-
-  const promise = (async (): Promise<EntidadRawRow[]> => {
-    // 3. Caché persistente en Storage (~1-3s, sobrevive reinicios del servidor)
-    const fromStorage = await loadEntidadStorageCache(derfeEntidad);
-    if (fromStorage) {
-      console.log(`[sefix] Cargando caché de entidad desde Storage: ${derfeEntidad} (${fromStorage.length} filas)`);
-      entidadRowsCache.set(derfeEntidad, fromStorage);
-      entidadRowsLoading.delete(derfeEntidad);
-      return fromStorage;
-    }
-
-    // 4. Primera carga: leer todos los _base.csv (lento)
-    console.log(`[sefix] Primera carga de ${derfeEntidad}: leyendo archivos históricos...`);
-    const allFiles = await listStorageFiles("sefix/pdln/historico/");
-    const baseFiles = allFiles.filter((f) => f.endsWith("_base.csv")).sort();
-
-    const rows: EntidadRawRow[] = [];
-    const BATCH_SIZE = 16;
-
-    for (let i = 0; i < baseFiles.length; i += BATCH_SIZE) {
-      const batch = baseFiles.slice(i, i + BATCH_SIZE);
-      await Promise.allSettled(
-        batch.map(async (f) => {
-          const fecha = extractFecha(f);
-          if (fecha === "desconocida") return;
-          const year = parseInt(fecha.slice(0, 4));
-          const month = parseInt(fecha.slice(5, 7));
-
-          await streamCsvRows(f, (row) => {
-            const cve = row.cve_entidad?.trim();
-            if (!cve || cve === "" || cve.toUpperCase() === "NA") return;
-            if (row.nombre_entidad !== derfeEntidad) return; // descarta ~97% del CSV
-
-            rows.push({
-              fecha, year, month,
-              cabecera_distrital: row.cabecera_distrital?.trim() ?? "",
-              nombre_municipio: row.nombre_municipio?.trim() ?? "",
-              seccion: row.seccion?.trim() ?? "",
-              padron: parseInt(row.padron_nacional ?? "0") || 0,
-              lista: parseInt(row.lista_nacional ?? "0") || 0,
-              padronH: parseInt(row.padron_nacional_hombres ?? "0") || 0,
-              padronM: parseInt(row.padron_nacional_mujeres ?? "0") || 0,
-              isExt: row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO") ?? false,
-            });
-          });
-        })
-      );
-    }
-
-    // 5. Guardar en Storage en background (no bloquea la respuesta)
-    saveEntidadStorageCache(derfeEntidad, rows).catch(() => {});
-
-    entidadRowsCache.set(derfeEntidad, rows);
-    entidadRowsLoading.delete(derfeEntidad);
-    console.log(`[sefix] ${derfeEntidad}: ${rows.length} filas cargadas y guardadas en caché.`);
-    return rows;
-  })();
-
-  entidadRowsLoading.set(derfeEntidad, promise);
-  return promise;
 }
 
 /** Normaliza número de sección eliminando ceros iniciales */
 const normSec = (s: string | undefined): string =>
   (s?.trim() ?? "").replace(/^0+/, "") || "0";
 
+
 /**
  * Devuelve la serie mensual histórica filtrada por ámbito geográfico.
  *
- * Arquitectura de dos niveles:
- * 1. Caché de resultado (30 min) — para consultas idénticas repetidas.
- * 2. Caché de filas crudas por entidad (60 min) — la primera llamada por entidad
- *    lee ~100 archivos de Storage; las siguientes filtran en memoria (instantáneo).
+ * Usa JSON pre-generados offline (scripts/pregenerate-sefix.ts) en Firebase Storage:
+ * - {ENTIDAD}_anual.json → último mes de cada año (para G2/G3)
+ * - {ENTIDAD}_{year}.json → todos los meses del año seleccionado (para G1)
+ *
+ * Ambos archivos se descargan en paralelo (~300-800ms) y se filtran en memoria.
+ * No hay lazy building ni polling.
  */
-export async function getHistoricoSeriesGeo(geo: HistoricoGeoFilter): Promise<HistoricoMes[]> {
-  const secKey = (geo.secciones ?? []).slice().sort().join(",");
-  const cacheKey = `historico:geo:${geo.entidad ?? ""}:${geo.distritoNombre ?? ""}:${geo.municipioNombre ?? ""}:${secKey}`;
-  const cached = getCached<HistoricoMes[]>(cacheKey);
-  if (cached) return cached;
-
+export async function getHistoricoSeriesGeo(
+  geo: HistoricoGeoFilter,
+  selectedYear?: number
+): Promise<HistoricoMes[]> {
   const derfeEntidad = geo.entidad ? toDerfeNombre(geo.entidad) : undefined;
   if (!derfeEntidad) return getHistoricoSeries();
 
-  // Cargar (o recuperar del caché) todas las filas de esta entidad
-  const entidadRows = await loadEntidadRawRows(derfeEntidad);
+  const storageKey = toStorageKey(derfeEntidad);
+  const year = selectedYear ?? new Date().getFullYear();
 
-  // Preparar filtros de sección normalizados
+  const secKey = (geo.secciones ?? []).slice().sort().join(",");
+  const cacheKey = `historico:geo2:${storageKey}:${year}:${geo.distritoNombre ?? ""}:${geo.municipioNombre ?? ""}:${secKey}`;
+  const cached = getCached<HistoricoMes[]>(cacheKey);
+  if (cached) return cached;
+
+  // Download both files in parallel
+  const [anualData, yearData] = await Promise.all([
+    loadEntidadAnual(storageKey),
+    loadEntidadYear(storageKey, year),
+  ]);
+
+  if (!anualData && !yearData) {
+    console.warn(`[sefix/geo] No pre-generated cache for ${storageKey}. Run scripts/pregenerate-sefix.ts.`);
+    return [];
+  }
+
   const filtSecciones = geo.secciones?.length
     ? new Set(geo.secciones.map(normSec))
     : null;
 
-  // Agregar en memoria por (fecha, is_extranjero) — inmediato
-  const byFecha = new Map<string, {
-    fecha: string; year: number; month: number;
-    padronNacional: number; listaNacional: number;
-    padronExtranjero: number; listaExtranjero: number;
-    padronHombres: number; padronMujeres: number;
-  }>();
+  /** Filter section and aggregate across periods → HistoricoMes[] */
+  function buildSeries(
+    secciones: SeccionData[],
+    periods: number[],  // months or years
+    isMonthly: boolean
+  ): Map<string, HistoricoMes> {
+    const byPeriod = new Map<string, HistoricoMes>();
 
-  for (const row of entidadRows) {
-    if (geo.distritoNombre && row.cabecera_distrital !== geo.distritoNombre) continue;
-    if (geo.municipioNombre && row.nombre_municipio !== geo.municipioNombre) continue;
-    if (filtSecciones && !filtSecciones.has(normSec(row.seccion))) continue;
+    for (const sec of secciones) {
+      if (geo.distritoNombre && sec.d !== geo.distritoNombre) continue;
+      if (geo.municipioNombre && sec.m !== geo.municipioNombre) continue;
+      if (filtSecciones && !filtSecciones.has(normSec(sec.s))) continue;
 
-    let agg = byFecha.get(row.fecha);
-    if (!agg) {
-      agg = { fecha: row.fecha, year: row.year, month: row.month,
-              padronNacional: 0, listaNacional: 0,
-              padronExtranjero: 0, listaExtranjero: 0,
-              padronHombres: 0, padronMujeres: 0 };
-      byFecha.set(row.fecha, agg);
+      for (let i = 0; i < periods.length; i++) {
+        const periodKey = isMonthly
+          ? `${year}-${String(periods[i]).padStart(2, "0")}`
+          : `${periods[i]}-12`; // anual: last month of year
+
+        let agg = byPeriod.get(periodKey);
+        if (!agg) {
+          agg = {
+            fecha: periodKey,
+            year: isMonthly ? year : periods[i],
+            month: isMonthly ? periods[i] : 12,
+            padronNacional: 0, listaNacional: 0,
+            padronExtranjero: 0, listaExtranjero: 0,
+            padronHombres: 0, padronMujeres: 0,
+          };
+          byPeriod.set(periodKey, agg);
+        }
+
+        agg.padronNacional   += sec.p[i]   ?? 0;
+        agg.listaNacional    += sec.l[i]    ?? 0;
+        agg.padronHombres    += sec.ph[i]   ?? 0;
+        agg.padronMujeres    += sec.pm[i]   ?? 0;
+        agg.padronExtranjero += sec.pe[i]   ?? 0;
+        agg.listaExtranjero  += sec.le[i]   ?? 0;
+      }
     }
-    if (row.isExt) {
-      agg.padronExtranjero += row.padron;
-      agg.listaExtranjero += row.lista;
-    } else {
-      agg.padronNacional += row.padron;
-      agg.listaNacional += row.lista;
-      agg.padronHombres += row.padronH;
-      agg.padronMujeres += row.padronM;
-    }
+
+    return byPeriod;
   }
 
-  const series = Array.from(byFecha.values()).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const combined = new Map<string, HistoricoMes>();
+
+  // Annual data → one point per year (last month) for G2/G3
+  if (anualData) {
+    const annualSeries = buildSeries(anualData.secciones, anualData.years, false);
+    for (const [k, v] of annualSeries) combined.set(k, v);
+  }
+
+  // Monthly data for selected year → overrides annual entry for that year + adds G1 data
+  if (yearData) {
+    const monthlySeries = buildSeries(yearData.secciones, yearData.months, true);
+    for (const [k, v] of monthlySeries) combined.set(k, v);
+  }
+
+  const series = Array.from(combined.values()).sort((a, b) => a.fecha.localeCompare(b.fecha));
   setCache(cacheKey, series);
   return series;
 }
@@ -950,3 +928,49 @@ export async function getSeccionesPorMunicipio(
   setCache(cacheKey, result);
   return result;
 }
+
+// ==========================================
+// DATOS NO BINARIO POR FILTRO GEO (semanal)
+// ==========================================
+
+export interface NbGeoResult {
+  padron: number;
+  lista: number;
+}
+
+/**
+ * Devuelve los totales No Binario del último corte semanal _sexo.csv
+ * filtrados por entidad, municipio (CVE) y/o secciones.
+ *
+ * Retorna null si no hay datos NB para el filtro indicado.
+ */
+export async function getSemanalNbGeo(
+  entidad: string,
+  cveMunicipio?: string,
+  secciones?: string[]
+): Promise<NbGeoResult | null> {
+  const paths = await getSemanalPaths("sexo");
+  if (paths.length === 0) return null;
+
+  const derfeNombre = toDerfeNombre(entidad.toUpperCase().trim());
+  const filtSecciones = secciones?.length
+    ? new Set(secciones.map(normSec))
+    : null;
+
+  let padron = 0;
+  let lista = 0;
+
+  await streamCsvRows(paths[0], (row) => {
+    if (row.nombre_entidad !== derfeNombre) return;
+    if (row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO")) return;
+    if (cveMunicipio && row.cve_municipio?.trim() !== cveMunicipio) return;
+    if (filtSecciones && !filtSecciones.has(normSec(row.seccion))) return;
+
+    padron += parseInt(row.padron_no_binario ?? "0") || 0;
+    lista  += parseInt(row.lista_no_binario  ?? "0") || 0;
+  });
+
+  if (padron === 0 && lista === 0) return null;
+  return { padron, lista };
+}
+

@@ -202,7 +202,13 @@ export function computeG3Data(
 // G3 SEX — Un punto por año, desglosado por sexo (H/M)
 // ============================================================
 
-export function computeG3SexData(series: HistoricoMes[]): G3SexPoint[] {
+export function computeG3SexData(
+  series: HistoricoMes[],
+  ambito: Ambito = "nacional"
+): G3SexPoint[] {
+  // El desglose por sexo solo existe para el ámbito nacional
+  if (ambito === "extranjero") return [];
+
   // Igual que computeG2Data: el último mes disponible de cada año
   const byYear = new Map<number, HistoricoMes>();
   for (const m of series) {

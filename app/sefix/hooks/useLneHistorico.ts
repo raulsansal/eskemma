@@ -33,17 +33,19 @@ async function loadNacionalSeries(): Promise<HistoricoMes[]> {
   return cachedNacional;
 }
 
-/** Cache de series geo-filtradas (por clave de filtro) */
+/** Cache de series geo-filtradas (por clave de filtro + año) */
 const geoCache = new Map<string, HistoricoMes[]>();
 
 /**
- * Carga la serie histórica filtrada por entidad/distrito/municipio/secciones.
- * Primera llamada tarda ~20-30s; después se cachea en módulo.
+ * Carga la serie histórica filtrada por entidad/municipio/secciones.
+ * Los JSON ya están pre-generados en Firebase Storage — respuesta en ~500-800ms.
  */
-async function loadGeoSeries(geo: GeoInfo): Promise<HistoricoMes[]> {
-  const params = new URLSearchParams({ entidad: geo.entidad });
-  // Usar nombres (cabecera_distrital / nombre_municipio) en lugar de CVEs:
-  // son estables en todos los archivos históricos de DERFE
+async function loadGeoSeries(
+  geo: GeoInfo,
+  year: number,
+  signal?: AbortSignal,
+): Promise<HistoricoMes[]> {
+  const params = new URLSearchParams({ entidad: geo.entidad, year: String(year) });
   if (geo.distrito && geo.distrito !== "Todos") params.set("distrito", geo.distrito);
   if (geo.municipio && geo.municipio !== "Todos") params.set("municipio", geo.municipio);
   if (geo.secciones && geo.secciones.length > 0) {
@@ -54,25 +56,19 @@ async function loadGeoSeries(geo: GeoInfo): Promise<HistoricoMes[]> {
   const fromCache = geoCache.get(key);
   if (fromCache) return fromCache;
 
-  // Timeout de 180s para evitar fetches colgados indefinidamente
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 180_000);
+  const res = await fetch(`/api/sefix/historico-geo?${key}`, { signal });
 
-  let res: Response;
-  try {
-    res = await fetch(`/api/sefix/historico-geo?${key}`, { signal: controller.signal });
-  } catch (e) {
-    clearTimeout(timeoutId);
-    if ((e as Error).name === "AbortError") {
-      throw new Error("La consulta tardó demasiado. Intenta con un filtro más específico.");
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error(
+        "Datos no pre-generados para esta entidad. Ejecuta scripts/pregenerate-sefix.ts."
+      );
     }
-    throw e;
+    throw new Error(`Error ${res.status} al cargar datos geográficos`);
   }
-  clearTimeout(timeoutId);
 
-  if (!res.ok) throw new Error(`Error ${res.status} al cargar datos geográficos`);
-  const { data } = (await res.json()) as { data: HistoricoMes[] };
-  const series = data ?? [];
+  const body = (await res.json()) as { data?: HistoricoMes[] };
+  const series = body.data ?? [];
   geoCache.set(key, series);
   return series;
 }
@@ -94,7 +90,7 @@ interface UseLneHistoricoResult {
 
 /**
  * geoInfo: cuando entidad !== "Nacional", carga datos del endpoint geo-filtrado.
- * La primera carga geo puede tardar ~20-30s; las subsiguientes se sirven de caché.
+ * Los JSON pre-generados hacen que la carga sea ~500-800ms incluso para estados grandes.
  */
 export function useLneHistorico(
   ambito: Ambito = "nacional",
@@ -107,29 +103,32 @@ export function useLneHistorico(
   const [error, setError] = useState<string | null>(null);
   const [nbLatest, setNbLatest] = useState<{ padron: number; lista: number } | null>(null);
 
-  // Ref para saber qué geo se usó en la última carga (evitar re-fetches innecesarios)
   const lastGeoKeyRef = useRef<string>("");
 
   const isGeo = geoInfo && geoInfo.entidad !== "Nacional";
 
-  // Clave de dependencia para el effect (serializar el filtro geo)
+  // Clave de dependencia: incluye el año seleccionado para que al cambiar de año
+  // se recargue el archivo mensual de ese año desde el API.
   const geoKey = isGeo
-    ? `${geoInfo.entidad}|${geoInfo.cveDistrito ?? ""}|${geoInfo.cveMunicipio ?? ""}|${(geoInfo.secciones ?? []).sort().join(",")}`
-    : "nacional";
+    ? `${geoInfo.entidad}|${geoInfo.cveDistrito ?? ""}|${geoInfo.cveMunicipio ?? ""}|${(geoInfo.secciones ?? []).sort().join(",")}|${selectedYear ?? ""}`
+    : `nacional|${selectedYear ?? ""}`;
 
   useEffect(() => {
-    // Evitar re-fetch si el filtro geo no cambió
     if (geoKey === lastGeoKeyRef.current && raw !== null) return;
 
-    let cancelled = false;
+    const abortController = new AbortController();
     setIsLoading(true);
     setError(null);
 
-    const loader = isGeo ? loadGeoSeries(geoInfo!) : loadNacionalSeries();
+    const year = selectedYear ?? new Date().getFullYear();
+
+    const loader = isGeo
+      ? loadGeoSeries(geoInfo!, year, abortController.signal)
+      : loadNacionalSeries();
 
     loader
       .then((series) => {
-        if (cancelled) return;
+        if (abortController.signal.aborted) return;
         lastGeoKeyRef.current = geoKey;
         setRaw(series);
         const years = [...new Set(series.map((m) => m.year))].sort((a, b) => a - b);
@@ -137,13 +136,13 @@ export function useLneHistorico(
         setIsLoading(false);
       })
       .catch((e: Error) => {
-        if (cancelled) return;
+        if (abortController.signal.aborted) return;
         setError(e.message);
         setIsLoading(false);
       });
 
     return () => {
-      cancelled = true;
+      abortController.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geoKey]);
@@ -169,25 +168,39 @@ export function useLneHistorico(
     [raw, ambito]
   );
   const g3SexData = useMemo(
-    () => (raw ? computeG3SexData(raw) : []),
-    [raw]
+    () => (raw ? computeG3SexData(raw, ambito) : []),
+    [raw, ambito]
   );
   const texts = useMemo(
     () => (raw ? generateHistoricoTexts(raw, year, ambito) : null),
     [raw, year, ambito]
   );
 
-  // Fetch datos No Binario del último corte semanal (escala incompatible con H/M)
+  // Fetch datos No Binario — se actualiza con el filtro geo activo
   useEffect(() => {
-    fetch("/api/sefix/serie-semanal?tipo=sexo&ambito=nacional")
-      .then((r) => r.json())
-      .then(({ data }: { data?: Record<string, number> }) => {
-        const p = data?.padron_no_binario ?? 0;
-        const l = data?.lista_no_binario ?? 0;
-        if (p > 0) setNbLatest({ padron: p, lista: l });
-      })
-      .catch(() => null);
-  }, []);
+    if (isGeo && geoInfo) {
+      const params = new URLSearchParams({ entidad: geoInfo.entidad });
+      if (geoInfo.cveMunicipio) params.set("cveMunicipio", geoInfo.cveMunicipio);
+      if (geoInfo.secciones?.length) params.set("secciones", geoInfo.secciones.join(","));
+
+      fetch(`/api/sefix/semanal-nb?${params}`)
+        .then((r) => r.json())
+        .then(({ data }: { data?: { padron: number; lista: number } | null }) => {
+          setNbLatest(data ?? null);
+        })
+        .catch(() => setNbLatest(null));
+    } else {
+      fetch("/api/sefix/serie-semanal?tipo=sexo&ambito=nacional")
+        .then((r) => r.json())
+        .then(({ data }: { data?: Record<string, number> }) => {
+          const p = data?.padron_no_binario ?? 0;
+          const l = data?.lista_no_binario ?? 0;
+          setNbLatest(p > 0 ? { padron: p, lista: l } : null);
+        })
+        .catch(() => setNbLatest(null));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geoKey]);
 
   return { isLoading, error, availableYears, g1Data, g2Data, g3Data, g3SexData, nbLatest, texts };
 }

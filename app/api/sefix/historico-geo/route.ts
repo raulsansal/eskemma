@@ -1,22 +1,25 @@
 // app/api/sefix/historico-geo/route.ts
 // Devuelve la serie mensual histórica filtrada por entidad, distrito, municipio y/o secciones.
-// Primera carga puede tardar ~20-30s (procesa ~100 archivos CSV). Resultado cacheado 30 min.
+//
+// Usa JSON pre-generados por scripts/pregenerate-sefix.ts almacenados en Firebase Storage.
+// Descarga 2 archivos pequeños por entidad (~300-800ms) — sin polling, sin timeouts.
 
 import { NextRequest, NextResponse } from "next/server";
 import { getHistoricoSeriesGeo } from "@/lib/sefix/storage";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const entidad = searchParams.get("entidad") ?? undefined;
-    // Nombres de distrito y municipio (cabecera_distrital / nombre_municipio del CSV)
-    // Son más estables entre archivos históricos que los CVEs
     const distritoNombre = searchParams.get("distrito") ?? undefined;
     const municipioNombre = searchParams.get("municipio") ?? undefined;
     const seccionesParam = searchParams.get("secciones");
     const secciones = seccionesParam ? seccionesParam.split(",").filter(Boolean) : undefined;
+    const yearParam = searchParams.get("year");
+    const selectedYear = yearParam ? parseInt(yearParam, 10) : undefined;
 
     if (!entidad) {
       return NextResponse.json(
@@ -25,11 +28,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const data = await getHistoricoSeriesGeo({ entidad, distritoNombre, municipioNombre, secciones });
+    const data = await getHistoricoSeriesGeo(
+      { entidad, distritoNombre, municipioNombre, secciones },
+      selectedYear
+    );
+
+    if (data.length === 0) {
+      return NextResponse.json(
+        {
+          error: "Sin datos pre-generados para esta entidad. Ejecutar scripts/pregenerate-sefix.ts.",
+          entidad,
+        },
+        { status: 404 }
+      );
+    }
+
     const availableYears = [...new Set(data.map((m) => m.year))].sort((a, b) => a - b);
 
     return NextResponse.json(
-      { data, availableYears },
+      { status: "ready", data, availableYears },
       {
         headers: {
           "Cache-Control": "public, max-age=1800, stale-while-revalidate=3600",
