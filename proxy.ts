@@ -22,7 +22,7 @@ const PROTECTED_ROUTES: Array<{ pattern: RegExp; requiredRole: UserRole }> = [
   { pattern: /^\/moddulo/, requiredRole: "user" },
   { pattern: /^\/profile/, requiredRole: "registered" },
   { pattern: /^\/cursos/, requiredRole: "user" },
-  { pattern: /^\/sefix/, requiredRole: "user" },
+  // /sefix es público — sin restricción de rol
   { pattern: /^\/monitor/, requiredRole: "user" },
   { pattern: /^\/recursos/, requiredRole: "user" },
 ];
@@ -88,7 +88,7 @@ export const config = {
     "/moddulo/:path*",
     "/profile/:path*",
     "/cursos/:path*",
-    "/sefix/:path*",
+    // /sefix no está en el matcher — acceso público sin interceptar
     "/monitor/:path*",
     "/recursos/:path*",
   ],

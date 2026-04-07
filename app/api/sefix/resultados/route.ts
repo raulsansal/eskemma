@@ -1,30 +1,37 @@
 // app/api/sefix/resultados/route.ts
 // Devuelve resultados electorales federales agregados por estado
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionFromRequest } from "@/lib/server/auth-helpers";
-import { getResultadosByEstado } from "@/lib/sefix/storage";
+import {
+  getResultadosByEstado,
+  getResultadosAllYears,
+  getResultadosAvailableYears,
+} from "@/lib/sefix/storage";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSessionFromRequest(request);
-    if (!session) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const estado = searchParams.get("estado");
     const cargo = searchParams.get("cargo") ?? "diputados";
     const anioParam = searchParams.get("anio");
-    const anio = anioParam ? parseInt(anioParam) : undefined;
+    const allYears = searchParams.get("all_years") === "true";
 
-    if (!estado) {
-      return NextResponse.json(
-        { error: "Parámetro 'estado' requerido" },
-        { status: 400 }
-      );
+    // Listar años disponibles (sin estado requerido)
+    if (searchParams.has("available_years")) {
+      const years = await getResultadosAvailableYears(cargo);
+      return NextResponse.json({ availableYears: years });
     }
 
-    const resultados = await getResultadosByEstado(estado, cargo, anio);
+    // Todos los años para gráfica histórica
+    if (allYears) {
+      const resultados = await getResultadosAllYears(estado ?? "", cargo);
+      return NextResponse.json({ resultados });
+    }
+
+    // Año específico o el más reciente
+    const anio = anioParam ? parseInt(anioParam) : undefined;
+    const resultados = await getResultadosByEstado(estado ?? "", cargo, anio);
 
     if (!resultados) {
       return NextResponse.json(

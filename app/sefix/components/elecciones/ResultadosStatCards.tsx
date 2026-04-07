@@ -1,0 +1,68 @@
+"use client";
+
+import type { ResultadosChartData } from "@/types/sefix.types";
+
+const FMT = new Intl.NumberFormat("es-MX");
+const FMT_PCT = new Intl.NumberFormat("es-MX", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
+interface StatCardProps {
+  label: string;
+  value: string;
+  sub?: string;
+}
+
+function StatCard({ label, value, sub }: StatCardProps) {
+  return (
+    <div className="bg-white-eske border border-gray-eske-20 rounded-lg p-4 flex flex-col gap-1">
+      <span className="text-xs font-medium text-black-eske-60 uppercase tracking-wide">
+        {label}
+      </span>
+      <span className="text-2xl font-semibold text-black-eske tabular-nums">
+        {value}
+      </span>
+      {sub && (
+        <span className="text-xs text-black-eske-60">{sub}</span>
+      )}
+    </div>
+  );
+}
+
+interface ResultadosStatCardsProps {
+  data: ResultadosChartData;
+}
+
+export default function ResultadosStatCards({ data }: ResultadosStatCardsProps) {
+  const ganador = data.partidos[0];
+  const pctNulos =
+    data.totalVotos > 0
+      ? FMT_PCT.format((data.votosNulos / data.totalVotos) * 100)
+      : "—";
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <StatCard
+        label="Total de Votos"
+        value={FMT.format(data.totalVotos)}
+        sub={`${data.cargo} ${data.anio}`}
+      />
+      <StatCard
+        label="Lista Nominal"
+        value={FMT.format(data.lne)}
+        sub="Ciudadanos habilitados"
+      />
+      <StatCard
+        label="Participación"
+        value={`${FMT_PCT.format(data.participacion)}%`}
+        sub={ganador ? `1°: ${ganador.partido} (${FMT_PCT.format(ganador.porcentaje)}%)` : undefined}
+      />
+      <StatCard
+        label="Votos Nulos"
+        value={FMT.format(data.votosNulos)}
+        sub={`${pctNulos}% del total`}
+      />
+    </div>
+  );
+}

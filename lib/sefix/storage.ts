@@ -80,6 +80,24 @@ export async function listStorageFiles(prefix: string): Promise<string[]> {
 // NORMALIZACIÓN DE ESTADO
 // ==========================================
 
+/**
+ * Mapeo del nombre corto (usado en ESTADOS_LIST/UI) al nombre exacto que
+ * aparece en la columna nombre_entidad de los CSVs de DERFE/INE.
+ * Los cuatro estados listados tienen nombres constitucionales largos en sus
+ * archivos de datos; los demás coinciden con el nombre corto.
+ */
+const DERFE_NOMBRE_MAP: Record<string, string> = {
+  "COAHUILA":        "COAHUILA DE ZARAGOZA",
+  "MICHOACAN":       "MICHOACAN DE OCAMPO",
+  "VERACRUZ":        "VERACRUZ DE IGNACIO DE LA LLAVE",
+  "ESTADO DE MEXICO": "MEXICO",   // DERFE usa "MEXICO" en sus archivos CSV
+};
+
+/** Traduce el nombre UI corto al nombre_entidad real del CSV de DERFE. */
+function toDerfeNombre(nombre: string): string {
+  return DERFE_NOMBRE_MAP[nombre] ?? nombre;
+}
+
 const ESTADO_MAP: Record<string, string> = {
   aguascalientes: "AGUASCALIENTES",
   baja_california: "BAJA CALIFORNIA",
@@ -175,8 +193,10 @@ export async function getResultadosByEstado(
   cargoInput: string,
   anioInput?: number
 ): Promise<ResultadosEstado | null> {
-  const estadoNombre = resolveEstadoName(estadoInput);
-  if (!estadoNombre) return null;
+  // Empty string or "nacional" → aggregate all states
+  const isNacional = !estadoInput || estadoInput.toLowerCase() === "nacional";
+  const estadoNombre = isNacional ? null : resolveEstadoName(estadoInput);
+  if (!isNacional && !estadoNombre) return null;
 
   const cargoKey = CARGO_TO_KEY[cargoInput.toLowerCase()] ?? "dip";
 
@@ -199,7 +219,7 @@ export async function getResultadosByEstado(
   }
 
   const anio = parseInt(targetFile.match(/_(\d{4})\.csv$/)?.[1] ?? "0");
-  const cacheKey = `resultados:${estadoNombre}:${cargoKey}:${anio}`;
+  const cacheKey = `resultados:${estadoNombre ?? "NACIONAL"}:${cargoKey}:${anio}`;
   const cached = getCached<ResultadosEstado>(cacheKey);
   if (cached) return cached;
 
@@ -211,7 +231,7 @@ export async function getResultadosByEstado(
   let partidoHeaders: string[] = [];
 
   const headers = await streamCsvRows(targetFile, (row) => {
-    if (row.estado !== estadoNombre) return;
+    if (estadoNombre && row.estado !== estadoNombre) return;
 
     const tv = parseInt(row.total_votos ?? "0");
     const lneRow = parseInt(row.lne ?? "0");
@@ -248,7 +268,7 @@ export async function getResultadosByEstado(
     .sort((a, b) => b.votos - a.votos);
 
   const result: ResultadosEstado = {
-    estado: estadoNombre,
+    estado: estadoNombre ?? "NACIONAL",
     cargo: cargoKey === "dip" ? "DIPUTADOS FEDERALES" : cargoKey === "sen" ? "SENADORES" : "PRESIDENTE",
     anio,
     totalVotos,
@@ -362,6 +382,571 @@ export async function getPadronByEstado(
     fuente: `DERFE — Padrón Electoral al ${fecha}`,
   };
 
+  setCache(cacheKey, result);
+  return result;
+}
+
+// ==========================================
+// SERIES HISTÓRICAS AGREGADAS (G1 / G2 / G3)
+// ==========================================
+
+export interface HistoricoMes {
+  fecha: string;     // YYYY-MM-DD
+  year: number;
+  month: number;
+  padronNacional: number;
+  listaNacional: number;
+  padronExtranjero: number;
+  listaExtranjero: number;
+  padronHombres: number;
+  padronMujeres: number;
+}
+
+/** Agrega un archivo histórico _base a sus totales nacional y extranjero */
+async function processHistoricoFile(
+  storagePath: string
+): Promise<HistoricoMes | null> {
+  const fecha = extractFecha(storagePath);
+  if (fecha === "desconocida") return null;
+
+  const year = parseInt(fecha.slice(0, 4));
+  const month = parseInt(fecha.slice(5, 7));
+
+  let padronNacional = 0;
+  let listaNacional = 0;
+  let padronExtranjero = 0;
+  let listaExtranjero = 0;
+  let padronHombres = 0;
+  let padronMujeres = 0;
+
+  await streamCsvRows(storagePath, (row) => {
+    // Excluir fila TOTALES (cve_entidad vacío o "NA")
+    const cve = row.cve_entidad?.trim();
+    if (!cve || cve === "" || cve.toUpperCase() === "NA") return;
+
+    const isExt = row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO");
+    const padron = parseInt(row.padron_nacional ?? "0") || 0;
+    const lista = parseInt(row.lista_nacional ?? "0") || 0;
+    const h = parseInt(row.padron_nacional_hombres ?? "0") || 0;
+    const m = parseInt(row.padron_nacional_mujeres ?? "0") || 0;
+
+    if (isExt) {
+      padronExtranjero += padron;
+      listaExtranjero += lista;
+    } else {
+      padronNacional += padron;
+      listaNacional += lista;
+      padronHombres += h;
+      padronMujeres += m;
+    }
+  });
+
+  if (padronNacional === 0 && padronExtranjero === 0) return null;
+
+  return {
+    fecha,
+    year,
+    month,
+    padronNacional,
+    listaNacional,
+    padronExtranjero,
+    listaExtranjero,
+    padronHombres,
+    padronMujeres,
+  };
+}
+
+/** Devuelve los años disponibles para un cargo en resultados federales */
+export async function getResultadosAvailableYears(
+  cargoInput: string
+): Promise<number[]> {
+  const cargoKey = CARGO_TO_KEY[cargoInput.toLowerCase()] ?? "dip";
+  const allFiles = await listStorageFiles("sefix/results/federals/");
+  const years = allFiles
+    .filter((f) => f.includes(`/pef_${cargoKey}_`))
+    .map((f) => parseInt(f.match(/_(\d{4})\.csv$/)?.[1] ?? "0"))
+    .filter((y) => y > 0);
+  return [...new Set(years)].sort();
+}
+
+/** Devuelve resultados para todos los años disponibles de un cargo/estado */
+export async function getResultadosAllYears(
+  estadoInput: string,
+  cargoInput: string
+): Promise<ResultadosEstado[]> {
+  const years = await getResultadosAvailableYears(cargoInput);
+  const results = await Promise.allSettled(
+    years.map((y) => getResultadosByEstado(estadoInput, cargoInput, y))
+  );
+  return results
+    .filter(
+      (r): r is PromiseFulfilledResult<ResultadosEstado> =>
+        r.status === "fulfilled" && r.value !== null
+    )
+    .map((r) => r.value)
+    .sort((a, b) => a.anio - b.anio);
+}
+
+// ==========================================
+// FILTRO GEOGRÁFICO PARA SERIES HISTÓRICAS
+// ==========================================
+
+export interface HistoricoGeoFilter {
+  /** Nombre de entidad tal como aparece en nombre_entidad del CSV (e.g., "JALISCO") */
+  entidad?: string;
+  /**
+   * Nombre del distrito tal como aparece en cabecera_distrital del CSV
+   * (e.g., "1513 ECATEPEC DE MORELOS"). Más estable entre archivos que el CVE.
+   */
+  distritoNombre?: string;
+  /**
+   * Nombre del municipio tal como aparece en nombre_municipio del CSV
+   * (e.g., "ECATEPEC DE MORELOS"). Más estable entre archivos que el CVE.
+   */
+  municipioNombre?: string;
+  /** Números de sección como aparecen en seccion del CSV (e.g., ["1431", "1432"]) */
+  secciones?: string[];
+}
+
+/**
+ * Fila cruda de un archivo _base.csv filtrada a una entidad específica.
+ * Se cachea en memoria para evitar re-leer Storage en cada consulta con distinto filtro.
+ */
+interface EntidadRawRow {
+  fecha: string;
+  year: number;
+  month: number;
+  cabecera_distrital: string;
+  nombre_municipio: string;
+  seccion: string;
+  padron: number;
+  lista: number;
+  padronH: number;
+  padronM: number;
+  isExt: boolean;
+}
+
+/**
+ * Caché en memoria por entidad DERFE (persiste por lifetime del proceso).
+ * Permite servir múltiples filtros distintos de la misma entidad sin releer Storage.
+ */
+const entidadRowsCache = new Map<string, EntidadRawRow[]>();
+
+/** Deduplicación de cargas concurrentes para la misma entidad */
+const entidadRowsLoading = new Map<string, Promise<EntidadRawRow[]>>();
+
+// ── Caché persistente en Firebase Storage ──────────────────────────────────
+// Patrón: primera carga lenta (~30-120s) → guarda JSON en Storage →
+// siguientes cargas rápidas (~1-3s) incluso tras reiniciar el servidor.
+
+function entidadStorageCachePath(derfeEntidad: string): string {
+  // Normalizar nombre para usar como nombre de archivo
+  const key = derfeEntidad
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "_")
+    .replace(/[^A-Z0-9_]/g, "");
+  return `sefix/pdln/historico_entidad/${key}.json`;
+}
+
+/** Lee el JSON pre-agregado de una entidad desde Firebase Storage (~1-3s) */
+async function loadEntidadStorageCache(derfeEntidad: string): Promise<EntidadRawRow[] | null> {
+  try {
+    const path = entidadStorageCachePath(derfeEntidad);
+    const file = getBucket().file(path);
+    const [exists] = await file.exists();
+    if (!exists) return null;
+    const [contents] = await file.download();
+    return JSON.parse(contents.toString("utf-8")) as EntidadRawRow[];
+  } catch {
+    return null; // Si falla la lectura, continuar con el método lento
+  }
+}
+
+/**
+ * Guarda las filas de una entidad en Firebase Storage para consultas futuras.
+ * No-bloqueante: se ejecuta en background tras la primera carga lenta.
+ */
+async function saveEntidadStorageCache(
+  derfeEntidad: string,
+  rows: EntidadRawRow[]
+): Promise<void> {
+  try {
+    const path = entidadStorageCachePath(derfeEntidad);
+    const file = getBucket().file(path);
+    await file.save(Buffer.from(JSON.stringify(rows)), {
+      contentType: "application/json",
+      metadata: { cacheControl: "private, max-age=3600" },
+    });
+    console.log(`[sefix] Caché de entidad guardada: ${path} (${rows.length} filas)`);
+  } catch (e) {
+    console.warn(`[sefix] No se pudo guardar caché de entidad ${derfeEntidad}:`, e);
+  }
+}
+
+/**
+ * Lee todos los archivos _base.csv históricos filtrando a una entidad.
+ * Primera llamada: lenta (~30-120s dependiendo de red). Resultado se cachea en
+ * Firebase Storage para llamadas futuras (~1-3s) y en módulo (instantáneo).
+ */
+async function loadEntidadRawRows(derfeEntidad: string): Promise<EntidadRawRow[]> {
+  // 1. Caché en memoria (instantáneo, persiste por lifetime del proceso)
+  const cached = entidadRowsCache.get(derfeEntidad);
+  if (cached) return cached;
+
+  // 2. Deduplicar cargas concurrentes
+  const inFlight = entidadRowsLoading.get(derfeEntidad);
+  if (inFlight) return inFlight;
+
+  const promise = (async (): Promise<EntidadRawRow[]> => {
+    // 3. Caché persistente en Storage (~1-3s, sobrevive reinicios del servidor)
+    const fromStorage = await loadEntidadStorageCache(derfeEntidad);
+    if (fromStorage) {
+      console.log(`[sefix] Cargando caché de entidad desde Storage: ${derfeEntidad} (${fromStorage.length} filas)`);
+      entidadRowsCache.set(derfeEntidad, fromStorage);
+      entidadRowsLoading.delete(derfeEntidad);
+      return fromStorage;
+    }
+
+    // 4. Primera carga: leer todos los _base.csv (lento)
+    console.log(`[sefix] Primera carga de ${derfeEntidad}: leyendo archivos históricos...`);
+    const allFiles = await listStorageFiles("sefix/pdln/historico/");
+    const baseFiles = allFiles.filter((f) => f.endsWith("_base.csv")).sort();
+
+    const rows: EntidadRawRow[] = [];
+    const BATCH_SIZE = 16;
+
+    for (let i = 0; i < baseFiles.length; i += BATCH_SIZE) {
+      const batch = baseFiles.slice(i, i + BATCH_SIZE);
+      await Promise.allSettled(
+        batch.map(async (f) => {
+          const fecha = extractFecha(f);
+          if (fecha === "desconocida") return;
+          const year = parseInt(fecha.slice(0, 4));
+          const month = parseInt(fecha.slice(5, 7));
+
+          await streamCsvRows(f, (row) => {
+            const cve = row.cve_entidad?.trim();
+            if (!cve || cve === "" || cve.toUpperCase() === "NA") return;
+            if (row.nombre_entidad !== derfeEntidad) return; // descarta ~97% del CSV
+
+            rows.push({
+              fecha, year, month,
+              cabecera_distrital: row.cabecera_distrital?.trim() ?? "",
+              nombre_municipio: row.nombre_municipio?.trim() ?? "",
+              seccion: row.seccion?.trim() ?? "",
+              padron: parseInt(row.padron_nacional ?? "0") || 0,
+              lista: parseInt(row.lista_nacional ?? "0") || 0,
+              padronH: parseInt(row.padron_nacional_hombres ?? "0") || 0,
+              padronM: parseInt(row.padron_nacional_mujeres ?? "0") || 0,
+              isExt: row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO") ?? false,
+            });
+          });
+        })
+      );
+    }
+
+    // 5. Guardar en Storage en background (no bloquea la respuesta)
+    saveEntidadStorageCache(derfeEntidad, rows).catch(() => {});
+
+    entidadRowsCache.set(derfeEntidad, rows);
+    entidadRowsLoading.delete(derfeEntidad);
+    console.log(`[sefix] ${derfeEntidad}: ${rows.length} filas cargadas y guardadas en caché.`);
+    return rows;
+  })();
+
+  entidadRowsLoading.set(derfeEntidad, promise);
+  return promise;
+}
+
+/** Normaliza número de sección eliminando ceros iniciales */
+const normSec = (s: string | undefined): string =>
+  (s?.trim() ?? "").replace(/^0+/, "") || "0";
+
+/**
+ * Devuelve la serie mensual histórica filtrada por ámbito geográfico.
+ *
+ * Arquitectura de dos niveles:
+ * 1. Caché de resultado (30 min) — para consultas idénticas repetidas.
+ * 2. Caché de filas crudas por entidad (60 min) — la primera llamada por entidad
+ *    lee ~100 archivos de Storage; las siguientes filtran en memoria (instantáneo).
+ */
+export async function getHistoricoSeriesGeo(geo: HistoricoGeoFilter): Promise<HistoricoMes[]> {
+  const secKey = (geo.secciones ?? []).slice().sort().join(",");
+  const cacheKey = `historico:geo:${geo.entidad ?? ""}:${geo.distritoNombre ?? ""}:${geo.municipioNombre ?? ""}:${secKey}`;
+  const cached = getCached<HistoricoMes[]>(cacheKey);
+  if (cached) return cached;
+
+  const derfeEntidad = geo.entidad ? toDerfeNombre(geo.entidad) : undefined;
+  if (!derfeEntidad) return getHistoricoSeries();
+
+  // Cargar (o recuperar del caché) todas las filas de esta entidad
+  const entidadRows = await loadEntidadRawRows(derfeEntidad);
+
+  // Preparar filtros de sección normalizados
+  const filtSecciones = geo.secciones?.length
+    ? new Set(geo.secciones.map(normSec))
+    : null;
+
+  // Agregar en memoria por (fecha, is_extranjero) — inmediato
+  const byFecha = new Map<string, {
+    fecha: string; year: number; month: number;
+    padronNacional: number; listaNacional: number;
+    padronExtranjero: number; listaExtranjero: number;
+    padronHombres: number; padronMujeres: number;
+  }>();
+
+  for (const row of entidadRows) {
+    if (geo.distritoNombre && row.cabecera_distrital !== geo.distritoNombre) continue;
+    if (geo.municipioNombre && row.nombre_municipio !== geo.municipioNombre) continue;
+    if (filtSecciones && !filtSecciones.has(normSec(row.seccion))) continue;
+
+    let agg = byFecha.get(row.fecha);
+    if (!agg) {
+      agg = { fecha: row.fecha, year: row.year, month: row.month,
+              padronNacional: 0, listaNacional: 0,
+              padronExtranjero: 0, listaExtranjero: 0,
+              padronHombres: 0, padronMujeres: 0 };
+      byFecha.set(row.fecha, agg);
+    }
+    if (row.isExt) {
+      agg.padronExtranjero += row.padron;
+      agg.listaExtranjero += row.lista;
+    } else {
+      agg.padronNacional += row.padron;
+      agg.listaNacional += row.lista;
+      agg.padronHombres += row.padronH;
+      agg.padronMujeres += row.padronM;
+    }
+  }
+
+  const series = Array.from(byFecha.values()).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  setCache(cacheKey, series);
+  return series;
+}
+
+/**
+ * Devuelve la serie mensual completa (2017-presente) con totales
+ * nacional y extranjero. Procesa archivos en paralelo y cachea 30 min.
+ */
+export async function getHistoricoSeries(): Promise<HistoricoMes[]> {
+  const cacheKey = "historico:series:all";
+  const cached = getCached<HistoricoMes[]>(cacheKey);
+  if (cached) return cached;
+
+  const allFiles = await listStorageFiles("sefix/pdln/historico/");
+  const baseFiles = allFiles.filter((f) => f.endsWith("_base.csv")).sort();
+
+  // Procesamos en lotes de 8 para no abrir cientos de conexiones simultáneas
+  // a Firebase Storage (causa de saturación de memoria y bloqueo del servidor)
+  const BATCH_SIZE = 8;
+  const accumulated: HistoricoMes[] = [];
+
+  for (let i = 0; i < baseFiles.length; i += BATCH_SIZE) {
+    const batch = baseFiles.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.allSettled(
+      batch.map((f) => processHistoricoFile(f))
+    );
+    for (const r of batchResults) {
+      if (r.status === "fulfilled" && r.value !== null) {
+        accumulated.push(r.value);
+      }
+    }
+  }
+
+  const series = accumulated.sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+  setCache(cacheKey, series);
+  return series;
+}
+
+// ==========================================
+// DATOS SEMANALES — CORTE ÚNICO (por ámbito y fecha)
+// ==========================================
+
+export type SemanalTipo = "sexo" | "edad" | "origen";
+
+export interface SemanalCorteResult {
+  fecha: string;
+  tipo: SemanalTipo;
+  /** Agregado por entidad (o total) */
+  rows: Record<string, string | number>[];
+}
+
+/** Devuelve los paths semanales disponibles para un tipo dado, ordenados desc */
+export async function getSemanalPaths(tipo: SemanalTipo): Promise<string[]> {
+  const all = await listStorageFiles("sefix/pdln/semanal/");
+  return all.filter((f) => f.endsWith(`_${tipo}.csv`)).sort().reverse();
+}
+
+/** Devuelve las fechas disponibles (YYYY-MM-DD) para un tipo semanal */
+export async function getSemanalFechas(tipo: SemanalTipo): Promise<string[]> {
+  const paths = await getSemanalPaths(tipo);
+  return paths
+    .map((p) => extractFecha(p))
+    .filter((f) => f !== "desconocida");
+}
+
+/**
+ * Agrega el archivo semanal de un tipo y corte dado.
+ * Si entidad=null devuelve totales nacionales/extranjero.
+ * Si entidad!=null filtra las filas de esa entidad.
+ */
+export async function getSemanalAgregado(
+  tipo: SemanalTipo,
+  corte?: string,
+  entidad?: string | null
+): Promise<{
+  fecha: string;
+  ambitos: { nacional: Record<string, number>; extranjero: Record<string, number> };
+  rows: Record<string, string | number>[];
+} | null> {
+  const paths = await getSemanalPaths(tipo);
+  if (paths.length === 0) return null;
+
+  // Seleccionar el archivo correcto
+  let targetPath: string;
+  if (corte) {
+    const normalized = corte.replace(/-/g, "");
+    const match = paths.find((p) => p.includes(normalized));
+    if (!match) return null;
+    targetPath = match;
+  } else {
+    targetPath = paths[0]; // más reciente
+  }
+
+  const fecha = extractFecha(targetPath);
+  const cacheKey = `semanal:${tipo}:${fecha}:${entidad ?? "all"}`;
+  const cached = getCached<ReturnType<typeof getSemanalAgregado> extends Promise<infer T> ? T : never>(cacheKey);
+  if (cached) return cached as Awaited<ReturnType<typeof getSemanalAgregado>>;
+
+  const nacional: Record<string, number> = {};
+  const extranjero: Record<string, number> = {};
+
+  // Columnas de clave que no se suman nunca
+  const SKIP_COLS = new Set(["cve_entidad", "cve_distrito", "cve_municipio", "seccion"]);
+
+  await streamCsvRows(targetPath, (row) => {
+    const cve = row.cve_entidad?.trim();
+    if (!cve || cve.toUpperCase() === "NA") return;
+
+    // Filtro por entidad si se especifica
+    if (entidad && row.nombre_entidad !== entidad) return;
+
+    const isExt = row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO");
+    const target = isExt ? extranjero : nacional;
+
+    for (const [col, val] of Object.entries(row)) {
+      if (SKIP_COLS.has(col)) continue;
+      const num = parseFloat(val as string);
+      if (!isNaN(num)) target[col] = (target[col] ?? 0) + num;
+    }
+  });
+
+  // No acumulamos las filas crudas — eran la causa principal del alto uso de memoria (~300 MB por llamada)
+  const result = { fecha, ambitos: { nacional, extranjero }, rows: [] as Record<string, string | number>[] };
+  setCache(cacheKey, result);
+  return result;
+}
+
+// ==========================================
+// JERARQUÍA GEOGRÁFICA (cascade)
+// ==========================================
+
+export interface GeoOpcion {
+  cve: string;
+  nombre: string;
+}
+
+/**
+ * Devuelve los distritos disponibles para una entidad dada.
+ * Usa el archivo semanal _sexo más reciente (más liviano, 15 cols).
+ */
+export async function getDistritosPorEntidad(
+  entidad: string
+): Promise<GeoOpcion[]> {
+  const cacheKey = `geo:distritos:${entidad}`;
+  const cached = getCached<GeoOpcion[]>(cacheKey);
+  if (cached) return cached;
+
+  const paths = await getSemanalPaths("sexo");
+  if (paths.length === 0) return [];
+  const targetPath = paths[0];
+
+  const derfeNombre = toDerfeNombre(entidad);
+  const set = new Map<string, string>();
+  await streamCsvRows(targetPath, (row) => {
+    if (row.nombre_entidad !== derfeNombre) return;
+    if (row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO")) return;
+    const cve = row.cve_distrito?.trim();
+    const nombre = row.cabecera_distrital?.trim();
+    if (cve && nombre) set.set(cve, nombre);
+  });
+
+  const result = Array.from(set.entries())
+    .map(([cve, nombre]) => ({ cve, nombre }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  setCache(cacheKey, result);
+  return result;
+}
+
+/**
+ * Devuelve los municipios para una entidad + distrito dados.
+ */
+export async function getMunicipiosPorDistrito(
+  entidad: string,
+  cvDistrito: string
+): Promise<GeoOpcion[]> {
+  const cacheKey = `geo:municipios:${entidad}:${cvDistrito}`;
+  const cached = getCached<GeoOpcion[]>(cacheKey);
+  if (cached) return cached;
+
+  const paths = await getSemanalPaths("sexo");
+  if (paths.length === 0) return [];
+
+  const derfeNombre = toDerfeNombre(entidad);
+  const set = new Map<string, string>();
+  await streamCsvRows(paths[0], (row) => {
+    if (row.nombre_entidad !== derfeNombre) return;
+    if (row.cve_distrito?.trim() !== cvDistrito) return;
+    const cve = row.cve_municipio?.trim();
+    const nombre = row.nombre_municipio?.trim();
+    if (cve && nombre) set.set(cve, nombre);
+  });
+
+  const result = Array.from(set.entries())
+    .map(([cve, nombre]) => ({ cve, nombre }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  setCache(cacheKey, result);
+  return result;
+}
+
+/**
+ * Devuelve las secciones electorales para una entidad + municipio dados.
+ */
+export async function getSeccionesPorMunicipio(
+  entidad: string,
+  cvMunicipio: string
+): Promise<string[]> {
+  const cacheKey = `geo:secciones:${entidad}:${cvMunicipio}`;
+  const cached = getCached<string[]>(cacheKey);
+  if (cached) return cached;
+
+  const paths = await getSemanalPaths("sexo");
+  if (paths.length === 0) return [];
+
+  const derfeNombre = toDerfeNombre(entidad);
+  const secciones = new Set<string>();
+  await streamCsvRows(paths[0], (row) => {
+    if (row.nombre_entidad !== derfeNombre) return;
+    if (row.cve_municipio?.trim() !== cvMunicipio) return;
+    const sec = row.seccion?.trim();
+    if (sec) secciones.add(sec);
+  });
+
+  const result = Array.from(secciones).sort((a, b) => parseInt(a) - parseInt(b));
   setCache(cacheKey, result);
   return result;
 }
