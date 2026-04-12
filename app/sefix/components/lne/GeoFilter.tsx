@@ -211,6 +211,21 @@ export default function GeoFilter({
     [seccionesSeleccionadas]
   );
 
+  // Reset geo cascade to entidad-only when switching to extranjero
+  useEffect(() => {
+    if (pendingAmbito === "extranjero") {
+      // Keep entidad if selected, but clear deeper selections
+      if (
+        geoState.status === "distrito_selected" ||
+        geoState.status === "municipio_selected" ||
+        geoState.status === "seccion_selected"
+      ) {
+        dispatch({ type: "SELECT_ENTIDAD", entidad: geoState.entidad, cveEntidad: geoState.cveEntidad ?? "" });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAmbito]);
+
   // ── Handlers ──
   const handleEntidadChange = (nombre: string) => {
     if (nombre === "") {
@@ -346,8 +361,8 @@ export default function GeoFilter({
           </select>
         </div>
 
-        {/* Distrito (activo si hay entidad) */}
-        {geoState.status !== "idle" && (
+        {/* Distrito (activo si hay entidad) — SOLO en modo nacional */}
+        {pendingAmbito === "nacional" && geoState.status !== "idle" && (
           <div className="flex flex-col gap-1">
             <label htmlFor="geo-distrito" className="text-xs text-black-eske-60">
               Distrito {loadingDistritos && <span className="text-gray-eske-70">(cargando…)</span>}
@@ -367,8 +382,18 @@ export default function GeoFilter({
           </div>
         )}
 
-        {/* Municipio (activo si hay distrito) */}
-        {cveDistrito && (
+        {/* Badge estático RESIDENTES EXTRANJERO — solo modo extranjero con entidad seleccionada */}
+        {pendingAmbito === "extranjero" && geoState.status !== "idle" && (
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-black-eske-60">Distrito</span>
+            <div className="text-sm border border-gray-eske-20 rounded-md px-2 py-1.5 bg-gray-eske-10 text-black-eske-60 min-w-[220px] select-none">
+              RESIDENTES EXTRANJERO
+            </div>
+          </div>
+        )}
+
+        {/* Municipio (activo si hay distrito) — SOLO en modo nacional */}
+        {pendingAmbito === "nacional" && cveDistrito && (
           <div className="flex flex-col gap-1">
             <label htmlFor="geo-municipio" className="text-xs text-black-eske-60">
               Municipio {loadingMunicipios && <span className="text-gray-eske-70">(cargando…)</span>}
@@ -388,8 +413,8 @@ export default function GeoFilter({
           </div>
         )}
 
-        {/* Sección — tags + popover flotante (estilo selectize de Shiny) */}
-        {cveMunicipio && (
+        {/* Sección — tags + popover flotante — SOLO en modo nacional */}
+        {pendingAmbito === "nacional" && cveMunicipio && (
           <div ref={seccionContainerRef} className="relative flex flex-col gap-1">
             <p className="text-xs text-black-eske-60">
               Sección{" "}

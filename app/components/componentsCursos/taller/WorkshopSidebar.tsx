@@ -65,7 +65,7 @@ export default function WorkshopSidebar({
           
           {/* Barra de progreso general */}
           <div className="mt-4">
-            <div className="flex justify-between text-sm text-gray-eske-70 mb-1">
+            <div className="flex justify-between text-sm text-black-eske font-normal mb-1">
               <span>Progreso general</span>
               <span>{Math.round(progressPercentage)}%</span>
             </div>
@@ -101,7 +101,7 @@ export default function WorkshopSidebar({
                   aria-controls={`module-${module.id}-sessions`}
                 >
                   <div className="flex-1">
-                    <span className="text-xs text-gray-eske-70">Módulo {moduleIndex + 1}</span>
+                    <span className="text-xs text-black-eske font-normal">Módulo {moduleIndex + 1}</span>
                     <h3 className="font-medium flex items-center gap-2">
                       {module.title}
                       {moduleCompleted && (
@@ -141,7 +141,7 @@ export default function WorkshopSidebar({
                                 ? 'bg-bluegreen-eske text-white' 
                                 : completed
                                   ? 'text-green-eske-70 hover:bg-gray-eske-10'
-                                  : 'text-gray-eske-70 hover:bg-gray-eske-10'
+                                  : 'text-black-eske font-normal hover:bg-gray-eske-10'
                               }
                               transition-colors focus-ring-primary
                             `}
@@ -173,7 +173,7 @@ export default function WorkshopSidebar({
         <div className="mt-6 pt-4 border-t border-gray-eske-20">
           <Link
             href="/cursos"
-            className="flex items-center gap-2 text-sm text-gray-eske-70 hover:text-bluegreen-eske p-2 rounded-lg transition-colors focus-ring-primary"
+            className="flex items-center gap-2 text-sm text-black-eske font-normal hover:text-bluegreen-eske p-2 rounded-lg transition-colors focus-ring-primary"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

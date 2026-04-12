@@ -67,7 +67,7 @@ export default function CourseFilters({
       <div className="flex flex-col md:flex-row gap-4 items-end">
         {/* Búsqueda */}
         <form onSubmit={handleSearch} className="flex-1">
-          <label htmlFor="search" className="block text-sm font-medium text-gray-eske-70 mb-1">
+          <label htmlFor="search" className="block text-sm text-black-eske font-normal mb-1">
             Buscar cursos
           </label>
           <div className="flex gap-2">
@@ -94,7 +94,7 @@ export default function CourseFilters({
 
         {/* Filtro por tipo */}
         <div className="w-full md:w-48">
-          <label htmlFor="type" className="block text-sm font-medium text-gray-eske-70 mb-1">
+          <label htmlFor="type" className="block text-sm text-black-eske font-normal mb-1">
             Tipo
           </label>
           <select
@@ -113,7 +113,7 @@ export default function CourseFilters({
 
         {/* Filtro por dificultad */}
         <div className="w-full md:w-48">
-          <label htmlFor="difficulty" className="block text-sm font-medium text-gray-eske-70 mb-1">
+          <label htmlFor="difficulty" className="block text-sm text-black-eske font-normal mb-1">
             Dificultad
           </label>
           <select
@@ -134,7 +134,7 @@ export default function CourseFilters({
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="px-4 py-2 text-gray-eske-70 hover:text-bluegreen-eske transition-colors focus-ring-primary"
+            className="px-4 py-2 text-black-eske font-normal hover:text-bluegreen-eske transition-colors focus-ring-primary"
             aria-label="Limpiar todos los filtros"
           >
             Limpiar filtros

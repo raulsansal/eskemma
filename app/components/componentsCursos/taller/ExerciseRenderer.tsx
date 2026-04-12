@@ -47,7 +47,7 @@ export default function ExerciseRenderer({
       case "analysis":
         return (
           <div className="space-y-4">
-            <p className="text-gray-eske-80">{exercise.description}</p>
+            <p className="text-black-eske font-normal">{exercise.description}</p>
             <textarea
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
@@ -62,7 +62,7 @@ export default function ExerciseRenderer({
       case "code":
         return (
           <div className="space-y-4">
-            <p className="text-gray-eske-80">{exercise.description}</p>
+            <p className="text-black-eske font-normal">{exercise.description}</p>
             <div className="bg-gray-eske-10 p-4 rounded-lg">
               <pre className="text-sm overflow-x-auto">
                 <code>{exercise.codeConfig?.initialCode || "# Escribe tu código aquí"}</code>
@@ -82,10 +82,10 @@ export default function ExerciseRenderer({
       case "quiz":
         return (
           <div className="space-y-4">
-            <p className="font-medium">{exercise.description}</p>
+            <p className="text-black-eske font-normal">{exercise.description}</p>
             {exercise.quizConfig?.questions.map((q, idx) => (
               <div key={idx} className="p-4 border border-gray-eske-30 rounded-lg">
-                <p className="mb-3">{q.question}</p>
+                <p className="mb-3 text-black-eske font-normal">{q.question}</p>
                 <div className="space-y-2">
                   {q.options.map((option, optIdx) => (
                     <label key={optIdx} className="flex items-center gap-2">

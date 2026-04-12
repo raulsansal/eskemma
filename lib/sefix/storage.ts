@@ -86,12 +86,36 @@ export async function listStorageFiles(prefix: string): Promise<string[]> {
  * Los cuatro estados listados tienen nombres constitucionales largos en sus
  * archivos de datos; los demás coinciden con el nombre corto.
  */
+/**
+ * Maps the UI short name to the canonical storage key name.
+ * Michoacán, Veracruz and Coahuila are stored with their short names in the
+ * pre-generated JSON files (both old "DE OCAMPO" CSVs and new short-name CSVs
+ * are normalized to the short name by the pregenerate script).
+ * "ESTADO DE MEXICO" uses "MEXICO" because DERFE uses that in its CSV column.
+ */
+/**
+ * Maps UI short names to the exact nombre_entidad value in DERFE CSV files.
+ * Used for filtering rows in semanal CSVs and other CSV-based lookups.
+ * The four states below use constitutional long names in older CSV files.
+ */
 const DERFE_NOMBRE_MAP: Record<string, string> = {
-  "COAHUILA":        "COAHUILA DE ZARAGOZA",
-  "MICHOACAN":       "MICHOACAN DE OCAMPO",
-  "VERACRUZ":        "VERACRUZ DE IGNACIO DE LA LLAVE",
-  "ESTADO DE MEXICO": "MEXICO",   // DERFE usa "MEXICO" en sus archivos CSV
+  "ESTADO DE MEXICO":  "MEXICO",
+  "COAHUILA":          "COAHUILA DE ZARAGOZA",
+  "MICHOACAN":         "MICHOACAN DE OCAMPO",
+  "VERACRUZ":          "VERACRUZ DE IGNACIO DE LA LLAVE",
 };
+
+/**
+ * Maps UI entidad name to the storage key used for pre-generated historico JSON files.
+ * Different from toDerfeNombre: pregenerate-sefix.ts normalizes constitutional long names
+ * (e.g. "MICHOACAN DE OCAMPO") to their short forms, so JSON files use short names.
+ * Only Estado de México needs remapping because DERFE CSVs store it as "MEXICO".
+ */
+function toHistoricoStorageKey(entidad: string): string {
+  if (entidad === "__EXTRANJERO__") return "__EXTRANJERO__";
+  if (entidad === "ESTADO DE MEXICO") return toStorageKey("MEXICO");
+  return toStorageKey(entidad);
+}
 
 /** Traduce el nombre UI corto al nombre_entidad real del CSV de DERFE. */
 function toDerfeNombre(nombre: string): string {
@@ -400,6 +424,15 @@ export interface HistoricoMes {
   listaExtranjero: number;
   padronHombres: number;
   padronMujeres: number;
+  padronNoBinario: number;
+  listaNoBinario: number;
+  // Extranjero sex breakdown (available 2020+; pre-2020 via R Shiny transform)
+  padronExtranjeroHombres: number;
+  padronExtranjeroMujeres: number;
+  padronExtranjeroNoBinario: number;
+  listaExtranjeroHombres: number;
+  listaExtranjeroMujeres: number;
+  listaExtranjeroNoBinario: number;
 }
 
 /** Agrega un archivo histórico _base a sus totales nacional y extranjero */
@@ -418,6 +451,14 @@ async function processHistoricoFile(
   let listaExtranjero = 0;
   let padronHombres = 0;
   let padronMujeres = 0;
+  let padronNoBinario = 0;
+  let listaNoBinario = 0;
+  let padronExtranjeroHombres = 0;
+  let padronExtranjeroMujeres = 0;
+  let padronExtranjeroNoBinario = 0;
+  let listaExtranjeroHombres = 0;
+  let listaExtranjeroMujeres = 0;
+  let listaExtranjeroNoBinario = 0;
 
   await streamCsvRows(storagePath, (row) => {
     // Excluir fila TOTALES (cve_entidad vacío o "NA")
@@ -427,17 +468,46 @@ async function processHistoricoFile(
     const isExt = row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO");
     const padron = parseInt(row.padron_nacional ?? "0") || 0;
     const lista = parseInt(row.lista_nacional ?? "0") || 0;
-    const h = parseInt(row.padron_nacional_hombres ?? "0") || 0;
-    const m = parseInt(row.padron_nacional_mujeres ?? "0") || 0;
+    const h   = parseInt(row.padron_nacional_hombres      ?? "0") || 0;
+    const m   = parseInt(row.padron_nacional_mujeres      ?? "0") || 0;
+    const nb  = parseInt(row.padron_nacional_no_binario   ?? "0") || 0;
+    const lh  = parseInt(row.lista_nacional_hombres       ?? "0") || 0;
+    const lm  = parseInt(row.lista_nacional_mujeres       ?? "0") || 0;
+    const lnb = parseInt(row.lista_nacional_no_binario    ?? "0") || 0;
+    // Extranjero sex columns (2020+)
+    const peh  = parseInt(row.padron_extranjero_hombres    ?? "0") || 0;
+    const pem  = parseInt(row.padron_extranjero_mujeres    ?? "0") || 0;
+    const penb = parseInt(row.padron_extranjero_no_binario ?? "0") || 0;
+    const leh  = parseInt(row.lista_extranjero_hombres     ?? "0") || 0;
+    const lem  = parseInt(row.lista_extranjero_mujeres     ?? "0") || 0;
+    const lenb = parseInt(row.lista_extranjero_no_binario  ?? "0") || 0;
+    const has2020Cols = "padron_extranjero" in row;
 
     if (isExt) {
-      padronExtranjero += padron;
-      listaExtranjero += lista;
+      padronExtranjero += has2020Cols
+        ? parseInt(row.padron_extranjero ?? "0") || 0
+        : padron;
+      listaExtranjero += has2020Cols
+        ? parseInt(row.lista_extranjero ?? "0") || 0
+        : lista;
+      // Sex: use extranjero columns (2020+) or nacional columns as fallback (pre-2020 R Shiny transform)
+      padronExtranjeroHombres   += peh  || h;
+      padronExtranjeroMujeres   += pem  || m;
+      padronExtranjeroNoBinario += penb || nb;
+      listaExtranjeroHombres    += leh  || lh;
+      listaExtranjeroMujeres    += lem  || lm;
+      listaExtranjeroNoBinario  += lenb || lnb;
     } else {
       padronNacional += padron;
       listaNacional += lista;
       padronHombres += h;
       padronMujeres += m;
+      padronNoBinario += nb;
+      listaNoBinario += lnb;
+      if (has2020Cols) {
+        padronExtranjero += parseInt(row.padron_extranjero ?? "0") || 0;
+        listaExtranjero  += parseInt(row.lista_extranjero  ?? "0") || 0;
+      }
     }
   });
 
@@ -453,6 +523,14 @@ async function processHistoricoFile(
     listaExtranjero,
     padronHombres,
     padronMujeres,
+    padronNoBinario,
+    listaNoBinario,
+    padronExtranjeroHombres,
+    padronExtranjeroMujeres,
+    padronExtranjeroNoBinario,
+    listaExtranjeroHombres,
+    listaExtranjeroMujeres,
+    listaExtranjeroNoBinario,
   };
 }
 
@@ -524,6 +602,13 @@ interface SeccionData {
   pnb: number[]; // padronNoBinario per period index
   pe:  number[]; // padronExtranjero per period index
   le:  number[]; // listaExtranjero per period index
+  // Extranjero sex breakdown (optional — 0 in JSONs generated before this schema update)
+  peh?: number[];  // padronExtranjeroHombres per period index
+  pem?: number[];  // padronExtranjeroMujeres per period index
+  penb?: number[]; // padronExtranjeroNoBinario per period index
+  leh?: number[];  // listaExtranjeroHombres per period index
+  lem?: number[];  // listaExtranjeroMujeres per period index
+  lenb?: number[]; // listaExtranjeroNoBinario per period index
 }
 
 /** JSON pre-generado con todos los meses de un año para una entidad */
@@ -538,6 +623,8 @@ interface EntidadYearCache {
 interface EntidadAnualCache {
   entidad: string;
   years: number[];
+  /** Actual last available month per year (e.g. 7 for July 2025). Optional for backward compat with old files. */
+  lastMonths?: number[];
   secciones: SeccionData[];
 }
 
@@ -615,10 +702,11 @@ export async function getHistoricoSeriesGeo(
   geo: HistoricoGeoFilter,
   selectedYear?: number
 ): Promise<HistoricoMes[]> {
-  const derfeEntidad = geo.entidad ? toDerfeNombre(geo.entidad) : undefined;
-  if (!derfeEntidad) return getHistoricoSeries();
+  if (!geo.entidad) return getHistoricoSeries();
 
-  const storageKey = toStorageKey(derfeEntidad);
+  // Use the historico storage key (short names, as stored by pregenerate-sefix.ts)
+  // which differs from toDerfeNombre (long constitutional names used in CSV columns).
+  const storageKey = toHistoricoStorageKey(geo.entidad);
   const year = selectedYear ?? new Date().getFullYear();
 
   const secKey = (geo.secciones ?? []).slice().sort().join(",");
@@ -641,43 +729,82 @@ export async function getHistoricoSeriesGeo(
     ? new Set(geo.secciones.map(normSec))
     : null;
 
-  /** Filter section and aggregate across periods → HistoricoMes[] */
+  /**
+   * Filter sections and aggregate across periods into HistoricoMes entries.
+   *
+   * For ANNUAL data (isMonthly=false):
+   *  - District filter is intentionally skipped: district names changed between years
+   *    (e.g. "AMECAMECA" → "1521 AMECAMECA"). Municipality names are stable and sufficient.
+   *  - Period key uses the actual last month (`lastMonths[i]`) so that the annual
+   *    entry for an incomplete year (e.g. 2025 with data through July) gets key
+   *    "2025-07" instead of "2025-12", preventing a phantom December spike in G1.
+   *
+   * For MONTHLY data (isMonthly=true):
+   *  - All geo filters are applied (district names in year files match current names).
+   */
   function buildSeries(
     secciones: SeccionData[],
-    periods: number[],  // months or years
-    isMonthly: boolean
+    periods: number[],
+    isMonthly: boolean,
+    lastMonthsArr?: number[]
   ): Map<string, HistoricoMes> {
     const byPeriod = new Map<string, HistoricoMes>();
 
     for (const sec of secciones) {
-      if (geo.distritoNombre && sec.d !== geo.distritoNombre) continue;
-      if (geo.municipioNombre && sec.m !== geo.municipioNombre) continue;
-      if (filtSecciones && !filtSecciones.has(normSec(sec.s))) continue;
+      if (isMonthly) {
+        // Monthly (year) data: apply all geo filters — names match the current year's data.
+        // When specific sections are given, skip district/municipality (already unambiguous).
+        if (!filtSecciones) {
+          if (geo.distritoNombre && sec.d !== geo.distritoNombre) continue;
+          if (geo.municipioNombre && sec.m !== geo.municipioNombre) continue;
+        }
+        if (filtSecciones && !filtSecciones.has(normSec(sec.s))) continue;
+      } else {
+        // Annual data: skip district filter (names evolved over years).
+        // Municipality names are stable; sections are stable by number.
+        if (!filtSecciones) {
+          if (geo.municipioNombre && sec.m !== geo.municipioNombre) continue;
+        } else {
+          if (!filtSecciones.has(normSec(sec.s))) continue;
+        }
+      }
 
       for (let i = 0; i < periods.length; i++) {
-        const periodKey = isMonthly
-          ? `${year}-${String(periods[i]).padStart(2, "0")}`
-          : `${periods[i]}-12`; // anual: last month of year
+        const actualMonth = isMonthly
+          ? periods[i]
+          : (lastMonthsArr?.[i] ?? 12); // use real last month, not always 12
 
-        let agg = byPeriod.get(periodKey);
-        if (!agg) {
-          agg = {
+        const periodYear = isMonthly ? year : periods[i];
+        const periodKey = `${periodYear}-${String(actualMonth).padStart(2, "0")}`;
+
+        if (!byPeriod.has(periodKey)) {
+          byPeriod.set(periodKey, {
             fecha: periodKey,
-            year: isMonthly ? year : periods[i],
-            month: isMonthly ? periods[i] : 12,
+            year: periodYear,
+            month: actualMonth,
             padronNacional: 0, listaNacional: 0,
             padronExtranjero: 0, listaExtranjero: 0,
-            padronHombres: 0, padronMujeres: 0,
-          };
-          byPeriod.set(periodKey, agg);
+            padronHombres: 0, padronMujeres: 0, padronNoBinario: 0, listaNoBinario: 0,
+            padronExtranjeroHombres: 0, padronExtranjeroMujeres: 0, padronExtranjeroNoBinario: 0,
+            listaExtranjeroHombres: 0, listaExtranjeroMujeres: 0, listaExtranjeroNoBinario: 0,
+          });
         }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const agg = byPeriod.get(periodKey)!;
 
-        agg.padronNacional   += sec.p[i]   ?? 0;
-        agg.listaNacional    += sec.l[i]    ?? 0;
-        agg.padronHombres    += sec.ph[i]   ?? 0;
-        agg.padronMujeres    += sec.pm[i]   ?? 0;
-        agg.padronExtranjero += sec.pe[i]   ?? 0;
-        agg.listaExtranjero  += sec.le[i]   ?? 0;
+        agg.padronNacional    += sec.p[i]    ?? 0;
+        agg.listaNacional     += sec.l[i]    ?? 0;
+        agg.padronHombres     += sec.ph[i]   ?? 0;
+        agg.padronMujeres     += sec.pm[i]   ?? 0;
+        agg.padronNoBinario   += sec.pnb[i]  ?? 0;
+        agg.padronExtranjero  += sec.pe[i]   ?? 0;
+        agg.listaExtranjero   += sec.le[i]   ?? 0;
+        agg.padronExtranjeroHombres   += sec.peh?.[i]  ?? 0;
+        agg.padronExtranjeroMujeres   += sec.pem?.[i]  ?? 0;
+        agg.padronExtranjeroNoBinario += sec.penb?.[i] ?? 0;
+        agg.listaExtranjeroHombres    += sec.leh?.[i]  ?? 0;
+        agg.listaExtranjeroMujeres    += sec.lem?.[i]  ?? 0;
+        agg.listaExtranjeroNoBinario  += sec.lenb?.[i] ?? 0;
       }
     }
 
@@ -686,13 +813,18 @@ export async function getHistoricoSeriesGeo(
 
   const combined = new Map<string, HistoricoMes>();
 
-  // Annual data → one point per year (last month) for G2/G3
+  // Annual data → one point per year (actual last month) for G2/G3
   if (anualData) {
-    const annualSeries = buildSeries(anualData.secciones, anualData.years, false);
+    const annualSeries = buildSeries(
+      anualData.secciones,
+      anualData.years,
+      false,
+      anualData.lastMonths
+    );
     for (const [k, v] of annualSeries) combined.set(k, v);
   }
 
-  // Monthly data for selected year → overrides annual entry for that year + adds G1 data
+  // Monthly data for selected year → overrides annual entry for that year + provides G1 data
   if (yearData) {
     const monthlySeries = buildSeries(yearData.secciones, yearData.months, true);
     for (const [k, v] of monthlySeries) combined.set(k, v);

@@ -5,6 +5,7 @@
 // ============================================================
 
 import type { UserRole } from "../types/subscription.types";
+import { ROLE_PRESENTATION } from "../lib/constants/courses";
 
 // Jerarquía de roles (mayor índice = más privilegios)
 export const ROLE_HIERARCHY: Record<UserRole | "public", number> = {
@@ -54,58 +55,21 @@ export function canAccessCourse(
 /**
  * Obtiene el mensaje de upgrade apropiado
  */
-export function getUpgradeMessage(requiredRole: UserRole): string {
-  const messages: Record<UserRole, string> = {
-    visitor: "Verifica tu correo electrónico para continuar.",
-    registered: "Completa tu registro para acceder a este contenido.",
-    user: "Este contenido requiere una suscripción activa.",
-    basic: "Este contenido requiere el plan Premium o Professional.",
-    premium: "Este contenido requiere el plan Professional.",
-    professional: "Este contenido es exclusivo para equipos profesionales.",
-    "unsubscribed-basic": "Reactiva tu suscripción Basic para acceder.",
-    "unsubscribed-premium": "Reactiva tu suscripción Premium para acceder.",
-    "unsubscribed-professional": "Reactiva tu suscripción Professional para acceder.",
-    expired: "Tu suscripción ha expirado. Renueva para acceder.",
-    admin: "",
-  };
-  
-  return messages[requiredRole] || "No tienes acceso a este contenido.";
+export function getUpgradeMessage(requiredRole: UserRole | "public"): string {
+  if (requiredRole === "admin") return "";
+  return ROLE_PRESENTATION[requiredRole]?.upgradeMessage || "No tienes acceso a este contenido.";
 }
 
 /**
  * Obtiene el plan requerido para un rol
  */
-export function getRequiredPlan(role: UserRole): string {
-  const planMap: Partial<Record<UserRole, string>> = {
-    basic: "Plan Basic",
-    premium: "Plan Premium",
-    professional: "Plan Professional",
-    user: "Registro completo",
-    registered: "Verificación de email",
-    visitor: "Verificación de email",
-  };
-  
-  return planMap[role] || "Suscripción activa";
+export function getRequiredPlan(role: UserRole | "public"): string {
+  return ROLE_PRESENTATION[role]?.planName || "Suscripción activa";
 }
 
 /**
  * Obtiene el color de badge para cada rol
  */
 export function getRoleBadgeColor(role: UserRole | "public"): string {
-  const colors: Record<string, string> = {
-    public: "bg-gray-eske-20 text-gray-eske-80",
-    visitor: "bg-yellow-eske-20 text-yellow-eske-80",
-    registered: "bg-blue-eske-20 text-blue-eske-80",
-    user: "bg-green-eske-20 text-green-eske-80",
-    basic: "bg-green-eske text-white",
-    premium: "bg-bluegreen-eske text-white",
-    professional: "bg-blue-eske text-white",
-    "unsubscribed-basic": "bg-red-eske-20 text-red-eske-80",
-    "unsubscribed-premium": "bg-red-eske-20 text-red-eske-80",
-    "unsubscribed-professional": "bg-red-eske-20 text-red-eske-80",
-    expired: "bg-gray-eske-40 text-gray-eske-90",
-    admin: "bg-black-eske text-white",
-  };
-  
-  return colors[role] || "bg-gray-eske-20 text-gray-eske-80";
+  return ROLE_PRESENTATION[role]?.badgeClass || "bg-gray-eske-20 text-gray-eske-80";
 }

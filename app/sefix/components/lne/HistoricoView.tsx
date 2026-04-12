@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useCallback } from "react";
 import { useLneHistorico } from "@/app/sefix/hooks/useLneHistorico";
 import type { Ambito } from "@/lib/sefix/seriesUtils";
 import GeoFilter, { type GeoInfo } from "./GeoFilter";
@@ -8,6 +8,8 @@ import DynamicTextBlock from "./DynamicTextBlock";
 import G1TrendChart from "./charts/G1TrendChart";
 import G2BarChart from "./charts/G2BarChart";
 import G3SexChart from "./charts/G3SexChart";
+import { useEscapeKey } from "@/app/hooks/useEscapeKey";
+import { useFocusTrap } from "@/app/hooks/useFocusTrap";
 
 // ──────────────────────────────────────────────
 // Helpers de UI
@@ -39,6 +41,116 @@ function LoadingState() {
       <div className="w-10 h-10 border-4 border-gray-eske-20 border-t-blue-eske rounded-full animate-spin mb-4" />
       <p className="text-sm font-medium text-black-eske-10 mb-1">Cargando datos de la consulta</p>
       <p className="text-xs text-black-eske-60 text-center max-w-xs">Por favor, espera.</p>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Modal de Metodología de Proyección
+// ──────────────────────────────────────────────
+function ModalMetodologia({ onClose }: { onClose: () => void }) {
+  const modalRef = useFocusTrap(true);
+  useEscapeKey(true, onClose);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-metodologia-title"
+    >
+      {/* Overlay */}
+      <div
+        className="absolute inset-0 bg-black-eske/50"
+        aria-hidden="true"
+        onClick={onClose}
+      />
+
+      {/* Panel */}
+      <div
+        ref={modalRef as React.RefObject<HTMLDivElement>}
+        className="relative w-full max-w-md bg-white-eske rounded-xl shadow-xl overflow-hidden"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-eske-20">
+          <h2
+            id="modal-metodologia-title"
+            className="text-base font-semibold text-bluegreen-eske flex items-center gap-2"
+          >
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Metodología de Proyección
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar modal de metodología"
+            className="text-black-eske-60 hover:text-black-eske transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-4 space-y-4 text-sm text-black-eske leading-relaxed max-h-[70vh] overflow-y-auto">
+          <p>
+            La proyección utiliza un{" "}
+            <strong>modelo de tasa de crecimiento mensual compuesto</strong>{" "}
+            basado en los datos históricos del año en curso.
+          </p>
+
+          <div>
+            <p className="font-semibold text-bluegreen-eske mb-2">Pasos del cálculo:</p>
+            <ol className="list-decimal list-inside space-y-1 pl-1">
+              <li><strong>Datos base:</strong> Cortes mensuales del año actual.</li>
+              <li><strong>Tasa de crecimiento:</strong> Tasa mensual compuesta entre el primer y último mes disponibles.</li>
+              <li><strong>Proyección:</strong> Se aplica la tasa hasta diciembre.</li>
+              <li><strong>Visualización:</strong> Líneas punteadas = valores proyectados.</li>
+            </ol>
+          </div>
+
+          <div>
+            <p className="font-semibold text-bluegreen-eske mb-2">Fórmula:</p>
+            <div className="bg-gray-eske-10 rounded-lg p-3 border-l-4 border-bluegreen-eske font-mono text-xs space-y-1">
+              <p>Tasa = (Valor_final / Valor_inicial)^(1/(n−1)) − 1</p>
+              <p>Proyección(i) = Último_valor × (1 + Tasa)^i</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="font-semibold text-orange-eske mb-2 flex items-center gap-1">
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              Consideraciones:
+            </p>
+            <ul className="list-disc list-inside space-y-1 pl-1">
+              <li>Asume una tasa de crecimiento <strong>constante</strong>.</li>
+              <li>Es una <strong>estimación estadística</strong>, no un dato oficial.</li>
+              <li>Proyecta hasta <strong>diciembre</strong> del año seleccionado.</li>
+              <li>Los datos oficiales del INE prevalecen sobre la proyección.</li>
+            </ul>
+          </div>
+
+          <p className="text-xs text-black-eske-60 text-center border-t border-gray-eske-20 pt-3">
+            Esta es una herramienta de referencia. Los datos oficiales son los publicados por el INE.
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-gray-eske-20 flex justify-center">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-6 py-2 bg-bluegreen-eske text-white-eske text-sm font-semibold rounded-lg hover:bg-bluegreen-eske-80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske focus-visible:ring-offset-2"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -78,6 +190,10 @@ export default function HistoricoView() {
   // Spinner al consultar
   const [isPending, startTransition] = useTransition();
 
+  // Modal de metodología (solo G1 con proyección)
+  const [showMetodologia, setShowMetodologia] = useState(false);
+  const closeMetodologia = useCallback(() => setShowMetodologia(false), []);
+
   const { isLoading, error, availableYears, g1Data, g2Data, g3SexData, nbLatest, texts } =
     useLneHistorico(ambito, selectedYear, geoInfo);
 
@@ -95,6 +211,14 @@ export default function HistoricoView() {
 
   const subtituloGeo = buildSubtitulo(ambito, geoInfo);
 
+  // Subtítulo compartido con fecha del último corte disponible (para todas las gráficas)
+  const latestFecha = g1Data?.latestFecha ?? "";
+  const subtituloConCorte = busy
+    ? "Cargando..."
+    : latestFecha
+    ? `${subtituloGeo} — Último corte: ${latestFecha}.`
+    : subtituloGeo;
+
   // G1: ¿hay proyección? (año actual con meses incompletos)
   const hasProjection = (g1Data?.projected.length ?? 0) > 0;
   const g1Title = hasProjection
@@ -102,8 +226,8 @@ export default function HistoricoView() {
     : `Evolución ${displayYear} — Padrón y LNE ${ambitoLabel}`;
   const g1Subtitle = busy
     ? "Cargando..."
-    : g1Data?.latestFecha
-    ? `${subtituloGeo} — Último corte: ${g1Data.latestFecha}${hasProjection ? ". Línea punteada = proyección a diciembre." : "."}`
+    : latestFecha
+    ? `${subtituloGeo} — Último corte: ${latestFecha}${hasProjection ? ". Línea punteada = proyección a diciembre." : "."}`
     : subtituloGeo;
 
   // ── Callback de GeoFilter ──
@@ -178,11 +302,30 @@ export default function HistoricoView() {
 
               {/* G1 — Proyección / Evolución del año */}
               <div>
-                <SectionHeader title={g1Title} subtitle={g1Subtitle} />
+                <div className="mb-3 text-center">
+                  <div className="flex items-center justify-center gap-2 flex-wrap">
+                    <h3 className="text-base font-semibold text-black-eske">{g1Title}</h3>
+                    {hasProjection && (
+                      <button
+                        type="button"
+                        onClick={() => setShowMetodologia(true)}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Metodología
+                      </button>
+                    )}
+                  </div>
+                  {g1Subtitle && (
+                    <p className="text-xs text-black-eske-60 mt-0.5">{g1Subtitle}</p>
+                  )}
+                </div>
                 {!g1Data ? (
                   <ChartSkeleton height={320} />
                 ) : (
-                  <G1TrendChart data={g1Data} />
+                  <G1TrendChart data={g1Data} ambito={ambito} />
                 )}
                 <p className="text-[11px] text-black-eske-60 mt-2 text-center">
                   Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado
@@ -193,12 +336,12 @@ export default function HistoricoView() {
               <div>
                 <SectionHeader
                   title={`Evolución Anual (${yearRange}) — Padrón y LNE ${ambitoLabel}`}
-                  subtitle={subtituloGeo}
+                  subtitle={subtituloConCorte}
                 />
                 {g2Data.length === 0 ? (
                   <ChartSkeleton height={300} />
                 ) : (
-                  <G2BarChart data={g2Data} />
+                  <G2BarChart data={g2Data} ambito={ambito} />
                 )}
                 <p className="text-[11px] text-black-eske-60 mt-2 text-center">
                   Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado
@@ -209,17 +352,14 @@ export default function HistoricoView() {
               <div>
                 <SectionHeader
                   title={`Evolución Anual por Sexo (${yearRange}) — ${ambitoLabel}`}
-                  subtitle={subtituloGeo}
+                  subtitle={subtituloConCorte}
                 />
-                {ambito === "extranjero" ? (
-                  <div className="flex items-center justify-center h-40 rounded-lg bg-gray-eske-10 text-sm text-black-eske-60">
-                    El desglose por sexo no está disponible para el ámbito Extranjero.
-                  </div>
-                ) : g3SexData.length === 0 ? (
+                {g3SexData.length === 0 ? (
                   <ChartSkeleton height={320} />
                 ) : (
                   <G3SexChart
                     data={g3SexData}
+                    ambito={ambito}
                     nbLatest={nbLatest}
                     nbScope={
                       geoInfo.municipio !== "Todos"
@@ -259,6 +399,9 @@ export default function HistoricoView() {
           </div>
         </div>
       )}
+
+      {/* Modal de metodología — renderizado sobre el layout */}
+      {showMetodologia && <ModalMetodologia onClose={closeMetodologia} />}
     </div>
   );
 }

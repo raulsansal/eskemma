@@ -10,17 +10,22 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import type { G2Point } from "@/lib/sefix/seriesUtils";
+import type { Ambito, G2Point } from "@/lib/sefix/seriesUtils";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const fmtM = (v: number) =>
   v >= 1_000_000 ? `${(v / 1_000_000).toFixed(0)}M` : FMT.format(v);
 
+const COLORS_NACIONAL = { padron: "#00304A", lista: "#8B0000", padronLabel: "Padrón Nacional", listaLabel: "Lista Nacional" };
+const COLORS_EXTRANJERO = { padron: "#7206b4ff", lista: "#0163a4ff", padronLabel: "Padrón Extranjero", listaLabel: "Lista Extranjero" };
+
 interface Props {
   data: G2Point[];
+  ambito?: Ambito;
 }
 
-export default function G2BarChart({ data }: Props) {
+export default function G2BarChart({ data, ambito = "nacional" }: Props) {
+  const C = ambito === "extranjero" ? COLORS_EXTRANJERO : COLORS_NACIONAL;
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
@@ -41,7 +46,7 @@ export default function G2BarChart({ data }: Props) {
         <Tooltip
           formatter={(value, name) => [
             FMT.format(Number(value)),
-            name === "padron" ? "Padrón Nacional" : "Lista Nacional",
+            name === "padron" ? C.padronLabel : C.listaLabel,
           ]}
           itemSorter={(item) => -(item.value as number)}
           contentStyle={{
@@ -51,24 +56,24 @@ export default function G2BarChart({ data }: Props) {
           }}
         />
         <Legend
-          formatter={(v) => (v === "padron" ? "Padrón Nacional" : "Lista Nacional")}
+          formatter={(v) => (v === "padron" ? C.padronLabel : C.listaLabel)}
           wrapperStyle={{ fontSize: 12 }}
         />
         <Line
           type="linear"
           dataKey="padron"
-          stroke="#00304A"
+          stroke={C.padron}
           strokeWidth={2}
-          dot={{ r: 4, fill: "#00304A" }}
+          dot={{ r: 4, fill: C.padron }}
           activeDot={{ r: 5 }}
           name="padron"
         />
         <Line
           type="linear"
           dataKey="lista"
-          stroke="#8B0000"
+          stroke={C.lista}
           strokeWidth={2}
-          dot={{ r: 4, fill: "#8B0000" }}
+          dot={{ r: 4, fill: C.lista }}
           activeDot={{ r: 5 }}
           name="lista"
         />

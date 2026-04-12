@@ -19,12 +19,12 @@ const PROTECTED_ROUTES: Array<{ pattern: RegExp; requiredRole: UserRole }> = [
   { pattern: /^\/blog\/admin/, requiredRole: "admin" },
 
   // ✅ Fase 4 — Usuarios autenticados
-  { pattern: /^\/moddulo/, requiredRole: "user" },
-  { pattern: /^\/profile/, requiredRole: "registered" },
-  { pattern: /^\/cursos/, requiredRole: "user" },
+  // { pattern: /^\/moddulo/, requiredRole: "user" },
+  // { pattern: /^\/profile/, requiredRole: "registered" },
+  // { pattern: /^\/cursos/, requiredRole: "user" },
   // /sefix es público — sin restricción de rol
-  { pattern: /^\/monitor/, requiredRole: "user" },
-  { pattern: /^\/recursos/, requiredRole: "user" },
+  // { pattern: /^\/monitor/, requiredRole: "user" },
+  // { pattern: /^\/recursos/, requiredRole: "user" },
 ];
 
 // ─────────────────────────────────────────────────────────────

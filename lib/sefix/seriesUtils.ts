@@ -44,12 +44,21 @@ export interface G3Point {
 
 export interface G3SexPoint {
   year: number;
+  /** Padrón H/M/NB — uses nacional or extranjero depending on ambito used to compute */
   padronHombres: number;
   padronMujeres: number;
-  /** Estimado: listaNacional × (padronHombres / padronNacional) */
+  padronNoBinario: number;
+  /** Lista H/M/NB estimada: totalLista × (padronH / padronTotal) */
   listaHombres: number;
-  /** Estimado: listaNacional × (padronMujeres / padronNacional) */
   listaMujeres: number;
+  listaNoBinario: number;
+  /** Extranjero-specific fields (populated when ambito=extranjero) */
+  padronExtranjeroHombres: number;
+  padronExtranjeroMujeres: number;
+  padronExtranjeroNoBinario: number;
+  listaExtranjeroHombres: number;
+  listaExtranjeroMujeres: number;
+  listaExtranjeroNoBinario: number;
 }
 
 export interface HistoricoTexts {
@@ -100,10 +109,18 @@ export function computeProjection(
   const last = actual[actual.length - 1];
   if (last.month >= targetMonth) return [];
 
-  const deltas = actual
-    .slice(1)
-    .map((p, i) => p.lista - actual[i].lista);
-  const avgDelta = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+  const first = actual[0];
+  const n = actual.length;
+
+  // Compound monthly growth rate — metodología idéntica al Shiny original:
+  //   Tasa = (Valor_final / Valor_inicial)^(1/(n-1)) - 1
+  //   Proyección(i) = Último_valor × (1 + Tasa)^i
+  const tasaLista =
+    first.lista > 0 ? Math.pow(last.lista / first.lista, 1 / (n - 1)) - 1 : 0;
+  const tasaPadron =
+    first.padron > 0 && last.padron > 0
+      ? Math.pow(last.padron / first.padron, 1 / (n - 1)) - 1
+      : tasaLista;
 
   const projected: MesPoint[] = [];
   for (let mo = last.month + 1; mo <= targetMonth; mo++) {
@@ -112,8 +129,8 @@ export function computeProjection(
       label: mesLabel(mo, last.year),
       month: mo,
       year: last.year,
-      padron: Math.round(last.padron + avgDelta * steps * (last.padron / last.lista)),
-      lista: Math.round(last.lista + avgDelta * steps),
+      padron: Math.round(last.padron * Math.pow(1 + tasaPadron, steps)),
+      lista: Math.round(last.lista * Math.pow(1 + tasaLista, steps)),
       hombres: 0,
       mujeres: 0,
     });
@@ -206,28 +223,58 @@ export function computeG3SexData(
   series: HistoricoMes[],
   ambito: Ambito = "nacional"
 ): G3SexPoint[] {
-  // El desglose por sexo solo existe para el ámbito nacional
-  if (ambito === "extranjero") return [];
-
-  // Igual que computeG2Data: el último mes disponible de cada año
+  // Último mes disponible de cada año (igual que computeG2Data)
   const byYear = new Map<number, HistoricoMes>();
   for (const m of series) {
     const existing = byYear.get(m.year);
     if (!existing || m.month > existing.month) byYear.set(m.year, m);
   }
+
   return Array.from(byYear.entries())
     .sort(([a], [b]) => a - b)
     .map(([year, m]) => {
-      const total = m.padronNacional;
-      const ratioH = total > 0 ? m.padronHombres / total : 0.5;
-      const ratioM = total > 0 ? m.padronMujeres / total : 0.5;
-      return {
-        year,
-        padronHombres: m.padronHombres,
-        padronMujeres: m.padronMujeres,
-        listaHombres: Math.round(m.listaNacional * ratioH),
-        listaMujeres: Math.round(m.listaNacional * ratioM),
-      };
+      if (ambito === "nacional") {
+        const total  = m.padronNacional;
+        const ratioH  = total > 0 ? m.padronHombres   / total : 0;
+        const ratioM  = total > 0 ? m.padronMujeres   / total : 0;
+        const ratioNB = total > 0 ? m.padronNoBinario / total : 0;
+        return {
+          year,
+          padronHombres:   m.padronHombres,
+          padronMujeres:   m.padronMujeres,
+          padronNoBinario: m.padronNoBinario,
+          listaHombres:   Math.round(m.listaNacional * ratioH),
+          listaMujeres:   Math.round(m.listaNacional * ratioM),
+          // Use direct lista NB when available (from _base.csv); fall back to ratio estimate
+          listaNoBinario: m.listaNoBinario > 0
+            ? m.listaNoBinario
+            : Math.round(m.listaNacional * ratioNB),
+          padronExtranjeroHombres: 0, padronExtranjeroMujeres: 0, padronExtranjeroNoBinario: 0,
+          listaExtranjeroHombres: 0, listaExtranjeroMujeres: 0, listaExtranjeroNoBinario: 0,
+        };
+      } else {
+        // Extranjero: usa los campos extranjero sex (disponibles desde 2020;
+        // pre-2020 la pipeline hace el fallback a columnas nacionales de filas RESIDENTES)
+        const total  = m.padronExtranjero;
+        const ratioH  = total > 0 ? m.padronExtranjeroHombres   / total : 0;
+        const ratioM  = total > 0 ? m.padronExtranjeroMujeres   / total : 0;
+        const ratioNB = total > 0 ? m.padronExtranjeroNoBinario / total : 0;
+        return {
+          year,
+          padronHombres:   m.padronExtranjeroHombres,
+          padronMujeres:   m.padronExtranjeroMujeres,
+          padronNoBinario: m.padronExtranjeroNoBinario,
+          listaHombres:   Math.round(m.listaExtranjero * ratioH),
+          listaMujeres:   Math.round(m.listaExtranjero * ratioM),
+          listaNoBinario: Math.round(m.listaExtranjero * ratioNB),
+          padronExtranjeroHombres:   m.padronExtranjeroHombres,
+          padronExtranjeroMujeres:   m.padronExtranjeroMujeres,
+          padronExtranjeroNoBinario: m.padronExtranjeroNoBinario,
+          listaExtranjeroHombres:   Math.round(m.listaExtranjero * ratioH),
+          listaExtranjeroMujeres:   Math.round(m.listaExtranjero * ratioM),
+          listaExtranjeroNoBinario: Math.round(m.listaExtranjero * ratioNB),
+        };
+      }
     });
 }
 
@@ -276,18 +323,24 @@ export function generateHistoricoTexts(
     evolucion = `${dirPadron} del ${Math.abs(parseFloat(pct(p1, p0)))}% en el Padrón y ${dirLista} del ${Math.abs(parseFloat(pct(l1, l0)))}% en la Lista Nominal entre ${primero.fecha.slice(0, 7)} y ${ultimo.fecha.slice(0, 7)}.`;
   }
 
-  // Bloque 4: predominio de sexo (evalúa TODOS los meses del año)
+  // Bloque 4: predominio de sexo (evalúa TODOS los meses del año, ambos ámbitos)
   let sexo = "";
-  if (yearData.length > 0 && ambito === "nacional") {
-    const totalH = yearData.reduce((s, m) => s + m.padronHombres, 0);
-    const totalM = yearData.reduce((s, m) => s + m.padronMujeres, 0);
-    const hDominates = yearData.filter((m) => m.padronHombres > m.padronMujeres).length;
-    const constant = hDominates === yearData.length || hDominates === 0;
-    const dominante = totalH >= totalM ? "hombres" : "mujeres";
-    if (constant) {
-      sexo = `Con presencia constante de ${dominante} a lo largo del período.`;
-    } else {
-      sexo = `Con mayor presencia de ${dominante} la mayor parte del período.`;
+  if (yearData.length > 0) {
+    const getH = (m: HistoricoMes) =>
+      ambito === "nacional" ? m.padronHombres : m.padronExtranjeroHombres;
+    const getM = (m: HistoricoMes) =>
+      ambito === "nacional" ? m.padronMujeres : m.padronExtranjeroMujeres;
+    const totalH = yearData.reduce((s, m) => s + getH(m), 0);
+    const totalM = yearData.reduce((s, m) => s + getM(m), 0);
+    if (totalH > 0 || totalM > 0) {
+      const hDominates = yearData.filter((m) => getH(m) > getM(m)).length;
+      const constant = hDominates === yearData.length || hDominates === 0;
+      const dominante = totalH >= totalM ? "hombres" : "mujeres";
+      if (constant) {
+        sexo = `Con presencia constante de ${dominante} a lo largo del período.`;
+      } else {
+        sexo = `Con mayor presencia de ${dominante} la mayor parte del período.`;
+      }
     }
   }
 

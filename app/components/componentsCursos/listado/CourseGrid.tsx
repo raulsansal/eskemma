@@ -20,10 +20,10 @@ export default function CourseGrid({ courses, userRole }: CourseGridProps) {
   if (courses.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-eske-70 text-lg">
+        <p className="text-black-eske text-lg font-normal">
           No hay cursos que coincidan con tu búsqueda.
         </p>
-        <p className="text-gray-eske-60 mt-2">
+        <p className="text-black-eske/60 mt-2 font-normal">
           Intenta con otros filtros o términos de búsqueda.
         </p>
       </div>

@@ -11,7 +11,7 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
-import type { G1Data } from "@/lib/sefix/seriesUtils";
+import type { Ambito, G1Data } from "@/lib/sefix/seriesUtils";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const fmt = (v: number) => FMT.format(v);
@@ -23,13 +23,26 @@ const MESES_ES = [
   "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
 ];
 
+// Nacional: azul oscuro / rojo oscuro (R Shiny original)
+const COLORS_NACIONAL = {
+  padron: "#00304A", lista: "#8B0000",
+  padronName: "Padrón Nacional", listaNombre: "Lista Nacional",
+};
+// Extranjero: dorado / verde (R Shiny original)
+const COLORS_EXTRANJERO = {
+  padron: "#7206b4ff", lista: "#0163a4ff",
+  padronName: "Padrón Extranjero", listaNombre: "Lista Extranjero",
+};
+
 interface Props {
   data: G1Data;
+  ambito?: Ambito;
 }
 
 
-export default function G1TrendChart({ data }: Props) {
+export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
   const { actual, projected } = data;
+  const C = ambito === "extranjero" ? COLORS_EXTRANJERO : COLORS_NACIONAL;
 
   // Mes actual para la línea de referencia "Hoy"
   const now = new Date();
@@ -107,20 +120,20 @@ export default function G1TrendChart({ data }: Props) {
         <Line
           type="linear"
           dataKey="padron"
-          name="Padrón Nacional"
-          stroke="#00304A"
+          name={C.padronName}
+          stroke={C.padron}
           strokeWidth={2}
-          dot={{ r: 3, fill: "#00304A" }}
+          dot={{ r: 3, fill: C.padron }}
           activeDot={{ r: 4 }}
           connectNulls
         />
         <Line
           type="linear"
           dataKey="lista"
-          name="Lista Nacional"
-          stroke="#8B0000"
+          name={C.listaNombre}
+          stroke={C.lista}
           strokeWidth={2}
-          dot={{ r: 3, fill: "#8B0000" }}
+          dot={{ r: 3, fill: C.lista }}
           activeDot={{ r: 4 }}
           connectNulls
         />
@@ -130,7 +143,7 @@ export default function G1TrendChart({ data }: Props) {
           type="linear"
           dataKey="padronProyectado"
           name="Proyección Padrón"
-          stroke="#00304A"
+          stroke={C.padron}
           strokeWidth={2}
           strokeDasharray="5 3"
           dot={false}
@@ -140,7 +153,7 @@ export default function G1TrendChart({ data }: Props) {
           type="linear"
           dataKey="listaProyectada"
           name="Proyección Lista"
-          stroke="#8B0000"
+          stroke={C.lista}
           strokeWidth={2}
           strokeDasharray="5 3"
           dot={false}

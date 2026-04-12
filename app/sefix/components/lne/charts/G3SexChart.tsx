@@ -11,35 +11,73 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import type { G3SexPoint } from "@/lib/sefix/seriesUtils";
+import type { Ambito, G3SexPoint } from "@/lib/sefix/seriesUtils";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const fmtM = (v: number) =>
   v >= 1_000_000 ? `${(v / 1_000_000).toFixed(0)}M` : FMT.format(v);
 
-// Colores fidelizados al Shiny original
-const COLOR_MUJERES_PADRON = "#C0306A";   // rosa fuerte, sólido
-const COLOR_MUJERES_LISTA  = "#8B1A3D";   // rosa oscuro, punteado
-const COLOR_HOMBRES_PADRON = "#003F8A";   // azul, sólido
-const COLOR_HOMBRES_LISTA  = "#001A5E";   // azul oscuro, punteado
+// Colores fidelizados al Shiny original — Nacional
+const COLORS_NACIONAL = {
+  padronMujeres: "#C0306A",
+  listaMujeres: "#8B1A3D",
+  padronHombres: "#003F8A",
+  listaHombres: "#001A5E",
+};
+// Colores fidelizados al Shiny original — Extranjero
+const COLORS_EXTRANJERO = {
+  padronMujeres: "#7206b4ff",
+  listaMujeres: "#7f24f7ff",
+  padronHombres: "#0163a4ff",
+  listaHombres: "#1d7fe9ff",
+};
 
 const LEGEND_LABELS: Record<string, string> = {
   padronMujeres: "Padrón Mujeres",
-  listaMujeres:  "Lista Mujeres",
+  listaMujeres: "Lista Mujeres",
   padronHombres: "Padrón Hombres",
-  listaHombres:  "Lista Hombres",
+  listaHombres: "Lista Hombres",
 };
 
 interface Props {
   data: G3SexPoint[];
+  ambito?: Ambito;
+  /** Dato NB del último corte semanal — fallback si historico no tiene NB */
   nbLatest?: { padron: number; lista: number } | null;
   /** Etiqueta de alcance para la card NB (ej. "JALISCO", "COLOTLAN", "Nacional") */
   nbScope?: string;
 }
 
-export default function G3SexChart({ data, nbLatest, nbScope = "Nacional" }: Props) {
-  const latestYear = data[data.length - 1]?.year;
+export default function G3SexChart({ data, ambito = "nacional", nbLatest, nbScope = "Nacional" }: Props) {
+  const C = ambito === "extranjero" ? COLORS_EXTRANJERO : COLORS_NACIONAL;
+  const latest = data[data.length - 1];
+  const latestYear = latest?.year;
+  // Card visible si hay dato histórico NB O semanal NB
+  const nbAnnual = data.filter((d) => d.padronNoBinario > 0);
+  const hasNb = nbAnnual.length > 0 || (nbLatest != null && nbLatest.padron > 0);
+  // Prefer historico NB (más confiable: mismo corte que la serie); semanal como fallback
+  const latestHistoricoNb = latest?.padronNoBinario > 0
+    ? { padron: latest.padronNoBinario, lista: latest.listaNoBinario }
+    : null;
+  const nbDisplay = latestHistoricoNb ?? nbLatest ?? null;
   const [nbHovered, setNbHovered] = useState(false);
+
+  // Tabla de desglose: combina datos históricos anuales con el dato semanal del año más reciente.
+  // Si el año más reciente no tiene NB en la serie histórica pero sí en el semanal, lo incluye.
+  const nbTableRows = (() => {
+    const rows: { year: number; padron: number; lista: number }[] = nbAnnual.map((d) => ({
+      year: d.year,
+      padron: d.padronNoBinario,
+      lista: d.listaNoBinario,
+    }));
+    if (nbLatest && nbLatest.padron > 0 && latestYear) {
+      const alreadyCovered = rows.some((r) => r.year === latestYear);
+      if (!alreadyCovered) {
+        rows.push({ year: latestYear, padron: nbLatest.padron, lista: nbLatest.lista });
+      }
+    }
+    return rows.sort((a, b) => b.year - a.year);
+  })();
 
   return (
     <div className="relative">
@@ -82,15 +120,15 @@ export default function G3SexChart({ data, nbLatest, nbScope = "Nacional" }: Pro
           <Line
             type="linear"
             dataKey="padronMujeres"
-            stroke={COLOR_MUJERES_PADRON}
+            stroke={C.padronMujeres}
             strokeWidth={2}
-            dot={{ r: 3, fill: COLOR_MUJERES_PADRON }}
+            dot={{ r: 3, fill: C.padronMujeres }}
             activeDot={{ r: 4 }}
           />
           <Line
             type="linear"
             dataKey="listaMujeres"
-            stroke={COLOR_MUJERES_LISTA}
+            stroke={C.listaMujeres}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -101,15 +139,15 @@ export default function G3SexChart({ data, nbLatest, nbScope = "Nacional" }: Pro
           <Line
             type="linear"
             dataKey="padronHombres"
-            stroke={COLOR_HOMBRES_PADRON}
+            stroke={C.padronHombres}
             strokeWidth={2}
-            dot={{ r: 3, fill: COLOR_HOMBRES_PADRON }}
+            dot={{ r: 3, fill: C.padronHombres }}
             activeDot={{ r: 4 }}
           />
           <Line
             type="linear"
             dataKey="listaHombres"
-            stroke={COLOR_HOMBRES_LISTA}
+            stroke={C.listaHombres}
             strokeWidth={2}
             strokeDasharray="4 2"
             dot={false}
@@ -119,7 +157,7 @@ export default function G3SexChart({ data, nbLatest, nbScope = "Nacional" }: Pro
       </ResponsiveContainer>
 
       {/* Card No Binario — z-index bajo para que el tooltip Recharts quede encima */}
-      {nbLatest && (
+      {hasNb && nbDisplay && (
         <div
           className="absolute top-2 left-16"
           style={{ zIndex: 10 }}
@@ -137,17 +175,19 @@ export default function G3SexChart({ data, nbLatest, nbScope = "Nacional" }: Pro
             )}
             <p className="text-black-eske-60">
               Padrón:{" "}
-              <span className="font-medium text-black-eske">{FMT.format(nbLatest.padron)}</span>
+              <span className="font-medium text-black-eske">{FMT.format(nbDisplay.padron)}</span>
             </p>
             <p className="text-black-eske-60">
               Lista:{" "}
-              <span className="font-medium text-black-eske">{FMT.format(nbLatest.lista)}</span>
+              <span className="font-medium text-black-eske">{FMT.format(nbDisplay.lista)}</span>
             </p>
-            <p className="text-black-eske-40 mt-1 italic">(Ver desglose)</p>
+            {nbTableRows.length > 0 && (
+              <p className="text-black-eske-40 mt-1 italic">(Ver desglose)</p>
+            )}
           </div>
 
-          {/* Popover de detalle al hacer hover */}
-          {nbHovered && (
+          {/* Popover de detalle — muestra evolución anual cuando hay datos históricos */}
+          {nbHovered && nbTableRows.length > 0 && (
             <div
               className="absolute top-full left-0 mt-1 w-56 bg-white-eske border border-gray-eske-20 rounded-md shadow-lg p-3 text-xs"
               style={{ zIndex: 40 }}
@@ -164,15 +204,17 @@ export default function G3SexChart({ data, nbLatest, nbScope = "Nacional" }: Pro
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td className="pr-2 text-black-eske-60">{latestYear ?? "—"}</td>
-                    <td className="pr-2 text-black-eske">{FMT.format(nbLatest.padron)}</td>
-                    <td className="text-black-eske">{FMT.format(nbLatest.lista)}</td>
-                  </tr>
+                  {nbTableRows.map((r) => (
+                    <tr key={r.year}>
+                      <td className="pr-2 text-black-eske-60">{r.year}</td>
+                      <td className="pr-2 text-black-eske">{FMT.format(r.padron)}</td>
+                      <td className="text-black-eske">{FMT.format(r.lista)}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
               <p className="text-black-eske-40 mt-2 italic leading-relaxed">
-                Último corte semanal disponible.
+                Último corte de cada año disponible.
               </p>
             </div>
           )}

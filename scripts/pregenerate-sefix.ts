@@ -40,6 +40,28 @@ const STORAGE_PREFIX = "sefix/pdln/historico_entidad";
 /** Special key for Residentes en el Extranjero aggregate */
 const EXTRANJERO_KEY = "__EXTRANJERO__";
 
+/**
+ * Normalizes CSV entidad names that have changed across INE file versions.
+ * Some CSVs use the full constitutional name (e.g. "MICHOACAN DE OCAMPO"),
+ * newer ones use the short name ("MICHOACAN"). We unify to the short name
+ * so only one set of JSON files is generated per state.
+ */
+const CSV_ENTIDAD_NORMALIZER: Record<string, string> = {
+  "MICHOACAN DE OCAMPO":            "MICHOACAN",
+  "VERACRUZ DE IGNACIO DE LA LLAVE": "VERACRUZ",
+  "COAHUILA DE ZARAGOZA":            "COAHUILA",
+};
+
+function normalizeEntidadName(raw: string): string {
+  const key = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+  return CSV_ENTIDAD_NORMALIZER[key] ?? key;
+}
+
 // ──────────────────────────────────────────────
 // Types
 // ──────────────────────────────────────────────
@@ -51,11 +73,17 @@ interface SeccionData {
   cvd: string;  // cve_distrito
   p:   number[]; // padronNacional per period
   l:   number[]; // listaNacional per period
-  ph:  number[]; // padronHombres per period
-  pm:  number[]; // padronMujeres per period
-  pnb: number[]; // padronNoBinario per period (0 if not available)
+  ph:  number[]; // padronHombres (nacional) per period
+  pm:  number[]; // padronMujeres (nacional) per period
+  pnb: number[]; // padronNoBinario (nacional) per period
   pe:  number[]; // padronExtranjero per period
   le:  number[]; // listaExtranjero per period
+  peh: number[]; // padronExtranjeroHombres per period
+  pem: number[]; // padronExtranjeroMujeres per period
+  penb: number[]; // padronExtranjeroNoBinario per period
+  leh: number[]; // listaExtranjeroHombres per period
+  lem: number[]; // listaExtranjeroMujeres per period
+  lenb: number[]; // listaExtranjeroNoBinario per period
 }
 
 interface EntidadYearCache {
@@ -68,12 +96,18 @@ interface EntidadYearCache {
 interface EntidadAnualCache {
   entidad: string;
   years: number[];
+  /** Actual last month available per year (not always 12) — used for correct G1/G2 period keys */
+  lastMonths: number[];
   secciones: SeccionData[];
 }
 
 // Intermediate accumulator: seccion → month → values
 interface RowValues {
-  p: number; l: number; ph: number; pm: number; pnb: number; pe: number; le: number;
+  p: number; l: number;
+  ph: number; pm: number; pnb: number;   // nacional sex
+  pe: number; le: number;
+  peh: number; pem: number; penb: number; // extranjero sex
+  leh: number; lem: number; lenb: number;
 }
 
 // ──────────────────────────────────────────────
@@ -158,14 +192,15 @@ async function readCsvFile(
       return v ? parseInt(v, 10) || 0 : 0;
     };
 
-    const nombreEntidad = get("nombre_entidad");
+    const nombreEntidad = normalizeEntidadName(get("nombre_entidad"));
     const seccion = get("seccion");
     const municipio = get("nombre_municipio");
     const distrito = get("cabecera_distrital");
     const cvMunicipio = get("cve_municipio");
     const cvDistrito = get("cve_distrito");
 
-    if (!nombreEntidad || !seccion) continue;
+    // Skip rows where R exported "NA" as a literal string for missing values
+    if (!nombreEntidad || nombreEntidad === "NA" || !seccion || seccion === "NA") continue;
 
     const isExt = distrito.toUpperCase().includes("RESIDENTES EXTRANJERO");
 
@@ -174,16 +209,29 @@ async function readCsvFile(
     const has2020Cols = headers.includes("padron_extranjero");
 
     let p = 0, l = 0, ph = 0, pm = 0, pnb = 0, pe = 0, le = 0;
+    let peh = 0, pem = 0, penb = 0, leh = 0, lem = 0, lenb = 0;
 
     if (isExt && !has2020Cols) {
-      // 2017-2019: extranjero row uses nacional columns
-      pe = getNum("padron_nacional");
-      le = getNum("lista_nacional");
-      // no sex breakdown for extranjero in this schema
+      // 2017-2019: RESIDENTES EXTRANJERO row stores data in nacional columns
+      pe   = getNum("padron_nacional");
+      le   = getNum("lista_nacional");
+      // Sex breakdown: use nacional columns as extranjero (R Shiny transform)
+      peh  = getNum("padron_nacional_hombres");
+      pem  = getNum("padron_nacional_mujeres");
+      penb = getNum("padron_nacional_no_binario");
+      leh  = getNum("lista_nacional_hombres");
+      lem  = getNum("lista_nacional_mujeres");
+      lenb = getNum("lista_nacional_no_binario");
     } else if (isExt && has2020Cols) {
-      // 2020+: extranjero row with proper extranjero columns
-      pe = getNum("padron_extranjero");
-      le = getNum("lista_extranjero");
+      // 2020+: RESIDENTES EXTRANJERO row with proper extranjero columns
+      pe   = getNum("padron_extranjero");
+      le   = getNum("lista_extranjero");
+      peh  = getNum("padron_extranjero_hombres");
+      pem  = getNum("padron_extranjero_mujeres");
+      penb = getNum("padron_extranjero_no_binario");
+      leh  = getNum("lista_extranjero_hombres");
+      lem  = getNum("lista_extranjero_mujeres");
+      lenb = getNum("lista_extranjero_no_binario");
     } else {
       // Nacional row
       p   = getNum("padron_nacional");
@@ -199,12 +247,12 @@ async function readCsvFile(
 
     // Emit row for the entidad
     onRow(nombreEntidad, seccion, municipio, distrito, cvMunicipio, cvDistrito,
-          { p, l, ph, pm, pnb, pe, le });
+          { p, l, ph, pm, pnb, pe, le, peh, pem, penb, leh, lem, lenb });
 
     // Also emit for EXTRANJERO aggregate if this is an ext row
     if (isExt) {
       onRow(EXTRANJERO_KEY, seccion, municipio, distrito, cvMunicipio, cvDistrito,
-            { p: 0, l: 0, ph: 0, pm: 0, pnb: 0, pe, le });
+            { p: 0, l: 0, ph: 0, pm: 0, pnb: 0, pe, le, peh, pem, penb, leh, lem, lenb });
     }
   }
 }
@@ -265,7 +313,9 @@ async function processEntidad(
       }
 
       const p: number[] = [], l: number[] = [], ph: number[] = [],
-            pm: number[] = [], pnb: number[] = [], pe: number[] = [], le: number[] = [];
+            pm: number[] = [], pnb: number[] = [], pe: number[] = [], le: number[] = [],
+            peh: number[] = [], pem: number[] = [], penb: number[] = [],
+            leh: number[] = [], lem: number[] = [], lenb: number[] = [];
 
       for (const month of months) {
         const row = monthMap.get(month)?.get(sid);
@@ -276,9 +326,15 @@ async function processEntidad(
         pnb.push(row?.vals.pnb ?? 0);
         pe.push(row?.vals.pe ?? 0);
         le.push(row?.vals.le ?? 0);
+        peh.push(row?.vals.peh ?? 0);
+        pem.push(row?.vals.pem ?? 0);
+        penb.push(row?.vals.penb ?? 0);
+        leh.push(row?.vals.leh ?? 0);
+        lem.push(row?.vals.lem ?? 0);
+        lenb.push(row?.vals.lenb ?? 0);
       }
 
-      secciones.push({ s: sid, m, d, cvm, cvd, p, l, ph, pm, pnb, pe, le });
+      secciones.push({ s: sid, m, d, cvm, cvd, p, l, ph, pm, pnb, pe, le, peh, pem, penb, leh, lem, lenb });
     }
 
     const cache: EntidadYearCache = {
@@ -296,10 +352,13 @@ async function processEntidad(
   // ── Annual file (last month of each year) ───
   const annualSectionIds = new Set<string>();
   const annualData = new Map<number, Map<string, { vals: RowValues; municipio: string; distrito: string; cvMunicipio: string; cvDistrito: string }>>();
+  // Track the actual last month per year so consumers can build correct period keys
+  const lastMonthPerYear = new Map<number, number>();
 
   for (const year of years) {
     const monthMap = data.get(year)!;
     const lastMonth = Math.max(...Array.from(monthMap.keys()));
+    lastMonthPerYear.set(year, lastMonth);
     const lastSecMap = monthMap.get(lastMonth)!;
     annualData.set(year, lastSecMap);
     for (const sid of lastSecMap.keys()) annualSectionIds.add(sid);
@@ -308,13 +367,17 @@ async function processEntidad(
   const annualSecciones: SeccionData[] = [];
   for (const sid of annualSectionIds) {
     let m = "", d = "", cvm = "", cvd = "";
-    for (const year of years) {
+    // Use metadata from the LATEST year available for this section so that
+    // current district/municipality names are stored (names changed over years)
+    for (const year of [...years].reverse()) {
       const s = annualData.get(year)?.get(sid);
       if (s) { m = s.municipio; d = s.distrito; cvm = s.cvMunicipio; cvd = s.cvDistrito; break; }
     }
 
     const p: number[] = [], l: number[] = [], ph: number[] = [],
-          pm: number[] = [], pnb: number[] = [], pe: number[] = [], le: number[] = [];
+          pm: number[] = [], pnb: number[] = [], pe: number[] = [], le: number[] = [],
+          peh: number[] = [], pem: number[] = [], penb: number[] = [],
+          leh: number[] = [], lem: number[] = [], lenb: number[] = [];
 
     for (const year of years) {
       const row = annualData.get(year)?.get(sid);
@@ -325,14 +388,21 @@ async function processEntidad(
       pnb.push(row?.vals.pnb ?? 0);
       pe.push(row?.vals.pe ?? 0);
       le.push(row?.vals.le ?? 0);
+      peh.push(row?.vals.peh ?? 0);
+      pem.push(row?.vals.pem ?? 0);
+      penb.push(row?.vals.penb ?? 0);
+      leh.push(row?.vals.leh ?? 0);
+      lem.push(row?.vals.lem ?? 0);
+      lenb.push(row?.vals.lenb ?? 0);
     }
 
-    annualSecciones.push({ s: sid, m, d, cvm, cvd, p, l, ph, pm, pnb, pe, le });
+    annualSecciones.push({ s: sid, m, d, cvm, cvd, p, l, ph, pm, pnb, pe, le, peh, pem, penb, leh, lem, lenb });
   }
 
   const anualCache: EntidadAnualCache = {
     entidad: entidadKey,
     years,
+    lastMonths: years.map((y) => lastMonthPerYear.get(y) ?? 12),
     secciones: annualSecciones,
   };
 
@@ -407,13 +477,19 @@ async function main() {
       // Accumulate (sum for sections that appear multiple times — shouldn't happen, but safe)
       const existing = secMap.get(seccion);
       if (existing) {
-        existing.vals.p   += vals.p;
-        existing.vals.l   += vals.l;
-        existing.vals.ph  += vals.ph;
-        existing.vals.pm  += vals.pm;
-        existing.vals.pnb += vals.pnb;
-        existing.vals.pe  += vals.pe;
-        existing.vals.le  += vals.le;
+        existing.vals.p    += vals.p;
+        existing.vals.l    += vals.l;
+        existing.vals.ph   += vals.ph;
+        existing.vals.pm   += vals.pm;
+        existing.vals.pnb  += vals.pnb;
+        existing.vals.pe   += vals.pe;
+        existing.vals.le   += vals.le;
+        existing.vals.peh  += vals.peh;
+        existing.vals.pem  += vals.pem;
+        existing.vals.penb += vals.penb;
+        existing.vals.leh  += vals.leh;
+        existing.vals.lem  += vals.lem;
+        existing.vals.lenb += vals.lenb;
       } else {
         secMap.set(seccion, { vals: { ...vals }, municipio, distrito, cvMunicipio, cvDistrito });
       }

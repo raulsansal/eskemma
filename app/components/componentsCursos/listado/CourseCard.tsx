@@ -10,11 +10,8 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import type { CourseCardItem } from "@/types/course.types";
 import type { UserRole } from "@/types/subscription.types";
-import { 
-  canAccessCourse, 
-  getRoleBadgeColor,
-  getUpgradeMessage 
-} from "@/utils/courseAccessUtils";
+import { canAccessCourse, getRoleBadgeColor, getUpgradeMessage } from "@/utils/courseAccessUtils";
+import { DIFFICULTY_CONFIG, ROLE_PRESENTATION } from "@/lib/constants/courses";
 
 interface CourseCardProps {
   course: CourseCardItem;
@@ -30,6 +27,8 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
   
   const hasAccess = canAccessCourse(userRole, course.requiredRole);
   const badgeColor = getRoleBadgeColor(course.requiredRole);
+  const difficultyInfo = DIFFICULTY_CONFIG[course.difficulty];
+  const roleInfo = ROLE_PRESENTATION[course.requiredRole];
   
   // Formatear duración
   const formatDuration = (minutes: number): string => {
@@ -79,16 +78,14 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
         {/* Badge de nivel de acceso */}
         <div className="absolute top-3 right-3">
           <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${badgeColor}`}>
-            {course.requiredRole === "public" ? "Gratuito" : course.requiredRole}
+            {roleInfo.label}
           </span>
         </div>
         
         {/* Badge de dificultad */}
         <div className="absolute bottom-3 left-3">
-          <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-black/50 text-white backdrop-blur-sm">
-            {course.difficulty === "beginner" && "Principiante"}
-            {course.difficulty === "intermediate" && "Intermedio"}
-            {course.difficulty === "advanced" && "Avanzado"}
+          <span className={`inline-block px-3 py-1 text-xs font-bold rounded-full backdrop-blur-sm shadow-sm ${difficultyInfo.colorClass}`}>
+            {difficultyInfo.label}
           </span>
         </div>
       </div>
@@ -96,7 +93,7 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
       {/* Contenido */}
       <div className="p-5 flex-1 flex flex-col">
         {/* Tipo y categoría */}
-        <div className="flex justify-between items-center mb-2 text-sm text-gray-eske-70">
+        <div className="flex justify-between items-center mb-2 text-sm text-black-eske font-normal">
           <span className="flex items-center gap-1">
             <span>{getTypeIcon()}</span>
             <span className="capitalize">{course.type === "workshop" ? "Taller" : course.type}</span>
@@ -109,7 +106,7 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
         {/* Título */}
         <h3 className="text-xl font-semibold text-bluegreen-eske-60 mb-2 hover:text-bluegreen-eske transition-colors">
           <Link 
-            href={`/taller/${course.slug}`}
+            href={`/cursos/${course.slug}`}
             className="focus-ring-primary rounded"
             aria-label={`Curso: ${course.title}`}
           >
@@ -117,13 +114,14 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
           </Link>
         </h3>
 
+
         {/* Descripción */}
-        <p className="text-gray-eske-80 text-sm mb-4 line-clamp-3">
+        <p className="text-black-eske text-sm mb-4 line-clamp-3 font-normal">
           {course.description}
         </p>
 
         {/* Metadata */}
-        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-eske-70 mb-4">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-black-eske font-normal mb-4">
           <div className="flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -145,7 +143,7 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
             {course.tags.slice(0, 3).map(tag => (
               <span 
                 key={tag} 
-                className="text-xs bg-gray-eske-10 text-gray-eske-70 px-2 py-1 rounded-full"
+                className="text-xs bg-gray-eske-10 text-black-eske font-normal px-2 py-1 rounded-full"
               >
                 #{tag}
               </span>
@@ -160,11 +158,11 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
         <div className="mt-auto pt-4 border-t border-gray-eske-20">
           {hasAccess ? (
             <Link
-              href={`/taller/${course.slug}`}
-              className="block w-full text-center bg-bluegreen-eske hover:bg-bluegreen-eske-70 text-white-eske font-medium py-2 px-4 rounded-lg transition-colors focus-ring-primary"
+              href={`/cursos/${course.slug}`}
+              className="block w-full text-center bg-yellow-eske hover:bg-yellow-eske-60 text-black-eske font-bold py-2 px-4 rounded-lg transition-colors focus-ring-primary shadow-sm active:scale-95"
               aria-label={`Acceder al curso ${course.title}`}
             >
-              Acceder al curso
+              Acceder al curso →
             </Link>
           ) : (
             <div className="space-y-2">
@@ -175,7 +173,7 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
               >
                 Acceso restringido
               </button>
-              <p className="text-xs text-center text-gray-eske-60">
+              <p className="text-xs text-center text-black-eske/70 font-normal">
                 {getUpgradeMessage(course.requiredRole as any)}
               </p>
             </div>

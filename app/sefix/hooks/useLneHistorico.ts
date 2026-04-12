@@ -107,11 +107,11 @@ export function useLneHistorico(
 
   const isGeo = geoInfo && geoInfo.entidad !== "Nacional";
 
-  // Clave de dependencia: incluye el año seleccionado para que al cambiar de año
-  // se recargue el archivo mensual de ese año desde el API.
+  // Clave de dependencia: incluye ambito y año. Cambiar entre Nacional/Extranjero
+  // dispara recarga porque la fuente de datos difiere (serie_historico.csv vs __EXTRANJERO__).
   const geoKey = isGeo
     ? `${geoInfo.entidad}|${geoInfo.cveDistrito ?? ""}|${geoInfo.cveMunicipio ?? ""}|${(geoInfo.secciones ?? []).sort().join(",")}|${selectedYear ?? ""}`
-    : `nacional|${selectedYear ?? ""}`;
+    : `${ambito}|${selectedYear ?? ""}`;
 
   useEffect(() => {
     if (geoKey === lastGeoKeyRef.current && raw !== null) return;
@@ -122,9 +122,21 @@ export function useLneHistorico(
 
     const year = selectedYear ?? new Date().getFullYear();
 
+    // Para ámbito extranjero sin filtro geo, cargar el agregado nacional de
+    // RESIDENTES EXTRANJERO desde los JSON pre-generados (__EXTRANJERO__).
+    // serie_historico.csv no incluye columnas de extranjero.
+    const extranjeroNacionalGeo: GeoInfo = {
+      entidad: "__EXTRANJERO__",
+      distrito: "Todos",
+      municipio: "Todos",
+      seccion: "Todas",
+    };
+
     const loader = isGeo
       ? loadGeoSeries(geoInfo!, year, abortController.signal)
-      : loadNacionalSeries();
+      : ambito === "extranjero"
+        ? loadGeoSeries(extranjeroNacionalGeo, year, abortController.signal)
+        : loadNacionalSeries();
 
     loader
       .then((series) => {
@@ -190,7 +202,8 @@ export function useLneHistorico(
         })
         .catch(() => setNbLatest(null));
     } else {
-      fetch("/api/sefix/serie-semanal?tipo=sexo&ambito=nacional")
+      const nbAmbito = ambito === "extranjero" ? "extranjero" : "nacional";
+      fetch(`/api/sefix/serie-semanal?tipo=sexo&ambito=${nbAmbito}`)
         .then((r) => r.json())
         .then(({ data }: { data?: Record<string, number> }) => {
           const p = data?.padron_no_binario ?? 0;

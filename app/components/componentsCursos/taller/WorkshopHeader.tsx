@@ -58,7 +58,7 @@ export default function WorkshopHeader({
           <div className="flex items-center gap-3">
             {/* Progreso del día (si aplica) */}
             {progress && (
-              <div className="hidden md:flex items-center gap-2 text-sm text-gray-eske-70">
+              <div className="hidden md:flex items-center gap-2 text-sm text-black-eske font-normal">
                 <span>Último acceso:</span>
                 <span>
                   {progress.lastAccessedAt 

@@ -21,7 +21,7 @@ const MOCK_COURSES: CourseCardItem[] = [
     description: TALLER_DIAGNOSTICO.description,
     type: TALLER_DIAGNOSTICO.type,
     difficulty: TALLER_DIAGNOSTICO.difficulty,
-    thumbnail: "/images/taller-diagnostico-thumb.jpg",
+    thumbnail: "/images/cursos/diagnostico_electoral.png",
     estimatedDuration: TALLER_DIAGNOSTICO.estimatedDuration,
     enrolledStudents: 156,
     requiredRole: TALLER_DIAGNOSTICO.requiredRole,
@@ -35,7 +35,7 @@ const MOCK_COURSES: CourseCardItem[] = [
     description: "Estrategias de comunicación para campañas modernas, incluyendo manejo de crisis y narrativa digital.",
     type: "course",
     difficulty: "advanced",
-    thumbnail: "/images/comunicacion-thumb.jpg",
+    thumbnail: "/images/cursos/comunicacion_politica.png",
     estimatedDuration: 900,
     enrolledStudents: 89,
     requiredRole: "premium",
@@ -49,7 +49,7 @@ const MOCK_COURSES: CourseCardItem[] = [
     description: "Curso básico para entender y analizar datos electorales con herramientas accesibles.",
     type: "course",
     difficulty: "beginner",
-    thumbnail: "/images/datos-thumb.jpg",
+    thumbnail: "/images/cursos/analisis_datos.png",
     estimatedDuration: 480,
     enrolledStudents: 234,
     requiredRole: "user",
@@ -135,4 +135,12 @@ export async function getAllTags() {
     tag,
     count: MOCK_COURSES.filter(c => c.tags?.includes(tag)).length,
   }));
+}
+
+export async function getPopularCourses(limit: number = 5) {
+  // Por ahora simulamos popularidad con el orden del mock
+  // En producción se usaría un campo 'views' o 'enrolledStudents'
+  return [...MOCK_COURSES]
+    .sort((a, b) => (b.enrolledStudents || 0) - (a.enrolledStudents || 0))
+    .slice(0, limit);
 }
