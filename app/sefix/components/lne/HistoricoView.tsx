@@ -8,6 +8,7 @@ import DynamicTextBlock from "./DynamicTextBlock";
 import G1TrendChart from "./charts/G1TrendChart";
 import G2BarChart from "./charts/G2BarChart";
 import G3SexChart from "./charts/G3SexChart";
+import HistoricoDataTable from "./HistoricoDataTable";
 import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 import { useFocusTrap } from "@/app/hooks/useFocusTrap";
 
@@ -397,6 +398,13 @@ export default function HistoricoView() {
               </p>
             </div>
           </div>
+
+          {/* Tabla de Datos — debajo del grid de gráficas */}
+          <HistoricoDataTable
+            ambito={ambito}
+            geoInfo={geoInfo}
+            year={displayYear}
+          />
         </div>
       )}
 

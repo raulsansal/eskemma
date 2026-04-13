@@ -17,28 +17,74 @@ import {
   type HistoricoTexts,
 } from "@/lib/sefix/seriesUtils";
 
-// Caché en módulo: persiste por el lifetime de la pestaña del navegador
+// ── Caché en memoria (persiste por lifetime de la pestaña) ──────────────────
 let cachedNacional: HistoricoMes[] | null = null;
+
+// ── Caché en sessionStorage (persiste entre reloads de la misma sesión) ──────
+// Solo guarda la serie nacional porque es la más pesada (~50-100 KB JSON).
+// Se invalida automáticamente cuando el navegador cierra la pestaña.
+const SESSION_KEY_NACIONAL = "sefix:serie_historico:v1";
+const SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutos
+
+function readSessionCache(): HistoricoMes[] | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY_NACIONAL);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw) as { ts: number; data: HistoricoMes[] };
+    if (Date.now() - ts > SESSION_TTL_MS) {
+      sessionStorage.removeItem(SESSION_KEY_NACIONAL);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function writeSessionCache(data: HistoricoMes[]): void {
+  try {
+    sessionStorage.setItem(SESSION_KEY_NACIONAL, JSON.stringify({ ts: Date.now(), data }));
+  } catch {
+    // sessionStorage puede lanzar en modo privado o con almacenamiento lleno; ignorar
+  }
+}
 
 /**
  * Carga la serie nacional pre-agregada (rápida, ~200ms).
- * Se usa cuando no hay filtro geográfico activo.
+ * Estrategia de caché en 3 niveles:
+ *   1. Módulo JS (mismo render, instantáneo)
+ *   2. sessionStorage (reload en misma sesión, sin red)
+ *   3. HTTP Cache-Control: max-age=1800 del servidor (visitas repetidas)
  */
 async function loadNacionalSeries(): Promise<HistoricoMes[]> {
   if (cachedNacional) return cachedNacional;
+
+  // Nivel 2: sessionStorage
+  const fromSession = readSessionCache();
+  if (fromSession) {
+    cachedNacional = fromSession;
+    return cachedNacional;
+  }
+
   const res = await fetch("/api/sefix/serie-historico");
   if (!res.ok) throw new Error(`Error ${res.status} al cargar datos históricos`);
   const { data } = (await res.json()) as { data: HistoricoMes[] };
   cachedNacional = data ?? [];
+
+  // Persistir en sessionStorage para la próxima carga de la misma sesión
+  writeSessionCache(cachedNacional);
+
   return cachedNacional;
 }
 
-/** Cache de series geo-filtradas (por clave de filtro + año) */
+/** Cache en memoria de series geo-filtradas (por clave de filtro + año) */
 const geoCache = new Map<string, HistoricoMes[]>();
 
 /**
  * Carga la serie histórica filtrada por entidad/municipio/secciones.
  * Los JSON ya están pre-generados en Firebase Storage — respuesta en ~500-800ms.
+ * Para consultas repetidas dentro de la misma sesión, devuelve el caché en memoria
+ * sin tocar la red (la primera carga ya fue pagada).
  */
 async function loadGeoSeries(
   geo: GeoInfo,
@@ -69,7 +115,8 @@ async function loadGeoSeries(
 
   const body = (await res.json()) as { data?: HistoricoMes[] };
   const series = body.data ?? [];
-  geoCache.set(key, series);
+  // Guardar en caché: si el usuario regresa al mismo filtro, no re-descarga
+  if (series.length > 0) geoCache.set(key, series);
   return series;
 }
 

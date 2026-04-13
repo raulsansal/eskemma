@@ -1062,6 +1062,68 @@ export async function getSeccionesPorMunicipio(
 }
 
 // ==========================================
+// CASCADE GEO POR AÑO (usa JSON pre-generados)
+// ==========================================
+
+/**
+ * Distritos para una entidad en un año específico.
+ * Lee el JSON pre-generado {ENTIDAD}_{year}.json; fallback al semanal si no existe.
+ */
+export async function getDistritosPorEntidadYear(
+  entidad: string,
+  year: number
+): Promise<GeoOpcion[]> {
+  const storageKey = toHistoricoStorageKey(entidad);
+  const cache = await loadEntidadYear(storageKey, year);
+  if (!cache) return getDistritosPorEntidad(entidad);
+  const map = new Map<string, string>();
+  for (const sec of cache.secciones) {
+    if (sec.cvd && sec.d) map.set(sec.cvd, sec.d);
+  }
+  return Array.from(map.entries())
+    .map(([cve, nombre]) => ({ cve, nombre }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+}
+
+/**
+ * Municipios para una entidad + distrito en un año específico.
+ */
+export async function getMunicipiosPorDistritoYear(
+  entidad: string,
+  cvDistrito: string,
+  year: number
+): Promise<GeoOpcion[]> {
+  const storageKey = toHistoricoStorageKey(entidad);
+  const cache = await loadEntidadYear(storageKey, year);
+  if (!cache) return getMunicipiosPorDistrito(entidad, cvDistrito);
+  const map = new Map<string, string>();
+  for (const sec of cache.secciones) {
+    if (sec.cvd === cvDistrito && sec.cvm && sec.m) map.set(sec.cvm, sec.m);
+  }
+  return Array.from(map.entries())
+    .map(([cve, nombre]) => ({ cve, nombre }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
+}
+
+/**
+ * Secciones para una entidad + municipio en un año específico.
+ */
+export async function getSeccionesPorMunicipioYear(
+  entidad: string,
+  cvMunicipio: string,
+  year: number
+): Promise<string[]> {
+  const storageKey = toHistoricoStorageKey(entidad);
+  const cache = await loadEntidadYear(storageKey, year);
+  if (!cache) return getSeccionesPorMunicipio(entidad, cvMunicipio);
+  const secciones = new Set<string>();
+  for (const sec of cache.secciones) {
+    if (sec.cvm === cvMunicipio && sec.s) secciones.add(sec.s);
+  }
+  return Array.from(secciones).sort((a, b) => parseInt(a) - parseInt(b));
+}
+
+// ==========================================
 // DATOS NO BINARIO POR FILTRO GEO (semanal)
 // ==========================================
 
@@ -1104,5 +1166,149 @@ export async function getSemanalNbGeo(
 
   if (padron === 0 && lista === 0) return null;
   return { padron, lista };
+}
+
+// ==========================================
+// TABLA DE DATOS — filas por sección/year
+// ==========================================
+
+export interface TablaRow {
+  year: number;
+  entidad: string;
+  cabecera: string;
+  municipio: string;
+  seccion: string;
+  padron: number;
+  padronH: number;
+  padronM: number;
+  padronNB: number;
+  lista: number;
+  listaH: number;
+  listaM: number;
+  listaNB: number;
+}
+
+function seccionToTablaRow(
+  entidad: string,
+  sec: SeccionData,
+  yearIdx: number,
+  year: number,
+  ambito: "nacional" | "extranjero"
+): TablaRow {
+  if (ambito === "nacional") {
+    const padron  = sec.p[yearIdx]   ?? 0;
+    const lista   = sec.l[yearIdx]   ?? 0;
+    const padronH  = sec.ph[yearIdx]  ?? 0;
+    const padronM  = sec.pm[yearIdx]  ?? 0;
+    const padronNB = sec.pnb[yearIdx] ?? 0;
+    return {
+      year, entidad, cabecera: sec.d, municipio: sec.m, seccion: sec.s,
+      padron, padronH, padronM, padronNB, lista,
+      listaH:  padron > 0 ? Math.round(lista * padronH  / padron) : 0,
+      listaM:  padron > 0 ? Math.round(lista * padronM  / padron) : 0,
+      listaNB: padron > 0 ? Math.round(lista * padronNB / padron) : 0,
+    };
+  }
+  return {
+    year, entidad, cabecera: sec.d, municipio: sec.m, seccion: sec.s,
+    padron:  sec.pe[yearIdx]    ?? 0,
+    padronH: sec.peh?.[yearIdx] ?? 0,
+    padronM: sec.pem?.[yearIdx] ?? 0,
+    padronNB: sec.penb?.[yearIdx] ?? 0,
+    lista:   sec.le[yearIdx]    ?? 0,
+    listaH:  sec.leh?.[yearIdx] ?? 0,
+    listaM:  sec.lem?.[yearIdx] ?? 0,
+    listaNB: sec.lenb?.[yearIdx] ?? 0,
+  };
+}
+
+/**
+ * Devuelve filas por sección del año seleccionado para la Tabla de Datos.
+ * Usa los JSON pre-generados anuales (mismo origen que G2/G3).
+ */
+export async function getHistoricoTablaRows(params: {
+  ambito: "nacional" | "extranjero";
+  entidad?: string;
+  year: number;
+  distritoNombre?: string;
+  municipioNombre?: string;
+  secciones?: string[];
+}): Promise<TablaRow[]> {
+  const { ambito, year } = params;
+  const isNacionalView = !params.entidad || params.entidad === "Nacional";
+
+  // Extranjero nacional: usa el agregado __EXTRANJERO__
+  if (ambito === "extranjero" && isNacionalView) {
+    const cacheKey = `tabla:extranjero:${year}`;
+    const cached = getCached<TablaRow[]>(cacheKey);
+    if (cached) return cached;
+    const data = await loadEntidadAnual("__EXTRANJERO__");
+    if (!data) return [];
+    const yearIdx = data.years.indexOf(year);
+    if (yearIdx === -1) return [];
+    const rows = data.secciones
+      .map((sec) => seccionToTablaRow(sec.m || "Extranjero", sec, yearIdx, year, "extranjero"))
+      .filter((r) => r.padron > 0 || r.lista > 0);
+    if (rows.length > 0) setCache(cacheKey, rows);
+    return rows;
+  }
+
+  // Entidad específica
+  if (!isNacionalView && params.entidad) {
+    const storageKey = toHistoricoStorageKey(params.entidad);
+    const data = await loadEntidadAnual(storageKey);
+    if (!data) return [];
+    const yearIdx = data.years.indexOf(year);
+    if (yearIdx === -1) return [];
+    const filtSec = params.secciones?.length
+      ? new Set(params.secciones.map(normSec))
+      : null;
+    return data.secciones
+      .filter((sec) => {
+        if (filtSec) return filtSec.has(normSec(sec.s));
+        if (params.municipioNombre && sec.m !== params.municipioNombre) return false;
+        // Skip district filter for anual (names evolved between years)
+        return true;
+      })
+      .map((sec) => seccionToTablaRow(params.entidad!, sec, yearIdx, year, ambito));
+  }
+
+  // Nacional: carga los JSON anuales de todos los estados usando la lista
+  // conocida de ESTADO_MAP. No usamos listStorageFiles porque esa función
+  // filtra exclusivamente archivos .csv y no retornaría los .json de estados.
+  const cacheKey = `tabla:nacional:${year}`;
+  const cached = getCached<TablaRow[]>(cacheKey);
+  if (cached) return cached;
+
+  // Claves únicas de estado (ESTADO_MAP ya normaliza alias como "edomex" → "ESTADO DE MEXICO")
+  const stateNames = [...new Set(Object.values(ESTADO_MAP))];
+
+  const rows: TablaRow[] = [];
+  const BATCH = 8;
+  for (let i = 0; i < stateNames.length; i += BATCH) {
+    const batch = stateNames.slice(i, i + BATCH);
+    const results = await Promise.allSettled(
+      batch.map(async (name) => {
+        const key = toHistoricoStorageKey(name);
+        const data = await loadEntidadAnual(key);
+        if (!data) return [] as TablaRow[];
+        const yearIdx = data.years.indexOf(year);
+        if (yearIdx === -1) return [] as TablaRow[];
+        return data.secciones.map((sec) =>
+          seccionToTablaRow(data.entidad, sec, yearIdx, year, "nacional")
+        );
+      })
+    );
+    for (const r of results) {
+      if (r.status === "fulfilled") rows.push(...r.value);
+    }
+  }
+
+  const sorted = rows.sort(
+    (a, b) => a.entidad.localeCompare(b.entidad) || a.seccion.localeCompare(b.seccion)
+  );
+  // Solo cachear si hay filas; evita que un año sin datos bloquee queries futuras
+  if (sorted.length > 0) setCache(cacheKey, sorted);
+  return sorted;
 }
 

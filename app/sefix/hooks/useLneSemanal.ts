@@ -147,7 +147,8 @@ export function useGeoTerritorios(
   nivel: "distrito" | "municipio" | "seccion",
   entidad?: string,
   distrito?: string,
-  municipio?: string
+  municipio?: string,
+  year?: number
 ) {
   const [opciones, setOpciones] = useState<GeoOpcion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -164,6 +165,7 @@ export function useGeoTerritorios(
     if (entidad) params.set("entidad", entidad);
     if (distrito) params.set("distrito", distrito);
     if (municipio) params.set("municipio", municipio);
+    if (year) params.set("year", String(year));
 
     fetch(`/api/sefix/territorios?${params}`)
       .then((r) => r.json())
@@ -173,7 +175,7 @@ export function useGeoTerritorios(
       .catch(() => { if (!cancelled) setIsLoading(false); });
 
     return () => { cancelled = true; };
-  }, [nivel, entidad, distrito, municipio]);
+  }, [nivel, entidad, distrito, municipio, year]);
 
   return { opciones, isLoading };
 }

@@ -7,6 +7,9 @@ import {
   getDistritosPorEntidad,
   getMunicipiosPorDistrito,
   getSeccionesPorMunicipio,
+  getDistritosPorEntidadYear,
+  getMunicipiosPorDistritoYear,
+  getSeccionesPorMunicipioYear,
 } from "@/lib/sefix/storage";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +21,8 @@ export async function GET(request: NextRequest) {
     const entidad = searchParams.get("entidad");
     const distrito = searchParams.get("distrito");
     const municipio = searchParams.get("municipio");
+    const yearRaw = searchParams.get("year");
+    const year = yearRaw ? parseInt(yearRaw, 10) : null;
 
     if (!nivel) {
       return NextResponse.json({ error: "Parámetro 'nivel' requerido" }, { status: 400 });
@@ -25,21 +30,27 @@ export async function GET(request: NextRequest) {
 
     if (nivel === "distrito") {
       if (!entidad) return NextResponse.json({ error: "Se requiere 'entidad'" }, { status: 400 });
-      const opciones = await getDistritosPorEntidad(entidad);
+      const opciones = year
+        ? await getDistritosPorEntidadYear(entidad, year)
+        : await getDistritosPorEntidad(entidad);
       return NextResponse.json({ opciones });
     }
 
     if (nivel === "municipio") {
       if (!entidad || !distrito)
         return NextResponse.json({ error: "Se requieren 'entidad' y 'distrito'" }, { status: 400 });
-      const opciones = await getMunicipiosPorDistrito(entidad, distrito);
+      const opciones = year
+        ? await getMunicipiosPorDistritoYear(entidad, distrito, year)
+        : await getMunicipiosPorDistrito(entidad, distrito);
       return NextResponse.json({ opciones });
     }
 
     if (nivel === "seccion") {
       if (!entidad || !municipio)
         return NextResponse.json({ error: "Se requieren 'entidad' y 'municipio'" }, { status: 400 });
-      const secciones = await getSeccionesPorMunicipio(entidad, municipio);
+      const secciones = year
+        ? await getSeccionesPorMunicipioYear(entidad, municipio, year)
+        : await getSeccionesPorMunicipio(entidad, municipio);
       return NextResponse.json({ opciones: secciones.map((s) => ({ cve: s, nombre: s })) });
     }
 

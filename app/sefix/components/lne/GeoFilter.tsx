@@ -125,6 +125,8 @@ export default function GeoFilter({
   const [geoState, dispatch] = useReducer(geoReducer, { status: "idle" });
   // Copia del geo state en el último "Consultar"
   const committedGeoRef = useRef<GeoFilterState>({ status: "idle" });
+  // Rastrea el año anterior para detectar cambios y resetear cascada
+  const prevYearRef = useRef<number>(selectedYear);
 
   // Sincronizar año pendiente cuando carga la lista de años disponibles
   useEffect(() => {
@@ -135,6 +137,14 @@ export default function GeoFilter({
   useEffect(() => {
     setPendingAmbito(ambito);
   }, [ambito]);
+
+  // Resetear cascada geo cuando el usuario cambia el año (geografía varía por año)
+  useEffect(() => {
+    if (prevYearRef.current !== pendingYear && geoState.status !== "idle") {
+      dispatch({ type: "RESET" });
+    }
+    prevYearRef.current = pendingYear;
+  }, [pendingYear, geoState.status]);
 
   // ── Selectores dependientes de geo ──
   const entidadNombre = geoState.status !== "idle" ? geoState.entidad : undefined;
@@ -150,13 +160,13 @@ export default function GeoFilter({
       : undefined;
 
   const { opciones: distritos, isLoading: loadingDistritos } = useGeoTerritorios(
-    "distrito", entidadNombre
+    "distrito", entidadNombre, undefined, undefined, pendingYear
   );
   const { opciones: municipios, isLoading: loadingMunicipios } = useGeoTerritorios(
-    "municipio", entidadNombre, cveDistrito
+    "municipio", entidadNombre, cveDistrito, undefined, pendingYear
   );
   const { opciones: secciones, isLoading: loadingSecciones } = useGeoTerritorios(
-    "seccion", entidadNombre, undefined, cveMunicipio
+    "seccion", entidadNombre, undefined, cveMunicipio, pendingYear
   );
 
   // Secciones actualmente seleccionadas
