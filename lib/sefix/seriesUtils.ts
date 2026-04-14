@@ -172,10 +172,12 @@ export function computeG1Data(
 
 export function computeG2Data(
   series: HistoricoMes[],
-  ambito: Ambito
+  ambito: Ambito,
+  maxYear?: number
 ): G2Point[] {
   const byYear = new Map<number, HistoricoMes>();
   for (const m of series) {
+    if (maxYear && m.year > maxYear) continue;
     const existing = byYear.get(m.year);
     if (!existing || m.month > existing.month) {
       byYear.set(m.year, m);
@@ -221,11 +223,14 @@ export function computeG3Data(
 
 export function computeG3SexData(
   series: HistoricoMes[],
-  ambito: Ambito = "nacional"
+  ambito: Ambito = "nacional",
+  maxYear?: number
 ): G3SexPoint[] {
-  // Último mes disponible de cada año (igual que computeG2Data)
+  // Último mes disponible de cada año (igual que computeG2Data).
+  // Para NB, los valores son acumulativos → tomar el último corte del año (Dic o el más reciente).
   const byYear = new Map<number, HistoricoMes>();
   for (const m of series) {
+    if (maxYear && m.year > maxYear) continue;
     const existing = byYear.get(m.year);
     if (!existing || m.month > existing.month) byYear.set(m.year, m);
   }
@@ -259,20 +264,24 @@ export function computeG3SexData(
         const ratioH  = total > 0 ? m.padronExtranjeroHombres   / total : 0;
         const ratioM  = total > 0 ? m.padronExtranjeroMujeres   / total : 0;
         const ratioNB = total > 0 ? m.padronExtranjeroNoBinario / total : 0;
+        // Use direct lista NB values when available; fall back to ratio estimate
+        const listaH  = m.listaExtranjeroHombres  > 0 ? m.listaExtranjeroHombres  : Math.round(m.listaExtranjero * ratioH);
+        const listaM  = m.listaExtranjeroMujeres  > 0 ? m.listaExtranjeroMujeres  : Math.round(m.listaExtranjero * ratioM);
+        const listaNB = m.listaExtranjeroNoBinario > 0 ? m.listaExtranjeroNoBinario : Math.round(m.listaExtranjero * ratioNB);
         return {
           year,
           padronHombres:   m.padronExtranjeroHombres,
           padronMujeres:   m.padronExtranjeroMujeres,
           padronNoBinario: m.padronExtranjeroNoBinario,
-          listaHombres:   Math.round(m.listaExtranjero * ratioH),
-          listaMujeres:   Math.round(m.listaExtranjero * ratioM),
-          listaNoBinario: Math.round(m.listaExtranjero * ratioNB),
+          listaHombres:   listaH,
+          listaMujeres:   listaM,
+          listaNoBinario: listaNB,
           padronExtranjeroHombres:   m.padronExtranjeroHombres,
           padronExtranjeroMujeres:   m.padronExtranjeroMujeres,
           padronExtranjeroNoBinario: m.padronExtranjeroNoBinario,
-          listaExtranjeroHombres:   Math.round(m.listaExtranjero * ratioH),
-          listaExtranjeroMujeres:   Math.round(m.listaExtranjero * ratioM),
-          listaExtranjeroNoBinario: Math.round(m.listaExtranjero * ratioNB),
+          listaExtranjeroHombres:   listaH,
+          listaExtranjeroMujeres:   listaM,
+          listaExtranjeroNoBinario: listaNB,
         };
       }
     });

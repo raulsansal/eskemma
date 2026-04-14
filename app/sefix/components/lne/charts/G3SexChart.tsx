@@ -44,40 +44,49 @@ interface Props {
   ambito?: Ambito;
   /** Dato NB del último corte semanal — fallback si historico no tiene NB */
   nbLatest?: { padron: number; lista: number } | null;
+  /**
+   * Serie NB anual completa desde el endpoint /api/sefix/nb-anual.
+   * Cuando está presente, se usa como fuente principal de la tabla de desglose
+   * (reemplaza los valores de padronNoBinario del raw que pueden ser 0 para
+   * años sin columnas NB en serie_historico.csv).
+   */
+  nbAnnual?: { year: number; padron: number; lista: number }[] | null;
   /** Etiqueta de alcance para la card NB (ej. "JALISCO", "COLOTLAN", "Nacional") */
   nbScope?: string;
 }
 
-export default function G3SexChart({ data, ambito = "nacional", nbLatest, nbScope = "Nacional" }: Props) {
+export default function G3SexChart({ data, ambito = "nacional", nbLatest, nbAnnual, nbScope = "Nacional" }: Props) {
   const C = ambito === "extranjero" ? COLORS_EXTRANJERO : COLORS_NACIONAL;
   const latest = data[data.length - 1];
   const latestYear = latest?.year;
-  // Card visible si hay dato histórico NB O semanal NB
-  const nbAnnual = data.filter((d) => d.padronNoBinario > 0);
-  const hasNb = nbAnnual.length > 0 || (nbLatest != null && nbLatest.padron > 0);
-  // Prefer historico NB (más confiable: mismo corte que la serie); semanal como fallback
-  const latestHistoricoNb = latest?.padronNoBinario > 0
-    ? { padron: latest.padronNoBinario, lista: latest.listaNoBinario }
-    : null;
-  const nbDisplay = latestHistoricoNb ?? nbLatest ?? null;
-  const [nbHovered, setNbHovered] = useState(false);
 
-  // Tabla de desglose: combina datos históricos anuales con el dato semanal del año más reciente.
-  // Si el año más reciente no tiene NB en la serie histórica pero sí en el semanal, lo incluye.
+  // Tabla de desglose — fuente preferida: nbAnnual del endpoint dedicado (valores exactos del CSV).
+  // Fallback: padronNoBinario del raw (correcto para vistas geo-filtradas).
+  // Última línea: nbLatest del semanal si el año más reciente aún no está cubierto.
   const nbTableRows = (() => {
-    const rows: { year: number; padron: number; lista: number }[] = nbAnnual.map((d) => ({
-      year: d.year,
-      padron: d.padronNoBinario,
-      lista: d.listaNoBinario,
-    }));
+    let rows: { year: number; padron: number; lista: number }[];
+    if (nbAnnual && nbAnnual.length > 0) {
+      // Endpoint dedicado: valores precisos por año (último corte de cada año)
+      rows = [...nbAnnual];
+    } else {
+      // Fallback: extraer de g3SexData (correcto para vistas geo)
+      rows = data
+        .filter((d) => d.padronNoBinario > 0)
+        .map((d) => ({ year: d.year, padron: d.padronNoBinario, lista: d.listaNoBinario }));
+    }
+    // Añadir año más reciente desde semanal si no está ya cubierto
     if (nbLatest && nbLatest.padron > 0 && latestYear) {
-      const alreadyCovered = rows.some((r) => r.year === latestYear);
-      if (!alreadyCovered) {
+      if (!rows.some((r) => r.year === latestYear)) {
         rows.push({ year: latestYear, padron: nbLatest.padron, lista: nbLatest.lista });
       }
     }
     return rows.sort((a, b) => b.year - a.year);
   })();
+
+  const hasNb = nbTableRows.length > 0;
+  // Card principal: dato del año más reciente disponible en la tabla
+  const nbDisplay = nbTableRows[0] ?? null;
+  const [nbHovered, setNbHovered] = useState(false);
 
   return (
     <div className="relative">

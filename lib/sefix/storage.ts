@@ -576,14 +576,24 @@ export interface HistoricoGeoFilter {
   entidad?: string;
   /**
    * Nombre del distrito tal como aparece en cabecera_distrital del CSV
-   * (e.g., "1513 ECATEPEC DE MORELOS"). Más estable entre archivos que el CVE.
+   * (e.g., "1513 ECATEPEC DE MORELOS"). Usado solo como fallback si no hay cveDistrito.
    */
   distritoNombre?: string;
   /**
+   * CVE numérico del distrito (cve_distrito del CSV, e.g., "2" o "03").
+   * Preferir sobre distritoNombre: es estable entre redistritaciones.
+   */
+  cveDistrito?: string;
+  /**
    * Nombre del municipio tal como aparece en nombre_municipio del CSV
-   * (e.g., "ECATEPEC DE MORELOS"). Más estable entre archivos que el CVE.
+   * (e.g., "ECATEPEC DE MORELOS"). Usado solo como fallback si no hay cveMunicipio.
    */
   municipioNombre?: string;
+  /**
+   * CVE numérico del municipio (cve_municipio del CSV, e.g., "039").
+   * Preferir sobre municipioNombre: es estable entre redistritaciones.
+   */
+  cveMunicipio?: string;
   /** Números de sección como aparecen en seccion del CSV (e.g., ["1431", "1432"]) */
   secciones?: string[];
 }
@@ -710,15 +720,25 @@ export async function getHistoricoSeriesGeo(
   const year = selectedYear ?? new Date().getFullYear();
 
   const secKey = (geo.secciones ?? []).slice().sort().join(",");
-  const cacheKey = `historico:geo2:${storageKey}:${year}:${geo.distritoNombre ?? ""}:${geo.municipioNombre ?? ""}:${secKey}`;
+  const cacheKey = `historico:geo4:${storageKey}:${year}:${geo.cveDistrito ?? geo.distritoNombre ?? ""}:${geo.cveMunicipio ?? geo.municipioNombre ?? ""}:${secKey}`;
   const cached = getCached<HistoricoMes[]>(cacheKey);
   if (cached) return cached;
 
-  // Download both files in parallel
-  const [anualData, yearData] = await Promise.all([
-    loadEntidadAnual(storageKey),
-    loadEntidadYear(storageKey, year),
-  ]);
+  // Detect whether any sub-entidad filter is active.
+  // When a district, municipality, or explicit section filter is present, district names
+  // in the pre-generated _anual.json may not match those in each year's JSON (district
+  // names changed across electoral periods, e.g. "ENSENADA" → "0203 ENSENADA").
+  // To replicate R Shiny's per-year filtering, we load each year's JSON individually and
+  // apply the same geo filter to it — the same approach R uses in datos_anuales_completos.
+  const isGeoFiltered = !!(geo.cveDistrito || geo.distritoNombre || geo.cveMunicipio || geo.municipioNombre || geo.secciones?.length);
+
+  // Always load the selected year's JSON (all months → G1).
+  const yearData = await loadEntidadYear(storageKey, year);
+
+  // For geo-filtered queries, discover available years from the anual JSON header only
+  // (no section data needed), then load each year's JSON individually.
+  // For unfiltered entidad queries, use the pre-aggregated _anual.json (fast path).
+  const anualData = await loadEntidadAnual(storageKey);
 
   if (!anualData && !yearData) {
     console.warn(`[sefix/geo] No pre-generated cache for ${storageKey}. Run scripts/pregenerate-sefix.ts.`);
@@ -730,58 +750,45 @@ export async function getHistoricoSeriesGeo(
     : null;
 
   /**
-   * Filter sections and aggregate across periods into HistoricoMes entries.
+   * Aggregate the sections of a single year JSON into a HistoricoMes entry.
    *
-   * For ANNUAL data (isMonthly=false):
-   *  - District filter is intentionally skipped: district names changed between years
-   *    (e.g. "AMECAMECA" → "1521 AMECAMECA"). Municipality names are stable and sufficient.
-   *  - Period key uses the actual last month (`lastMonths[i]`) so that the annual
-   *    entry for an incomplete year (e.g. 2025 with data through July) gets key
-   *    "2025-07" instead of "2025-12", preventing a phantom December spike in G1.
-   *
-   * For MONTHLY data (isMonthly=true):
-   *  - All geo filters are applied (district names in year files match current names).
+   * @param data       - Pre-generated year JSON (EntidadYearCache)
+   * @param targetYear - The year this data represents
+   * @param months     - Month indices to include (all for G1; [lastMonth] for G2/G3)
    */
-  function buildSeries(
-    secciones: SeccionData[],
-    periods: number[],
-    isMonthly: boolean,
-    lastMonthsArr?: number[]
+  function aggregateYear(
+    data: EntidadYearCache,
+    targetYear: number,
+    months: number[]
   ): Map<string, HistoricoMes> {
     const byPeriod = new Map<string, HistoricoMes>();
 
-    for (const sec of secciones) {
-      if (isMonthly) {
-        // Monthly (year) data: apply all geo filters — names match the current year's data.
-        // When specific sections are given, skip district/municipality (already unambiguous).
-        if (!filtSecciones) {
-          if (geo.distritoNombre && sec.d !== geo.distritoNombre) continue;
-          if (geo.municipioNombre && sec.m !== geo.municipioNombre) continue;
+    for (const sec of data.secciones) {
+      // Apply geo filters.
+      // CVE-based filtering (stable across redistrictings) takes precedence over name-based.
+      if (!filtSecciones) {
+        if (geo.cveDistrito) {
+          if (sec.cvd !== geo.cveDistrito) continue;
+        } else if (geo.distritoNombre) {
+          if (sec.d !== geo.distritoNombre) continue;
         }
-        if (filtSecciones && !filtSecciones.has(normSec(sec.s))) continue;
+        if (geo.cveMunicipio) {
+          if (sec.cvm !== geo.cveMunicipio) continue;
+        } else if (geo.municipioNombre) {
+          if (sec.m !== geo.municipioNombre) continue;
+        }
       } else {
-        // Annual data: skip district filter (names evolved over years).
-        // Municipality names are stable; sections are stable by number.
-        if (!filtSecciones) {
-          if (geo.municipioNombre && sec.m !== geo.municipioNombre) continue;
-        } else {
-          if (!filtSecciones.has(normSec(sec.s))) continue;
-        }
+        if (!filtSecciones.has(normSec(sec.s))) continue;
       }
 
-      for (let i = 0; i < periods.length; i++) {
-        const actualMonth = isMonthly
-          ? periods[i]
-          : (lastMonthsArr?.[i] ?? 12); // use real last month, not always 12
+      for (let i = 0; i < data.months.length; i++) {
+        const mo = data.months[i];
+        if (!months.includes(mo)) continue;
 
-        const periodYear = isMonthly ? year : periods[i];
-        const periodKey = `${periodYear}-${String(actualMonth).padStart(2, "0")}`;
-
+        const periodKey = `${targetYear}-${String(mo).padStart(2, "0")}`;
         if (!byPeriod.has(periodKey)) {
           byPeriod.set(periodKey, {
-            fecha: periodKey,
-            year: periodYear,
-            month: actualMonth,
+            fecha: periodKey, year: targetYear, month: mo,
             padronNacional: 0, listaNacional: 0,
             padronExtranjero: 0, listaExtranjero: 0,
             padronHombres: 0, padronMujeres: 0, padronNoBinario: 0, listaNoBinario: 0,
@@ -791,7 +798,6 @@ export async function getHistoricoSeriesGeo(
         }
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const agg = byPeriod.get(periodKey)!;
-
         agg.padronNacional    += sec.p[i]    ?? 0;
         agg.listaNacional     += sec.l[i]    ?? 0;
         agg.padronHombres     += sec.ph[i]   ?? 0;
@@ -807,31 +813,89 @@ export async function getHistoricoSeriesGeo(
         agg.listaExtranjeroNoBinario  += sec.lenb?.[i] ?? 0;
       }
     }
+    return byPeriod;
+  }
 
+  /**
+   * Fast path for unfiltered (entidad-level) queries: use pre-aggregated _anual.json.
+   * Period key uses actual last month to avoid phantom December spikes.
+   */
+  function aggregateAnual(data: EntidadAnualCache): Map<string, HistoricoMes> {
+    const byPeriod = new Map<string, HistoricoMes>();
+    for (const sec of data.secciones) {
+      for (let i = 0; i < data.years.length; i++) {
+        const actualMonth = data.lastMonths?.[i] ?? 12;
+        const periodYear = data.years[i];
+        const periodKey = `${periodYear}-${String(actualMonth).padStart(2, "0")}`;
+        if (!byPeriod.has(periodKey)) {
+          byPeriod.set(periodKey, {
+            fecha: periodKey, year: periodYear, month: actualMonth,
+            padronNacional: 0, listaNacional: 0,
+            padronExtranjero: 0, listaExtranjero: 0,
+            padronHombres: 0, padronMujeres: 0, padronNoBinario: 0, listaNoBinario: 0,
+            padronExtranjeroHombres: 0, padronExtranjeroMujeres: 0, padronExtranjeroNoBinario: 0,
+            listaExtranjeroHombres: 0, listaExtranjeroMujeres: 0, listaExtranjeroNoBinario: 0,
+          });
+        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const agg = byPeriod.get(periodKey)!;
+        agg.padronNacional    += sec.p[i]    ?? 0;
+        agg.listaNacional     += sec.l[i]    ?? 0;
+        agg.padronHombres     += sec.ph[i]   ?? 0;
+        agg.padronMujeres     += sec.pm[i]   ?? 0;
+        agg.padronNoBinario   += sec.pnb[i]  ?? 0;
+        agg.padronExtranjero  += sec.pe[i]   ?? 0;
+        agg.listaExtranjero   += sec.le[i]   ?? 0;
+        agg.padronExtranjeroHombres   += sec.peh?.[i]  ?? 0;
+        agg.padronExtranjeroMujeres   += sec.pem?.[i]  ?? 0;
+        agg.padronExtranjeroNoBinario += sec.penb?.[i] ?? 0;
+        agg.listaExtranjeroHombres    += sec.leh?.[i]  ?? 0;
+        agg.listaExtranjeroMujeres    += sec.lem?.[i]  ?? 0;
+        agg.listaExtranjeroNoBinario  += sec.lenb?.[i] ?? 0;
+      }
+    }
     return byPeriod;
   }
 
   const combined = new Map<string, HistoricoMes>();
 
-  // Annual data → one point per year (actual last month) for G2/G3
-  if (anualData) {
-    const annualSeries = buildSeries(
-      anualData.secciones,
-      anualData.years,
-      false,
-      anualData.lastMonths
+  if (isGeoFiltered) {
+    // R Shiny approach: load each year's JSON individually and apply the same geo filter.
+    // This ensures district/municipality names are matched against their own year's data,
+    // avoiding mismatches from district renaming across electoral periods.
+    const historicYears = anualData
+      ? anualData.years.filter((y) => y < year)
+      : [];
+
+    // Load all prior years in parallel (all are memory-cached after first load)
+    const priorYearData = await Promise.all(
+      historicYears.map((y) => loadEntidadYear(storageKey, y))
     );
-    for (const [k, v] of annualSeries) combined.set(k, v);
+
+    for (let i = 0; i < historicYears.length; i++) {
+      const priorData = priorYearData[i];
+      if (!priorData || priorData.months.length === 0) continue;
+      // For each prior year: take only the LAST available month (same as R's max(fecha))
+      const lastMonth = Math.max(...priorData.months);
+      const entries = aggregateYear(priorData, historicYears[i], [lastMonth]);
+      for (const [k, v] of entries) combined.set(k, v);
+    }
+  } else {
+    // Fast path: no sub-entidad filter — use pre-aggregated _anual.json for all prior years
+    if (anualData) {
+      const annualEntries = aggregateAnual(anualData);
+      for (const [k, v] of annualEntries) combined.set(k, v);
+    }
   }
 
-  // Monthly data for selected year → overrides annual entry for that year + provides G1 data
+  // Selected year: all months (for G1) — overrides any annual entry for that year
   if (yearData) {
-    const monthlySeries = buildSeries(yearData.secciones, yearData.months, true);
-    for (const [k, v] of monthlySeries) combined.set(k, v);
+    const yearEntries = aggregateYear(yearData, year, yearData.months);
+    for (const [k, v] of yearEntries) combined.set(k, v);
   }
 
   const series = Array.from(combined.values()).sort((a, b) => a.fecha.localeCompare(b.fecha));
-  setCache(cacheKey, series);
+  if (series.length > 0) setCache(cacheKey, series);
   return series;
 }
 
@@ -1270,7 +1334,10 @@ export async function getHistoricoTablaRows(params: {
         // Skip district filter for anual (names evolved between years)
         return true;
       })
-      .map((sec) => seccionToTablaRow(params.entidad!, sec, yearIdx, year, ambito));
+      .map((sec) => seccionToTablaRow(params.entidad!, sec, yearIdx, year, ambito))
+      // Extranjero: omit sections with no foreign-registry data (padron/lista = 0)
+      // Nacional: omit the RESIDENTES EXTRANJERO row (padron = 0 for national view)
+      .filter((r) => r.padron > 0 || r.lista > 0);
   }
 
   // Nacional: carga los JSON anuales de todos los estados usando la lista
@@ -1312,3 +1379,59 @@ export async function getHistoricoTablaRows(params: {
   return sorted;
 }
 
+// ==========================================
+// NB ANUAL — último corte por año, NB only
+// ==========================================
+
+export interface NBAnualPoint {
+  year: number;
+  padronNB: number;
+  listaNB: number;
+}
+
+/**
+ * Devuelve un punto NB por año (último mes disponible) para Nacional o Extranjero.
+ *
+ * Nacional: lee los _base.csv via getHistoricoSeries() (cacheada 30 min) que
+ *   contiene padronNoBinario y listaNoBinario reales desde las columnas CSV.
+ *   Esto garantiza que los valores sean exactos (no estimados por ratio).
+ *
+ * Extranjero: lee el JSON __EXTRANJERO___anual.json que contiene penb/lenb por sección.
+ */
+export async function getNBAnual(ambito: "nacional" | "extranjero"): Promise<NBAnualPoint[]> {
+  const cacheKey = `nb:anual:${ambito}`;
+  const cached = getCached<NBAnualPoint[]>(cacheKey);
+  if (cached) return cached;
+
+  let result: NBAnualPoint[] = [];
+
+  if (ambito === "extranjero") {
+    const data = await loadEntidadAnual("__EXTRANJERO__");
+    if (data) {
+      for (let i = 0; i < data.years.length; i++) {
+        const penb = data.secciones.reduce((s, sec) => s + (sec.penb?.[i] ?? 0), 0);
+        const lenb = data.secciones.reduce((s, sec) => s + (sec.lenb?.[i] ?? 0), 0);
+        if (penb > 0 || lenb > 0) {
+          result.push({ year: data.years[i], padronNB: penb, listaNB: lenb });
+        }
+      }
+    }
+  } else {
+    // Nacional: use getHistoricoSeries() which processes _base.csv files
+    // and correctly aggregates padronNoBinario + listaNoBinario per month.
+    const series = await getHistoricoSeries();
+    // Last available month per year
+    const byYear = new Map<number, HistoricoMes>();
+    for (const m of series) {
+      const ex = byYear.get(m.year);
+      if (!ex || m.month > ex.month) byYear.set(m.year, m);
+    }
+    result = Array.from(byYear.entries())
+      .filter(([, m]) => m.padronNoBinario > 0)
+      .sort(([a], [b]) => a - b)
+      .map(([year, m]) => ({ year, padronNB: m.padronNoBinario, listaNB: m.listaNoBinario }));
+  }
+
+  if (result.length > 0) setCache(cacheKey, result);
+  return result;
+}

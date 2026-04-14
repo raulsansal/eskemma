@@ -93,7 +93,9 @@ async function loadGeoSeries(
 ): Promise<HistoricoMes[]> {
   const params = new URLSearchParams({ entidad: geo.entidad, year: String(year) });
   if (geo.distrito && geo.distrito !== "Todos") params.set("distrito", geo.distrito);
+  if (geo.cveDistrito) params.set("cveDistrito", geo.cveDistrito);
   if (geo.municipio && geo.municipio !== "Todos") params.set("municipio", geo.municipio);
+  if (geo.cveMunicipio) params.set("cveMunicipio", geo.cveMunicipio);
   if (geo.secciones && geo.secciones.length > 0) {
     params.set("secciones", geo.secciones.join(","));
   }
@@ -132,6 +134,8 @@ interface UseLneHistoricoResult {
   g3Data: G3Point[];
   g3SexData: G3SexPoint[];
   nbLatest: { padron: number; lista: number } | null;
+  /** NB anual: un punto por año (último corte). Solo para vistas no geo-filtradas. */
+  nbAnnual: { year: number; padron: number; lista: number }[] | null;
   texts: HistoricoTexts | null;
 }
 
@@ -149,6 +153,7 @@ export function useLneHistorico(
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [nbLatest, setNbLatest] = useState<{ padron: number; lista: number } | null>(null);
+  const [nbAnnual, setNbAnnual] = useState<{ year: number; padron: number; lista: number }[] | null>(null);
 
   const lastGeoKeyRef = useRef<string>("");
 
@@ -219,23 +224,28 @@ export function useLneHistorico(
     [raw, year, ambito]
   );
   const g2Data = useMemo(
-    () => (raw ? computeG2Data(raw, ambito) : []),
-    [raw, ambito]
+    () => (raw ? computeG2Data(raw, ambito, year) : []),
+    [raw, ambito, year]
+  );
+  // G3 (evolución LNE multi-año) solo hasta el año seleccionado
+  const filteredYears = useMemo(
+    () => availableYears.filter((y) => y <= year),
+    [availableYears, year]
   );
   const g3Data = useMemo(
-    () => (raw ? computeG3Data(raw, ambito) : []),
-    [raw, ambito]
+    () => (raw ? computeG3Data(raw, ambito, filteredYears) : []),
+    [raw, ambito, filteredYears]
   );
   const g3SexData = useMemo(
-    () => (raw ? computeG3SexData(raw, ambito) : []),
-    [raw, ambito]
+    () => (raw ? computeG3SexData(raw, ambito, year) : []),
+    [raw, ambito, year]
   );
   const texts = useMemo(
     () => (raw ? generateHistoricoTexts(raw, year, ambito) : null),
     [raw, year, ambito]
   );
 
-  // Fetch datos No Binario — se actualiza con el filtro geo activo
+  // Fetch datos No Binario semanal (último corte) — se actualiza con el filtro geo activo
   useEffect(() => {
     if (isGeo && geoInfo) {
       const params = new URLSearchParams({ entidad: geoInfo.entidad });
@@ -262,5 +272,23 @@ export function useLneHistorico(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geoKey]);
 
-  return { isLoading, error, availableYears, g1Data, g2Data, g3Data, g3SexData, nbLatest, texts };
+  // Fetch NB anual histórico — solo para vistas no geo-filtradas (nacional/extranjero).
+  // Para vistas geo-filtradas, los valores NB vienen del propio raw (pnb por sección).
+  useEffect(() => {
+    if (isGeo) {
+      setNbAnnual(null);
+      return;
+    }
+    const nbAmbito = ambito === "extranjero" ? "extranjero" : "nacional";
+    fetch(`/api/sefix/nb-anual?ambito=${nbAmbito}`)
+      .then((r) => r.json())
+      .then(({ data }: { data?: { year: number; padronNB: number; listaNB: number }[] }) => {
+        const mapped = (data ?? []).map((d) => ({ year: d.year, padron: d.padronNB, lista: d.listaNB }));
+        setNbAnnual(mapped.length > 0 ? mapped : null);
+      })
+      .catch(() => setNbAnnual(null));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ambito, isGeo ? geoKey : ambito]);
+
+  return { isLoading, error, availableYears, g1Data, g2Data, g3Data, g3SexData, nbLatest, nbAnnual, texts };
 }

@@ -45,7 +45,20 @@ function buildParams(
 }
 
 function buildScopeLabel(ambito: Ambito, geoInfo: GeoInfo): string {
-  if (ambito === "extranjero") return "Ámbito: Residentes en el Extranjero";
+  const isGeo = geoInfo.entidad !== "Nacional";
+  if (ambito === "extranjero") {
+    if (isGeo) {
+      const parts = [`Entidad: ${geoInfo.entidad}`, "Residentes en el Extranjero"];
+      if (geoInfo.distrito !== "Todos") parts.splice(1, 0, `Distrito: ${geoInfo.distrito}`);
+      if (geoInfo.municipio !== "Todos") parts.splice(-1, 0, `Municipio: ${geoInfo.municipio}`);
+      if (geoInfo.seccion !== "Todas") {
+        const secLabel = (geoInfo.secciones?.length ?? 1) > 1 ? "Secciones" : "Sección";
+        parts.splice(-1, 0, `${secLabel}: ${geoInfo.seccion}`);
+      }
+      return parts.join(" — ");
+    }
+    return "Ámbito: Residentes en el Extranjero";
+  }
   const secCount = geoInfo.secciones?.length ?? (geoInfo.seccion !== "Todas" ? 1 : 0);
   const secLabel = secCount > 1 ? "Secciones" : "Sección";
   return [

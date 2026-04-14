@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const entidad = searchParams.get("entidad") ?? undefined;
     const distritoNombre = searchParams.get("distrito") ?? undefined;
+    const cveDistrito = searchParams.get("cveDistrito") ?? undefined;
     const municipioNombre = searchParams.get("municipio") ?? undefined;
+    const cveMunicipio = searchParams.get("cveMunicipio") ?? undefined;
     const seccionesParam = searchParams.get("secciones");
     const secciones = seccionesParam ? seccionesParam.split(",").filter(Boolean) : undefined;
     const yearParam = searchParams.get("year");
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await getHistoricoSeriesGeo(
-      { entidad, distritoNombre, municipioNombre, secciones },
+      { entidad, distritoNombre, cveDistrito, municipioNombre, cveMunicipio, secciones },
       selectedYear
     );
 

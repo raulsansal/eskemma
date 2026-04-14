@@ -160,7 +160,22 @@ function ModalMetodologia({ onClose }: { onClose: () => void }) {
 // Construir subtítulo de alcance de consulta
 // ──────────────────────────────────────────────
 function buildSubtitulo(ambito: Ambito, geoInfo: GeoInfo): string {
-  if (ambito === "extranjero") return "Ámbito: Residentes en el Extranjero";
+  const isGeo = geoInfo.entidad !== "Nacional";
+
+  if (ambito === "extranjero") {
+    if (isGeo) {
+      const parts: string[] = [`Entidad: ${geoInfo.entidad}`];
+      if (geoInfo.distrito !== "Todos") parts.push(`Distrito: ${geoInfo.distrito}`);
+      if (geoInfo.municipio !== "Todos") parts.push(`Municipio: ${geoInfo.municipio}`);
+      if (geoInfo.seccion !== "Todas") {
+        const secLabel = (geoInfo.secciones?.length ?? 1) > 1 ? "Secciones" : "Sección";
+        parts.push(`${secLabel}: ${geoInfo.seccion}`);
+      }
+      parts.push("Residentes en el Extranjero");
+      return parts.join(" — ");
+    }
+    return "Ámbito: Residentes en el Extranjero";
+  }
 
   const secCount = geoInfo.secciones?.length ?? (geoInfo.seccion !== "Todas" ? 1 : 0);
   const secLabel = secCount > 1 ? "Secciones" : "Sección";
@@ -195,7 +210,7 @@ export default function HistoricoView() {
   const [showMetodologia, setShowMetodologia] = useState(false);
   const closeMetodologia = useCallback(() => setShowMetodologia(false), []);
 
-  const { isLoading, error, availableYears, g1Data, g2Data, g3SexData, nbLatest, texts } =
+  const { isLoading, error, availableYears, g1Data, g2Data, g3SexData, nbLatest, nbAnnual, texts } =
     useLneHistorico(ambito, selectedYear, geoInfo);
 
   const busy = isLoading || isPending;
@@ -207,7 +222,7 @@ export default function HistoricoView() {
   const ambitoLabel = ambito === "nacional" ? "Nacional" : "Extranjero";
   const yearRange =
     availableYears.length >= 2
-      ? `${availableYears[0]}–${availableYears[availableYears.length - 1]}`
+      ? `${availableYears[0]}–${displayYear}`
       : String(displayYear);
 
   const subtituloGeo = buildSubtitulo(ambito, geoInfo);
@@ -362,6 +377,7 @@ export default function HistoricoView() {
                     data={g3SexData}
                     ambito={ambito}
                     nbLatest={nbLatest}
+                    nbAnnual={nbAnnual}
                     nbScope={
                       geoInfo.municipio !== "Todos"
                         ? geoInfo.municipio
