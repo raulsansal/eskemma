@@ -16,11 +16,11 @@ function geoReducer(state: GeoFilterState, action: GeoFilterAction): GeoFilterSt
       return { status: "entidad_selected", entidad: action.entidad, cveEntidad: action.cveEntidad };
     case "SELECT_DISTRITO":
       if (state.status !== "entidad_selected" && state.status !== "distrito_selected" &&
-          state.status !== "municipio_selected" && state.status !== "seccion_selected") return state;
+        state.status !== "municipio_selected" && state.status !== "seccion_selected") return state;
       return { ...state, status: "distrito_selected", distrito: action.distrito };
     case "SELECT_MUNICIPIO":
       if (state.status !== "distrito_selected" && state.status !== "municipio_selected" &&
-          state.status !== "seccion_selected") return state;
+        state.status !== "seccion_selected") return state;
       return { ...state, status: "municipio_selected", municipio: action.municipio };
     case "SELECT_SECCION":
       if (state.status !== "municipio_selected" && state.status !== "seccion_selected") return state;
@@ -233,7 +233,7 @@ export default function GeoFilter({
         dispatch({ type: "SELECT_ENTIDAD", entidad: geoState.entidad, cveEntidad: geoState.cveEntidad ?? "" });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingAmbito]);
 
   // ── Handlers ──
@@ -282,12 +282,12 @@ export default function GeoFilter({
     geoState.status === "idle"
       ? "Nacional"
       : geoState.status === "entidad_selected"
-      ? geoState.entidad
-      : geoState.status === "distrito_selected"
-      ? `${geoState.entidad} / ${distritoLabel}`
-      : geoState.status === "municipio_selected"
-      ? `${geoState.entidad} / ${municipioLabel}`
-      : `${geoState.entidad} / ${secLabel}`;
+        ? geoState.entidad
+        : geoState.status === "distrito_selected"
+          ? `${geoState.entidad} / ${distritoLabel}`
+          : geoState.status === "municipio_selected"
+            ? `${geoState.entidad} / ${municipioLabel}`
+            : `${geoState.entidad} / ${secLabel}`;
 
   return (
     <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
@@ -530,6 +530,16 @@ export default function GeoFilter({
           >
             Consultar
           </button>
+        )}
+
+        {/* Aviso disponibilidad Extranjero — solo ámbito extranjero */}
+        {pendingAmbito === "extranjero" && (
+          <div
+            className="ml-auto rounded-md px-3 py-2 text-xs text-black-eske self-end"
+            style={{ backgroundColor: "#bcd1e3ff" }}
+          >
+            Los datos de Residentes en el Extranjero sólo están disponibles a nivel estatal.
+          </div>
         )}
       </div>
     </div>

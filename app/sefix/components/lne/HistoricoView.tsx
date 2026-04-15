@@ -174,7 +174,7 @@ function buildSubtitulo(ambito: Ambito, geoInfo: GeoInfo): string {
       parts.push("Residentes en el Extranjero");
       return parts.join(" — ");
     }
-    return "Ámbito: Residentes en el Extranjero";
+    return "Ámbito: Nacional — Residentes en el Extranjero";
   }
 
   const secCount = geoInfo.secciones?.length ?? (geoInfo.seccion !== "Todas" ? 1 : 0);
@@ -383,6 +383,8 @@ export default function HistoricoView() {
                         ? geoInfo.municipio
                         : geoInfo.entidad !== "Nacional"
                         ? geoInfo.entidad
+                        : ambito === "extranjero"
+                        ? "Extranjero"
                         : "Nacional"
                     }
                   />
@@ -396,22 +398,15 @@ export default function HistoricoView() {
 
             {/* Columna derecha: análisis textual */}
             <div className="lg:sticky lg:top-24">
-              <h3 className="text-sm font-semibold text-black-eske-10 uppercase tracking-wide mb-3">
-                Análisis del período
-              </h3>
               {!texts ? (
                 <div className="space-y-3">
-                  {[80, 120, 100, 90, 80].map((h, i) => (
+                  {[24, 80, 120, 100, 90, 80].map((h, i) => (
                     <div key={i} className="rounded-md bg-gray-eske-10 animate-pulse" style={{ height: h }} />
                   ))}
                 </div>
               ) : (
-                <DynamicTextBlock texts={texts} />
+                <DynamicTextBlock texts={{ ...texts, alcance: subtituloConCorte }} />
               )}
-              <p className="mt-4 text-[11px] text-black-eske-60 leading-relaxed">
-                Fuente: DERFE — Dirección Ejecutiva del Registro Federal de Electores, INE.
-                Datos oficiales del Padrón Electoral y Lista Nominal.
-              </p>
             </div>
           </div>
 

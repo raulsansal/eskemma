@@ -57,34 +57,50 @@ interface Props {
 
 export default function G3SexChart({ data, ambito = "nacional", nbLatest, nbAnnual, nbScope = "Nacional" }: Props) {
   const C = ambito === "extranjero" ? COLORS_EXTRANJERO : COLORS_NACIONAL;
-  const latest = data[data.length - 1];
-  const latestYear = latest?.year;
+  // latestYear = último año en la gráfica (refleja el selectedYear del usuario)
+  const latestYear = data[data.length - 1]?.year ?? null;
+
+  // Año más reciente en nbAnnual (sin filtrar por selectedYear).
+  // Se usa para determinar si estamos en el "año frontera" (más reciente disponible).
+  const nbAnnualMaxYear =
+    nbAnnual && nbAnnual.length > 0 ? Math.max(...nbAnnual.map((r) => r.year)) : null;
 
   // Tabla de desglose — fuente preferida: nbAnnual del endpoint dedicado (valores exactos del CSV).
-  // Fallback: padronNoBinario del raw (correcto para vistas geo-filtradas).
-  // Última línea: nbLatest del semanal si el año más reciente aún no está cubierto.
+  // Fallback: padronNoBinario del g3SexData (correcto para vistas geo-filtradas).
   const nbTableRows = (() => {
     let rows: { year: number; padron: number; lista: number }[];
     if (nbAnnual && nbAnnual.length > 0) {
-      // Endpoint dedicado: valores precisos por año (último corte de cada año)
-      rows = [...nbAnnual];
+      // Filtrar a years <= latestYear para respetar el año seleccionado por el usuario
+      rows = nbAnnual
+        .filter((r) => latestYear == null || r.year <= latestYear)
+        .map((r) => ({ year: r.year, padron: r.padron, lista: r.lista }));
     } else {
-      // Fallback: extraer de g3SexData (correcto para vistas geo)
+      // Fallback: datos NB del propio g3SexData (correcto para vistas geo)
       rows = data
         .filter((d) => d.padronNoBinario > 0)
         .map((d) => ({ year: d.year, padron: d.padronNoBinario, lista: d.listaNoBinario }));
     }
-    // Añadir año más reciente desde semanal si no está ya cubierto
-    if (nbLatest && nbLatest.padron > 0 && latestYear) {
+
+    // Añadir dato semanal (nbLatest) solo si estamos en el "año frontera":
+    //   - Para vistas con nbAnnual: latestYear >= nbAnnualMaxYear (no es un año histórico)
+    //   - Para vistas geo sin nbAnnual: latestYear >= año actual del calendario
+    // Esto evita asignar datos de 2025 al año 2024 cuando el usuario filtra por 2024.
+    const currentCalendarYear = new Date().getFullYear();
+    const isAtFrontier = nbAnnualMaxYear != null
+      ? latestYear != null && latestYear >= nbAnnualMaxYear
+      : latestYear != null && latestYear >= currentCalendarYear;
+
+    if (nbLatest && nbLatest.padron > 0 && latestYear && isAtFrontier) {
       if (!rows.some((r) => r.year === latestYear)) {
         rows.push({ year: latestYear, padron: nbLatest.padron, lista: nbLatest.lista });
       }
     }
+
     return rows.sort((a, b) => b.year - a.year);
   })();
 
   const hasNb = nbTableRows.length > 0;
-  // Card principal: dato del año más reciente disponible en la tabla
+  // Card principal: dato del año más reciente ≤ selectedYear
   const nbDisplay = nbTableRows[0] ?? null;
   const [nbHovered, setNbHovered] = useState(false);
 
@@ -179,8 +195,8 @@ export default function G3SexChart({ data, ambito = "nacional", nbLatest, nbAnnu
             aria-label="Datos No Binario"
           >
             <p className="font-semibold text-purple-700 mb-0.5">⚧ No Binario</p>
-            {latestYear && (
-              <p className="text-black-eske-60 font-medium">{latestYear}</p>
+            {nbDisplay && (
+              <p className="text-black-eske-60 font-medium">{nbDisplay.year}</p>
             )}
             <p className="text-black-eske-60">
               Padrón:{" "}

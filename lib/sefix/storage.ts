@@ -1361,9 +1361,10 @@ export async function getHistoricoTablaRows(params: {
         if (!data) return [] as TablaRow[];
         const yearIdx = data.years.indexOf(year);
         if (yearIdx === -1) return [] as TablaRow[];
-        return data.secciones.map((sec) =>
-          seccionToTablaRow(data.entidad, sec, yearIdx, year, "nacional")
-        );
+        return data.secciones
+          .map((sec) => seccionToTablaRow(data.entidad, sec, yearIdx, year, "nacional"))
+          // Omit RESIDENTES EXTRANJERO rows (padron=0 for nacional ambito)
+          .filter((r) => r.padron > 0 || r.lista > 0);
       })
     );
     for (const r of results) {
