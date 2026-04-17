@@ -1,18 +1,174 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
-import { useLneSemanal } from "@/app/sefix/hooks/useLneSemanal";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useReducer,
+  useRef,
+} from "react";
+import { useLneSemanal, useGeoTerritorios } from "@/app/sefix/hooks/useLneSemanal";
+import { useLneSemanalesSerie } from "@/app/sefix/hooks/useLneSemanalesSerie";
 import { ESTADOS_LIST } from "@/lib/sefix/constants";
 import type { Ambito } from "@/lib/sefix/seriesUtils";
+import type { GeoFilterState, GeoFilterAction } from "@/types/sefix.types";
+import type { GeoInfo } from "./GeoFilter";
 
-import { E2GroupBarsChart, E4RangeChart } from "./charts/EdadCharts";
-import { S1PyramidChart, S2AgeSexChart, S4ParticipacionChart } from "./charts/SexoCharts";
-import { O1HeatmapChart, O2PadronLneChart } from "./charts/OrigenCharts";
+import {
+  E1SerieChart,
+  E2GroupBarsChart,
+  E3GruposSerieChart,
+  E4RangeChart,
+} from "./charts/EdadCharts";
+import {
+  S1PyramidChart,
+  S2AgeSexChart,
+  S3SexoSerieChart,
+  S4ParticipacionChart,
+} from "./charts/SexoCharts";
+import {
+  O1HeatmapChart,
+  O2PadronLneChart,
+  O3OrigenSerieChart,
+} from "./charts/OrigenCharts";
+import SemanalDataTable from "./SemanalDataTable";
+import SemanalTextBlock from "./SemanalTextBlock";
 
 type SemanalDesglose = "edad" | "sexo" | "origen";
 
 // ──────────────────────────────────────────────
-// Utilidades de UI
+// Constantes de UI
+// ──────────────────────────────────────────────
+const DESGLOSES: { id: SemanalDesglose; label: string }[] = [
+  { id: "edad",   label: "Rango de Edad" },
+  { id: "sexo",   label: "Distribución por Sexo" },
+  { id: "origen", label: "Entidad de Origen" },
+];
+
+const RANGOS_EDAD = [
+  "18", "19", "20_24", "25_29", "30_34", "35_39",
+  "40_44", "45_49", "50_54", "55_59", "60_64", "65_y_mas",
+];
+
+const FUENTE = "Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado.";
+
+// ──────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────
+function capitalize(s: string): string {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+}
+
+function fmtFechaLarga(iso: string): string {
+  if (!iso) return "—";
+  const [y, m, d] = iso.split("-");
+  const meses = [
+    "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+  ];
+  return `${parseInt(d, 10)} ${meses[parseInt(m, 10)]} ${y}`;
+}
+
+function fmtCorteOpcion(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  const meses = [
+    "", "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+    "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
+  ];
+  return `${parseInt(d, 10)} ${meses[parseInt(m, 10)]} ${y}`;
+}
+
+function allSexValuesZero(data: Record<string, number>, rangos: string[]): boolean {
+  return rangos.every(
+    (r) => (data[`lista_${r}_hombres`] ?? 0) === 0 && (data[`lista_${r}_mujeres`] ?? 0) === 0,
+  );
+}
+
+// ──────────────────────────────────────────────
+// GeoReducer (mismo que GeoFilter.tsx)
+// ──────────────────────────────────────────────
+function geoReducer(state: GeoFilterState, action: GeoFilterAction): GeoFilterState {
+  switch (action.type) {
+    case "SELECT_ENTIDAD":
+      return { status: "entidad_selected", entidad: action.entidad, cveEntidad: action.cveEntidad };
+    case "SELECT_DISTRITO":
+      if (
+        state.status !== "entidad_selected" &&
+        state.status !== "distrito_selected" &&
+        state.status !== "municipio_selected" &&
+        state.status !== "seccion_selected"
+      ) return state;
+      return { ...state, status: "distrito_selected", distrito: action.distrito };
+    case "SELECT_MUNICIPIO":
+      if (
+        state.status !== "distrito_selected" &&
+        state.status !== "municipio_selected" &&
+        state.status !== "seccion_selected"
+      ) return state;
+      return { ...state, status: "municipio_selected", municipio: action.municipio };
+    case "SELECT_SECCION":
+      if (state.status !== "municipio_selected" && state.status !== "seccion_selected") return state;
+      if (action.seccion.length === 0) return { ...state, status: "municipio_selected" };
+      return { ...state, status: "seccion_selected", seccion: action.seccion };
+    case "RESET":
+      return { status: "idle" };
+    default:
+      return state;
+  }
+}
+
+function buildGeoInfo(
+  geoState: GeoFilterState,
+  distritos: { cve: string; nombre: string }[],
+  municipios: { cve: string; nombre: string }[],
+): GeoInfo {
+  const entidad = geoState.status !== "idle" ? geoState.entidad : "Nacional";
+
+  let distrito = "Todos";
+  if (
+    geoState.status === "distrito_selected" ||
+    geoState.status === "municipio_selected" ||
+    geoState.status === "seccion_selected"
+  ) {
+    const found = distritos.find((d) => d.cve === geoState.distrito);
+    distrito = found?.nombre ?? geoState.distrito;
+  }
+
+  let municipio = "Todos";
+  if (geoState.status === "municipio_selected" || geoState.status === "seccion_selected") {
+    const found = municipios.find((m) => m.cve === geoState.municipio);
+    municipio = found?.nombre ?? geoState.municipio;
+  }
+
+  const seccionRaw =
+    geoState.status === "seccion_selected" ? geoState.seccion : undefined;
+  const seccion = seccionRaw ? seccionRaw.join(", ") : "Todas";
+
+  return {
+    entidad,
+    distrito,
+    municipio,
+    seccion,
+    cveDistrito:
+      geoState.status === "distrito_selected" ||
+      geoState.status === "municipio_selected" ||
+      geoState.status === "seccion_selected"
+        ? geoState.distrito
+        : undefined,
+    cveMunicipio:
+      geoState.status === "municipio_selected" || geoState.status === "seccion_selected"
+        ? geoState.municipio
+        : undefined,
+    secciones: seccionRaw,
+  };
+}
+
+function geoInfoToScopeLabel(info: GeoInfo): string {
+  return `Estado: ${info.entidad} — Distrito: ${info.distrito} — Municipio: ${info.municipio} — Sección: ${info.seccion}`;
+}
+
+// ──────────────────────────────────────────────
+// Componentes de UI reutilizables
 // ──────────────────────────────────────────────
 function ChartSkeleton({ height = 300 }: { height?: number }) {
   return (
@@ -24,40 +180,43 @@ function ChartSkeleton({ height = 300 }: { height?: number }) {
   );
 }
 
-function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+interface ChartCardProps {
+  titulo: string;
+  scopeLabel: string;
+  children: React.ReactNode;
+}
+
+function ChartCard({ titulo, scopeLabel, children }: ChartCardProps) {
   return (
-    <div className="mb-3">
-      <h3 className="text-base font-semibold text-black-eske">{title}</h3>
-      {subtitle && <p className="text-xs text-black-eske-60 mt-0.5">{subtitle}</p>}
+    <div className="bg-white-eske rounded-lg border border-gray-eske-20 px-4 pt-4 pb-3">
+      <h3 className="text-sm font-bold text-black-eske text-center leading-snug">{titulo}</h3>
+      <p className="text-[11px] text-black-eske-60 text-center mt-0.5">{scopeLabel}</p>
+      <div className="mt-3">{children}</div>
+      <p className="text-[10px] text-black-eske-60 text-center mt-3 pt-2 border-t border-gray-eske-10">
+        {FUENTE}
+      </p>
     </div>
   );
 }
 
-/** Detecta si un chart con desglose por sexo tendría todos los valores en cero */
-function allSexValuesZero(data: Record<string, number>, rangos: string[]): boolean {
-  return rangos.every(
-    (r) => (data[`lista_${r}_hombres`] ?? 0) === 0 && (data[`lista_${r}_mujeres`] ?? 0) === 0
-  );
-}
-
-const RANGOS_EDAD = [
-  "18", "19", "20_24", "25_29", "30_34", "35_39",
-  "40_44", "45_49", "50_54", "55_59", "60_64", "65_y_mas",
-];
-
 // ──────────────────────────────────────────────
-// Sub-panel Edad
+// Props comunes de paneles
 // ──────────────────────────────────────────────
 interface PanelProps {
   ambito: Ambito;
   corte?: string;
   entidad?: string;
+  scopeLabel: string;
   onFechasLoaded?: (fechas: string[]) => void;
 }
 
-function EdadPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
+// ──────────────────────────────────────────────
+// Sub-panel Edad
+// ──────────────────────────────────────────────
+function EdadPanel({ ambito, corte, entidad, scopeLabel, onFechasLoaded }: PanelProps) {
   const { isLoading, error, data, fecha, availableFechas } =
     useLneSemanal("edad", ambito, corte, entidad ?? null);
+  const { serie, isLoading: serieLoading } = useLneSemanalesSerie("edad", ambito, entidad);
 
   useEffect(() => {
     if (availableFechas.length > 0) onFechasLoaded?.(availableFechas);
@@ -65,37 +224,69 @@ function EdadPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
 
   if (error) return <p className="text-sm text-red-eske py-8 text-center">{error}</p>;
 
-  const sinSexoPorEdad = data ? allSexValuesZero(data, RANGOS_EDAD) : false;
+  const tituloBase = (nombre: string) =>
+    `${nombre} — ${fmtFechaLarga(fecha)} — ${capitalize(ambito)}`;
 
   return (
-    <div className="space-y-10">
-      <p className="text-xs text-black-eske-60">
-        Corte semanal: <strong>{fecha || "—"}</strong>
-      </p>
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
+      <div className="space-y-8 min-w-0">
 
-      <div>
-        <SectionHeader title="E2 — Lista Nominal por grupo etario" />
-        {isLoading || !data ? (
-          <ChartSkeleton height={260} />
-        ) : (
-          <E2GroupBarsChart data={data} />
-        )}
+        {/* E1 — Serie temporal por rango */}
+        <ChartCard
+          titulo={tituloBase("Evolución y Proyección Semanal del Padrón y LNE")}
+          scopeLabel={scopeLabel}
+        >
+          {serieLoading ? <ChartSkeleton height={380} /> : <E1SerieChart serie={serie} ambito={ambito} />}
+        </ChartCard>
+
+        {/* E2 — LNE por grupos */}
+        <ChartCard
+          titulo={tituloBase("Lista Nominal Electoral por Grupo Etario")}
+          scopeLabel={scopeLabel}
+        >
+          {isLoading || !data ? <ChartSkeleton height={210} /> : <E2GroupBarsChart data={data} ambito={ambito} />}
+        </ChartCard>
+
+        {/* E3 — Proyección por grupo */}
+        <ChartCard
+          titulo={tituloBase("Evolución y Proyección Semanal por Grupo Etario")}
+          scopeLabel={scopeLabel}
+        >
+          {serieLoading ? <ChartSkeleton height={360} /> : <E3GruposSerieChart serie={serie} ambito={ambito} />}
+        </ChartCard>
+
+        {/* E4 — Barras por rango individual */}
+        <ChartCard
+          titulo={tituloBase("Padrón y LNE por Rango de Edad")}
+          scopeLabel={scopeLabel}
+        >
+          {isLoading || !data ? (
+            <ChartSkeleton height={300} />
+          ) : (
+            <E4RangeChart data={data} />
+          )}
+        </ChartCard>
+
+        {/* DataTable */}
+        <SemanalDataTable
+          tipo="edad"
+          ambito={ambito}
+          scopeLabel={scopeLabel}
+          corte={corte}
+          entidad={entidad}
+        />
       </div>
 
-      <div>
-        <SectionHeader
-          title="E4 — Lista Nominal por rango de edad"
-          subtitle={
-            sinSexoPorEdad
-              ? "Desglose por sexo no disponible en vista nacional. Selecciona una entidad para activarlo."
-              : "Diferenciado por sexo (hombres / mujeres)."
-          }
+      {/* Columna lateral: análisis textual */}
+      <div className="lg:pt-2">
+        <SemanalTextBlock
+          tipo="edad"
+          ambito={ambito}
+          fecha={fecha}
+          data={data ?? {}}
+          serie={serie}
+          scopeLabel={scopeLabel}
         />
-        {isLoading || !data ? (
-          <ChartSkeleton height={300} />
-        ) : (
-          <E4RangeChart data={data} />
-        )}
       </div>
     </div>
   );
@@ -104,8 +295,7 @@ function EdadPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
 // ──────────────────────────────────────────────
 // Sub-panel Sexo
 // ──────────────────────────────────────────────
-function SexoPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
-  // S1 y S2 necesitan columnas de sexo dentro de cada rango etario
+function SexoPanel({ ambito, corte, entidad, scopeLabel, onFechasLoaded }: PanelProps) {
   const {
     isLoading: loadingEdad,
     error: errorEdad,
@@ -114,9 +304,11 @@ function SexoPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
     availableFechas,
   } = useLneSemanal("edad", ambito, corte, entidad ?? null);
 
-  // S4 necesita los totales H/M/NB
   const { isLoading: loadingSexo, data: dataSexo } =
     useLneSemanal("sexo", ambito, corte, entidad ?? null);
+
+  const { serie: serieSexo, isLoading: serieLoading } =
+    useLneSemanalesSerie("sexo", ambito, entidad);
 
   useEffect(() => {
     if (availableFechas.length > 0) onFechasLoaded?.(availableFechas);
@@ -125,51 +317,79 @@ function SexoPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
   if (errorEdad) return <p className="text-sm text-red-eske py-8 text-center">{errorEdad}</p>;
 
   const sinSexoPorEdad = dataEdad ? allSexValuesZero(dataEdad, RANGOS_EDAD) : false;
+  const tituloBase = (nombre: string) =>
+    `${nombre} — ${fmtFechaLarga(fecha)} — ${capitalize(ambito)}`;
 
   return (
-    <div className="space-y-10">
-      <p className="text-xs text-black-eske-60">
-        Corte semanal: <strong>{fecha || "—"}</strong>
-      </p>
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
+      <div className="space-y-8 min-w-0">
 
-      <div>
-        <SectionHeader
-          title="S1 — Pirámide poblacional"
-          subtitle={
-            sinSexoPorEdad
-              ? "Pirámide por sexo no disponible en vista nacional. Selecciona una entidad para activarla."
-              : "Hombres a la izquierda, mujeres a la derecha. Lista Nominal por rango etario."
-          }
+        {/* S1 — Pirámide */}
+        <ChartCard titulo={tituloBase("Pirámide Poblacional por Sexo y Edad")} scopeLabel={scopeLabel}>
+          {loadingEdad || !dataEdad ? (
+            <ChartSkeleton height={360} />
+          ) : sinSexoPorEdad ? (
+            <p className="text-sm text-black-eske-60 text-center py-10">
+              Pirámide por sexo no disponible a nivel nacional. Selecciona una entidad para activarla.
+            </p>
+          ) : (
+            <S1PyramidChart data={dataEdad} ambito={ambito} />
+          )}
+        </ChartCard>
+
+        {/* S2 — Barras grupo × sexo */}
+        <ChartCard titulo={tituloBase("Lista Nominal por Grupo Etario y Sexo")} scopeLabel={scopeLabel}>
+          {loadingEdad || !dataEdad ? (
+            <ChartSkeleton height={280} />
+          ) : sinSexoPorEdad ? (
+            <p className="text-sm text-black-eske-60 text-center py-10">
+              Desglose por sexo no disponible a nivel nacional.
+            </p>
+          ) : (
+            <S2AgeSexChart data={dataEdad} ambito={ambito} />
+          )}
+        </ChartCard>
+
+        {/* S3 — Serie temporal por sexo */}
+        <ChartCard
+          titulo={tituloBase("Evolución y Proyección Semanal por Sexo")}
+          scopeLabel={scopeLabel}
+        >
+          {serieLoading ? (
+            <ChartSkeleton height={320} />
+          ) : (
+            <S3SexoSerieChart serie={serieSexo} ambito={ambito} dataSexo={dataSexo ?? {}} />
+          )}
+        </ChartCard>
+
+        {/* S4 — Padrón vs LNE por sexo */}
+        <ChartCard
+          titulo={tituloBase("Padrón Electoral vs Lista Nominal por Sexo")}
+          scopeLabel={scopeLabel}
+        >
+          {loadingSexo || !dataSexo ? <ChartSkeleton height={280} /> : <S4ParticipacionChart data={dataSexo} ambito={ambito} />}
+        </ChartCard>
+
+        {/* DataTable */}
+        <SemanalDataTable
+          tipo="sexo"
+          ambito={ambito}
+          scopeLabel={scopeLabel}
+          corte={corte}
+          entidad={entidad}
         />
-        {loadingEdad || !dataEdad ? (
-          <ChartSkeleton height={360} />
-        ) : (
-          <S1PyramidChart data={dataEdad} />
-        )}
       </div>
 
-      <div>
-        <SectionHeader
-          title="S2 — Lista Nominal por grupo etario y sexo"
-          subtitle={sinSexoPorEdad ? "Desglose por sexo no disponible en vista nacional." : undefined}
+      {/* Columna lateral */}
+      <div className="lg:pt-2">
+        <SemanalTextBlock
+          tipo="sexo"
+          ambito={ambito}
+          fecha={fecha}
+          data={dataSexo ?? {}}
+          dataEdad={dataEdad}
+          scopeLabel={scopeLabel}
         />
-        {loadingEdad || !dataEdad ? (
-          <ChartSkeleton height={280} />
-        ) : (
-          <S2AgeSexChart data={dataEdad} />
-        )}
-      </div>
-
-      <div>
-        <SectionHeader
-          title="S4 — Padrón Electoral vs Lista Nominal por sexo"
-          subtitle="Compara la tasa de inclusión en la Lista Nominal para cada sexo."
-        />
-        {loadingSexo || !dataSexo ? (
-          <ChartSkeleton height={280} />
-        ) : (
-          <S4ParticipacionChart data={dataSexo} />
-        )}
       </div>
     </div>
   );
@@ -178,10 +398,12 @@ function SexoPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
 // ──────────────────────────────────────────────
 // Sub-panel Origen
 // ──────────────────────────────────────────────
-function OrigenPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
+function OrigenPanel({ ambito, corte, entidad, scopeLabel, onFechasLoaded }: PanelProps) {
   const [topN, setTopN] = useState(15);
   const { isLoading, error, data, fecha, availableFechas } =
     useLneSemanal("origen", ambito, corte, entidad ?? null);
+  const { serie: serieOrigen, isLoading: serieLoading } =
+    useLneSemanalesSerie("origen", ambito, entidad);
 
   useEffect(() => {
     if (availableFechas.length > 0) onFechasLoaded?.(availableFechas);
@@ -189,16 +411,16 @@ function OrigenPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
 
   if (error) return <p className="text-sm text-red-eske py-8 text-center">{error}</p>;
 
+  const tituloBase = (nombre: string) =>
+    `${nombre} — ${fmtFechaLarga(fecha)} — ${capitalize(ambito)}`;
+
   return (
-    <div className="space-y-10">
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-black-eske-60">
-          Corte semanal: <strong>{fecha || "—"}</strong>
-        </p>
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
+      <div className="space-y-8 min-w-0">
+
+        {/* Top-N selector */}
         <div className="flex items-center gap-2">
-          <label htmlFor="topn-select" className="text-xs text-black-eske-60">
-            Mostrar:
-          </label>
+          <label htmlFor="topn-select" className="text-xs text-black-eske-60">Mostrar:</label>
           <select
             id="topn-select"
             value={topN}
@@ -210,26 +432,441 @@ function OrigenPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
             <option value={32}>Todos (34)</option>
           </select>
         </div>
-      </div>
 
-      <div>
-        <SectionHeader
-          title="O1 — Lista Nominal por entidad de origen"
-          subtitle="Ciudadanos registrados según su estado de nacimiento, ordenados de mayor a menor."
+        {/* O1 */}
+        <ChartCard titulo={tituloBase("Lista Nominal por Entidad de Origen")} scopeLabel={scopeLabel}>
+          {isLoading || !data ? (
+            <ChartSkeleton height={topN * 22 + 60} />
+          ) : (
+            <O1HeatmapChart data={data} topN={topN} ambito={ambito} />
+          )}
+        </ChartCard>
+
+        {/* O2 */}
+        <ChartCard titulo={tituloBase("Padrón Electoral vs Lista Nominal por Entidad de Origen")} scopeLabel={scopeLabel}>
+          {isLoading || !data ? (
+            <ChartSkeleton height={topN * 22 + 60} />
+          ) : (
+            <O2PadronLneChart data={data} topN={topN} ambito={ambito} />
+          )}
+        </ChartCard>
+
+        {/* O3 */}
+        <ChartCard titulo={tituloBase("Evolución Semanal por Entidad de Origen")} scopeLabel={scopeLabel}>
+          {serieLoading ? (
+            <ChartSkeleton height={300} />
+          ) : (
+            <O3OrigenSerieChart serie={serieOrigen} ambito={ambito} />
+          )}
+        </ChartCard>
+
+        {/* DataTable */}
+        <SemanalDataTable
+          tipo="origen"
+          ambito={ambito}
+          scopeLabel={scopeLabel}
+          corte={corte}
+          entidad={entidad}
         />
-        {isLoading || !data ? (
-          <ChartSkeleton height={topN * 22 + 60} />
-        ) : (
-          <O1HeatmapChart data={data} topN={topN} />
-        )}
       </div>
 
-      <div>
-        <SectionHeader title="O2 — Padrón Electoral vs Lista Nominal por entidad de origen" />
-        {isLoading || !data ? (
-          <ChartSkeleton height={topN * 22 + 60} />
-        ) : (
-          <O2PadronLneChart data={data} topN={topN} />
+      {/* Columna lateral */}
+      <div className="lg:pt-2">
+        <SemanalTextBlock
+          tipo="origen"
+          ambito={ambito}
+          fecha={fecha}
+          data={data ?? {}}
+          scopeLabel={scopeLabel}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Panel de filtros geográficos (cascade + Consultar)
+// ──────────────────────────────────────────────
+interface FilterPanelProps {
+  availableFechas: string[];
+  committedAmbito: Ambito;
+  committedCorte?: string;
+  onConsultar: (params: { ambito: Ambito; corte?: string; geoInfo: GeoInfo }) => void;
+}
+
+function SemanalFilterPanel({
+  availableFechas,
+  committedAmbito,
+  committedCorte,
+  onConsultar,
+}: FilterPanelProps) {
+  const [pendingAmbito, setPendingAmbito] = useState<Ambito>(committedAmbito);
+  const [pendingCorte, setPendingCorte]   = useState<string | undefined>(committedCorte);
+  const [geoState, dispatch]              = useReducer(geoReducer, { status: "idle" });
+  const committedGeoRef                   = useRef<GeoFilterState>({ status: "idle" });
+
+  // Estado del popover de secciones
+  const [seccionSearch, setSeccionSearch]   = useState("");
+  const [seccionOpen, setSeccionOpen]       = useState(false);
+  const seccionInputRef                     = useRef<HTMLInputElement>(null);
+  const seccionContainerRef                 = useRef<HTMLDivElement>(null);
+
+  // Claves de la cascada
+  const entidadNombre = geoState.status !== "idle" ? geoState.entidad : undefined;
+  const cveDistrito =
+    geoState.status === "distrito_selected" ||
+    geoState.status === "municipio_selected" ||
+    geoState.status === "seccion_selected"
+      ? geoState.distrito
+      : undefined;
+  const cveMunicipio =
+    geoState.status === "municipio_selected" || geoState.status === "seccion_selected"
+      ? geoState.municipio
+      : undefined;
+
+  const { opciones: distritos,  isLoading: loadingDistritos  } = useGeoTerritorios("distrito",  entidadNombre, undefined,    undefined,    undefined, "semanal");
+  const { opciones: municipios, isLoading: loadingMunicipios } = useGeoTerritorios("municipio", entidadNombre, cveDistrito,  undefined,    undefined, "semanal");
+  const { opciones: secciones,  isLoading: loadingSecciones  } = useGeoTerritorios("seccion",   entidadNombre, undefined,    cveMunicipio, undefined, "semanal");
+
+  const seccionesSeleccionadas =
+    geoState.status === "seccion_selected" ? geoState.seccion : [];
+
+  const availableSecciones = secciones.filter(
+    (s) =>
+      !seccionesSeleccionadas.includes(s.cve) &&
+      (seccionSearch === "" || s.cve.includes(seccionSearch)),
+  );
+
+  // Detectar cambios pendientes
+  const hasPending =
+    pendingAmbito !== committedAmbito ||
+    pendingCorte  !== committedCorte  ||
+    JSON.stringify(geoState) !== JSON.stringify(committedGeoRef.current);
+
+  // Cerrar popover secciones al hacer clic fuera
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (seccionContainerRef.current && !seccionContainerRef.current.contains(e.target as Node)) {
+        setSeccionOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Limpiar búsqueda de sección cuando cambia el municipio
+  useEffect(() => { setSeccionSearch(""); setSeccionOpen(false); }, [cveMunicipio]);
+
+  // Resetear cascada profunda cuando se cambia a extranjero
+  useEffect(() => {
+    if (
+      pendingAmbito === "extranjero" &&
+      (geoState.status === "distrito_selected" ||
+        geoState.status === "municipio_selected" ||
+        geoState.status === "seccion_selected")
+    ) {
+      dispatch({ type: "SELECT_ENTIDAD", entidad: geoState.entidad, cveEntidad: geoState.cveEntidad });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAmbito]);
+
+  // Handlers
+  function handleEntidadChange(nombre: string) {
+    if (nombre === "") {
+      dispatch({ type: "RESET" });
+    } else {
+      const cve = ESTADOS_LIST.find((e) => e.nombre === nombre)?.key ?? "";
+      dispatch({ type: "SELECT_ENTIDAD", entidad: nombre, cveEntidad: cve });
+    }
+  }
+
+  const addSeccion = useCallback(
+    (cve: string) => {
+      dispatch({ type: "SELECT_SECCION", seccion: [...seccionesSeleccionadas, cve] });
+      setSeccionSearch("");
+      seccionInputRef.current?.focus();
+    },
+    [seccionesSeleccionadas],
+  );
+
+  const removeSeccion = useCallback(
+    (cve: string) => {
+      dispatch({ type: "SELECT_SECCION", seccion: seccionesSeleccionadas.filter((c) => c !== cve) });
+    },
+    [seccionesSeleccionadas],
+  );
+
+  function handleConsultar() {
+    committedGeoRef.current = { ...geoState };
+    onConsultar({
+      ambito: pendingAmbito,
+      corte: pendingCorte,
+      geoInfo: buildGeoInfo(geoState, distritos, municipios),
+    });
+  }
+
+  // Label de geo status
+  const distritoLabel = cveDistrito
+    ? (distritos.find((d) => d.cve === cveDistrito)?.nombre ?? cveDistrito) : "";
+  const municipioLabel = cveMunicipio
+    ? (municipios.find((m) => m.cve === cveMunicipio)?.nombre ?? cveMunicipio) : "";
+  const secLabel =
+    geoState.status === "seccion_selected"
+      ? `Sec. ${geoState.seccion.join(", ")}`
+      : "";
+
+  const geoLabel =
+    geoState.status === "idle" ? "Nacional"
+    : geoState.status === "entidad_selected" ? geoState.entidad
+    : geoState.status === "distrito_selected" ? `${geoState.entidad} / ${distritoLabel}`
+    : geoState.status === "municipio_selected" ? `${geoState.entidad} / ${municipioLabel}`
+    : `${geoState.entidad} / ${secLabel}`;
+
+  return (
+    <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
+
+      {/* Fila 1: Corte + Ámbito + Indicador geo */}
+      <div className="flex flex-wrap items-center gap-4">
+
+        {/* Corte */}
+        <div className="flex items-center gap-2">
+          <label htmlFor="semanal-corte" className="text-xs font-medium text-black-eske-10">
+            Corte
+          </label>
+          <select
+            id="semanal-corte"
+            value={pendingCorte ?? ""}
+            onChange={(e) => setPendingCorte(e.target.value || undefined)}
+            disabled={availableFechas.length === 0}
+            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske disabled:opacity-50 min-w-[130px]"
+          >
+            <option value="">Más reciente</option>
+            {availableFechas.map((f) => (
+              <option key={f} value={f}>{fmtCorteOpcion(f)}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Ámbito */}
+        <fieldset>
+          <legend className="sr-only">Ámbito de datos</legend>
+          <div className="flex gap-3">
+            {(["nacional", "extranjero"] as Ambito[]).map((a) => (
+              <label key={a} className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="radio"
+                  name="semanal-ambito"
+                  value={a}
+                  checked={pendingAmbito === a}
+                  onChange={() => setPendingAmbito(a)}
+                  className="accent-blue-eske"
+                />
+                <span className="text-sm text-black-eske capitalize">{a}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        {/* Indicador de alcance */}
+        <div className="flex items-center gap-1.5 ml-auto">
+          <svg className="w-3.5 h-3.5 text-bluegreen-eske shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span className="text-xs text-black-eske-60 font-medium">{geoLabel}</span>
+          {geoState.status !== "idle" && (
+            <button
+              onClick={() => dispatch({ type: "RESET" })}
+              className="ml-1 text-xs text-orange-eske hover:text-orange-eske-60 underline focus-visible:outline-none"
+              aria-label="Restablecer filtro geográfico"
+            >
+              Restablecer
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Fila 2: Cascade geográfica + Consultar */}
+      <div className="flex flex-wrap gap-3 items-end">
+
+        {/* Estado */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="semanal-entidad" className="text-xs text-black-eske-60">Estado</label>
+          <select
+            id="semanal-entidad"
+            value={entidadNombre ?? ""}
+            onChange={(e) => handleEntidadChange(e.target.value)}
+            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[160px]"
+          >
+            <option value="">Nacional</option>
+            {ESTADOS_LIST.map((e) => (
+              <option key={e.key} value={e.nombre}>{e.nombre}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Distrito (solo nacional con entidad) */}
+        {pendingAmbito === "nacional" && geoState.status !== "idle" && (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="semanal-distrito" className="text-xs text-black-eske-60">
+              Distrito{" "}
+              {loadingDistritos && <span className="text-gray-eske-70">(cargando…)</span>}
+            </label>
+            <select
+              id="semanal-distrito"
+              value={cveDistrito ?? ""}
+              onChange={(e) => dispatch({ type: "SELECT_DISTRITO", distrito: e.target.value })}
+              disabled={loadingDistritos || distritos.length === 0}
+              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[200px]"
+            >
+              <option value="">Todos</option>
+              {distritos.map((d) => (
+                <option key={d.cve} value={d.cve}>{d.nombre}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Badge "Residentes Extranjero" en modo extranjero + entidad */}
+        {pendingAmbito === "extranjero" && geoState.status !== "idle" && (
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-black-eske-60">Distrito</span>
+            <div className="text-sm border border-gray-eske-20 rounded-md px-2 py-1.5 bg-gray-eske-10 text-black-eske-60 min-w-[220px] select-none">
+              RESIDENTES EXTRANJERO
+            </div>
+          </div>
+        )}
+
+        {/* Municipio (solo nacional con distrito) */}
+        {pendingAmbito === "nacional" && cveDistrito && (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="semanal-municipio" className="text-xs text-black-eske-60">
+              Municipio{" "}
+              {loadingMunicipios && <span className="text-gray-eske-70">(cargando…)</span>}
+            </label>
+            <select
+              id="semanal-municipio"
+              value={cveMunicipio ?? ""}
+              onChange={(e) => dispatch({ type: "SELECT_MUNICIPIO", municipio: e.target.value })}
+              disabled={loadingMunicipios || municipios.length === 0}
+              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[180px]"
+            >
+              <option value="">Todos</option>
+              {municipios.map((m) => (
+                <option key={m.cve} value={m.cve}>{m.nombre}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Sección — tags + popover (solo nacional con municipio) */}
+        {pendingAmbito === "nacional" && cveMunicipio && (
+          <div ref={seccionContainerRef} className="relative flex flex-col gap-1">
+            <p className="text-xs text-black-eske-60">
+              Sección{" "}
+              {loadingSecciones && <span className="text-gray-eske-70">(cargando…)</span>}
+              {seccionesSeleccionadas.length > 0 && (
+                <span className="ml-1 text-blue-eske font-medium">
+                  ({seccionesSeleccionadas.length} sel.)
+                </span>
+              )}
+            </p>
+            <div
+              role="group"
+              aria-label="Secciones seleccionadas"
+              onClick={() => { setSeccionOpen(true); seccionInputRef.current?.focus(); }}
+              className="border border-gray-eske-30 rounded-md bg-white-eske min-h-[34px] px-2 py-1 flex flex-wrap gap-1 items-center cursor-text min-w-[180px]"
+            >
+              {seccionesSeleccionadas.map((cve) => (
+                <span key={cve} className="flex items-center gap-0.5 bg-blue-eske text-white-eske text-xs px-1.5 py-0.5 rounded">
+                  {cve}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); removeSeccion(cve); }}
+                    className="opacity-80 hover:opacity-100 ml-0.5 text-sm leading-none"
+                    aria-label={`Quitar sección ${cve}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <input
+                ref={seccionInputRef}
+                type="text"
+                value={seccionSearch}
+                onChange={(e) => { setSeccionSearch(e.target.value); setSeccionOpen(true); }}
+                onFocus={() => setSeccionOpen(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Backspace" && seccionSearch === "" && seccionesSeleccionadas.length > 0) {
+                    removeSeccion(seccionesSeleccionadas[seccionesSeleccionadas.length - 1]);
+                  }
+                  if (e.key === "Escape") setSeccionOpen(false);
+                }}
+                className="outline-none text-xs min-w-[36px] flex-1 bg-transparent"
+                placeholder={seccionesSeleccionadas.length === 0 ? "Todas" : ""}
+                aria-label="Buscar sección electoral"
+                aria-expanded={seccionOpen}
+                aria-haspopup="listbox"
+              />
+            </div>
+            {seccionOpen && !loadingSecciones && (
+              <div
+                role="listbox"
+                aria-label="Secciones disponibles"
+                className="absolute top-full left-0 z-50 mt-1 w-full min-w-[180px] border border-gray-eske-30 rounded-md bg-white-eske shadow-lg overflow-y-auto max-h-[140px]"
+              >
+                {seccionesSeleccionadas.length > 0 && (
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={false}
+                    onClick={() => { dispatch({ type: "SELECT_SECCION", seccion: [] }); setSeccionSearch(""); setSeccionOpen(false); }}
+                    className="w-full text-left px-2 py-1 text-xs text-black-eske-60 italic hover:bg-gray-eske-10 border-b border-gray-eske-10"
+                  >
+                    Todas (limpiar selección)
+                  </button>
+                )}
+                {availableSecciones.length === 0 ? (
+                  <p className="text-xs text-black-eske-40 px-2 py-1 italic">
+                    {seccionesSeleccionadas.length === 0 ? "Sin secciones" : "Todas seleccionadas"}
+                  </p>
+                ) : (
+                  availableSecciones.map((s) => (
+                    <button
+                      key={s.cve}
+                      type="button"
+                      role="option"
+                      aria-selected={false}
+                      onClick={() => addSeccion(s.cve)}
+                      className="w-full text-left px-2 py-0.5 text-xs text-black-eske hover:bg-blue-eske/10 hover:text-blue-eske"
+                    >
+                      {s.nombre}
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Botón Consultar */}
+        {hasPending && (
+          <button
+            onClick={handleConsultar}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md bg-blue-eske text-white-eske hover:bg-blue-eske-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske transition-colors self-end"
+          >
+            Consultar
+          </button>
+        )}
+
+        {/* Aviso Extranjero */}
+        {pendingAmbito === "extranjero" && (
+          <div
+            className="ml-auto rounded-md px-3 py-2 text-xs text-black-eske self-end"
+            style={{ backgroundColor: "#bcd1e3" }}
+          >
+            Los datos de Residentes en el Extranjero sólo están disponibles a nivel estatal.
+          </div>
         )}
       </div>
     </div>
@@ -239,156 +876,81 @@ function OrigenPanel({ ambito, corte, entidad, onFechasLoaded }: PanelProps) {
 // ──────────────────────────────────────────────
 // Vista principal Semanal
 // ──────────────────────────────────────────────
-const DESGLOSES: { id: SemanalDesglose; label: string }[] = [
-  { id: "sexo", label: "Desglose Sexo" },
-  { id: "edad", label: "Desglose Edad" },
-  { id: "origen", label: "Desglose Origen" },
-];
+const DEFAULT_GEO_INFO: GeoInfo = {
+  entidad: "Nacional",
+  distrito: "Todos",
+  municipio: "Todos",
+  seccion: "Todas",
+};
 
 export default function SemanalView() {
-  const [desglose, setDesglose] = useState<SemanalDesglose>("sexo");
-  const [ambito, setAmbito] = useState<Ambito>("nacional");
-  const [entidad, setEntidad] = useState("");
-  const [corte, setCorte] = useState<string | undefined>(undefined);
+  const [desglose, setDesglose] = useState<SemanalDesglose>("edad");
+
+  // Estado comprometido (lo que los paneles usan)
+  const [ambito,  setAmbito]  = useState<Ambito>("nacional");
+  const [corte,   setCorte]   = useState<string | undefined>(undefined);
+  const [geoInfo, setGeoInfo] = useState<GeoInfo>(DEFAULT_GEO_INFO);
+
+  // Fechas disponibles (acumuladas desde los paneles)
   const [availableFechas, setAvailableFechas] = useState<string[]>([]);
 
-  // Solo actualizar fechas disponibles si el array es más grande que el actual
   const handleFechasLoaded = useCallback((fechas: string[]) => {
-    setAvailableFechas((prev) =>
-      fechas.length > prev.length ? fechas : prev
-    );
+    setAvailableFechas((prev) => (fechas.length > prev.length ? fechas : prev));
   }, []);
 
-  // Etiqueta de corte formateada
-  const corteLabel = useMemo(() => {
-    if (!corte) return "Más reciente";
-    const [y, m, d] = corte.split("-");
-    return `${d}/${m}/${y}`;
-  }, [corte]);
+  const handleConsultar = useCallback(
+    ({ ambito: a, corte: c, geoInfo: g }: { ambito: Ambito; corte?: string; geoInfo: GeoInfo }) => {
+      setAmbito(a);
+      setCorte(c);
+      setGeoInfo(g);
+    },
+    [],
+  );
+
+  const scopeLabel = geoInfoToScopeLabel(geoInfo);
 
   const panelProps: PanelProps = {
     ambito,
     corte,
-    entidad: entidad || undefined,
+    entidad: geoInfo.entidad !== "Nacional" ? geoInfo.entidad : undefined,
+    scopeLabel,
     onFechasLoaded: handleFechasLoaded,
   };
 
   return (
     <div className="space-y-6">
-      {/* ── Barra de filtros ── */}
-      <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
-        <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
 
-          {/* Ámbito */}
-          <fieldset>
-            <legend className="text-xs font-semibold text-black-eske-10 mb-1">
-              Ámbito
-            </legend>
-            <div className="flex gap-3">
-              {(["nacional", "extranjero"] as Ambito[]).map((a) => (
-                <label
-                  key={a}
-                  className="flex items-center gap-1.5 cursor-pointer text-sm"
-                >
-                  <input
-                    type="radio"
-                    name="semanal-ambito"
-                    value={a}
-                    checked={ambito === a}
-                    onChange={() => setAmbito(a)}
-                    className="accent-blue-eske"
-                  />
-                  <span className="capitalize">{a}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
+      {/* ── Panel de filtros ── */}
+      <SemanalFilterPanel
+        availableFechas={availableFechas}
+        committedAmbito={ambito}
+        committedCorte={corte}
+        onConsultar={handleConsultar}
+      />
 
-          {/* Entidad */}
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="semanal-entidad"
-              className="text-xs font-semibold text-black-eske-10"
-            >
-              Entidad (opcional)
-            </label>
-            <select
-              id="semanal-entidad"
-              value={entidad}
-              onChange={(e) => setEntidad(e.target.value)}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[180px]"
-            >
-              <option value="">— Nacional —</option>
-              {ESTADOS_LIST.map((e) => (
-                <option key={e.key} value={e.nombre}>
-                  {e.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Corte (fecha) */}
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="semanal-corte"
-              className="text-xs font-semibold text-black-eske-10"
-            >
-              Corte semanal
-            </label>
-            <select
-              id="semanal-corte"
-              value={corte ?? ""}
-              onChange={(e) =>
-                setCorte(e.target.value || undefined)
-              }
-              disabled={availableFechas.length === 0}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske disabled:opacity-50 disabled:cursor-not-allowed min-w-[150px]"
-            >
-              <option value="">{corteLabel}</option>
-              {availableFechas.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Desglose */}
-          <div className="flex flex-col gap-1 ml-auto">
-            <span className="text-xs font-semibold text-black-eske-10 mb-1">
-              Desglose
-            </span>
-            <div className="flex gap-2">
-              {DESGLOSES.map((d) => (
-                <button
-                  key={d.id}
-                  onClick={() => setDesglose(d.id)}
-                  className={[
-                    "px-3 py-1.5 text-xs font-medium rounded-full transition-colors border",
-                    desglose === d.id
-                      ? "bg-blue-eske text-white-eske border-blue-eske"
-                      : "bg-white-eske text-black-eske-60 border-gray-eske-30 hover:border-blue-eske hover:text-blue-eske",
-                  ].join(" ")}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* ── Selector de desglose ── */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold text-black-eske-10 mr-1">Desglose:</span>
+        {DESGLOSES.map((d) => (
+          <button
+            key={d.id}
+            onClick={() => setDesglose(d.id)}
+            className={[
+              "px-3 py-1.5 text-xs font-medium rounded-full transition-colors border",
+              desglose === d.id
+                ? "bg-blue-eske text-white-eske border-blue-eske"
+                : "bg-white-eske text-black-eske-60 border-gray-eske-30 hover:border-blue-eske hover:text-blue-eske",
+            ].join(" ")}
+          >
+            {d.label}
+          </button>
+        ))}
       </div>
 
       {/* ── Panel activo ── */}
-      {desglose === "edad" && <EdadPanel {...panelProps} />}
-      {desglose === "sexo" && <SexoPanel {...panelProps} />}
+      {desglose === "edad"   && <EdadPanel   {...panelProps} />}
+      {desglose === "sexo"   && <SexoPanel   {...panelProps} />}
       {desglose === "origen" && <OrigenPanel {...panelProps} />}
-
-      {/* Fuente */}
-      <p className="text-[11px] text-black-eske-60">
-        Fuente: DERFE — Dirección Ejecutiva del Registro Federal de Electores, INE.
-        Datos del Padrón Electoral y Lista Nominal.
-        {entidad && ` Filtrado por entidad: ${entidad}.`}
-      </p>
     </div>
   );
 }

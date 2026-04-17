@@ -55,7 +55,7 @@ export function useLneSemanal(
 
       if (entidad) {
         // Con filtro geográfico: API route que procesa archivos crudos
-        const p = new URLSearchParams({ tipo });
+        const p = new URLSearchParams({ tipo, ambito });
         if (corte) p.set("corte", corte);
         p.set("entidad", entidad);
         url = `/api/sefix/semanal?${p}`;
@@ -148,7 +148,8 @@ export function useGeoTerritorios(
   entidad?: string,
   distrito?: string,
   municipio?: string,
-  year?: number
+  year?: number,
+  source?: "semanal"
 ) {
   const [opciones, setOpciones] = useState<GeoOpcion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -165,7 +166,8 @@ export function useGeoTerritorios(
     if (entidad) params.set("entidad", entidad);
     if (distrito) params.set("distrito", distrito);
     if (municipio) params.set("municipio", municipio);
-    if (year) params.set("year", String(year));
+    if (source) params.set("source", source);
+    else if (year) params.set("year", String(year));
 
     fetch(`/api/sefix/territorios?${params}`)
       .then((r) => r.json())
@@ -175,7 +177,7 @@ export function useGeoTerritorios(
       .catch(() => { if (!cancelled) setIsLoading(false); });
 
     return () => { cancelled = true; };
-  }, [nivel, entidad, distrito, municipio, year]);
+  }, [nivel, entidad, distrito, municipio, year, source]);
 
   return { opciones, isLoading };
 }

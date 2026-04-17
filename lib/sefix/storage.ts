@@ -961,6 +961,90 @@ export async function getSemanalFechas(tipo: SemanalTipo): Promise<string[]> {
     .filter((f) => f !== "desconocida");
 }
 
+// ==========================================
+// PRE-GENERATED SEMANAL — GEO + AGG (fast paths)
+// ==========================================
+
+interface SemanalGeoDistrito { cve: string; nombre: string }
+interface SemanalGeoStateData {
+  distritos: SemanalGeoDistrito[];
+  municipios: Record<string, SemanalGeoDistrito[]>;
+  secciones:  Record<string, string[]>;
+}
+type SemanalGeoData = Record<string, SemanalGeoStateData>;
+
+interface SemanalAggAmbito { nacional: Record<string, number>; extranjero: Record<string, number> }
+interface SemanalAggData {
+  fecha:       string;
+  nacional:    Record<string, number>;
+  extranjero:  Record<string, number>;
+  por_entidad: Record<string, SemanalAggAmbito>;
+}
+
+// Module-level in-memory caches (survive request lifetime, evicted on server restart)
+let semanalGeoCache: SemanalGeoData | null = null;
+const semanalAggCache = new Map<string, SemanalAggData>(); // tipo → data
+
+async function getSemanalGeo(): Promise<SemanalGeoData | null> {
+  if (semanalGeoCache) return semanalGeoCache;
+  try {
+    const [contents] = await getBucket().file("sefix/pdln/semanal_geo/geo.json").download();
+    semanalGeoCache = JSON.parse(contents.toString("utf-8")) as SemanalGeoData;
+    return semanalGeoCache;
+  } catch {
+    return null;
+  }
+}
+
+async function getSemanalAgg(tipo: SemanalTipo): Promise<SemanalAggData | null> {
+  if (semanalAggCache.has(tipo)) return semanalAggCache.get(tipo)!;
+  try {
+    const [contents] = await getBucket().file(`sefix/pdln/semanal_agg/${tipo}.json`).download();
+    const data = JSON.parse(contents.toString("utf-8")) as SemanalAggData;
+    semanalAggCache.set(tipo, data);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fast geo cascade using pre-generated geo.json.
+ * Falls back to streaming the raw CSV if geo.json is not available.
+ */
+export async function getDistritosPorEntidadSemanal(entidad: string): Promise<GeoOpcion[]> {
+  const geo = await getSemanalGeo();
+  if (geo) {
+    const state = geo[entidad];
+    if (state) return state.distritos;
+  }
+  return getDistritosPorEntidad(entidad);
+}
+
+export async function getMunicipiosPorDistritoSemanal(
+  entidad: string,
+  cvDistrito: string
+): Promise<GeoOpcion[]> {
+  const geo = await getSemanalGeo();
+  if (geo) {
+    const state = geo[entidad];
+    if (state) return state.municipios[cvDistrito] ?? [];
+  }
+  return getMunicipiosPorDistrito(entidad, cvDistrito);
+}
+
+export async function getSeccionesPorMunicipioSemanal(
+  entidad: string,
+  cvMunicipio: string
+): Promise<string[]> {
+  const geo = await getSemanalGeo();
+  if (geo) {
+    const state = geo[entidad];
+    if (state) return state.secciones[cvMunicipio] ?? [];
+  }
+  return getSeccionesPorMunicipio(entidad, cvMunicipio);
+}
+
 /**
  * Agrega el archivo semanal de un tipo y corte dado.
  * Si entidad=null devuelve totales nacionales/extranjero.
@@ -975,10 +1059,36 @@ export async function getSemanalAgregado(
   ambitos: { nacional: Record<string, number>; extranjero: Record<string, number> };
   rows: Record<string, string | number>[];
 } | null> {
+  // ── Fast path: use pre-generated aggregate JSON ──────────────────────────
+  const agg = await getSemanalAgg(tipo);
+  if (agg) {
+    const aggFechaNorm = agg.fecha.replace(/-/g, "");
+    const corteNorm    = corte?.replace(/-/g, "");
+    // Use the agg JSON when the requested corte matches its date (or no corte = latest)
+    if (!corteNorm || corteNorm === aggFechaNorm) {
+      if (entidad) {
+        const entData = agg.por_entidad[entidad];
+        if (entData) {
+          return {
+            fecha: agg.fecha,
+            ambitos: { nacional: entData.nacional, extranjero: entData.extranjero },
+            rows: [],
+          };
+        }
+      } else {
+        return {
+          fecha: agg.fecha,
+          ambitos: { nacional: agg.nacional, extranjero: agg.extranjero },
+          rows: [],
+        };
+      }
+    }
+  }
+
+  // ── Slow path: stream raw CSV ─────────────────────────────────────────────
   const paths = await getSemanalPaths(tipo);
   if (paths.length === 0) return null;
 
-  // Seleccionar el archivo correcto
   let targetPath: string;
   if (corte) {
     const normalized = corte.replace(/-/g, "");
@@ -997,15 +1107,14 @@ export async function getSemanalAgregado(
   const nacional: Record<string, number> = {};
   const extranjero: Record<string, number> = {};
 
-  // Columnas de clave que no se suman nunca
   const SKIP_COLS = new Set(["cve_entidad", "cve_distrito", "cve_municipio", "seccion"]);
+  // Convert UI name to the DERFE CSV name for filtering
+  const derfeEntidad = entidad ? toDerfeNombre(entidad) : null;
 
   await streamCsvRows(targetPath, (row) => {
     const cve = row.cve_entidad?.trim();
     if (!cve || cve.toUpperCase() === "NA") return;
-
-    // Filtro por entidad si se especifica
-    if (entidad && row.nombre_entidad !== entidad) return;
+    if (derfeEntidad && row.nombre_entidad !== derfeEntidad) return;
 
     const isExt = row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO");
     const target = isExt ? extranjero : nacional;
@@ -1017,7 +1126,6 @@ export async function getSemanalAgregado(
     }
   });
 
-  // No acumulamos las filas crudas — eran la causa principal del alto uso de memoria (~300 MB por llamada)
   const result = { fecha, ambitos: { nacional, extranjero }, rows: [] as Record<string, string | number>[] };
   setCache(cacheKey, result);
   return result;
@@ -1393,6 +1501,116 @@ export interface NBAnualPoint {
 /**
  * Devuelve un punto NB por año (último mes disponible) para Nacional o Extranjero.
  *
+ * ==========================================
+ * TABLA DE DATOS SEMANAL
+ * ==========================================
+
+/**
+ * Devuelve filas para la tabla de datos de la vista Semanal.
+ * Usa getSemanalAgregado para obtener el agregado nacional/extranjero
+ * y lo descompone en filas según el tipo de desglose.
+ *
+ * tipo=sexo   → 3 filas (Hombres, Mujeres, No Binario)
+ * tipo=edad   → 12 filas (una por rango etario)
+ * tipo=origen → hasta 34 filas (32 estados + LN87 + LN88)
+ */
+export async function getSemanalTablaRows(params: {
+  tipo: SemanalTipo;
+  ambito: "nacional" | "extranjero";
+  corte?: string;
+  entidad?: string;
+}): Promise<{ rows: Record<string, string | number>[]; fecha: string }> {
+  const { tipo, ambito, corte, entidad } = params;
+
+  const agg = await getSemanalAgregado(tipo, corte, entidad ?? null);
+  if (!agg) return { rows: [], fecha: "" };
+
+  const data = agg.ambitos[ambito] ?? {};
+  const fecha = agg.fecha;
+
+  const RANGOS = ["18","19","20_24","25_29","30_34","35_39","40_44","45_49","50_54","55_59","60_64","65_y_mas"];
+  const ETIQ_R: Record<string, string> = {
+    "18":"18 años","19":"19 años","20_24":"20–24 años","25_29":"25–29 años",
+    "30_34":"30–34 años","35_39":"35–39 años","40_44":"40–44 años","45_49":"45–49 años",
+    "50_54":"50–54 años","55_59":"55–59 años","60_64":"60–64 años","65_y_mas":"65+ años",
+  };
+
+  const ESTADOS_ORIGEN: Record<string, string> = {
+    aguascalientes:"Aguascalientes", baja_california:"Baja California",
+    baja_california_sur:"Baja California Sur", campeche:"Campeche",
+    chiapas:"Chiapas", chihuahua:"Chihuahua", ciudad_de_mexico:"Ciudad de México",
+    coahuila:"Coahuila", colima:"Colima", durango:"Durango",
+    estado_de_mexico:"Estado de México", guanajuato:"Guanajuato",
+    guerrero:"Guerrero", hidalgo:"Hidalgo", jalisco:"Jalisco",
+    michoacan:"Michoacán", morelos:"Morelos", nayarit:"Nayarit",
+    nuevo_leon:"Nuevo León", oaxaca:"Oaxaca", puebla:"Puebla",
+    queretaro:"Querétaro", quintana_roo:"Quintana Roo",
+    san_luis_potosi:"San Luis Potosí", sinaloa:"Sinaloa", sonora:"Sonora",
+    tabasco:"Tabasco", tamaulipas:"Tamaulipas", tlaxcala:"Tlaxcala",
+    veracruz:"Veracruz", yucatan:"Yucatán", zacatecas:"Zacatecas",
+  };
+
+  function tasa(pad: number, lst: number): string {
+    return pad > 0 ? (lst / pad * 100).toFixed(2) + "%" : "—";
+  }
+
+  let rows: Record<string, string | number>[] = [];
+
+  if (tipo === "sexo") {
+    const sexos = [
+      { key: "hombres",    label: "Hombres" },
+      { key: "mujeres",    label: "Mujeres" },
+      { key: "no_binario", label: "No Binario" },
+    ];
+    rows = sexos.map(({ key, label }) => {
+      const pad = (data[`padron_${key}`] as number) ?? 0;
+      const lst = (data[`lista_${key}`]  as number) ?? 0;
+      return { sexo: label, padron: pad, lista: lst, tasa: tasa(pad, lst) };
+    });
+  } else if (tipo === "edad") {
+    rows = RANGOS.map((r) => {
+      // Handle both formats: series CSV (padron_18) and raw agg (padron_18_hombres + ...)
+      const padDirect = (data[`padron_${r}`] as number) ?? 0;
+      const pad = padDirect > 0 ? padDirect :
+        ((data[`padron_${r}_hombres`] as number) ?? 0) +
+        ((data[`padron_${r}_mujeres`] as number) ?? 0) +
+        ((data[`padron_${r}_no_binario`] as number) ?? 0);
+      const lstDirect = (data[`lista_${r}`] as number) ?? 0;
+      const lst = lstDirect > 0 ? lstDirect :
+        ((data[`lista_${r}_hombres`] as number) ?? 0) +
+        ((data[`lista_${r}_mujeres`] as number) ?? 0) +
+        ((data[`lista_${r}_no_binario`] as number) ?? 0);
+      return { rango: ETIQ_R[r] ?? r, padron: pad, lista: lst, tasa: tasa(pad, lst) };
+    });
+  } else {
+    // origen
+    const estadoRows = Object.entries(ESTADOS_ORIGEN).map(([key, nombre]) => {
+      const lne = (data[`ln_${key}`]  as number) ?? 0;
+      const pad = (data[`pad_${key}`] as number) ?? 0;
+      return { origen: nombre, lne, padron: pad, diferencia: pad - lne };
+    });
+    const ln87 = (data["ln87"] as number) ?? 0;
+    const ln88 = (data["ln88"] as number) ?? 0;
+    const pad87 = (data["pad87"] as number) ?? 0;
+    const pad88 = (data["pad88"] as number) ?? 0;
+    estadoRows.push(
+      { origen: "Nacidos en el Extranjero (LN87)", lne: ln87, padron: pad87, diferencia: pad87 - ln87 },
+      { origen: "Naturalizados (LN88)", lne: ln88, padron: pad88, diferencia: pad88 - ln88 }
+    );
+    rows = estadoRows.sort((a, b) => (b.lne as number) - (a.lne as number));
+  }
+
+  // Añadir campos base vacíos para compatibilidad con el API route
+  rows = rows.map((r) => ({ entidad: entidad ?? "Nacional", municipio: "—", seccion: "—", ...r }));
+
+  return { rows, fecha };
+}
+
+// ==========================================
+// NB ANUAL
+// ==========================================
+
+/**
  * Nacional: lee los _base.csv via getHistoricoSeries() (cacheada 30 min) que
  *   contiene padronNoBinario y listaNoBinario reales desde las columnas CSV.
  *   Esto garantiza que los valores sean exactos (no estimados por ratio).

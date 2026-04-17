@@ -10,6 +10,9 @@ import {
   getDistritosPorEntidadYear,
   getMunicipiosPorDistritoYear,
   getSeccionesPorMunicipioYear,
+  getDistritosPorEntidadSemanal,
+  getMunicipiosPorDistritoSemanal,
+  getSeccionesPorMunicipioSemanal,
 } from "@/lib/sefix/storage";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +26,7 @@ export async function GET(request: NextRequest) {
     const municipio = searchParams.get("municipio");
     const yearRaw = searchParams.get("year");
     const year = yearRaw ? parseInt(yearRaw, 10) : null;
+    const source = searchParams.get("source"); // "semanal" → uses pre-generated geo.json
 
     if (!nivel) {
       return NextResponse.json({ error: "Parámetro 'nivel' requerido" }, { status: 400 });
@@ -30,27 +34,42 @@ export async function GET(request: NextRequest) {
 
     if (nivel === "distrito") {
       if (!entidad) return NextResponse.json({ error: "Se requiere 'entidad'" }, { status: 400 });
-      const opciones = year
-        ? await getDistritosPorEntidadYear(entidad, year)
-        : await getDistritosPorEntidad(entidad);
+      let opciones;
+      if (source === "semanal") {
+        opciones = await getDistritosPorEntidadSemanal(entidad);
+      } else if (year) {
+        opciones = await getDistritosPorEntidadYear(entidad, year);
+      } else {
+        opciones = await getDistritosPorEntidad(entidad);
+      }
       return NextResponse.json({ opciones });
     }
 
     if (nivel === "municipio") {
       if (!entidad || !distrito)
         return NextResponse.json({ error: "Se requieren 'entidad' y 'distrito'" }, { status: 400 });
-      const opciones = year
-        ? await getMunicipiosPorDistritoYear(entidad, distrito, year)
-        : await getMunicipiosPorDistrito(entidad, distrito);
+      let opciones;
+      if (source === "semanal") {
+        opciones = await getMunicipiosPorDistritoSemanal(entidad, distrito);
+      } else if (year) {
+        opciones = await getMunicipiosPorDistritoYear(entidad, distrito, year);
+      } else {
+        opciones = await getMunicipiosPorDistrito(entidad, distrito);
+      }
       return NextResponse.json({ opciones });
     }
 
     if (nivel === "seccion") {
       if (!entidad || !municipio)
         return NextResponse.json({ error: "Se requieren 'entidad' y 'municipio'" }, { status: 400 });
-      const secciones = year
-        ? await getSeccionesPorMunicipioYear(entidad, municipio, year)
-        : await getSeccionesPorMunicipio(entidad, municipio);
+      let secciones;
+      if (source === "semanal") {
+        secciones = await getSeccionesPorMunicipioSemanal(entidad, municipio);
+      } else if (year) {
+        secciones = await getSeccionesPorMunicipioYear(entidad, municipio, year);
+      } else {
+        secciones = await getSeccionesPorMunicipio(entidad, municipio);
+      }
       return NextResponse.json({ opciones: secciones.map((s) => ({ cve: s, nombre: s })) });
     }
 
