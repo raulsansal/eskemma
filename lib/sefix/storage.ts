@@ -985,6 +985,137 @@ interface SemanalAggData {
 let semanalGeoCache: SemanalGeoData | null = null;
 const semanalAggCache = new Map<string, SemanalAggData>(); // tipo → data
 
+// ──────────────────────────────────────────────────────────────────────────
+// SECTION-LEVEL SERIES (pre-generated per entity)
+// Storage: sefix/pdln/semanal_agg/secciones_{ENTIDAD}_{tipo}.json
+// ──────────────────────────────────────────────────────────────────────────
+
+interface SemanalSeccionEntry {
+  s:   string;
+  cvd: string;
+  cvm: string;
+  nacional: Record<string, (number | null)[]>;
+}
+
+interface SemanalSeccionesSerie {
+  entidad:   string;
+  tipo:      SemanalTipo;
+  fechas:    string[];
+  secciones: SemanalSeccionEntry[];
+}
+
+const semanalSeccionesCache = new Map<string, SemanalSeccionesSerie>();
+
+async function loadSemanalSecciones(
+  entidad: string,
+  tipo: SemanalTipo
+): Promise<SemanalSeccionesSerie | null> {
+  const key = `${entidad}_${tipo}`;
+  if (semanalSeccionesCache.has(key)) return semanalSeccionesCache.get(key)!;
+  try {
+    const storagePath = `sefix/pdln/semanal_agg/secciones_${entidad}_${tipo}.json`;
+    const file = getBucket().file(storagePath);
+    const [exists] = await file.exists();
+    if (!exists) return null;
+    const [contents] = await file.download();
+    const data = JSON.parse(contents.toString("utf-8")) as SemanalSeccionesSerie;
+    semanalSeccionesCache.set(key, data);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export interface SemanalGeoFilter {
+  cveDistrito?:  string;
+  cveMunicipio?: string;
+  secciones?:    string[];
+}
+
+function matchesSemanalGeo(sec: SemanalSeccionEntry, geo: SemanalGeoFilter): boolean {
+  const filtSecs = geo.secciones?.length
+    ? new Set(geo.secciones.map(normSec))
+    : null;
+  if (filtSecs) return filtSecs.has(normSec(sec.s));
+  if (geo.cveMunicipio && sec.cvm !== geo.cveMunicipio) return false;
+  if (geo.cveDistrito  && sec.cvd !== geo.cveDistrito)  return false;
+  return true;
+}
+
+/**
+ * Returns a single-week snapshot aggregated from the section-level series JSON.
+ * Only nacional ambito is supported (sections belong to the national hierarchy).
+ */
+export async function getSemanalSeccionSnapshot(
+  entidad: string,
+  tipo: SemanalTipo,
+  ambito: "nacional" | "extranjero",
+  geo: SemanalGeoFilter,
+  corte?: string
+): Promise<{ data: Record<string, number>; fecha: string } | null> {
+  if (ambito === "extranjero") return null;
+
+  const serieData = await loadSemanalSecciones(entidad, tipo);
+  if (!serieData) return null;
+
+  let wi = serieData.fechas.length - 1;
+  if (corte) {
+    const normalized = corte.replace(/-/g, "");
+    const idx = serieData.fechas.findIndex((f) => f.replace(/-/g, "") === normalized);
+    if (idx !== -1) wi = idx;
+  }
+
+  const fecha = serieData.fechas[wi];
+  if (!fecha) return null;
+
+  const relevant = serieData.secciones.filter((s) => matchesSemanalGeo(s, geo));
+  if (relevant.length === 0) return null;
+
+  const agg: Record<string, number> = {};
+  for (const sec of relevant) {
+    for (const [col, arr] of Object.entries(sec.nacional)) {
+      const val = arr[wi];
+      if (val !== null && val !== undefined) {
+        agg[col] = (agg[col] ?? 0) + val;
+      }
+    }
+  }
+  return { data: agg, fecha };
+}
+
+/**
+ * Returns a full time-series aggregated from section-level data for a geo filter.
+ * Only nacional ambito is supported.
+ */
+export async function getSemanalSeccionesSerie(
+  entidad: string,
+  tipo: SemanalTipo,
+  ambito: "nacional" | "extranjero",
+  geo: SemanalGeoFilter
+): Promise<{ serie: Record<string, number | string>[]; availableFechas: string[] } | null> {
+  if (ambito === "extranjero") return null;
+
+  const serieData = await loadSemanalSecciones(entidad, tipo);
+  if (!serieData) return null;
+
+  const relevant = serieData.secciones.filter((s) => matchesSemanalGeo(s, geo));
+  if (relevant.length === 0) return null;
+
+  const serie = serieData.fechas.map((fecha, wi) => {
+    const row: Record<string, number | string> = { fecha };
+    for (const sec of relevant) {
+      for (const [col, arr] of Object.entries(sec.nacional)) {
+        const val = arr[wi];
+        if (val !== null && val !== undefined) {
+          row[col] = ((row[col] as number | undefined) ?? 0) + val;
+        }
+      }
+    }
+    return row;
+  });
+  return { serie, availableFechas: [...serieData.fechas].reverse() };
+}
+
 async function getSemanalGeo(): Promise<SemanalGeoData | null> {
   if (semanalGeoCache) return semanalGeoCache;
   try {
@@ -1519,14 +1650,25 @@ export async function getSemanalTablaRows(params: {
   ambito: "nacional" | "extranjero";
   corte?: string;
   entidad?: string;
+  geo?: SemanalGeoFilter;
 }): Promise<{ rows: Record<string, string | number>[]; fecha: string }> {
-  const { tipo, ambito, corte, entidad } = params;
+  const { tipo, ambito, corte, entidad, geo } = params;
 
-  const agg = await getSemanalAgregado(tipo, corte, entidad ?? null);
-  if (!agg) return { rows: [], fecha: "" };
+  // When sub-state geo filter active, use section-level snapshot for accuracy
+  let data: Record<string, number>;
+  let fecha: string;
 
-  const data = agg.ambitos[ambito] ?? {};
-  const fecha = agg.fecha;
+  if (entidad && geo && (geo.cveDistrito || geo.cveMunicipio || geo.secciones?.length)) {
+    const snapshot = await getSemanalSeccionSnapshot(entidad, tipo, ambito, geo, corte);
+    if (!snapshot) return { rows: [], fecha: "" };
+    data  = snapshot.data;
+    fecha = snapshot.fecha;
+  } else {
+    const agg = await getSemanalAgregado(tipo, corte, entidad ?? null);
+    if (!agg) return { rows: [], fecha: "" };
+    data  = agg.ambitos[ambito] ?? {};
+    fecha = agg.fecha;
+  }
 
   const RANGOS = ["18","19","20_24","25_29","30_34","35_39","40_44","45_49","50_54","55_59","60_64","65_y_mas"];
   const ETIQ_R: Record<string, string> = {

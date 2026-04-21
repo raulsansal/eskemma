@@ -10,6 +10,9 @@ interface SemanalDataTableProps {
   scopeLabel?: string;
   corte?: string;
   entidad?: string;
+  cveDistrito?: string;
+  cveMunicipio?: string;
+  secciones?: string[];
 }
 
 type TablaRow = Record<string, string | number>;
@@ -56,6 +59,9 @@ export default function SemanalDataTable({
   scopeLabel,
   corte,
   entidad,
+  cveDistrito,
+  cveMunicipio,
+  secciones,
 }: SemanalDataTableProps) {
   const [rows, setRows]           = useState<TablaRow[]>([]);
   const [total, setTotal]         = useState(0);
@@ -78,9 +84,12 @@ export default function SemanalDataTable({
         page: String(p),
         pageSize: String(ps),
       });
-      if (corte)   params.set("corte",   corte);
-      if (entidad) params.set("entidad", entidad);
-      if (q)       params.set("search",  q);
+      if (corte)            params.set("corte",    corte);
+      if (entidad)          params.set("entidad",  entidad);
+      if (cveDistrito)      params.set("cvd",      cveDistrito);
+      if (cveMunicipio)     params.set("cvm",      cveMunicipio);
+      if (secciones?.length) params.set("secciones", secciones.join(","));
+      if (q)                params.set("search",   q);
 
       const res = await fetch(`/api/sefix/semanal-tabla?${params}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -93,7 +102,8 @@ export default function SemanalDataTable({
     } finally {
       setIsLoading(false);
     }
-  }, [tipo, ambito, corte, entidad]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipo, ambito, corte, entidad, cveDistrito, cveMunicipio, secciones?.join(",")]);
 
   useEffect(() => {
     setPage(1);
@@ -119,8 +129,11 @@ export default function SemanalDataTable({
 
   function handleDownload() {
     const params = new URLSearchParams({ tipo, ambito, download: "true" });
-    if (corte)   params.set("corte",   corte);
-    if (entidad) params.set("entidad", entidad);
+    if (corte)             params.set("corte",    corte);
+    if (entidad)           params.set("entidad",  entidad);
+    if (cveDistrito)       params.set("cvd",      cveDistrito);
+    if (cveMunicipio)      params.set("cvm",      cveMunicipio);
+    if (secciones?.length) params.set("secciones", secciones.join(","));
     window.location.href = `/api/sefix/semanal-tabla?${params}`;
   }
 

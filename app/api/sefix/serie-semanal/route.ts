@@ -6,6 +6,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminApp } from "@/lib/firebase-admin";
 import { getStorage } from "firebase-admin/storage";
+import {
+  getSemanalSeccionesSerie,
+  type SemanalTipo,
+  type SemanalGeoFilter,
+} from "@/lib/sefix/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -31,11 +36,17 @@ function parseCsv(text: string): Record<string, string>[] {
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const tipo = searchParams.get("tipo");
-  const ambito = searchParams.get("ambito") ?? "nacional";
-  const corte = searchParams.get("corte");
-  const todas = searchParams.get("todas") === "true";
+  const tipo    = searchParams.get("tipo");
+  const ambito  = searchParams.get("ambito") ?? "nacional";
+  const corte   = searchParams.get("corte");
+  const todas   = searchParams.get("todas") === "true";
   const entidad = searchParams.get("entidad");
+
+  // Sub-state geo filter
+  const cveDistrito  = searchParams.get("cvd")       ?? undefined;
+  const cveMunicipio = searchParams.get("cvm")       ?? undefined;
+  const seccionesRaw = searchParams.get("secciones") ?? "";
+  const secciones    = seccionesRaw ? seccionesRaw.split(",").filter(Boolean) : undefined;
 
   if (!tipo || !["sexo", "edad", "origen"].includes(tipo)) {
     return NextResponse.json(
@@ -52,6 +63,25 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Section-series path: when sub-state geo filter is active
+    const hasGeoFilter = !!(cveDistrito || cveMunicipio || secciones?.length);
+    if (entidad && todas && hasGeoFilter) {
+      const geo: SemanalGeoFilter = { cveDistrito, cveMunicipio, secciones };
+      const result = await getSemanalSeccionesSerie(
+        entidad,
+        tipo as SemanalTipo,
+        ambito as "nacional" | "extranjero",
+        geo
+      );
+      if (result) {
+        return NextResponse.json(
+          { serie: result.serie, availableFechas: result.availableFechas },
+          { headers: { "Cache-Control": "public, max-age=1800, stale-while-revalidate=3600" } }
+        );
+      }
+      // Fall through to entity-level series if section series not yet generated
+    }
+
     // Entity-series path: read pre-generated JSON for entity-level time series
     if (entidad && todas) {
       const jsonPath = `sefix/pdln/semanal_agg/serie_entidades_${tipo}.json`;

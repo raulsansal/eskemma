@@ -110,11 +110,12 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
   const total = chartData.reduce((s, d) => s + d.lista, 0);
 
   return (
-    <ResponsiveContainer width="100%" height={210}>
+    <ResponsiveContainer width="100%" height={240}>
       <BarChart
         data={chartData}
         layout="vertical"
         margin={{ top: 8, right: 160, left: 8, bottom: 0 }}
+        barSize={28}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" horizontal={false} />
         <XAxis
@@ -126,24 +127,36 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
           type="category"
           dataKey="name"
           width={130}
-          tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          tick={(props: any) => (
+            <text
+              x={props.x}
+              y={props.y}
+              dx={-4}
+              textAnchor="end"
+              dominantBaseline="central"
+              fontSize={11}
+              fill="var(--color-black-eske-10)"
+            >
+              {props.payload?.value}
+            </text>
+          )}
         />
         <Tooltip
           cursor={false}
           content={({ active, payload, label }) => {
             if (!active || !payload?.length) return null;
-            const padron = payload.find((p) => p.dataKey === "padron");
-            const lista  = payload.find((p) => p.dataKey === "lista");
+            const row = chartData.find((d) => d.name === label);
+            const lista = payload.find((p) => p.dataKey === "lista");
             return (
               <div style={{ fontSize: 12, background: "white", border: "1px solid var(--color-gray-eske-20)", borderRadius: 6, padding: "8px 12px" }}>
                 <p style={{ fontWeight: 600, marginBottom: 4 }}>{label}</p>
-                {padron && <p>Padrón Electoral: {FMT.format(Number(padron.value))}</p>}
-                {lista  && <p>Lista Nominal: {FMT.format(Number(lista.value))}</p>}
+                {row   && <p>Padrón Electoral: {FMT.format(row.padron)}</p>}
+                {lista && <p>Lista Nominal: {FMT.format(Number(lista.value))}</p>}
               </div>
             );
           }}
         />
-        <Bar dataKey="padron" shape={() => null} legendType="none" />
         <Bar
           dataKey="lista"
           shape={({ x, y, width, height, color }: {
@@ -393,7 +406,7 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-semibold text-black-eske-60 mb-2">Rangos de edad:</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-x-4 gap-y-1.5">
               {RANGOS_EDAD.map((r) => (
                 <label key={r} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80">
                   <input
@@ -632,9 +645,13 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
 // ──────────────────────────────────────────────
 interface E4Props {
   data: Record<string, number>;
+  ambito?: Ambito;
 }
 
-export function E4RangeChart({ data }: E4Props) {
+export function E4RangeChart({ data, ambito = "nacional" }: E4Props) {
+  const colPad = ambito === "extranjero" ? "#7206b4" : "var(--color-blue-eske-60)";
+  const colLne = ambito === "extranjero" ? "#0163a4" : "var(--color-red-eske-30)";
+
   const chartData = RANGOS_EDAD.map((r) => ({
     name: RANGOS_LABELS[r],
     padron: rangoTotal(data, r, "padron"),
@@ -663,8 +680,8 @@ export function E4RangeChart({ data }: E4Props) {
           formatter={(v) => v === "padron" ? "Padrón Electoral" : "Lista Nominal"}
           wrapperStyle={{ fontSize: 12 }}
         />
-        <Bar dataKey="padron" name="padron" fill="var(--color-blue-eske-60)"  radius={[3, 3, 0, 0]} />
-        <Bar dataKey="lista"  name="lista"  fill="var(--color-red-eske-30)"   radius={[3, 3, 0, 0]} />
+        <Bar dataKey="padron" name="padron" fill={colPad} radius={[3, 3, 0, 0]} />
+        <Bar dataKey="lista"  name="lista"  fill={colLne} radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

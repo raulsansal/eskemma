@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSemanalTablaRows } from "@/lib/sefix/storage";
-import type { SemanalTipo } from "@/lib/sefix/storage";
+import type { SemanalTipo, SemanalGeoFilter } from "@/lib/sefix/storage";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -36,13 +36,22 @@ export async function GET(request: NextRequest) {
   const corte   = sp.get("corte")   ?? undefined;
   const entidad = sp.get("entidad") ?? undefined;
 
+  const cveDistrito  = sp.get("cvd")       ?? undefined;
+  const cveMunicipio = sp.get("cvm")       ?? undefined;
+  const seccionesRaw = sp.get("secciones") ?? "";
+  const secciones    = seccionesRaw ? seccionesRaw.split(",").filter(Boolean) : undefined;
+  const geo: SemanalGeoFilter | undefined =
+    (cveDistrito || cveMunicipio || secciones?.length)
+      ? { cveDistrito, cveMunicipio, secciones }
+      : undefined;
+
   const page     = Math.max(1, parseInt(sp.get("page")     ?? "1",  10));
   const pageSize = Math.min(200, Math.max(1, parseInt(sp.get("pageSize") ?? "50", 10)));
   const search   = (sp.get("search") ?? "").toLowerCase().trim();
   const download = sp.get("download") === "true";
 
   try {
-    let { rows, fecha } = await getSemanalTablaRows({ tipo, ambito, corte, entidad });
+    let { rows, fecha } = await getSemanalTablaRows({ tipo, ambito, corte, entidad, geo });
 
     if (search) {
       const key = textKey(tipo);

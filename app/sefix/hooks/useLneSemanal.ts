@@ -36,7 +36,11 @@ export function useLneSemanal(
   tipo: SemanalTipo,
   ambito: Ambito = "nacional",
   corte?: string,
-  entidad?: string | null
+  entidad?: string | null,
+  queryVersion?: number,
+  cveDistrito?: string,
+  cveMunicipio?: string,
+  secciones?: string[]
 ): UseLneSemanalResult {
   const [data, setData] = useState<Record<string, number> | null>(null);
   const [fecha, setFecha] = useState("");
@@ -54,14 +58,17 @@ export function useLneSemanal(
       let url: string;
 
       if (entidad) {
-        // Con filtro geográfico: API route que procesa archivos crudos
+        // Con filtro geográfico: API route que procesa archivos crudos o section-series
         const p = new URLSearchParams({ tipo, ambito });
-        if (corte) p.set("corte", corte);
+        if (corte)        p.set("corte",    corte);
+        if (cveDistrito)  p.set("cvd",      cveDistrito);
+        if (cveMunicipio) p.set("cvm",      cveMunicipio);
+        if (secciones?.length) p.set("secciones", secciones.join(","));
         p.set("entidad", entidad);
         url = `/api/sefix/semanal?${p}`;
       } else {
         // Sin filtro: API route ligera que lee el CSV pre-agregado (~200ms)
-        const cacheKey = `${ambito}_${tipo}_${corte ?? "latest"}`;
+        const cacheKey = `${ambito}_${tipo}_${corte ?? "latest"}_v${queryVersion ?? 0}`;
         const cached = cache.get(cacheKey);
         if (cached) {
           if (cancelRef.current) return;
@@ -108,7 +115,7 @@ export function useLneSemanal(
 
       // Cachear solo las peticiones sin filtro geográfico
       if (!entidad) {
-        const cacheKey = `${ambito}_${tipo}_${corte ?? "latest"}`;
+        const cacheKey = `${ambito}_${tipo}_${corte ?? "latest"}_v${queryVersion ?? 0}`;
         cache.set(cacheKey, {
           data: resolved,
           fecha: resolvedFecha,
@@ -122,7 +129,8 @@ export function useLneSemanal(
     } finally {
       if (!cancelRef.current) setIsLoading(false);
     }
-  }, [tipo, ambito, corte, entidad]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipo, ambito, corte, entidad, queryVersion, cveDistrito, cveMunicipio, secciones?.join(",")]);
 
   useEffect(() => {
     cancelRef.current = false;

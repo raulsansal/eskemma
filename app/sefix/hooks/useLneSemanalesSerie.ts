@@ -38,7 +38,11 @@ interface UseLneSemanalesSerieResult {
 export function useLneSemanalesSerie(
   tipo: SemanalTipo,
   ambito: Ambito = "nacional",
-  entidad?: string | null
+  entidad?: string | null,
+  queryVersion?: number,
+  cveDistrito?: string,
+  cveMunicipio?: string,
+  secciones?: string[]
 ): UseLneSemanalesSerieResult {
   const [serie, setSerie] = useState<SemanalSerieRow[]>([]);
   const [availableFechas, setAvailableFechas] = useState<string[]>([]);
@@ -51,7 +55,8 @@ export function useLneSemanalesSerie(
     setIsLoading(true);
     setError(null);
 
-    const cacheKey = `${ambito}_${tipo}_${entidad ?? ""}_serie`;
+    const geoKey = [cveDistrito ?? "", cveMunicipio ?? "", (secciones ?? []).join("|")].join(":");
+    const cacheKey = `${ambito}_${tipo}_${entidad ?? ""}_${geoKey}_serie_v${queryVersion ?? 0}`;
     const cached = cache.get(cacheKey);
     if (cached) {
       setSerie(cached.serie);
@@ -61,7 +66,10 @@ export function useLneSemanalesSerie(
     }
 
     const params = new URLSearchParams({ tipo, ambito, todas: "true" });
-    if (entidad) params.set("entidad", entidad);
+    if (entidad)            params.set("entidad",   entidad);
+    if (cveDistrito)        params.set("cvd",       cveDistrito);
+    if (cveMunicipio)       params.set("cvm",       cveMunicipio);
+    if (secciones?.length)  params.set("secciones", secciones.join(","));
     fetch(`/api/sefix/serie-semanal?${params}`)
       .then(async (res) => {
         if (cancelRef.current) return;
@@ -96,7 +104,8 @@ export function useLneSemanalesSerie(
     return () => {
       cancelRef.current = true;
     };
-  }, [tipo, ambito, entidad]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipo, ambito, entidad, queryVersion, cveDistrito, cveMunicipio, secciones?.join(",")]);
 
   return { isLoading, error, serie, availableFechas };
 }
