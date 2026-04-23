@@ -53,7 +53,9 @@ async function streamCsvRows(
     const values = line.split(",");
     const row: Record<string, string> = {};
     for (let i = 0; i < headers.length; i++) {
-      row[headers[i]] = (values[i] ?? "").trim();
+      const raw = (values[i] ?? "").trim();
+      // Strip RFC 4180 quoting: "" → empty string, "value" → value
+      row[headers[i]] = raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
     }
     onRow(row, headers);
   }
@@ -1147,7 +1149,7 @@ export async function getDistritosPorEntidadSemanal(entidad: string): Promise<Ge
   const geo = await getSemanalGeo();
   if (geo) {
     const state = geo[entidad];
-    if (state) return state.distritos;
+    if (state?.distritos?.length) return state.distritos;
   }
   return getDistritosPorEntidad(entidad);
 }
@@ -1159,7 +1161,10 @@ export async function getMunicipiosPorDistritoSemanal(
   const geo = await getSemanalGeo();
   if (geo) {
     const state = geo[entidad];
-    if (state) return state.municipios[cvDistrito] ?? [];
+    if (state) {
+      const result = state.municipios[cvDistrito] ?? [];
+      if (result.length > 0) return result;
+    }
   }
   return getMunicipiosPorDistrito(entidad, cvDistrito);
 }
@@ -1171,7 +1176,10 @@ export async function getSeccionesPorMunicipioSemanal(
   const geo = await getSemanalGeo();
   if (geo) {
     const state = geo[entidad];
-    if (state) return state.secciones[cvMunicipio] ?? [];
+    if (state) {
+      const result = state.secciones[cvMunicipio] ?? [];
+      if (result.length > 0) return result;
+    }
   }
   return getSeccionesPorMunicipio(entidad, cvMunicipio);
 }
@@ -1195,7 +1203,6 @@ export async function getSemanalAgregado(
   if (agg) {
     const aggFechaNorm = agg.fecha.replace(/-/g, "");
     const corteNorm    = corte?.replace(/-/g, "");
-    // Use the agg JSON when the requested corte matches its date (or no corte = latest)
     if (!corteNorm || corteNorm === aggFechaNorm) {
       if (entidad) {
         const entData = agg.por_entidad[entidad];
@@ -1231,7 +1238,7 @@ export async function getSemanalAgregado(
   }
 
   const fecha = extractFecha(targetPath);
-  const cacheKey = `semanal:${tipo}:${fecha}:${entidad ?? "all"}`;
+  const cacheKey = `semanal:${tipo}:${fecha}:${entidad ?? "all"}:v3`;
   const cached = getCached<ReturnType<typeof getSemanalAgregado> extends Promise<infer T> ? T : never>(cacheKey);
   if (cached) return cached as Awaited<ReturnType<typeof getSemanalAgregado>>;
 
@@ -1246,6 +1253,12 @@ export async function getSemanalAgregado(
     const cve = row.cve_entidad?.trim();
     if (!cve || cve.toUpperCase() === "NA") return;
     if (derfeEntidad && row.nombre_entidad !== derfeEntidad) return;
+
+    // Skip aggregate/subtotal rows (district or state totals) which have no
+    // valid section number. Including them alongside section-level rows causes
+    // double-counting (each section value would appear twice).
+    const sec = row.seccion?.trim();
+    if (!sec || sec === "0" || sec === "00") return;
 
     const isExt = row.cabecera_distrital?.toUpperCase().includes("RESIDENTES EXTRANJERO");
     const target = isExt ? extranjero : nacional;
@@ -1658,13 +1671,24 @@ export async function getSemanalTablaRows(params: {
   let data: Record<string, number>;
   let fecha: string;
 
+  // For tipo="sexo" the DataTable needs per-range sex breakdown (lista_18_hombres,
+  // etc.) which only exists in the "edad" raw CSV, not in the "sexo" snapshot.
+  const tipoAgg: SemanalTipo = tipo === "sexo" ? "edad" : tipo;
+
   if (entidad && geo && (geo.cveDistrito || geo.cveMunicipio || geo.secciones?.length)) {
-    const snapshot = await getSemanalSeccionSnapshot(entidad, tipo, ambito, geo, corte);
-    if (!snapshot) return { rows: [], fecha: "" };
-    data  = snapshot.data;
-    fecha = snapshot.fecha;
+    const snapshot = await getSemanalSeccionSnapshot(entidad, tipoAgg, ambito, geo, corte);
+    if (snapshot) {
+      data  = snapshot.data;
+      fecha = snapshot.fecha;
+    } else {
+      // Section-series not pre-generated for this tipo — fall back to entity-level aggregate
+      const agg = await getSemanalAgregado(tipoAgg, corte, entidad ?? null);
+      if (!agg) return { rows: [], fecha: "" };
+      data  = agg.ambitos[ambito] ?? {};
+      fecha = agg.fecha;
+    }
   } else {
-    const agg = await getSemanalAgregado(tipo, corte, entidad ?? null);
+    const agg = await getSemanalAgregado(tipoAgg, corte, entidad ?? null);
     if (!agg) return { rows: [], fecha: "" };
     data  = agg.ambitos[ambito] ?? {};
     fecha = agg.fecha;
@@ -1699,15 +1723,25 @@ export async function getSemanalTablaRows(params: {
   let rows: Record<string, string | number>[] = [];
 
   if (tipo === "sexo") {
-    const sexos = [
-      { key: "hombres",    label: "Hombres" },
-      { key: "mujeres",    label: "Mujeres" },
-      { key: "no_binario", label: "No Binario" },
-    ];
-    rows = sexos.map(({ key, label }) => {
-      const pad = (data[`padron_${key}`] as number) ?? 0;
-      const lst = (data[`lista_${key}`]  as number) ?? 0;
-      return { sexo: label, padron: pad, lista: lst, tasa: tasa(pad, lst) };
+    rows = RANGOS.map((r) => {
+      const lH = (data[`lista_${r}_hombres`]    as number) ?? 0;
+      const lM = (data[`lista_${r}_mujeres`]    as number) ?? 0;
+      const lN = (data[`lista_${r}_no_binario`] as number) ?? 0;
+      const pH = (data[`padron_${r}_hombres`]   as number) ?? 0;
+      const pM = (data[`padron_${r}_mujeres`]   as number) ?? 0;
+      const pN = (data[`padron_${r}_no_binario`] as number) ?? 0;
+      return {
+        rango:       ETIQ_R[r] ?? r,
+        padron_h:    pH,
+        padron_m:    pM,
+        padron_nb:   pN,
+        lne_hombres: lH,
+        lne_mujeres: lM,
+        lne_nb:      lN,
+        tasa_h:      tasa(pH, lH),
+        tasa_m:      tasa(pM, lM),
+        tasa_nb:     tasa(pN, lN),
+      };
     });
   } else if (tipo === "edad") {
     rows = RANGOS.map((r) => {

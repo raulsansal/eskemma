@@ -16,7 +16,7 @@ export const maxDuration = 60;
 
 /** Extrae el campo de texto principal según tipo para búsqueda */
 function textKey(tipo: SemanalTipo): string {
-  if (tipo === "sexo")   return "sexo";
+  if (tipo === "sexo")   return "rango";
   if (tipo === "edad")   return "rango";
   return "origen"; // origen
 }
@@ -91,13 +91,13 @@ export async function GET(request: NextRequest) {
 }
 
 function buildCsvHeader(tipo: SemanalTipo): string {
-  if (tipo === "sexo")  return "Sexo,Padrón Electoral,Lista Nominal,Tasa de Inclusión\n";
+  if (tipo === "sexo")  return "Rango de Edad,Padrón H,Padrón M,Padrón No Binario,LNE Hombres,LNE Mujeres,LNE No Binario,Tasa H,Tasa M,Tasa No Binario\n";
   if (tipo === "edad")  return "Rango de Edad,Padrón Electoral,Lista Nominal,Tasa de Inclusión\n";
   return "Entidad de Origen,Lista Nominal,Padrón Electoral,Padrón − LNE\n";
 }
 
 function buildCsvRow(r: Record<string, string | number>, tipo: SemanalTipo): string {
-  if (tipo === "sexo")  return `${r.sexo},${r.padron},${r.lista},${r.tasa}`;
+  if (tipo === "sexo")  return `${r.rango},${r.padron_h},${r.padron_m},${r.padron_nb},${r.lne_hombres},${r.lne_mujeres},${r.lne_nb},${r.tasa_h},${r.tasa_m},${r.tasa_nb}`;
   if (tipo === "edad")  return `${r.rango},${r.padron},${r.lista},${r.tasa}`;
   return `${r.origen},${r.lne},${r.padron},${r.diferencia}`;
 }

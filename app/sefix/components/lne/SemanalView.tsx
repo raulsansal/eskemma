@@ -69,15 +69,6 @@ function fmtFechaLarga(iso: string): string {
   return `${parseInt(d, 10)} ${meses[parseInt(m, 10)]} ${y}`;
 }
 
-function fmtCorteOpcion(iso: string): string {
-  const [y, m, d] = iso.split("-");
-  const meses = [
-    "", "Ene", "Feb", "Mar", "Abr", "May", "Jun",
-    "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
-  ];
-  return `${parseInt(d, 10)} ${meses[parseInt(m, 10)]} ${y}`;
-}
-
 function allSexValuesZero(data: Record<string, number>, rangos: string[]): boolean {
   return rangos.every(
     (r) => (data[`lista_${r}_hombres`] ?? 0) === 0 && (data[`lista_${r}_mujeres`] ?? 0) === 0,
@@ -208,27 +199,21 @@ function ChartCard({ titulo, scopeLabel, children }: ChartCardProps) {
 // ──────────────────────────────────────────────
 interface PanelProps {
   ambito: Ambito;
-  corte?: string;
   entidad?: string;
   cveDistrito?: string;
   cveMunicipio?: string;
   secciones?: string[];
   scopeLabel: string;
   queryVersion: number;
-  onFechasLoaded?: (fechas: string[]) => void;
 }
 
 // ──────────────────────────────────────────────
 // Sub-panel Edad
 // ──────────────────────────────────────────────
-function EdadPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion, onFechasLoaded }: PanelProps) {
-  const { isLoading, error, data, fecha, availableFechas } =
-    useLneSemanal("edad", ambito, corte, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
+function EdadPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion }: PanelProps) {
+  const { isLoading, error, data, fecha } =
+    useLneSemanal("edad", ambito, undefined, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
   const { serie, isLoading: serieLoading } = useLneSemanalesSerie("edad", ambito, entidad, queryVersion, cveDistrito, cveMunicipio, secciones);
-
-  useEffect(() => {
-    if (availableFechas.length > 0) onFechasLoaded?.(availableFechas);
-  }, [availableFechas, onFechasLoaded]);
 
   if (error) return <p className="text-sm text-red-eske py-8 text-center">{error}</p>;
 
@@ -280,7 +265,6 @@ function EdadPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, seccione
           tipo="edad"
           ambito={ambito}
           scopeLabel={scopeLabel}
-          corte={corte}
           entidad={entidad}
           cveDistrito={cveDistrito}
           cveMunicipio={cveMunicipio}
@@ -306,28 +290,22 @@ function EdadPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, seccione
 // ──────────────────────────────────────────────
 // Sub-panel Sexo
 // ──────────────────────────────────────────────
-function SexoPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion, onFechasLoaded }: PanelProps) {
+function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion }: PanelProps) {
   const {
     isLoading: loadingEdad,
     error: errorEdad,
     data: dataEdad,
     fecha,
-    availableFechas,
-  } = useLneSemanal("edad", ambito, corte, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
+  } = useLneSemanal("edad", ambito, undefined, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones, true);
 
   const { isLoading: loadingSexo, data: dataSexo } =
-    useLneSemanal("sexo", ambito, corte, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
+    useLneSemanal("sexo", ambito, undefined, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
 
   const { serie: serieSexo, isLoading: serieLoading } =
     useLneSemanalesSerie("sexo", ambito, entidad, queryVersion, cveDistrito, cveMunicipio, secciones);
 
-  useEffect(() => {
-    if (availableFechas.length > 0) onFechasLoaded?.(availableFechas);
-  }, [availableFechas, onFechasLoaded]);
-
   if (errorEdad) return <p className="text-sm text-red-eske py-8 text-center">{errorEdad}</p>;
 
-  const sinSexoPorEdad = dataEdad ? allSexValuesZero(dataEdad, RANGOS_EDAD) : false;
   const tituloBase = (nombre: string) =>
     `${nombre} — ${fmtFechaLarga(fecha)} — ${capitalize(ambito)}`;
 
@@ -336,26 +314,18 @@ function SexoPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, seccione
       <div className="space-y-8 min-w-0">
 
         {/* S1 — Pirámide */}
-        <ChartCard titulo={tituloBase("Pirámide Poblacional por Sexo y Edad")} scopeLabel={scopeLabel}>
+        <ChartCard titulo={tituloBase("Pirámide de LNE por Rango de Edad y Sexo")} scopeLabel={scopeLabel}>
           {loadingEdad || !dataEdad ? (
             <ChartSkeleton height={360} />
-          ) : sinSexoPorEdad ? (
-            <p className="text-sm text-black-eske-60 text-center py-10">
-              Pirámide por sexo no disponible a nivel nacional. Selecciona una entidad para activarla.
-            </p>
           ) : (
             <S1PyramidChart data={dataEdad} ambito={ambito} />
           )}
         </ChartCard>
 
-        {/* S2 — Barras grupo × sexo */}
-        <ChartCard titulo={tituloBase("Lista Nominal por Grupo Etario y Sexo")} scopeLabel={scopeLabel}>
+        {/* S2 — LNE por grupo etario × sexo */}
+        <ChartCard titulo={tituloBase("LNE por Grupo Etario y Sexo")} scopeLabel={scopeLabel}>
           {loadingEdad || !dataEdad ? (
             <ChartSkeleton height={280} />
-          ) : sinSexoPorEdad ? (
-            <p className="text-sm text-black-eske-60 text-center py-10">
-              Desglose por sexo no disponible a nivel nacional.
-            </p>
           ) : (
             <S2AgeSexChart data={dataEdad} ambito={ambito} />
           )}
@@ -386,7 +356,6 @@ function SexoPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, seccione
           tipo="sexo"
           ambito={ambito}
           scopeLabel={scopeLabel}
-          corte={corte}
           entidad={entidad}
           cveDistrito={cveDistrito}
           cveMunicipio={cveMunicipio}
@@ -412,16 +381,12 @@ function SexoPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, seccione
 // ──────────────────────────────────────────────
 // Sub-panel Origen
 // ──────────────────────────────────────────────
-function OrigenPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion, onFechasLoaded }: PanelProps) {
+function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion }: PanelProps) {
   const [topN, setTopN] = useState(15);
-  const { isLoading, error, data, fecha, availableFechas } =
-    useLneSemanal("origen", ambito, corte, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
+  const { isLoading, error, data, fecha } =
+    useLneSemanal("origen", ambito, undefined, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
   const { serie: serieOrigen, isLoading: serieLoading } =
     useLneSemanalesSerie("origen", ambito, entidad, queryVersion, cveDistrito, cveMunicipio, secciones);
-
-  useEffect(() => {
-    if (availableFechas.length > 0) onFechasLoaded?.(availableFechas);
-  }, [availableFechas, onFechasLoaded]);
 
   if (error) return <p className="text-sm text-red-eske py-8 text-center">{error}</p>;
 
@@ -479,7 +444,6 @@ function OrigenPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, seccio
           tipo="origen"
           ambito={ambito}
           scopeLabel={scopeLabel}
-          corte={corte}
           entidad={entidad}
           cveDistrito={cveDistrito}
           cveMunicipio={cveMunicipio}
@@ -505,20 +469,19 @@ function OrigenPanel({ ambito, corte, entidad, cveDistrito, cveMunicipio, seccio
 // Panel de filtros geográficos (cascade + Consultar)
 // ──────────────────────────────────────────────
 interface FilterPanelProps {
-  availableFechas: string[];
   committedAmbito: Ambito;
-  committedCorte?: string;
-  onConsultar: (params: { ambito: Ambito; corte?: string; geoInfo: GeoInfo }) => void;
+  desglose: SemanalDesglose;
+  onDesgloseChange: (d: SemanalDesglose) => void;
+  onConsultar: (params: { ambito: Ambito; geoInfo: GeoInfo }) => void;
 }
 
 function SemanalFilterPanel({
-  availableFechas,
   committedAmbito,
-  committedCorte,
+  desglose,
+  onDesgloseChange,
   onConsultar,
 }: FilterPanelProps) {
   const [pendingAmbito, setPendingAmbito] = useState<Ambito>(committedAmbito);
-  const [pendingCorte, setPendingCorte]   = useState<string | undefined>(committedCorte);
   const [geoState, dispatch]              = useReducer(geoReducer, { status: "idle" });
   const committedGeoRef                   = useRef<GeoFilterState>({ status: "idle" });
 
@@ -557,7 +520,6 @@ function SemanalFilterPanel({
   // Detectar cambios pendientes
   const hasPending =
     pendingAmbito !== committedAmbito ||
-    pendingCorte  !== committedCorte  ||
     JSON.stringify(geoState) !== JSON.stringify(committedGeoRef.current);
 
   // Cerrar popover secciones al hacer clic fuera
@@ -617,7 +579,6 @@ function SemanalFilterPanel({
     committedGeoRef.current = { ...geoState };
     onConsultar({
       ambito: pendingAmbito,
-      corte: pendingCorte,
       geoInfo: buildGeoInfo(geoState, distritos, municipios),
     });
   }
@@ -642,27 +603,8 @@ function SemanalFilterPanel({
   return (
     <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
 
-      {/* Fila 1: Corte + Ámbito + Indicador geo */}
+      {/* Fila 1: Ámbito + Desglose + Indicador geo */}
       <div className="flex flex-wrap items-center gap-4">
-
-        {/* Corte */}
-        <div className="flex items-center gap-2">
-          <label htmlFor="semanal-corte" className="text-xs font-medium text-black-eske-10">
-            Corte
-          </label>
-          <select
-            id="semanal-corte"
-            value={pendingCorte ?? ""}
-            onChange={(e) => setPendingCorte(e.target.value || undefined)}
-            disabled={availableFechas.length === 0}
-            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske disabled:opacity-50 min-w-[130px]"
-          >
-            <option value="">Más reciente</option>
-            {availableFechas.map((f) => (
-              <option key={f} value={f}>{fmtCorteOpcion(f)}</option>
-            ))}
-          </select>
-        </div>
 
         {/* Ámbito */}
         <fieldset>
@@ -683,6 +625,24 @@ function SemanalFilterPanel({
             ))}
           </div>
         </fieldset>
+
+        {/* Desglose */}
+        <div className="flex items-center gap-2">
+          {DESGLOSES.map((d) => (
+            <button
+              key={d.id}
+              onClick={() => onDesgloseChange(d.id)}
+              className={[
+                "px-3 py-1 text-xs font-medium rounded-full transition-colors border",
+                desglose === d.id
+                  ? "bg-blue-eske text-white-eske border-blue-eske"
+                  : "bg-white-eske text-black-eske-60 border-gray-eske-30 hover:border-blue-eske hover:text-blue-eske",
+              ].join(" ")}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
 
         {/* Indicador de alcance */}
         <div className="flex items-center gap-1.5 ml-auto">
@@ -909,21 +869,12 @@ export default function SemanalView() {
 
   // Estado comprometido (lo que los paneles usan)
   const [ambito,       setAmbito]       = useState<Ambito>("nacional");
-  const [corte,        setCorte]        = useState<string | undefined>(undefined);
   const [geoInfo,      setGeoInfo]      = useState<GeoInfo>(DEFAULT_GEO_INFO);
   const [queryVersion, setQueryVersion] = useState(0);
 
-  // Fechas disponibles (acumuladas desde los paneles)
-  const [availableFechas, setAvailableFechas] = useState<string[]>([]);
-
-  const handleFechasLoaded = useCallback((fechas: string[]) => {
-    setAvailableFechas((prev) => (fechas.length > prev.length ? fechas : prev));
-  }, []);
-
   const handleConsultar = useCallback(
-    ({ ambito: a, corte: c, geoInfo: g }: { ambito: Ambito; corte?: string; geoInfo: GeoInfo }) => {
+    ({ ambito: a, geoInfo: g }: { ambito: Ambito; geoInfo: GeoInfo }) => {
       setAmbito(a);
-      setCorte(c);
       setGeoInfo(g);
       setQueryVersion((v) => v + 1);
     },
@@ -934,45 +885,24 @@ export default function SemanalView() {
 
   const panelProps: PanelProps = {
     ambito,
-    corte,
     entidad:      geoInfo.entidad !== "Nacional" ? geoInfo.entidad : undefined,
     cveDistrito:  geoInfo.cveDistrito,
     cveMunicipio: geoInfo.cveMunicipio,
     secciones:    geoInfo.secciones,
     scopeLabel,
     queryVersion,
-    onFechasLoaded: handleFechasLoaded,
   };
 
   return (
     <div className="space-y-6">
 
-      {/* ── Panel de filtros ── */}
+      {/* ── Panel de filtros + desglose ── */}
       <SemanalFilterPanel
-        availableFechas={availableFechas}
         committedAmbito={ambito}
-        committedCorte={corte}
+        desglose={desglose}
+        onDesgloseChange={setDesglose}
         onConsultar={handleConsultar}
       />
-
-      {/* ── Selector de desglose ── */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-black-eske-10 mr-1">Desglose:</span>
-        {DESGLOSES.map((d) => (
-          <button
-            key={d.id}
-            onClick={() => setDesglose(d.id)}
-            className={[
-              "px-3 py-1.5 text-xs font-medium rounded-full transition-colors border",
-              desglose === d.id
-                ? "bg-blue-eske text-white-eske border-blue-eske"
-                : "bg-white-eske text-black-eske-60 border-gray-eske-30 hover:border-blue-eske hover:text-blue-eske",
-            ].join(" ")}
-          >
-            {d.label}
-          </button>
-        ))}
-      </div>
 
       {/* ── Panel activo ── */}
       {desglose === "edad"   && <EdadPanel   {...panelProps} />}

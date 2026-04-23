@@ -130,7 +130,7 @@ function ModalMetodologia({ onClose }: { onClose: () => void }) {
             </p>
             <ul className="list-disc list-inside space-y-1 pl-1">
               <li>Asume una tasa de crecimiento <strong>constante</strong>.</li>
-              <li>Es una <strong>estimación estadística</strong>, no un dato oficial.</li>
+              <li>Es una <strong>proyección determinística</strong>, no un dato oficial.</li>
               <li>Proyecta hasta <strong>diciembre</strong> del año seleccionado.</li>
               <li>Los datos oficiales del INE prevalecen sobre la proyección.</li>
             </ul>
@@ -232,8 +232,8 @@ export default function HistoricoView() {
   const subtituloConCorte = busy
     ? "Cargando..."
     : latestFecha
-    ? `${subtituloGeo} — Último corte: ${latestFecha}.`
-    : subtituloGeo;
+      ? `${subtituloGeo} — Último corte: ${latestFecha}.`
+      : subtituloGeo;
 
   // G1: ¿hay proyección? (año actual con meses incompletos)
   const hasProjection = (g1Data?.projected.length ?? 0) > 0;
@@ -243,8 +243,8 @@ export default function HistoricoView() {
   const g1Subtitle = busy
     ? "Cargando..."
     : latestFecha
-    ? `${subtituloGeo} — Último corte: ${latestFecha}${hasProjection ? ". Línea punteada = proyección a diciembre." : "."}`
-    : subtituloGeo;
+      ? `${subtituloGeo} — Último corte: ${latestFecha}${hasProjection ? ". Línea punteada = proyección a diciembre." : "."}`
+      : subtituloGeo;
 
   // ── Callback de GeoFilter ──
   const handleConsultar = (newAmbito: Ambito, newYear: number, newGeoInfo: GeoInfo) => {
@@ -382,10 +382,10 @@ export default function HistoricoView() {
                       geoInfo.municipio !== "Todos"
                         ? geoInfo.municipio
                         : geoInfo.entidad !== "Nacional"
-                        ? geoInfo.entidad
-                        : ambito === "extranjero"
-                        ? "Extranjero"
-                        : "Nacional"
+                          ? geoInfo.entidad
+                          : ambito === "extranjero"
+                            ? "Extranjero"
+                            : "Nacional"
                     }
                   />
                 )}

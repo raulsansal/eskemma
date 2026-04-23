@@ -36,10 +36,16 @@ function getColumns(tipo: SemanalTipo): { key: string; label: string; numeric?: 
   }
   if (tipo === "sexo") {
     return [
-      { key: "sexo",   label: "Sexo" },
-      { key: "padron", label: "Padrón Electoral", numeric: true },
-      { key: "lista",  label: "Lista Nominal",    numeric: true },
-      { key: "tasa",   label: "Tasa de Inclusión", numeric: true },
+      { key: "rango",       label: "Rango de Edad" },
+      { key: "padron_h",    label: "Padrón H",         numeric: true },
+      { key: "padron_m",    label: "Padrón M",         numeric: true },
+      { key: "padron_nb",   label: "Padrón No Binario", numeric: true },
+      { key: "lne_hombres", label: "LNE Hombres",      numeric: true },
+      { key: "lne_mujeres", label: "LNE Mujeres",      numeric: true },
+      { key: "lne_nb",      label: "LNE No Binario",   numeric: true },
+      { key: "tasa_h",      label: "Tasa H" },
+      { key: "tasa_m",      label: "Tasa M" },
+      { key: "tasa_nb",     label: "Tasa No Binario" },
     ];
   }
   // origen

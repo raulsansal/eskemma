@@ -198,7 +198,18 @@ function fmtNum(n: number): string {
 }
 
 function fmtPct(n: number): string {
-  return n.toFixed(1) + "%";
+  return n.toFixed(2) + "%";
+}
+
+function fmtPctNB(n: number): string {
+  if (n === 0) return "0.00%";
+  if (n >= 0.01) return n.toFixed(2) + "%";
+  // Find precision that yields at least 2 non-zero significant decimal digits
+  for (let p = 3; p <= 10; p++) {
+    const dec = n.toFixed(p).split(".")[1] ?? "";
+    if (dec.replace(/^0+/, "").length >= 2) return n.toFixed(p) + "%";
+  }
+  return n.toFixed(10) + "%";
 }
 
 /**
@@ -301,8 +312,9 @@ export function generateSemanalTextsEdad(
 export interface SemanalTextsSexo {
   titulo: string;
   resumen: string;
-  composicion: string;
   tasas: string;
+  distribucion: string;
+  topRangos: string;
   fuente: string;
 }
 
@@ -313,6 +325,7 @@ export function generateSemanalTextsSexo(
   fecha: string,
 ): SemanalTextsSexo {
   const ambitoLabel = ambito === "extranjero" ? "Extranjero" : "Nacional";
+  const ext = ambito === "extranjero" ? " de residentes en el extranjero" : "";
 
   const pH = (dataSexo["padron_hombres"]    as number) ?? 0;
   const pM = (dataSexo["padron_mujeres"]    as number) ?? 0;
@@ -328,38 +341,98 @@ export function generateSemanalTextsSexo(
   const tasaM = pM > 0 ? (lM / pM) * 100 : 0;
   const tasaN = pN > 0 ? (lN / pN) * 100 : 0;
 
-  // Participación por sexo en grupos (si hay dataEdad)
-  let composicion = "";
-  if (dataEdad) {
-    const gruposData = Object.entries(GRUPOS_ETARIOS).map(([nombre, rangos]) => {
-      const lne = rangos.reduce((sum, r) => sum + ((dataEdad[`lista_${r}`] as number) ?? 0), 0);
-      return { nombre: nombre.split(" ")[0], lne };
-    });
-    const lneTotal = gruposData.reduce((s, g) => s + g.lne, 0);
-    composicion =
-      gruposData.map(g => {
-        const pct = lneTotal > 0 ? (g.lne / lneTotal) * 100 : 0;
-        return `<strong>${g.nombre}</strong>: ${fmtPct(pct)}`;
-      }).join(", ") + " de la LNE total.";
-  }
+  const pctPadH = padronTotal > 0 ? (pH / padronTotal) * 100 : 0;
+  const pctPadM = padronTotal > 0 ? (pM / padronTotal) * 100 : 0;
+  const pctPadN = padronTotal > 0 ? (pN / padronTotal) * 100 : 0;
+  const pctLneH = listaTotal  > 0 ? (lH / listaTotal)  * 100 : 0;
+  const pctLneM = listaTotal  > 0 ? (lM / listaTotal)  * 100 : 0;
+  const pctLneN = listaTotal  > 0 ? (lN / listaTotal)  * 100 : 0;
 
-  const titulo = `Análisis Semanal por Sexo — ${ambitoLabel}`;
+  const titulo = `Análisis Semanal de Distribución por Sexo - ${ambitoLabel}`;
 
   const resumen =
-    `Al corte del <strong>${fecha}</strong>: Padrón <strong>Hombres</strong> ${fmtNum(pH)}, ` +
-    `<strong>Mujeres</strong> ${fmtNum(pM)}, <strong>No Binario</strong> ${fmtNum(pN)}. ` +
-    `LNE: <strong>Hombres</strong> ${fmtNum(lH)}, <strong>Mujeres</strong> ${fmtNum(lM)}, ` +
-    `<strong>No Binario</strong> ${fmtNum(lN)}.`;
+    `Al corte del <strong>${fecha}</strong>, el Padrón Electoral se constituye por: ` +
+    `<strong>${fmtNum(pH)}</strong> hombres (<strong>${fmtPct(pctPadH)}</strong>), ` +
+    `<strong>${fmtNum(pM)}</strong> mujeres (<strong>${fmtPct(pctPadM)}</strong>) y ` +
+    `<strong>${fmtNum(pN)}</strong> personas no binarias (<strong>${fmtPctNB(pctPadN)}</strong>). ` +
+    `En tanto, la LNE se integra por <strong>${fmtNum(lH)}</strong> hombres (<strong>${fmtPct(pctLneH)}</strong>), ` +
+    `<strong>${fmtNum(lM)}</strong> mujeres (<strong>${fmtPct(pctLneM)}</strong>) y ` +
+    `<strong>${fmtNum(lN)}</strong> personas no binarias (<strong>${fmtPctNB(pctLneN)}</strong>).`;
 
   const tasas =
+    `Padrón total: <strong>${fmtNum(padronTotal)}</strong>; LNE total: <strong>${fmtNum(listaTotal)}</strong>. ` +
     `Tasas de inclusión en la LNE: Hombres <strong>${fmtPct(tasaH)}</strong>, ` +
-    `Mujeres <strong>${fmtPct(tasaM)}</strong>, No Binario <strong>${fmtPct(tasaN)}</strong>. ` +
-    `Padrón total: <strong>${fmtNum(padronTotal)}</strong>; LNE total: <strong>${fmtNum(listaTotal)}</strong>.`;
+    `Mujeres <strong>${fmtPct(tasaM)}</strong>, No Binario <strong>${fmtPct(tasaN)}</strong>.`;
 
   const fuente =
     "Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado.";
 
-  return { titulo, resumen, composicion, tasas, fuente };
+  let distribucion = "";
+  let topRangos = "";
+
+  if (dataEdad) {
+    const totH = RANGOS_EDAD.reduce((s, r) => s + ((dataEdad[`lista_${r}_hombres`]    as number) ?? 0), 0);
+    const totM = RANGOS_EDAD.reduce((s, r) => s + ((dataEdad[`lista_${r}_mujeres`]    as number) ?? 0), 0);
+    const totN = RANGOS_EDAD.reduce((s, r) => s + ((dataEdad[`lista_${r}_no_binario`] as number) ?? 0), 0);
+
+    const grupoLne = (rangos: RangoEdad[], sufijo: string) =>
+      rangos.reduce((s, r) => s + ((dataEdad[`lista_${r}_${sufijo}`] as number) ?? 0), 0);
+
+    const pctH = (rangos: RangoEdad[]) => totH > 0 ? grupoLne(rangos, "hombres")    / totH * 100 : 0;
+    const pctM = (rangos: RangoEdad[]) => totM > 0 ? grupoLne(rangos, "mujeres")    / totM * 100 : 0;
+    const pctN = (rangos: RangoEdad[]) => totN > 0 ? grupoLne(rangos, "no_binario") / totN * 100 : 0;
+
+    const [g1, g2, g3] = Object.values(GRUPOS_ETARIOS);
+
+    const nbDistrib = totN > 0
+      ? ` Las personas no binarias${ext} registran <strong>${fmtPct(pctN(g1))}</strong> en jóvenes, ` +
+        `<strong>${fmtPct(pctN(g2))}</strong> en adultos y ` +
+        `<strong>${fmtPct(pctN(g3))}</strong> en adultos mayores.`
+      : "";
+
+    distribucion =
+      `Del total de mujeres en la LNE${ext}, <strong>${fmtPct(pctM(g1))}</strong> ` +
+      `son ciudadanas de entre 18 y 29 años; <strong>${fmtPct(pctM(g2))}</strong> ` +
+      `entre 30 y 59; y <strong>${fmtPct(pctM(g3))}</strong> son mayores de 60 años. ` +
+      `En cuanto a los hombres, <strong>${fmtPct(pctH(g1))}</strong> son jóvenes (18–29), ` +
+      `<strong>${fmtPct(pctH(g2))}</strong> son adultos (30–59) y ` +
+      `<strong>${fmtPct(pctH(g3))}</strong> son adultos mayores.${nbDistrib}`;
+
+    const sortBy = (sufijo: string) =>
+      [...RANGOS_EDAD].sort(
+        (a, b) => ((dataEdad[`lista_${b}_${sufijo}`] as number) ?? 0)
+                - ((dataEdad[`lista_${a}_${sufijo}`] as number) ?? 0)
+      );
+
+    const top3H = sortBy("hombres").slice(0, 3);
+    const top3M = sortBy("mujeres").slice(0, 3);
+
+    const rPctH = (r: RangoEdad) => totH > 0 ? ((dataEdad[`lista_${r}_hombres`] as number) ?? 0) / totH * 100 : 0;
+    const rPctM = (r: RangoEdad) => totM > 0 ? ((dataEdad[`lista_${r}_mujeres`] as number) ?? 0) / totM * 100 : 0;
+
+    let nbTop = "";
+    if (totN > 0) {
+      const top3N = sortBy("no_binario").slice(0, 3);
+      const rPctN = (r: RangoEdad) => totN > 0 ? ((dataEdad[`lista_${r}_no_binario`] as number) ?? 0) / totN * 100 : 0;
+      nbTop =
+        ` El mayor porcentaje de personas no binarias${ext} se encuentra en ` +
+        `<strong>${ETIQ_RANGOS[top3N[0]]}</strong> (<strong>${fmtPct(rPctN(top3N[0]))}</strong>), ` +
+        `seguido por <strong>${ETIQ_RANGOS[top3N[1]]}</strong> (<strong>${fmtPct(rPctN(top3N[1]))}</strong>) ` +
+        `y <strong>${ETIQ_RANGOS[top3N[2]]}</strong> (<strong>${fmtPct(rPctN(top3N[2]))}</strong>).`;
+    }
+
+    topRangos =
+      `Por rangos de edad, la mayor concentración de mujeres${ext} en la LNE está en ` +
+      `<strong>${ETIQ_RANGOS[top3M[0]]}</strong> (<strong>${fmtPct(rPctM(top3M[0]))}</strong>), ` +
+      `<strong>${ETIQ_RANGOS[top3M[1]]}</strong> (<strong>${fmtPct(rPctM(top3M[1]))}</strong>) y ` +
+      `<strong>${ETIQ_RANGOS[top3M[2]]}</strong> (<strong>${fmtPct(rPctM(top3M[2]))}</strong>). ` +
+      `En los hombres${ext}, los tres rangos con mayor LNE son ` +
+      `<strong>${ETIQ_RANGOS[top3H[0]]}</strong> (<strong>${fmtPct(rPctH(top3H[0]))}</strong>), ` +
+      `<strong>${ETIQ_RANGOS[top3H[1]]}</strong> (<strong>${fmtPct(rPctH(top3H[1]))}</strong>) y ` +
+      `<strong>${ETIQ_RANGOS[top3H[2]]}</strong> (<strong>${fmtPct(rPctH(top3H[2]))}</strong>).${nbTop}`;
+  }
+
+  return { titulo, resumen, tasas, distribucion, topRangos, fuente };
 }
 
 // ────────────────────────────────────────────────────────────────

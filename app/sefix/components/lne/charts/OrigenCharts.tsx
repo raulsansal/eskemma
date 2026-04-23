@@ -41,7 +41,6 @@ const ABREV: Record<string, string> = {
   san_luis_potosi: "SLP", sinaloa: "SIN", sonora: "SON", tabasco: "TAB",
   tamaulipas: "TAMPS", tlaxcala: "TLAX", veracruz: "VER", yucatan: "YUC",
   zacatecas: "ZAC",
-  pad87: "E87", pad88: "E88",
 };
 
 function extractOrigenData(
@@ -98,7 +97,19 @@ export function O1HeatmapChart({ data, topN = 15, ambito = "nacional" }: Props) 
           type="category"
           dataKey="name"
           width={44}
-          tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          tick={(props: any) => (
+            <text
+              x={props.x} y={props.y}
+              dx={-4}
+              textAnchor="end"
+              dominantBaseline="central"
+              fontSize={10}
+              fill="var(--color-black-eske-10)"
+            >
+              {props.payload?.value}
+            </text>
+          )}
         />
         <Tooltip
           formatter={(v) => [FMT.format(Number(v)), "Lista Nominal"]}
@@ -135,7 +146,19 @@ export function O2PadronLneChart({ data, topN = 15, ambito = "nacional" }: Props
           type="category"
           dataKey="name"
           width={44}
-          tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          tick={(props: any) => (
+            <text
+              x={props.x} y={props.y}
+              dx={-4}
+              textAnchor="end"
+              dominantBaseline="central"
+              fontSize={10}
+              fill="var(--color-black-eske-10)"
+            >
+              {props.payload?.value}
+            </text>
+          )}
         />
         <Tooltip
           formatter={(v, n) => [FMT.format(Number(v)), n === "padron" ? "Padrón" : "Lista Nominal"]}
@@ -257,7 +280,7 @@ export function O3OrigenSerieChart({ serie, ambito }: O3Props) {
               <XAxis
                 dataKey="label"
                 tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
-                interval="preserveStartEnd"
+                interval={6}
               />
               <YAxis
                 tickFormatter={fmtM}

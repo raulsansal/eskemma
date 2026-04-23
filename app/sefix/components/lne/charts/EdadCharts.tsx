@@ -61,7 +61,7 @@ const RANGOS_LABELS: Record<string, string> = {
 const GRUPOS: { key: GrupoKey; rangos: string[] }[] = [
   { key: "Jóvenes (18–29)", rangos: ["18", "19", "20_24", "25_29"] },
   { key: "Adultos (30–59)", rangos: ["30_34", "35_39", "40_44", "45_49", "50_54", "55_59"] },
-  { key: "Mayores (60+)",   rangos: ["60_64", "65_y_mas"] },
+  { key: "Mayores (60+)", rangos: ["60_64", "65_y_mas"] },
 ];
 
 // ──────────────────────────────────────────────
@@ -77,8 +77,8 @@ function rangoTotal(
   const direct = data[`${prefix}_${r}`];
   if (direct !== undefined && direct > 0) return direct;
   return (
-    (data[`${prefix}_${r}_hombres`]    ?? 0) +
-    (data[`${prefix}_${r}_mujeres`]    ?? 0) +
+    (data[`${prefix}_${r}_hombres`] ?? 0) +
+    (data[`${prefix}_${r}_mujeres`] ?? 0) +
     (data[`${prefix}_${r}_no_binario`] ?? 0)
   );
 }
@@ -151,7 +151,7 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
             return (
               <div style={{ fontSize: 12, background: "white", border: "1px solid var(--color-gray-eske-20)", borderRadius: 6, padding: "8px 12px" }}>
                 <p style={{ fontWeight: 600, marginBottom: 4 }}>{label}</p>
-                {row   && <p>Padrón Electoral: {FMT.format(row.padron)}</p>}
+                {row && <p>Padrón Electoral: {FMT.format(row.padron)}</p>}
                 {lista && <p>Lista Nominal: {FMT.format(Number(lista.value))}</p>}
               </div>
             );
@@ -285,7 +285,7 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
             </p>
             <ul className="list-disc list-inside space-y-1 pl-1">
               <li>Asume una tasa de crecimiento <strong>constante</strong>.</li>
-              <li>Es una <strong>estimación estadística</strong>, no un dato oficial.</li>
+              <li>Es una <strong>proyección determinística</strong>, no un dato oficial.</li>
               <li>Proyecta hasta <strong>diciembre</strong> del año en curso.</li>
               <li>Los datos oficiales del INE prevalecen sobre la proyección.</li>
             </ul>
@@ -357,11 +357,11 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
     chartData = proy.map((p) => ({
       label: fmtFecha(p.fecha),
       // Datos reales: solo en puntos no proyectados
-      padron:      p.proyectado ? undefined : p.padron,
-      lista:       p.proyectado ? undefined : p.lista,
+      padron: p.proyectado ? undefined : p.padron,
+      lista: p.proyectado ? undefined : p.lista,
       // Proyección: solo en puntos proyectados
-      padronProy:  p.proyectado ? p.padron : undefined,
-      listaProy:   p.proyectado ? p.lista  : undefined,
+      padronProy: p.proyectado ? p.padron : undefined,
+      listaProy: p.proyectado ? p.lista : undefined,
     }));
   } else {
     // Modo rango: 4 líneas por rango (real sólidas + proyección punteada)
@@ -378,11 +378,11 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
         const pt = proy[idx];
         if (!pt) continue;
         if (!pt.proyectado) {
-          point[`padron_${r}`]     = pt.padron;
-          point[`lista_${r}`]      = pt.lista;
+          point[`padron_${r}`] = pt.padron;
+          point[`lista_${r}`] = pt.lista;
         } else {
           point[`padronProy_${r}`] = pt.padron;
-          point[`listaProy_${r}`]  = pt.lista;
+          point[`listaProy_${r}`] = pt.lista;
         }
       }
       return point;
@@ -465,19 +465,19 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
           {todosActivos ? (
             <>
               {/* Datos reales — líneas sólidas */}
-              <Line dataKey="padron"    name="Padrón Total"       stroke={colPad}    strokeWidth={2.5} dot={false} connectNulls={false} />
-              <Line dataKey="lista"     name="LNE Total"          stroke={colLne}    strokeWidth={2.5} dot={false} connectNulls={false} />
+              <Line dataKey="padron" name="Padrón Total" stroke={colPad} strokeWidth={2.5} dot={false} connectNulls={false} />
+              <Line dataKey="lista" name="LNE Total" stroke={colLne} strokeWidth={2.5} dot={false} connectNulls={false} />
               {/* Proyección — líneas punteadas, separadas visualmente */}
               <Line dataKey="padronProy" name="Proyección Padrón" stroke={colPadProy} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls={false} />
-              <Line dataKey="listaProy"  name="Proyección LNE"   stroke={colLneProy} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls={false} />
+              <Line dataKey="listaProy" name="Proyección LNE" stroke={colLneProy} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls={false} />
             </>
           ) : (
             RANGOS_EDAD.filter((r) => rangosActivos.has(r)).map((r, i) => (
               <Fragment key={r}>
-                <Line dataKey={`padron_${r}`}     name={`Padrón ${ETIQ_RANGOS[r]}`}        stroke={colorRangoPad(i, ambito)} strokeWidth={2}   dot={false} connectNulls={false} />
-                <Line dataKey={`lista_${r}`}      name={`LNE ${ETIQ_RANGOS[r]}`}           stroke={colorRangoLne(i, ambito)} strokeWidth={2}   dot={false} connectNulls={false} />
-                <Line dataKey={`padronProy_${r}`} name={`Proy. Padrón ${ETIQ_RANGOS[r]}`}  stroke={colorRangoPad(i, ambito)} strokeWidth={1.5} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
-                <Line dataKey={`listaProy_${r}`}  name={`Proy. LNE ${ETIQ_RANGOS[r]}`}     stroke={colorRangoLne(i, ambito)} strokeWidth={1.5} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
+                <Line dataKey={`padron_${r}`} name={`Padrón ${ETIQ_RANGOS[r]}`} stroke={colorRangoPad(i, ambito)} strokeWidth={2} dot={false} connectNulls={false} />
+                <Line dataKey={`lista_${r}`} name={`LNE ${ETIQ_RANGOS[r]}`} stroke={colorRangoLne(i, ambito)} strokeWidth={2} dot={false} connectNulls={false} />
+                <Line dataKey={`padronProy_${r}`} name={`Proy. Padrón ${ETIQ_RANGOS[r]}`} stroke={colorRangoPad(i, ambito)} strokeWidth={1.5} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
+                <Line dataKey={`listaProy_${r}`} name={`Proy. LNE ${ETIQ_RANGOS[r]}`} stroke={colorRangoLne(i, ambito)} strokeWidth={1.5} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
               </Fragment>
             ))
           )}
@@ -624,10 +624,10 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
 
           {gruposAct.map((g) => (
             <Fragment key={g}>
-              <Line dataKey={`pad_${g}`}     name={`Padrón ${g}`}         stroke={palPad[g] ?? "#277592"} strokeWidth={2.5} dot={false} connectNulls={false} />
-              <Line dataKey={`lne_${g}`}     name={`LNE ${g}`}             stroke={palLne[g] ?? "#003E66"} strokeWidth={2.5} dot={false} connectNulls={false} />
-              <Line dataKey={`padProy_${g}`} name={`Proy. Padrón ${g}`}    stroke={palPad[g] ?? "#277592"} strokeWidth={2}   strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
-              <Line dataKey={`lneProy_${g}`} name={`Proy. LNE ${g}`}       stroke={palLne[g] ?? "#003E66"} strokeWidth={2}   strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
+              <Line dataKey={`pad_${g}`} name={`Padrón ${g}`} stroke={palPad[g] ?? "#277592"} strokeWidth={2.5} dot={false} connectNulls={false} />
+              <Line dataKey={`lne_${g}`} name={`LNE ${g}`} stroke={palLne[g] ?? "#003E66"} strokeWidth={2.5} dot={false} connectNulls={false} />
+              <Line dataKey={`padProy_${g}`} name={`Proy. Padrón ${g}`} stroke={palPad[g] ?? "#277592"} strokeWidth={2} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
+              <Line dataKey={`lneProy_${g}`} name={`Proy. LNE ${g}`} stroke={palLne[g] ?? "#003E66"} strokeWidth={2} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
             </Fragment>
           ))}
         </LineChart>
@@ -655,7 +655,7 @@ export function E4RangeChart({ data, ambito = "nacional" }: E4Props) {
   const chartData = RANGOS_EDAD.map((r) => ({
     name: RANGOS_LABELS[r],
     padron: rangoTotal(data, r, "padron"),
-    lista:  rangoTotal(data, r, "lista"),
+    lista: rangoTotal(data, r, "lista"),
   }));
 
   return (
@@ -681,7 +681,7 @@ export function E4RangeChart({ data, ambito = "nacional" }: E4Props) {
           wrapperStyle={{ fontSize: 12 }}
         />
         <Bar dataKey="padron" name="padron" fill={colPad} radius={[3, 3, 0, 0]} />
-        <Bar dataKey="lista"  name="lista"  fill={colLne} radius={[3, 3, 0, 0]} />
+        <Bar dataKey="lista" name="lista" fill={colLne} radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

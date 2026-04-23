@@ -153,9 +153,14 @@ function SexoTexts({
       <Block label="Tasas">
         <RichText html={texts.tasas} />
       </Block>
-      {texts.composicion && (
-        <Block label="Composición">
-          <RichText html={texts.composicion} />
+      {texts.distribucion && (
+        <Block label="Grupos Etarios">
+          <RichText html={texts.distribucion} />
+        </Block>
+      )}
+      {texts.topRangos && (
+        <Block label="Top Rangos">
+          <RichText html={texts.topRangos} />
         </Block>
       )}
     </>

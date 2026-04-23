@@ -40,7 +40,8 @@ export function useLneSemanal(
   queryVersion?: number,
   cveDistrito?: string,
   cveMunicipio?: string,
-  secciones?: string[]
+  secciones?: string[],
+  forceFullAgg?: boolean
 ): UseLneSemanalResult {
   const [data, setData] = useState<Record<string, number> | null>(null);
   const [fecha, setFecha] = useState("");
@@ -57,14 +58,14 @@ export function useLneSemanal(
     try {
       let url: string;
 
-      if (entidad) {
-        // Con filtro geográfico: API route que procesa archivos crudos o section-series
+      if (entidad || forceFullAgg) {
+        // Con filtro geográfico o forceFullAgg: endpoint que procesa agregados completos
         const p = new URLSearchParams({ tipo, ambito });
         if (corte)        p.set("corte",    corte);
         if (cveDistrito)  p.set("cvd",      cveDistrito);
         if (cveMunicipio) p.set("cvm",      cveMunicipio);
         if (secciones?.length) p.set("secciones", secciones.join(","));
-        p.set("entidad", entidad);
+        if (entidad)      p.set("entidad",  entidad);
         url = `/api/sefix/semanal?${p}`;
       } else {
         // Sin filtro: API route ligera que lee el CSV pre-agregado (~200ms)
@@ -113,9 +114,9 @@ export function useLneSemanal(
       setFecha(resolvedFecha);
       setAvailableFechas(resolvedFechas);
 
-      // Cachear solo las peticiones sin filtro geográfico
+      // Cachear peticiones sin filtro geográfico (incluye forceFullAgg sin entidad)
       if (!entidad) {
-        const cacheKey = `${ambito}_${tipo}_${corte ?? "latest"}_v${queryVersion ?? 0}`;
+        const cacheKey = `${ambito}_${tipo}_${corte ?? "latest"}_v${queryVersion ?? 0}${forceFullAgg ? "_fagg" : ""}`;
         cache.set(cacheKey, {
           data: resolved,
           fecha: resolvedFecha,
@@ -130,7 +131,7 @@ export function useLneSemanal(
       if (!cancelRef.current) setIsLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tipo, ambito, corte, entidad, queryVersion, cveDistrito, cveMunicipio, secciones?.join(",")]);
+  }, [tipo, ambito, corte, entidad, queryVersion, cveDistrito, cveMunicipio, secciones?.join(","), forceFullAgg]);
 
   useEffect(() => {
     cancelRef.current = false;
