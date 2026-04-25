@@ -6,9 +6,11 @@ import {
   useCallback,
   useReducer,
   useRef,
+  useMemo,
 } from "react";
 import { useLneSemanal, useGeoTerritorios } from "@/app/sefix/hooks/useLneSemanal";
 import { useLneSemanalesSerie } from "@/app/sefix/hooks/useLneSemanalesSerie";
+import { useLneOrigenMatriz } from "@/app/sefix/hooks/useLneOrigenMatriz";
 import { ESTADOS_LIST } from "@/lib/sefix/constants";
 import type { Ambito } from "@/lib/sefix/seriesUtils";
 import type { GeoFilterState, GeoFilterAction } from "@/types/sefix.types";
@@ -40,8 +42,8 @@ type SemanalDesglose = "edad" | "sexo" | "origen";
 // Constantes de UI
 // ──────────────────────────────────────────────
 const DESGLOSES: { id: SemanalDesglose; label: string }[] = [
-  { id: "edad",   label: "Rango de Edad" },
-  { id: "sexo",   label: "Distribución por Sexo" },
+  { id: "edad", label: "Rango de Edad" },
+  { id: "sexo", label: "Distribución por Sexo" },
   { id: "origen", label: "Entidad de Origen" },
 ];
 
@@ -67,6 +69,12 @@ function fmtFechaLarga(iso: string): string {
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
   ];
   return `${parseInt(d, 10)} ${meses[parseInt(m, 10)]} ${y}`;
+}
+
+// ESTADO_MAP values are ASCII uppercase (e.g., "HIDALGO", "CIUDAD DE MEXICO")
+// porEntidad keys are lowercase+underscore (e.g., "hidalgo", "ciudad_de_mexico")
+function normalizeEntidadKey(nombre: string): string {
+  return nombre.toLowerCase().replace(/\s+/g, "_");
 }
 
 function allSexValuesZero(data: Record<string, number>, rangos: string[]): boolean {
@@ -142,8 +150,8 @@ function buildGeoInfo(
     seccion,
     cveDistrito:
       geoState.status === "distrito_selected" ||
-      geoState.status === "municipio_selected" ||
-      geoState.status === "seccion_selected"
+        geoState.status === "municipio_selected" ||
+        geoState.status === "seccion_selected"
         ? geoState.distrito
         : undefined,
     cveMunicipio:
@@ -177,7 +185,7 @@ function ChartSkeleton({ height = 300 }: { height?: number }) {
 
 interface ChartCardProps {
   titulo: string;
-  scopeLabel: string;
+  scopeLabel?: string;
   children: React.ReactNode;
 }
 
@@ -185,7 +193,7 @@ function ChartCard({ titulo, scopeLabel, children }: ChartCardProps) {
   return (
     <div className="bg-white-eske rounded-lg border border-gray-eske-20 px-4 pt-4 pb-3">
       <h3 className="text-sm font-bold text-black-eske text-center leading-snug">{titulo}</h3>
-      <p className="text-[11px] text-black-eske-60 text-center mt-0.5">{scopeLabel}</p>
+      {scopeLabel && <p className="text-[11px] text-black-eske-60 text-center mt-0.5">{scopeLabel}</p>}
       <div className="mt-3">{children}</div>
       <p className="text-[10px] text-black-eske-60 text-center mt-3 pt-2 border-t border-gray-eske-10">
         {FUENTE}
@@ -280,6 +288,7 @@ function EdadPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
           fecha={fecha}
           data={data ?? {}}
           serie={serie}
+          isLoading={isLoading}
           scopeLabel={scopeLabel}
         />
       </div>
@@ -371,6 +380,7 @@ function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
           fecha={fecha}
           data={dataSexo ?? {}}
           dataEdad={dataEdad}
+          isLoading={loadingSexo}
           scopeLabel={scopeLabel}
         />
       </div>
@@ -382,13 +392,37 @@ function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
 // Sub-panel Origen
 // ──────────────────────────────────────────────
 function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion }: PanelProps) {
-  const [topN, setTopN] = useState(15);
+  const [topN, setTopN] = useState(5);
+
+  // Matriz completa por_entidad para O1/O2
+  const { data: matrizData, isLoading: matrizLoading } = useLneOrigenMatriz();
+
+  // Agregado ámbito (data, fecha) para SemanalTextBlock y DataTable
   const { isLoading, error, data, fecha } =
     useLneSemanal("origen", ambito, undefined, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
-  const { serie: serieOrigen, isLoading: serieLoading } =
-    useLneSemanalesSerie("origen", ambito, entidad, queryVersion, cveDistrito, cveMunicipio, secciones);
 
   if (error) return <p className="text-sm text-red-eske py-8 text-center">{error}</p>;
+
+  const hasSubGeo = !!(cveDistrito || cveMunicipio || secciones?.length);
+
+  // When sub-state geo filters are active, build synthetic porEntidad from useLneSemanal
+  // so O1/O2 heatmap values match the text analysis (both use the same geo-filtered data).
+  const porEntidad = useMemo(() => {
+    const full = matrizData?.por_entidad ?? {};
+    if (!entidad) return full;
+    const key = normalizeEntidadKey(entidad);
+
+    if (hasSubGeo && data && Object.keys(data).length > 0) {
+      return {
+        [key]: {
+          nacional: ambito === "nacional" ? (data as Record<string, number>) : {},
+          extranjero: ambito === "extranjero" ? (data as Record<string, number>) : {},
+        },
+      };
+    }
+
+    return key in full ? { [key]: full[key] } : full;
+  }, [matrizData, entidad, ambito, data, hasSubGeo]);
 
   const tituloBase = (nombre: string) =>
     `${nombre} — ${fmtFechaLarga(fecha)} — ${capitalize(ambito)}`;
@@ -406,36 +440,28 @@ function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, sc
             onChange={(e) => setTopN(parseInt(e.target.value))}
             className="text-xs border border-gray-eske-30 rounded px-2 py-1 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-eske"
           >
+            <option value={5}>Top 5</option>
             <option value={10}>Top 10</option>
             <option value={15}>Top 15</option>
-            <option value={32}>Todos (34)</option>
+            <option value={0}>Todos (34)</option>
           </select>
         </div>
 
-        {/* O1 */}
-        <ChartCard titulo={tituloBase("Lista Nominal por Entidad de Origen")} scopeLabel={scopeLabel}>
-          {isLoading || !data ? (
-            <ChartSkeleton height={topN * 22 + 60} />
+        {/* O1 — Heatmap LNE Origen × Receptor */}
+        <ChartCard titulo={tituloBase("Lista Nominal por Entidad de Origen y Receptora")} scopeLabel={scopeLabel}>
+          {matrizLoading ? (
+            <ChartSkeleton height={topN * 22 + 80} />
           ) : (
-            <O1HeatmapChart data={data} topN={topN} ambito={ambito} />
+            <O1HeatmapChart porEntidad={porEntidad} topN={topN} ambito={ambito} />
           )}
         </ChartCard>
 
-        {/* O2 */}
-        <ChartCard titulo={tituloBase("Padrón Electoral vs Lista Nominal por Entidad de Origen")} scopeLabel={scopeLabel}>
-          {isLoading || !data ? (
-            <ChartSkeleton height={topN * 22 + 60} />
+        {/* O2 — Heatmap Padrón / LNE / Diferencial */}
+        <ChartCard titulo={tituloBase("Diferencial del Padrón Electoral y LNE por Entidad de Origen y Receptora")} scopeLabel={scopeLabel}>
+          {matrizLoading ? (
+            <ChartSkeleton height={topN * 22 + 80} />
           ) : (
-            <O2PadronLneChart data={data} topN={topN} ambito={ambito} />
-          )}
-        </ChartCard>
-
-        {/* O3 */}
-        <ChartCard titulo={tituloBase("Evolución Semanal por Entidad de Origen")} scopeLabel={scopeLabel}>
-          {serieLoading ? (
-            <ChartSkeleton height={300} />
-          ) : (
-            <O3OrigenSerieChart serie={serieOrigen} ambito={ambito} />
+            <O2PadronLneChart porEntidad={porEntidad} topN={topN} ambito={ambito} />
           )}
         </ChartCard>
 
@@ -449,6 +475,11 @@ function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, sc
           cveMunicipio={cveMunicipio}
           secciones={secciones}
         />
+
+        {/* O3 */}
+        <ChartCard titulo={tituloBase("Evolución Semanal por Entidad de Origen y Entidad Receptora")}>
+          <O3OrigenSerieChart ambito={ambito} />
+        </ChartCard>
       </div>
 
       {/* Columna lateral */}
@@ -457,7 +488,8 @@ function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, sc
           tipo="origen"
           ambito={ambito}
           fecha={fecha}
-          data={data ?? {}}
+          data={isLoading ? {} : (data ?? {})}
+          isLoading={isLoading}
           scopeLabel={scopeLabel}
         />
       </div>
@@ -482,21 +514,21 @@ function SemanalFilterPanel({
   onConsultar,
 }: FilterPanelProps) {
   const [pendingAmbito, setPendingAmbito] = useState<Ambito>(committedAmbito);
-  const [geoState, dispatch]              = useReducer(geoReducer, { status: "idle" });
-  const committedGeoRef                   = useRef<GeoFilterState>({ status: "idle" });
+  const [geoState, dispatch] = useReducer(geoReducer, { status: "idle" });
+  const committedGeoRef = useRef<GeoFilterState>({ status: "idle" });
 
   // Estado del popover de secciones
-  const [seccionSearch, setSeccionSearch]   = useState("");
-  const [seccionOpen, setSeccionOpen]       = useState(false);
-  const seccionInputRef                     = useRef<HTMLInputElement>(null);
-  const seccionContainerRef                 = useRef<HTMLDivElement>(null);
+  const [seccionSearch, setSeccionSearch] = useState("");
+  const [seccionOpen, setSeccionOpen] = useState(false);
+  const seccionInputRef = useRef<HTMLInputElement>(null);
+  const seccionContainerRef = useRef<HTMLDivElement>(null);
 
   // Claves de la cascada
   const entidadNombre = geoState.status !== "idle" ? geoState.entidad : undefined;
   const cveDistrito =
     geoState.status === "distrito_selected" ||
-    geoState.status === "municipio_selected" ||
-    geoState.status === "seccion_selected"
+      geoState.status === "municipio_selected" ||
+      geoState.status === "seccion_selected"
       ? geoState.distrito
       : undefined;
   const cveMunicipio =
@@ -504,9 +536,9 @@ function SemanalFilterPanel({
       ? geoState.municipio
       : undefined;
 
-  const { opciones: distritos,  isLoading: loadingDistritos  } = useGeoTerritorios("distrito",  entidadNombre, undefined,    undefined,    undefined, "semanal");
-  const { opciones: municipios, isLoading: loadingMunicipios } = useGeoTerritorios("municipio", entidadNombre, cveDistrito,  undefined,    undefined, "semanal");
-  const { opciones: secciones,  isLoading: loadingSecciones  } = useGeoTerritorios("seccion",   entidadNombre, undefined,    cveMunicipio, undefined, "semanal");
+  const { opciones: distritos, isLoading: loadingDistritos } = useGeoTerritorios("distrito", entidadNombre, undefined, undefined, undefined, "semanal");
+  const { opciones: municipios, isLoading: loadingMunicipios } = useGeoTerritorios("municipio", entidadNombre, cveDistrito, undefined, undefined, "semanal");
+  const { opciones: secciones, isLoading: loadingSecciones } = useGeoTerritorios("seccion", entidadNombre, undefined, cveMunicipio, undefined, "semanal");
 
   const seccionesSeleccionadas =
     geoState.status === "seccion_selected" ? geoState.seccion : [];
@@ -595,10 +627,10 @@ function SemanalFilterPanel({
 
   const geoLabel =
     geoState.status === "idle" ? "Nacional"
-    : geoState.status === "entidad_selected" ? geoState.entidad
-    : geoState.status === "distrito_selected" ? `${geoState.entidad} / ${distritoLabel}`
-    : geoState.status === "municipio_selected" ? `${geoState.entidad} / ${municipioLabel}`
-    : `${geoState.entidad} / ${secLabel}`;
+      : geoState.status === "entidad_selected" ? geoState.entidad
+        : geoState.status === "distrito_selected" ? `${geoState.entidad} / ${distritoLabel}`
+          : geoState.status === "municipio_selected" ? `${geoState.entidad} / ${municipioLabel}`
+            : `${geoState.entidad} / ${secLabel}`;
 
   return (
     <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
@@ -650,7 +682,7 @@ function SemanalFilterPanel({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span className="text-xs text-black-eske-60 font-medium">{geoLabel}</span>
+          <span className="text-xs text-black-eske-80 font-medium">{geoLabel}</span>
           {geoState.status !== "idle" && (
             <button
               onClick={() => dispatch({ type: "RESET" })}
@@ -868,8 +900,8 @@ export default function SemanalView() {
   const [desglose, setDesglose] = useState<SemanalDesglose>("edad");
 
   // Estado comprometido (lo que los paneles usan)
-  const [ambito,       setAmbito]       = useState<Ambito>("nacional");
-  const [geoInfo,      setGeoInfo]      = useState<GeoInfo>(DEFAULT_GEO_INFO);
+  const [ambito, setAmbito] = useState<Ambito>("nacional");
+  const [geoInfo, setGeoInfo] = useState<GeoInfo>(DEFAULT_GEO_INFO);
   const [queryVersion, setQueryVersion] = useState(0);
 
   const handleConsultar = useCallback(
@@ -885,10 +917,10 @@ export default function SemanalView() {
 
   const panelProps: PanelProps = {
     ambito,
-    entidad:      geoInfo.entidad !== "Nacional" ? geoInfo.entidad : undefined,
-    cveDistrito:  geoInfo.cveDistrito,
+    entidad: geoInfo.entidad !== "Nacional" ? geoInfo.entidad : undefined,
+    cveDistrito: geoInfo.cveDistrito,
     cveMunicipio: geoInfo.cveMunicipio,
-    secciones:    geoInfo.secciones,
+    secciones: geoInfo.secciones,
     scopeLabel,
     queryVersion,
   };
@@ -905,8 +937,8 @@ export default function SemanalView() {
       />
 
       {/* ── Panel activo ── */}
-      {desglose === "edad"   && <EdadPanel   {...panelProps} />}
-      {desglose === "sexo"   && <SexoPanel   {...panelProps} />}
+      {desglose === "edad" && <EdadPanel   {...panelProps} />}
+      {desglose === "sexo" && <SexoPanel   {...panelProps} />}
       {desglose === "origen" && <OrigenPanel {...panelProps} />}
     </div>
   );

@@ -47,6 +47,11 @@ export const ROJOS      = ["#71001B","#8B0A2B","#AE0E35","#D3103F","#D10F3F","#E
 // Extranjero — paleta morada/azul (igual que vista histórico)
 export const MORADOS    = ["#2a004e","#3f0074","#5a0490","#7206b4","#8b2bd6","#a854e8","#c585f5","#dbb4f9","#f0dcfc"];
 export const AZULES_EXT = ["#001428","#002548","#003964","#004e84","#0163a4","#2480d4","#4d9de8","#87baf0","#bbd6f4"];
+export const VERDES     = ["#36591f","#3f6625","#48742c","#518032","#649941","#7eaf5a","#99c374","#b3d591","#cce4b1"];
+
+// CSV column key override for some states (CDMX uses "cdmx" not "ciudad_de_mexico")
+const TEXTO_ORIGEN_COL: Record<string, string> = { ciudad_de_mexico: "cdmx" };
+function textoOrigenCol(key: string): string { return TEXTO_ORIGEN_COL[key] ?? key; }
 
 // Colores modo total (E1 sin selección de rangos)
 export const COLOR_PAD_NAC = "#277592";
@@ -471,25 +476,32 @@ export function generateSemanalTextsOrigen(
   // Construir lista de estados con su LNE
   const estados: { nombre: string; lne: number; pad: number; key: string }[] = [];
   for (const [key, label] of Object.entries(ESTADOS_ABBR)) {
-    const lne = (data[`ln_${key}`] as number) ?? 0;
-    const pad = (data[`pad_${key}`] as number) ?? 0;
+    const col = textoOrigenCol(key);
+    const lne = (data[`ln_${col}`] as number) ?? 0;
+    const pad = (data[`pad_${col}`] as number) ?? 0;
     if (lne > 0 || pad > 0) estados.push({ nombre: label, lne, pad, key });
   }
 
-  estados.sort((a, b) => b.lne - a.lne);
-  const top5 = estados.slice(0, 5);
-
   // LN87 y LN88
-  const ln87 = (data["ln87"] as number) ?? 0;
-  const ln88 = (data["ln88"] as number) ?? 0;
+  const ln87  = (data["ln87"]  as number) ?? 0;
+  const ln88  = (data["ln88"]  as number) ?? 0;
   const pad87 = (data["pad87"] as number) ?? 0;
   const pad88 = (data["pad88"] as number) ?? 0;
 
-  const lneTotal = estados.reduce((s, e) => s + e.lne, 0) + ln87 + ln88;
-  const padTotal = estados.reduce((s, e) => s + e.pad, 0) + pad87 + pad88;
+  // Ranking completo incluyendo LN87/LN88
+  const todo: { nombre: string; lne: number; pad: number; key: string }[] = [
+    ...estados,
+    { nombre: "Nacidos en el extranjero (LN87)", lne: ln87, pad: pad87, key: "87" },
+    { nombre: "Ciudadanos naturalizados (LN88)",  lne: ln88, pad: pad88, key: "88" },
+  ].sort((a, b) => b.lne - a.lne);
+
+  const top5 = todo.slice(0, 5);
+
+  const lneTotal = todo.reduce((s, e) => s + e.lne, 0);
+  const padTotal = todo.reduce((s, e) => s + e.pad, 0);
   const brecha = padTotal - lneTotal;
 
-  const titulo = `Análisis Semanal por Origen — ${ambitoLabel}`;
+  const titulo = `Análisis Semanal por Entidad de Origen — ${ambitoLabel}`;
 
   const top5Text =
     `Los cinco estados con mayor LNE según entidad de origen son: ` +
@@ -497,13 +509,21 @@ export function generateSemanalTextsOrigen(
       `<strong>${e.nombre}</strong> (${fmtNum(e.lne)})` + (i < 4 ? ", " : ".")
     ).join("");
 
+  const pos87 = todo.findIndex((e) => e.key === "87") + 1;
+  const pos88 = todo.findIndex((e) => e.key === "88") + 1;
   const especiales =
-    `Ciudadanos nacidos en el extranjero (LN87): <strong>${fmtNum(ln87)}</strong>. ` +
-    `Ciudadanos naturalizados (LN88): <strong>${fmtNum(ln88)}</strong>.`;
+    `Mexicanos nacidos en el extranjero (LN87): <strong>${fmtNum(ln87)}</strong> ` +
+    `(posición #${pos87} en el ranking). ` +
+    `Ciudadanos naturalizados (LN88): <strong>${fmtNum(ln88)}</strong> ` +
+    `(posición #${pos88} en el ranking).`;
 
   const brechaText =
-    `Brecha Padrón–LNE agregada: <strong>${fmtNum(brecha)}</strong> ciudadanos ` +
-    `(Padrón ${fmtNum(padTotal)}, LNE ${fmtNum(lneTotal)}).`;
+    `Padrón Electoral: <strong>${fmtNum(padTotal)}</strong>. ` +
+    `LNE: <strong>${fmtNum(lneTotal)}</strong>. ` +
+    `Brecha Padrón–LNE agregada: <strong>${fmtNum(brecha)}</strong> ciudadanos. ` +
+    `Esta diferencia representa la ciudadanía inscrita en el Padrón Electoral que aún no ha ` +
+    `tramitado o activado su credencial de elector — o está en proceso — y por tanto no ` +
+    `aparece en la Lista Nominal. A mayor brecha, mayor el rezago de activación en la entidad.`;
 
   const fuente =
     "Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado.";

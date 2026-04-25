@@ -17,6 +17,7 @@ interface SemanalTextBlockProps {
   dataEdad?: Record<string, number> | null;
   serie?: SemanalSerieRow[];
   scopeLabel?: string;
+  isLoading?: boolean;
 }
 
 function RichText({ html }: { html: string }) {
@@ -49,10 +50,22 @@ export default function SemanalTextBlock({
   dataEdad,
   serie = [],
   scopeLabel,
+  isLoading,
 }: SemanalTextBlockProps) {
   if (!data || Object.keys(data).length === 0) {
     return (
-      <div className="bg-gray-eske-10 rounded-lg p-4 animate-pulse h-40" aria-hidden="true" />
+      <div className="space-y-3">
+        {isLoading && (
+          <div className="flex flex-col items-center gap-2 py-3">
+            <div
+              className="w-8 h-8 border-4 border-gray-eske-20 border-t-blue-eske rounded-full animate-spin"
+              aria-hidden="true"
+            />
+            <p className="text-xs text-black-eske-60">Procesando análisis…</p>
+          </div>
+        )}
+        <div className="bg-gray-eske-10 rounded-lg p-4 animate-pulse h-40" aria-hidden="true" />
+      </div>
     );
   }
 

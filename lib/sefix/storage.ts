@@ -1141,6 +1141,18 @@ async function getSemanalAgg(tipo: SemanalTipo): Promise<SemanalAggData | null> 
   }
 }
 
+export async function getSemanalOrigenMatriz(): Promise<{
+  fecha: string;
+  por_entidad: Record<string, { nacional: Record<string, number>; extranjero: Record<string, number> }>;
+} | null> {
+  const agg = await getSemanalAgg("origen");
+  if (!agg) return null;
+  return {
+    fecha: agg.fecha,
+    por_entidad: agg.por_entidad as Record<string, { nacional: Record<string, number>; extranjero: Record<string, number> }>,
+  };
+}
+
 /**
  * Fast geo cascade using pre-generated geo.json.
  * Falls back to streaming the raw CSV if geo.json is not available.
