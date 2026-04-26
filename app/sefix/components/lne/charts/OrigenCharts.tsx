@@ -183,6 +183,12 @@ interface GridProps {
   label?: string;
 }
 
+function rowLabel(key: string, dk: "lne" | "pad" | "dif"): string {
+  if (key === "87") return dk === "pad" ? "PAD87" : dk === "lne" ? "LN87" : "87";
+  if (key === "88") return dk === "pad" ? "PAD88" : dk === "lne" ? "LN88" : "88";
+  return ABREV[key] ?? key.toUpperCase().slice(0, 5);
+}
+
 function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
   const { origins, receptors, lneMatrix, padMatrix, maxLne, maxPad, maxDif } = matrix;
 
@@ -269,7 +275,7 @@ function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {origAbrev(orig)}
+                    {rowLabel(orig, dataKey)}
                   </div>
                   {receptors.map((rec, j) => {
                     let rawVal: number;
@@ -340,6 +346,7 @@ interface HeatmapProps {
 }
 
 export function O1HeatmapChart({ porEntidad, topN = 5, ambito = "nacional" }: HeatmapProps) {
+  const [showNota, setShowNota] = useState(false);
   const matrix = useMemo(() => buildMatrix(porEntidad, ambito, topN), [porEntidad, ambito, topN]);
   const palette = ambito === "extranjero" ? AZULES_EXT : ROJOS;
 
@@ -354,14 +361,32 @@ export function O1HeatmapChart({ porEntidad, topN = 5, ambito = "nacional" }: He
   return (
     <div className="space-y-2">
       <HeatmapGrid matrix={matrix} palette={palette} dataKey="lne" />
+      <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
+        ← Desliza horizontalmente para ver todas las entidades →
+      </p>
       <p className="text-[10px] text-black-eske-60 leading-relaxed text-center">
         <strong>LN87</strong>: ciudadanos mexicanos nacidos en el extranjero (código especial INE).{" "}
         <strong>LN88</strong>: ciudadanos naturalizados mexicanos (código especial INE).
       </p>
-      <p className="text-[10px] text-black-eske-60 leading-relaxed text-center">
-        Cada celda muestra la LNE de ciudadanos cuyo origen es la entidad de la fila y que residen en la entidad receptora de la columna.
-        El análisis textual lateral reporta los totales nacionales por entidad de origen (suma de todas las entidades receptoras).
-      </p>
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={() => setShowNota((v) => !v)}
+          className="inline-flex items-center gap-1 text-[11px] text-bluegreen-eske hover:text-bluegreen-eske-80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske rounded"
+          aria-expanded={showNota}
+        >
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {showNota ? "Ocultar nota" : "¿Cómo leer esta tabla?"}
+        </button>
+      </div>
+      {showNota && (
+        <p className="text-[10px] text-black-eske-60 leading-relaxed text-center bg-gray-eske-10 rounded-lg px-3 py-2 border border-gray-eske-20">
+          Cada celda muestra la LNE de ciudadanos cuyo origen es la entidad de la fila y que residen en la entidad receptora de la columna.
+          El análisis textual lateral reporta los totales nacionales por entidad de origen (suma de todas las entidades receptoras).
+        </p>
+      )}
     </div>
   );
 }
@@ -377,6 +402,7 @@ const O2_VISTAS: { id: O2Vista; label: string }[] = [
 
 export function O2PadronLneChart({ porEntidad, topN = 5, ambito = "nacional" }: HeatmapProps) {
   const [vista, setVista] = useState<O2Vista>("dif");
+  const [showNota, setShowNota] = useState(false);
   const matrix = useMemo(() => buildMatrix(porEntidad, ambito, topN), [porEntidad, ambito, topN]);
 
   if (!matrix.origins.length) {
@@ -425,11 +451,29 @@ export function O2PadronLneChart({ porEntidad, topN = 5, ambito = "nacional" }: 
         dataKey={vista}
         label={vistaLabel}
       />
-
-      <p className="text-[10px] text-black-eske-60 leading-relaxed text-center">
-        <strong>PAD87</strong> / <strong>LN87</strong>: ciudadanos mexicanos nacidos en el extranjero.{" "}
-        <strong>PAD88</strong> / <strong>LN88</strong>: ciudadanos naturalizados mexicanos.
+      <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
+        ← Desliza horizontalmente para ver todas las entidades →
       </p>
+
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={() => setShowNota((v) => !v)}
+          className="inline-flex items-center gap-1 text-[11px] text-bluegreen-eske hover:text-bluegreen-eske-80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske rounded"
+          aria-expanded={showNota}
+        >
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {showNota ? "Ocultar nota" : "¿Qué significan PAD87 / LN87?"}
+        </button>
+      </div>
+      {showNota && (
+        <p className="text-[10px] text-black-eske-60 leading-relaxed text-center bg-gray-eske-10 rounded-lg px-3 py-2 border border-gray-eske-20">
+          <strong>PAD87</strong> / <strong>LN87</strong>: ciudadanos mexicanos nacidos en el extranjero.{" "}
+          <strong>PAD88</strong> / <strong>LN88</strong>: ciudadanos naturalizados mexicanos.
+        </p>
+      )}
     </div>
   );
 }
@@ -827,8 +871,8 @@ export function O3OrigenSerieChart({ ambito }: O3Props) {
       </div>
 
       {/* Entidad de origen + toggle Vista + Consultar */}
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
           <label htmlFor="o3-origen" className="text-xs font-semibold text-black-eske-60">
             Entidad de origen:
           </label>
@@ -836,7 +880,7 @@ export function O3OrigenSerieChart({ ambito }: O3Props) {
             id="o3-origen"
             value={origenKey}
             onChange={(e) => setOrigenKey(e.target.value)}
-            className={SEL_CLS + " min-w-[200px]"}
+            className={SEL_CLS + " w-full sm:w-auto sm:min-w-[200px]"}
           >
             {ESTADOS_ORIGEN_KEYS.map(({ key, label }) => (
               <option key={key} value={key}>{label}</option>
@@ -844,7 +888,7 @@ export function O3OrigenSerieChart({ ambito }: O3Props) {
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-black-eske-60">Vista:</span>
           {(["lne", "pad"] as const).map((v) => (
             <button
@@ -866,7 +910,7 @@ export function O3OrigenSerieChart({ ambito }: O3Props) {
         <button
           type="button"
           onClick={handleConsultar}
-          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-eske text-white-eske hover:bg-blue-eske-60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+          className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-eske text-white-eske hover:bg-blue-eske-60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:ml-auto"
         >
           Consultar
         </button>

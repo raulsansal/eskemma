@@ -25,6 +25,7 @@ import {
 } from "recharts";
 import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 import { useFocusTrap } from "@/app/hooks/useFocusTrap";
+import { useWindowSize } from "@/app/hooks/useWindowSize";
 
 import type { SemanalSerieRow } from "@/app/sefix/hooks/useLneSemanalesSerie";
 import type { Ambito } from "@/lib/sefix/seriesUtils";
@@ -359,6 +360,7 @@ function fmtFechaSexo(iso: string): string {
 }
 
 export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
+  const { isMobile } = useWindowSize();
   const SEXOS_S3 = getSexosS3(ambito);
   const [activos, setActivos] = useState<Set<string>>(new Set(["hombres", "mujeres"]));
   const [showModal, setShowModal] = useState(false);
@@ -477,7 +479,7 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
             itemSorter={(item) => -(item.value as number)}
             contentStyle={{ fontSize: 11, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
           />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
+          <Legend wrapperStyle={{ fontSize: 11, ...(isMobile ? { display: "none" } : {}) }} />
           {sexosAct.map(({ key, label, colorPad, colorLne }) => (
             <Fragment key={key}>
               <Line dataKey={`pad_${key}`} name={`Padrón ${label}`} stroke={colorPad} strokeWidth={2.5} dot={false} connectNulls={false} />
@@ -491,6 +493,24 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
       <p className="text-[11px] text-black-eske-60 text-center mt-1">
         Líneas punteadas = proyección estimada hasta diciembre.
       </p>
+
+      {/* Leyenda colapsable — solo mobile */}
+      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 bg-gray-eske-10 text-[11px]">
+        <summary className="px-3 py-2 cursor-pointer text-bluegreen-eske font-medium flex items-center gap-1.5 select-none list-none">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Ver leyenda
+        </summary>
+        <div className="px-3 pb-3 pt-1 space-y-1.5">
+          {sexosAct.map(({ key, label, colorPad, colorLne }) => (
+            <Fragment key={key}>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colorPad }} /><span>Padrón {label}</span></div>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colorLne }} /><span>LNE {label}</span></div>
+            </Fragment>
+          ))}
+        </div>
+      </details>
     </div>
   );
 }

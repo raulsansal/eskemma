@@ -25,7 +25,7 @@ function fmtNum(v: string | number): string {
 }
 
 // Columnas según tipo de desglose
-function getColumns(tipo: SemanalTipo): { key: string; label: string; numeric?: boolean }[] {
+function getColumns(tipo: SemanalTipo): { key: string; label: string; numeric?: boolean; mobileHide?: boolean }[] {
   if (tipo === "edad") {
     return [
       { key: "rango",  label: "Rango de Edad" },
@@ -39,13 +39,13 @@ function getColumns(tipo: SemanalTipo): { key: string; label: string; numeric?: 
       { key: "rango",       label: "Rango de Edad" },
       { key: "padron_h",    label: "Padrón H",         numeric: true },
       { key: "padron_m",    label: "Padrón M",         numeric: true },
-      { key: "padron_nb",   label: "Padrón No Binario", numeric: true },
-      { key: "lne_hombres", label: "LNE Hombres",      numeric: true },
-      { key: "lne_mujeres", label: "LNE Mujeres",      numeric: true },
-      { key: "lne_nb",      label: "LNE No Binario",   numeric: true },
-      { key: "tasa_h",      label: "Tasa H" },
-      { key: "tasa_m",      label: "Tasa M" },
-      { key: "tasa_nb",     label: "Tasa No Binario" },
+      { key: "padron_nb",   label: "Padrón NB",        numeric: true },
+      { key: "lne_hombres", label: "LNE H",            numeric: true },
+      { key: "lne_mujeres", label: "LNE M",            numeric: true },
+      { key: "lne_nb",      label: "LNE NB",           numeric: true },
+      { key: "tasa_h",      label: "Tasa H",           mobileHide: true },
+      { key: "tasa_m",      label: "Tasa M",           mobileHide: true },
+      { key: "tasa_nb",     label: "Tasa NB",          mobileHide: true },
     ];
   }
   // origen
@@ -210,7 +210,7 @@ export default function SemanalDataTable({
               {cols.map((c) => (
                 <th
                   key={c.key}
-                  className={`px-3 py-2 font-semibold text-xs ${c.numeric ? "text-right" : "text-left"}`}
+                  className={`px-3 py-2 font-semibold text-xs ${c.numeric ? "text-right" : "text-left"} ${c.mobileHide ? "hidden sm:table-cell" : ""}`}
                 >
                   {c.label}
                 </th>
@@ -222,7 +222,7 @@ export default function SemanalDataTable({
               Array.from({ length: Math.min(pageSize, 5) }).map((_, i) => (
                 <tr key={i} className="border-t border-gray-eske-10">
                   {cols.map((c) => (
-                    <td key={c.key} className="px-3 py-2">
+                    <td key={c.key} className={`px-3 py-2 ${c.mobileHide ? "hidden sm:table-cell" : ""}`}>
                       <div className="h-3 w-full rounded bg-gray-eske-10 animate-pulse" />
                     </td>
                   ))}
@@ -249,7 +249,7 @@ export default function SemanalDataTable({
                   {cols.map((c) => (
                     <td
                       key={c.key}
-                      className={`px-3 py-1.5 text-xs text-black-eske ${c.numeric ? "text-right tabular-nums" : ""}`}
+                      className={`px-3 py-1.5 text-xs text-black-eske ${c.numeric ? "text-right tabular-nums" : ""} ${c.mobileHide ? "hidden sm:table-cell" : ""}`}
                     >
                       {c.numeric ? fmtNum(row[c.key] ?? 0) : String(row[c.key] ?? "—")}
                     </td>
@@ -260,6 +260,12 @@ export default function SemanalDataTable({
           </tbody>
         </table>
       </div>
+      {/* Indicador de scroll horizontal en mobile para tabla con muchas columnas */}
+      {tipo === "sexo" && (
+        <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
+          ← Desliza horizontalmente para ver todas las columnas →
+        </p>
+      )}
 
       {/* Paginación */}
       {!isLoading && (

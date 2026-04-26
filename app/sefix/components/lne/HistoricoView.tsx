@@ -260,7 +260,7 @@ export default function HistoricoView() {
 
   if (noData) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
         <GeoFilter
           ambito={ambito}
           selectedYear={displayYear}
@@ -295,7 +295,7 @@ export default function HistoricoView() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Filtros */}
       <GeoFilter
         ambito={ambito}
@@ -309,12 +309,12 @@ export default function HistoricoView() {
         <LoadingState />
       ) : (
         /* Contenido: solo se muestra cuando hay datos listos */
-        <div>
+        <div className="space-y-4">
           {/* Layout: gráficas + análisis textual */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 lg:gap-8 items-start">
 
             {/* Columna izquierda: gráficas */}
-            <div className="space-y-10">
+            <div className="space-y-4 lg:space-y-10">
 
               {/* G1 — Proyección / Evolución del año */}
               <div>
@@ -348,6 +348,8 @@ export default function HistoricoView() {
                 </p>
               </div>
 
+              <hr className="border-gray-eske-20 lg:hidden" />
+
               {/* G2 — Evolución anual */}
               <div>
                 <SectionHeader
@@ -363,6 +365,8 @@ export default function HistoricoView() {
                   Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado
                 </p>
               </div>
+
+              <hr className="border-gray-eske-20 lg:hidden" />
 
               {/* G3 — Evolución anual por sexo (solo ámbito nacional) */}
               <div>
@@ -397,7 +401,7 @@ export default function HistoricoView() {
             </div>
 
             {/* Columna derecha: análisis textual */}
-            <div className="lg:sticky lg:top-24">
+            <div className="lg:sticky lg:top-24 mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-eske-20">
               {!texts ? (
                 <div className="space-y-3">
                   {[24, 80, 120, 100, 90, 80].map((h, i) => (
@@ -409,6 +413,8 @@ export default function HistoricoView() {
               )}
             </div>
           </div>
+
+          <hr className="border-gray-eske-20" />
 
           {/* Tabla de Datos — debajo del grid de gráficas */}
           <HistoricoDataTable

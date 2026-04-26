@@ -191,7 +191,7 @@ interface ChartCardProps {
 
 function ChartCard({ titulo, scopeLabel, children }: ChartCardProps) {
   return (
-    <div className="bg-white-eske rounded-lg border border-gray-eske-20 px-4 pt-4 pb-3">
+    <div className="bg-white-eske rounded-lg border border-gray-eske-20 px-2 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3">
       <h3 className="text-sm font-bold text-black-eske text-center leading-snug">{titulo}</h3>
       {scopeLabel && <p className="text-[11px] text-black-eske-60 text-center mt-0.5">{scopeLabel}</p>}
       <div className="mt-3">{children}</div>
@@ -229,69 +229,79 @@ function EdadPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
     `${nombre} — ${fmtFechaLarga(fecha)} — ${capitalize(ambito)}`;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
-      <div className="space-y-8 min-w-0">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 lg:gap-6">
+        <div className="space-y-4 lg:space-y-8 min-w-0">
 
-        {/* E1 — Serie temporal por rango */}
-        <ChartCard
-          titulo={tituloBase("Evolución y Proyección Semanal del Padrón y LNE")}
-          scopeLabel={scopeLabel}
-        >
-          {serieLoading ? <ChartSkeleton height={380} /> : <E1SerieChart serie={serie} ambito={ambito} />}
-        </ChartCard>
+          {/* E1 — Serie temporal por rango */}
+          <ChartCard
+            titulo={tituloBase("Evolución y Proyección Semanal del Padrón y LNE")}
+            scopeLabel={scopeLabel}
+          >
+            {serieLoading ? <ChartSkeleton height={380} /> : <E1SerieChart serie={serie} ambito={ambito} />}
+          </ChartCard>
 
-        {/* E2 — LNE por grupos */}
-        <ChartCard
-          titulo={tituloBase("Lista Nominal Electoral por Grupo Etario")}
-          scopeLabel={scopeLabel}
-        >
-          {isLoading || !data ? <ChartSkeleton height={210} /> : <E2GroupBarsChart data={data} ambito={ambito} />}
-        </ChartCard>
+          <hr className="border-gray-eske-20 lg:hidden" />
 
-        {/* E3 — Proyección por grupo */}
-        <ChartCard
-          titulo={tituloBase("Evolución y Proyección Semanal por Grupo Etario")}
-          scopeLabel={scopeLabel}
-        >
-          {serieLoading ? <ChartSkeleton height={360} /> : <E3GruposSerieChart serie={serie} ambito={ambito} />}
-        </ChartCard>
+          {/* E2 — LNE por grupos */}
+          <ChartCard
+            titulo={tituloBase("Lista Nominal Electoral por Grupo Etario")}
+            scopeLabel={scopeLabel}
+          >
+            {isLoading || !data ? <ChartSkeleton height={210} /> : <E2GroupBarsChart data={data} ambito={ambito} />}
+          </ChartCard>
 
-        {/* E4 — Barras por rango individual */}
-        <ChartCard
-          titulo={tituloBase("Padrón y LNE por Rango de Edad")}
-          scopeLabel={scopeLabel}
-        >
-          {isLoading || !data ? (
-            <ChartSkeleton height={300} />
-          ) : (
-            <E4RangeChart data={data} ambito={ambito} />
-          )}
-        </ChartCard>
+          <hr className="border-gray-eske-20 lg:hidden" />
 
-        {/* DataTable */}
-        <SemanalDataTable
-          tipo="edad"
-          ambito={ambito}
-          scopeLabel={scopeLabel}
-          entidad={entidad}
-          cveDistrito={cveDistrito}
-          cveMunicipio={cveMunicipio}
-          secciones={secciones}
-        />
+          {/* E3 — Proyección por grupo */}
+          <ChartCard
+            titulo={tituloBase("Evolución y Proyección Semanal por Grupo Etario")}
+            scopeLabel={scopeLabel}
+          >
+            {serieLoading ? <ChartSkeleton height={360} /> : <E3GruposSerieChart serie={serie} ambito={ambito} />}
+          </ChartCard>
+
+          <hr className="border-gray-eske-20 lg:hidden" />
+
+          {/* E4 — Barras por rango individual */}
+          <ChartCard
+            titulo={tituloBase("Padrón y LNE por Rango de Edad")}
+            scopeLabel={scopeLabel}
+          >
+            {isLoading || !data ? (
+              <ChartSkeleton height={300} />
+            ) : (
+              <E4RangeChart data={data} ambito={ambito} />
+            )}
+          </ChartCard>
+        </div>
+
+        {/* Columna lateral: análisis textual */}
+        <div className="mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-eske-20">
+          <SemanalTextBlock
+            tipo="edad"
+            ambito={ambito}
+            fecha={fecha}
+            data={data ?? {}}
+            serie={serie}
+            isLoading={isLoading}
+            scopeLabel={scopeLabel}
+          />
+        </div>
       </div>
 
-      {/* Columna lateral: análisis textual */}
-      <div className="lg:pt-2">
-        <SemanalTextBlock
-          tipo="edad"
-          ambito={ambito}
-          fecha={fecha}
-          data={data ?? {}}
-          serie={serie}
-          isLoading={isLoading}
-          scopeLabel={scopeLabel}
-        />
-      </div>
+      <hr className="border-gray-eske-20" />
+
+      {/* DataTable — fuera del grid, siempre ancho completo */}
+      <SemanalDataTable
+        tipo="edad"
+        ambito={ambito}
+        scopeLabel={scopeLabel}
+        entidad={entidad}
+        cveDistrito={cveDistrito}
+        cveMunicipio={cveMunicipio}
+        secciones={secciones}
+      />
     </div>
   );
 }
@@ -319,71 +329,81 @@ function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
     `${nombre} — ${fmtFechaLarga(fecha)} — ${capitalize(ambito)}`;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
-      <div className="space-y-8 min-w-0">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 lg:gap-6">
+        <div className="space-y-4 lg:space-y-8 min-w-0">
 
-        {/* S1 — Pirámide */}
-        <ChartCard titulo={tituloBase("Pirámide de LNE por Rango de Edad y Sexo")} scopeLabel={scopeLabel}>
-          {loadingEdad || !dataEdad ? (
-            <ChartSkeleton height={360} />
-          ) : (
-            <S1PyramidChart data={dataEdad} ambito={ambito} />
-          )}
-        </ChartCard>
+          {/* S1 — Pirámide */}
+          <ChartCard titulo={tituloBase("Pirámide de LNE por Rango de Edad y Sexo")} scopeLabel={scopeLabel}>
+            {loadingEdad || !dataEdad ? (
+              <ChartSkeleton height={360} />
+            ) : (
+              <S1PyramidChart data={dataEdad} ambito={ambito} />
+            )}
+          </ChartCard>
 
-        {/* S2 — LNE por grupo etario × sexo */}
-        <ChartCard titulo={tituloBase("LNE por Grupo Etario y Sexo")} scopeLabel={scopeLabel}>
-          {loadingEdad || !dataEdad ? (
-            <ChartSkeleton height={280} />
-          ) : (
-            <S2AgeSexChart data={dataEdad} ambito={ambito} />
-          )}
-        </ChartCard>
+          <hr className="border-gray-eske-20 lg:hidden" />
 
-        {/* S3 — Serie temporal por sexo */}
-        <ChartCard
-          titulo={tituloBase("Evolución y Proyección Semanal por Sexo")}
-          scopeLabel={scopeLabel}
-        >
-          {serieLoading ? (
-            <ChartSkeleton height={320} />
-          ) : (
-            <S3SexoSerieChart serie={serieSexo} ambito={ambito} dataSexo={dataSexo ?? {}} />
-          )}
-        </ChartCard>
+          {/* S2 — LNE por grupo etario × sexo */}
+          <ChartCard titulo={tituloBase("LNE por Grupo Etario y Sexo")} scopeLabel={scopeLabel}>
+            {loadingEdad || !dataEdad ? (
+              <ChartSkeleton height={280} />
+            ) : (
+              <S2AgeSexChart data={dataEdad} ambito={ambito} />
+            )}
+          </ChartCard>
 
-        {/* S4 — Padrón vs LNE por sexo */}
-        <ChartCard
-          titulo={tituloBase("Padrón Electoral vs Lista Nominal por Sexo")}
-          scopeLabel={scopeLabel}
-        >
-          {loadingSexo || !dataSexo ? <ChartSkeleton height={280} /> : <S4ParticipacionChart data={dataSexo} ambito={ambito} />}
-        </ChartCard>
+          <hr className="border-gray-eske-20 lg:hidden" />
 
-        {/* DataTable */}
-        <SemanalDataTable
-          tipo="sexo"
-          ambito={ambito}
-          scopeLabel={scopeLabel}
-          entidad={entidad}
-          cveDistrito={cveDistrito}
-          cveMunicipio={cveMunicipio}
-          secciones={secciones}
-        />
+          {/* S3 — Serie temporal por sexo */}
+          <ChartCard
+            titulo={tituloBase("Evolución y Proyección Semanal por Sexo")}
+            scopeLabel={scopeLabel}
+          >
+            {serieLoading ? (
+              <ChartSkeleton height={320} />
+            ) : (
+              <S3SexoSerieChart serie={serieSexo} ambito={ambito} dataSexo={dataSexo ?? {}} />
+            )}
+          </ChartCard>
+
+          <hr className="border-gray-eske-20 lg:hidden" />
+
+          {/* S4 — Padrón vs LNE por sexo */}
+          <ChartCard
+            titulo={tituloBase("Padrón Electoral vs Lista Nominal por Sexo")}
+            scopeLabel={scopeLabel}
+          >
+            {loadingSexo || !dataSexo ? <ChartSkeleton height={280} /> : <S4ParticipacionChart data={dataSexo} ambito={ambito} />}
+          </ChartCard>
+        </div>
+
+        {/* Columna lateral */}
+        <div className="mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-eske-20">
+          <SemanalTextBlock
+            tipo="sexo"
+            ambito={ambito}
+            fecha={fecha}
+            data={dataSexo ?? {}}
+            dataEdad={dataEdad}
+            isLoading={loadingSexo}
+            scopeLabel={scopeLabel}
+          />
+        </div>
       </div>
 
-      {/* Columna lateral */}
-      <div className="lg:pt-2">
-        <SemanalTextBlock
-          tipo="sexo"
-          ambito={ambito}
-          fecha={fecha}
-          data={dataSexo ?? {}}
-          dataEdad={dataEdad}
-          isLoading={loadingSexo}
-          scopeLabel={scopeLabel}
-        />
-      </div>
+      <hr className="border-gray-eske-20" />
+
+      {/* DataTable — fuera del grid, siempre ancho completo */}
+      <SemanalDataTable
+        tipo="sexo"
+        ambito={ambito}
+        scopeLabel={scopeLabel}
+        entidad={entidad}
+        cveDistrito={cveDistrito}
+        cveMunicipio={cveMunicipio}
+        secciones={secciones}
+      />
     </div>
   );
 }
@@ -428,71 +448,79 @@ function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, sc
     `${nombre} — ${fmtFechaLarga(fecha)} — ${capitalize(ambito)}`;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
-      <div className="space-y-8 min-w-0">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 lg:gap-6">
+        <div className="space-y-4 lg:space-y-8 min-w-0">
 
-        {/* Top-N selector */}
-        <div className="flex items-center gap-2">
-          <label htmlFor="topn-select" className="text-xs text-black-eske-60">Mostrar:</label>
-          <select
-            id="topn-select"
-            value={topN}
-            onChange={(e) => setTopN(parseInt(e.target.value))}
-            className="text-xs border border-gray-eske-30 rounded px-2 py-1 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-eske"
-          >
-            <option value={5}>Top 5</option>
-            <option value={10}>Top 10</option>
-            <option value={15}>Top 15</option>
-            <option value={0}>Todos (34)</option>
-          </select>
+          {/* Top-N selector */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="topn-select" className="text-xs text-black-eske-60">Mostrar:</label>
+            <select
+              id="topn-select"
+              value={topN}
+              onChange={(e) => setTopN(parseInt(e.target.value))}
+              className="text-xs border border-gray-eske-30 rounded px-2 py-1 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-eske"
+            >
+              <option value={5}>Top 5</option>
+              <option value={10}>Top 10</option>
+              <option value={15}>Top 15</option>
+              <option value={0}>Todos (34)</option>
+            </select>
+          </div>
+
+          {/* O1 — Heatmap LNE Origen × Receptor */}
+          <ChartCard titulo={tituloBase("Lista Nominal por Entidad de Origen y Receptora")} scopeLabel={scopeLabel}>
+            {matrizLoading ? (
+              <ChartSkeleton height={topN * 22 + 80} />
+            ) : (
+              <O1HeatmapChart porEntidad={porEntidad} topN={topN} ambito={ambito} />
+            )}
+          </ChartCard>
+
+          <hr className="border-gray-eske-20 lg:hidden" />
+
+          {/* O2 — Heatmap Padrón / LNE / Diferencial */}
+          <ChartCard titulo={tituloBase("Diferencial del Padrón Electoral y LNE por Entidad de Origen y Receptora")} scopeLabel={scopeLabel}>
+            {matrizLoading ? (
+              <ChartSkeleton height={topN * 22 + 80} />
+            ) : (
+              <O2PadronLneChart porEntidad={porEntidad} topN={topN} ambito={ambito} />
+            )}
+          </ChartCard>
         </div>
 
-        {/* O1 — Heatmap LNE Origen × Receptor */}
-        <ChartCard titulo={tituloBase("Lista Nominal por Entidad de Origen y Receptora")} scopeLabel={scopeLabel}>
-          {matrizLoading ? (
-            <ChartSkeleton height={topN * 22 + 80} />
-          ) : (
-            <O1HeatmapChart porEntidad={porEntidad} topN={topN} ambito={ambito} />
-          )}
-        </ChartCard>
-
-        {/* O2 — Heatmap Padrón / LNE / Diferencial */}
-        <ChartCard titulo={tituloBase("Diferencial del Padrón Electoral y LNE por Entidad de Origen y Receptora")} scopeLabel={scopeLabel}>
-          {matrizLoading ? (
-            <ChartSkeleton height={topN * 22 + 80} />
-          ) : (
-            <O2PadronLneChart porEntidad={porEntidad} topN={topN} ambito={ambito} />
-          )}
-        </ChartCard>
-
-        {/* DataTable */}
-        <SemanalDataTable
-          tipo="origen"
-          ambito={ambito}
-          scopeLabel={scopeLabel}
-          entidad={entidad}
-          cveDistrito={cveDistrito}
-          cveMunicipio={cveMunicipio}
-          secciones={secciones}
-        />
-
-        {/* O3 */}
-        <ChartCard titulo={tituloBase("Evolución Semanal por Entidad de Origen y Entidad Receptora")}>
-          <O3OrigenSerieChart ambito={ambito} />
-        </ChartCard>
+        {/* Columna lateral */}
+        <div className="mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-eske-20">
+          <SemanalTextBlock
+            tipo="origen"
+            ambito={ambito}
+            fecha={fecha}
+            data={isLoading ? {} : (data ?? {})}
+            isLoading={isLoading}
+            scopeLabel={scopeLabel}
+          />
+        </div>
       </div>
 
-      {/* Columna lateral */}
-      <div className="lg:pt-2">
-        <SemanalTextBlock
-          tipo="origen"
-          ambito={ambito}
-          fecha={fecha}
-          data={isLoading ? {} : (data ?? {})}
-          isLoading={isLoading}
-          scopeLabel={scopeLabel}
-        />
-      </div>
+      <hr className="border-gray-eske-20" />
+
+      {/* DataTable — fuera del grid, siempre ancho completo */}
+      <SemanalDataTable
+        tipo="origen"
+        ambito={ambito}
+        scopeLabel={scopeLabel}
+        entidad={entidad}
+        cveDistrito={cveDistrito}
+        cveMunicipio={cveMunicipio}
+        secciones={secciones}
+      />
+
+      <hr className="border-gray-eske-20" />
+
+      {/* O3 — fuera del grid, siempre ancho completo */}
+      <ChartCard titulo={tituloBase("Evolución Semanal por Entidad de Origen y Entidad Receptora")}>
+        <O3OrigenSerieChart ambito={ambito} />
+      </ChartCard>
     </div>
   );
 }
@@ -636,7 +664,7 @@ function SemanalFilterPanel({
     <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
 
       {/* Fila 1: Ámbito + Desglose + Indicador geo */}
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-start sm:items-center gap-3 sm:gap-4">
 
         {/* Ámbito */}
         <fieldset>
@@ -696,7 +724,7 @@ function SemanalFilterPanel({
       </div>
 
       {/* Fila 2: Cascade geográfica + Consultar */}
-      <div className="flex flex-wrap gap-3 items-end">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-end">
 
         {/* Estado */}
         <div className="flex flex-col gap-1">
@@ -705,7 +733,7 @@ function SemanalFilterPanel({
             id="semanal-entidad"
             value={entidadNombre ?? ""}
             onChange={(e) => handleEntidadChange(e.target.value)}
-            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[160px]"
+            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[160px]"
           >
             <option value="">Nacional</option>
             {ESTADOS_LIST.map((e) => (
@@ -726,7 +754,7 @@ function SemanalFilterPanel({
               value={cveDistrito ?? ""}
               onChange={(e) => dispatch({ type: "SELECT_DISTRITO", distrito: e.target.value })}
               disabled={loadingDistritos || distritos.length === 0}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[200px]"
+              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[200px]"
             >
               <option value="">Todos</option>
               {distritos.map((d) => (
@@ -740,7 +768,7 @@ function SemanalFilterPanel({
         {pendingAmbito === "extranjero" && geoState.status !== "idle" && (
           <div className="flex flex-col gap-1">
             <span className="text-xs text-black-eske-60">Distrito</span>
-            <div className="text-sm border border-gray-eske-20 rounded-md px-2 py-1.5 bg-gray-eske-10 text-black-eske-60 min-w-[220px] select-none">
+            <div className="text-sm border border-gray-eske-20 rounded-md px-2 py-1.5 bg-gray-eske-10 text-black-eske-60 w-full sm:w-auto sm:min-w-[220px] select-none">
               RESIDENTES EXTRANJERO
             </div>
           </div>
@@ -758,7 +786,7 @@ function SemanalFilterPanel({
               value={cveMunicipio ?? ""}
               onChange={(e) => dispatch({ type: "SELECT_MUNICIPIO", municipio: e.target.value })}
               disabled={loadingMunicipios || municipios.length === 0}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[180px]"
+              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[180px]"
             >
               <option value="">Todos</option>
               {municipios.map((m) => (
@@ -784,7 +812,7 @@ function SemanalFilterPanel({
               role="group"
               aria-label="Secciones seleccionadas"
               onClick={() => { setSeccionOpen(true); seccionInputRef.current?.focus(); }}
-              className="border border-gray-eske-30 rounded-md bg-white-eske min-h-[34px] px-2 py-1 flex flex-wrap gap-1 items-center cursor-text min-w-[180px]"
+              className="border border-gray-eske-30 rounded-md bg-white-eske min-h-[34px] px-2 py-1 flex flex-wrap gap-1 items-center cursor-text w-full sm:w-auto sm:min-w-[180px]"
             >
               {seccionesSeleccionadas.map((cve) => (
                 <span key={cve} className="flex items-center gap-0.5 bg-blue-eske text-white-eske text-xs px-1.5 py-0.5 rounded">
@@ -822,7 +850,7 @@ function SemanalFilterPanel({
               <div
                 role="listbox"
                 aria-label="Secciones disponibles"
-                className="absolute top-full left-0 z-50 mt-1 w-full min-w-[180px] border border-gray-eske-30 rounded-md bg-white-eske shadow-lg overflow-y-auto max-h-[140px]"
+                className="absolute top-full left-0 z-50 mt-1 w-full max-w-[calc(100vw-2rem)] sm:max-w-none border border-gray-eske-30 rounded-md bg-white-eske shadow-lg overflow-y-auto max-h-[140px]"
               >
                 {seccionesSeleccionadas.length > 0 && (
                   <button
@@ -862,7 +890,7 @@ function SemanalFilterPanel({
         <button
           onClick={handleConsultar}
           className={[
-            "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors self-end",
+            "flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors w-full sm:w-auto sm:self-end",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske",
             hasPending
               ? "bg-blue-eske text-white-eske hover:bg-blue-eske-60"
@@ -875,7 +903,7 @@ function SemanalFilterPanel({
         {/* Aviso Extranjero */}
         {pendingAmbito === "extranjero" && (
           <div
-            className="ml-auto rounded-md px-3 py-2 text-xs text-black-eske self-end"
+            className="sm:ml-auto rounded-md px-3 py-2 text-xs text-black-eske sm:self-end"
             style={{ backgroundColor: "#bcd1e3" }}
           >
             Los datos de Residentes en el Extranjero sólo están disponibles a nivel estatal.

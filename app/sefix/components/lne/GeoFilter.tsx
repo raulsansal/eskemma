@@ -292,7 +292,7 @@ export default function GeoFilter({
   return (
     <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
       {/* Fila 1: Año + Ámbito + Indicador de alcance */}
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-start sm:items-center gap-3 sm:gap-4">
         {/* Año */}
         {availableYears.length > 0 && (
           <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export default function GeoFilter({
       </div>
 
       {/* Fila 2: Cascade geográfica + Botón Consultar al final */}
-      <div className="flex flex-wrap gap-3 items-end">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-end">
         {/* Entidad */}
         <div className="flex flex-col gap-1">
           <label htmlFor="geo-entidad" className="text-xs text-black-eske-60">Entidad</label>
@@ -362,7 +362,7 @@ export default function GeoFilter({
             id="geo-entidad"
             value={entidadNombre ?? ""}
             onChange={(e) => handleEntidadChange(e.target.value)}
-            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[160px]"
+            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[160px]"
           >
             <option value="">Nacional</option>
             {ESTADOS_LIST.map((e) => (
@@ -375,14 +375,14 @@ export default function GeoFilter({
         {pendingAmbito === "nacional" && geoState.status !== "idle" && (
           <div className="flex flex-col gap-1">
             <label htmlFor="geo-distrito" className="text-xs text-black-eske-60">
-              Distrito {loadingDistritos && <span className="text-gray-eske-70">(cargando…)</span>}
+              Distrito {loadingDistritos && <span className="text-red-eske">(cargando…)</span>}
             </label>
             <select
               id="geo-distrito"
               value={cveDistrito ?? ""}
               onChange={(e) => dispatch({ type: "SELECT_DISTRITO", distrito: e.target.value })}
               disabled={loadingDistritos || distritos.length === 0}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[200px]"
+              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[200px]"
             >
               <option value="">Todos</option>
               {distritos.map((d) => (
@@ -396,7 +396,7 @@ export default function GeoFilter({
         {pendingAmbito === "extranjero" && geoState.status !== "idle" && (
           <div className="flex flex-col gap-1">
             <span className="text-xs text-black-eske-60">Distrito</span>
-            <div className="text-sm border border-gray-eske-20 rounded-md px-2 py-1.5 bg-gray-eske-10 text-black-eske-60 min-w-[220px] select-none">
+            <div className="text-sm border border-gray-eske-20 rounded-md px-2 py-1.5 bg-gray-eske-10 text-black-eske-60 w-full sm:w-auto sm:min-w-[220px] select-none">
               RESIDENTES EXTRANJERO
             </div>
           </div>
@@ -406,14 +406,14 @@ export default function GeoFilter({
         {pendingAmbito === "nacional" && cveDistrito && (
           <div className="flex flex-col gap-1">
             <label htmlFor="geo-municipio" className="text-xs text-black-eske-60">
-              Municipio {loadingMunicipios && <span className="text-gray-eske-70">(cargando…)</span>}
+              Municipio {loadingMunicipios && <span className="text-red-eske">(cargando…)</span>}
             </label>
             <select
               id="geo-municipio"
               value={cveMunicipio ?? ""}
               onChange={(e) => dispatch({ type: "SELECT_MUNICIPIO", municipio: e.target.value })}
               disabled={loadingMunicipios || municipios.length === 0}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[180px]"
+              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[180px]"
             >
               <option value="">Todos</option>
               {municipios.map((m) => (
@@ -428,7 +428,7 @@ export default function GeoFilter({
           <div ref={seccionContainerRef} className="relative flex flex-col gap-1">
             <p className="text-xs text-black-eske-60">
               Sección{" "}
-              {loadingSecciones && <span className="text-gray-eske-70">(cargando…)</span>}
+              {loadingSecciones && <span className="text-red-eske">(cargando…)</span>}
               {seccionesSeleccionadas.length > 0 && (
                 <span className="ml-1 text-blue-eske font-medium">
                   ({seccionesSeleccionadas.length} sel.)
@@ -441,7 +441,7 @@ export default function GeoFilter({
               role="group"
               aria-label="Secciones seleccionadas"
               onClick={() => { setSeccionOpen(true); seccionInputRef.current?.focus(); }}
-              className="border border-gray-eske-30 rounded-md bg-white-eske min-h-[34px] px-2 py-1 flex flex-wrap gap-1 items-center cursor-text min-w-[180px]"
+              className="border border-gray-eske-30 rounded-md bg-white-eske min-h-[34px] px-2 py-1 flex flex-wrap gap-1 items-center cursor-text w-full sm:w-auto sm:min-w-[180px]"
             >
               {seccionesSeleccionadas.map((cve) => (
                 <span
@@ -484,7 +484,7 @@ export default function GeoFilter({
               <div
                 role="listbox"
                 aria-label="Secciones disponibles"
-                className="absolute top-full left-0 z-50 mt-1 w-full min-w-[180px] border border-gray-eske-30 rounded-md bg-white-eske shadow-lg overflow-y-auto max-h-[140px]"
+                className="absolute top-full left-0 z-50 mt-1 w-full max-w-[calc(100vw-2rem)] sm:max-w-none border border-gray-eske-30 rounded-md bg-white-eske shadow-lg overflow-y-auto max-h-[140px]"
               >
                 {/* Opción "Todas" — limpiar selección */}
                 {seccionesSeleccionadas.length > 0 && (
@@ -526,7 +526,7 @@ export default function GeoFilter({
         {hasPending && (
           <button
             onClick={handleConsultar}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md bg-blue-eske text-white-eske hover:bg-blue-eske-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske transition-colors self-end"
+            className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md bg-blue-eske text-white-eske hover:bg-blue-eske-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske transition-colors w-full sm:w-auto sm:self-end"
           >
             Consultar
           </button>
@@ -535,7 +535,7 @@ export default function GeoFilter({
         {/* Aviso disponibilidad Extranjero — solo ámbito extranjero */}
         {pendingAmbito === "extranjero" && (
           <div
-            className="ml-auto rounded-md px-3 py-2 text-xs text-black-eske self-end"
+            className="sm:ml-auto rounded-md px-3 py-2 text-xs text-black-eske sm:self-end"
             style={{ backgroundColor: "#bcd1e3ff" }}
           >
             Los datos de Residentes en el Extranjero sólo están disponibles a nivel estatal.

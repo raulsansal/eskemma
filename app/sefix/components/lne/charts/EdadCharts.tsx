@@ -25,6 +25,7 @@ import {
 } from "recharts";
 import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 import { useFocusTrap } from "@/app/hooks/useFocusTrap";
+import { useWindowSize } from "@/app/hooks/useWindowSize";
 
 import type { SemanalSerieRow } from "@/app/sefix/hooks/useLneSemanalesSerie";
 import type { Ambito } from "@/lib/sefix/seriesUtils";
@@ -100,6 +101,7 @@ interface E2Props {
 }
 
 export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
+  const { isMobile } = useWindowSize();
   const palPad = ambito === "extranjero" ? COLOR_E3_PAD_EXT : COLOR_E3_PAD_NAC;
   const chartData = GRUPOS.map((g) => ({
     name: g.key,
@@ -114,7 +116,7 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
       <BarChart
         data={chartData}
         layout="vertical"
-        margin={{ top: 8, right: 160, left: 8, bottom: 0 }}
+        margin={{ top: 8, right: isMobile ? 90 : 160, left: 8, bottom: 0 }}
         barSize={28}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" horizontal={false} />
@@ -320,6 +322,7 @@ interface E1Props {
 }
 
 export function E1SerieChart({ serie, ambito }: E1Props) {
+  const { isMobile } = useWindowSize();
   const [rangosActivos, setRangosActivos] = useState<Set<RangoEdad>>(new Set(RANGOS_EDAD));
   const [showModal, setShowModal] = useState(false);
 
@@ -460,7 +463,7 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
             itemSorter={(item) => -(item.value as number)}
             contentStyle={{ fontSize: 11, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
           />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
+          <Legend wrapperStyle={{ fontSize: 11, ...(isMobile ? { display: "none" } : {}) }} />
 
           {todosActivos ? (
             <>
@@ -487,6 +490,33 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
       <p className="text-[11px] text-black-eske-60 text-center mt-1">
         Líneas punteadas = proyección estimada hasta diciembre.
       </p>
+
+      {/* Leyenda colapsable — solo mobile */}
+      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 bg-gray-eske-10 text-[11px]">
+        <summary className="px-3 py-2 cursor-pointer text-bluegreen-eske font-medium flex items-center gap-1.5 select-none list-none">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Ver leyenda
+        </summary>
+        <div className="px-3 pb-3 pt-1 space-y-1.5">
+          {todosActivos ? (
+            <>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colPad }} /><span>Padrón Total</span></div>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colLne }} /><span>LNE Total</span></div>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 0, borderBottom: `2px dashed ${colPadProy}` }} /><span>Proyección Padrón</span></div>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 0, borderBottom: `2px dashed ${colLneProy}` }} /><span>Proyección LNE</span></div>
+            </>
+          ) : (
+            RANGOS_EDAD.filter((r) => rangosActivos.has(r)).map((r, i) => (
+              <Fragment key={r}>
+                <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colorRangoPad(i, ambito) }} /><span>Padrón {ETIQ_RANGOS[r]}</span></div>
+                <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colorRangoLne(i, ambito) }} /><span>LNE {ETIQ_RANGOS[r]}</span></div>
+              </Fragment>
+            ))
+          )}
+        </div>
+      </details>
     </>
   );
 }
@@ -500,6 +530,7 @@ interface E3Props {
 }
 
 export function E3GruposSerieChart({ serie, ambito }: E3Props) {
+  const { isMobile } = useWindowSize();
   const grupoKeys = Object.keys(GRUPOS_ETARIOS) as GrupoKey[];
   const [gruposActivos, setGruposActivos] = useState<Set<GrupoKey>>(new Set(grupoKeys));
   const [showModal, setShowModal] = useState(false);
@@ -620,7 +651,7 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
             itemSorter={(item) => -(item.value as number)}
             contentStyle={{ fontSize: 11, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
           />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
+          <Legend wrapperStyle={{ fontSize: 11, ...(isMobile ? { display: "none" } : {}) }} />
 
           {gruposAct.map((g) => (
             <Fragment key={g}>
@@ -636,6 +667,24 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
       <p className="text-[11px] text-black-eske-60 text-center mt-1">
         Líneas punteadas = proyección estimada hasta diciembre.
       </p>
+
+      {/* Leyenda colapsable — solo mobile */}
+      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 bg-gray-eske-10 text-[11px]">
+        <summary className="px-3 py-2 cursor-pointer text-bluegreen-eske font-medium flex items-center gap-1.5 select-none list-none">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Ver leyenda
+        </summary>
+        <div className="px-3 pb-3 pt-1 space-y-1.5">
+          {gruposAct.map((g) => (
+            <Fragment key={g}>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: palPad[g] ?? "#277592" }} /><span>Padrón {g}</span></div>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: palLne[g] ?? "#003E66" }} /><span>LNE {g}</span></div>
+            </Fragment>
+          ))}
+        </div>
+      </details>
     </>
   );
 }
