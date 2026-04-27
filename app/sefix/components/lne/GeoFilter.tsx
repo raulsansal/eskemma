@@ -385,9 +385,11 @@ export default function GeoFilter({
               className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[200px]"
             >
               <option value="">Todos</option>
-              {distritos.map((d) => (
-                <option key={d.cve} value={d.cve}>{d.nombre}</option>
-              ))}
+              {distritos
+                .filter((d) => !d.nombre.toUpperCase().includes("RESIDENTES"))
+                .map((d) => (
+                  <option key={d.cve} value={d.cve}>{d.nombre}</option>
+                ))}
             </select>
           </div>
         )}
@@ -538,7 +540,7 @@ export default function GeoFilter({
             className="sm:ml-auto rounded-md px-3 py-2 text-xs text-black-eske sm:self-end"
             style={{ backgroundColor: "#bcd1e3ff" }}
           >
-            Los datos de Residentes en el Extranjero sólo están disponibles a nivel estatal.
+            Los datos de Residentes en el Extranjero sólo están disponibles a nivel nacional y estatal.
           </div>
         )}
       </div>

@@ -9,6 +9,7 @@ import G1TrendChart from "./charts/G1TrendChart";
 import G2BarChart from "./charts/G2BarChart";
 import G3SexChart from "./charts/G3SexChart";
 import HistoricoDataTable from "./HistoricoDataTable";
+import MobileBottomBar from "./MobileBottomBar";
 import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 import { useFocusTrap } from "@/app/hooks/useFocusTrap";
 
@@ -210,6 +211,14 @@ export default function HistoricoView() {
   const [showMetodologia, setShowMetodologia] = useState(false);
   const closeMetodologia = useCallback(() => setShowMetodologia(false), []);
 
+  // Estado de drawers mobile
+  const [leftOpen, setLeftOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
+  const closeLeft = useCallback(() => setLeftOpen(false), []);
+  const closeRight = useCallback(() => setRightOpen(false), []);
+  useEscapeKey(leftOpen, closeLeft);
+  useEscapeKey(rightOpen, closeRight);
+
   const { isLoading, error, availableYears, g1Data, g2Data, g3SexData, nbLatest, nbAnnual, texts } =
     useLneHistorico(ambito, selectedYear, geoInfo);
 
@@ -253,6 +262,7 @@ export default function HistoricoView() {
       setSelectedYear(newYear);
       setGeoInfo(newGeoInfo);
     });
+    setLeftOpen(false);
   };
 
   // Sin datos después de cargar (filtro demasiado específico o sin cobertura)
@@ -260,13 +270,42 @@ export default function HistoricoView() {
 
   if (noData) {
     return (
-      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-        <GeoFilter
-          ambito={ambito}
-          selectedYear={displayYear}
-          availableYears={availableYears}
-          onConsultar={handleConsultar}
-        />
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8 pb-14 sm:pb-0">
+        {leftOpen && (
+          <div
+            className="fixed inset-0 bg-black-eske/40 z-30 sm:hidden"
+            aria-hidden="true"
+            onClick={closeLeft}
+          />
+        )}
+        <div className={[
+          "fixed left-0 top-0 bottom-14 w-[min(85vw,320px)]",
+          "bg-white-eske overflow-y-auto z-40 shadow-xl",
+          "transition-transform duration-300 ease-in-out",
+          leftOpen ? "translate-x-0" : "-translate-x-full",
+          "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
+          "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
+        ].join(" ")}>
+          <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
+            <span className="text-sm font-semibold">Filtros de Consulta</span>
+            <button
+              type="button"
+              onClick={closeLeft}
+              aria-label="Cerrar filtros"
+              className="hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white-eske rounded"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="p-4 sm:p-0">
+            <GeoFilter
+              ambito={ambito}
+              selectedYear={displayYear}
+              availableYears={availableYears}
+              onConsultar={handleConsultar}
+            />
+          </div>
+        </div>
         <div className="flex flex-col items-center py-20 text-center" role="status">
           <p className="text-sm font-medium text-black-eske-10 mb-1">Sin datos para este filtro</p>
           <p className="text-xs text-black-eske-60 max-w-sm">
@@ -275,6 +314,12 @@ export default function HistoricoView() {
             Intenta con un filtro menos restrictivo.
           </p>
         </div>
+        <MobileBottomBar
+          leftOpen={leftOpen}
+          rightOpen={rightOpen}
+          onFiltros={() => { setLeftOpen((v) => !v); setRightOpen(false); }}
+          onAnalisis={() => { setRightOpen((v) => !v); setLeftOpen(false); }}
+        />
       </div>
     );
   }
@@ -295,14 +340,46 @@ export default function HistoricoView() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-      {/* Filtros */}
-      <GeoFilter
-        ambito={ambito}
-        selectedYear={displayYear}
-        availableYears={availableYears}
-        onConsultar={handleConsultar}
-      />
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8 pb-14 sm:pb-0">
+
+      {/* ── Overlay izquierdo — solo mobile ── */}
+      {leftOpen && (
+        <div
+          className="fixed inset-0 bg-black-eske/40 z-30 sm:hidden"
+          aria-hidden="true"
+          onClick={closeLeft}
+        />
+      )}
+
+      {/* ── Drawer izquierdo (filtros) ── */}
+      <div className={[
+        "fixed left-0 top-0 bottom-14 w-[min(85vw,320px)]",
+        "bg-white-eske overflow-y-auto z-40 shadow-xl",
+        "transition-transform duration-300 ease-in-out",
+        leftOpen ? "translate-x-0" : "-translate-x-full",
+        "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
+        "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
+      ].join(" ")}>
+        <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
+          <span className="text-sm font-semibold">Filtros de Consulta</span>
+          <button
+            type="button"
+            onClick={closeLeft}
+            aria-label="Cerrar filtros"
+            className="hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white-eske rounded"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="p-4 sm:p-0">
+          <GeoFilter
+            ambito={ambito}
+            selectedYear={displayYear}
+            availableYears={availableYears}
+            onConsultar={handleConsultar}
+          />
+        </div>
+      </div>
 
       {/* Estado de carga: spinner visible durante todo el proceso (isPending + isLoading) */}
       {busy ? (
@@ -400,17 +477,47 @@ export default function HistoricoView() {
 
             </div>
 
-            {/* Columna derecha: análisis textual */}
-            <div className="lg:sticky lg:top-24 mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-eske-20">
-              {!texts ? (
-                <div className="space-y-3">
-                  {[24, 80, 120, 100, 90, 80].map((h, i) => (
-                    <div key={i} className="rounded-md bg-gray-eske-10 animate-pulse" style={{ height: h }} />
-                  ))}
-                </div>
-              ) : (
-                <DynamicTextBlock texts={{ ...texts, alcance: subtituloConCorte }} />
-              )}
+            {/* Overlay derecho — solo mobile cuando está abierto */}
+            {rightOpen && (
+              <div
+                className="fixed inset-0 bg-black-eske/40 z-30 sm:hidden"
+                aria-hidden="true"
+                onClick={closeRight}
+              />
+            )}
+
+            {/* Drawer derecho / col2 desktop */}
+            <div className={[
+              "fixed right-0 top-0 bottom-14 w-[min(85vw,320px)]",
+              "bg-white-eske overflow-y-auto z-40 shadow-xl",
+              "transition-transform duration-300 ease-in-out",
+              rightOpen ? "translate-x-0" : "translate-x-full",
+              "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
+              "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
+              "lg:sticky lg:top-24 sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20",
+            ].join(" ")}>
+              <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
+                <span className="text-sm font-semibold">Análisis Textual</span>
+                <button
+                  type="button"
+                  onClick={closeRight}
+                  aria-label="Cerrar análisis"
+                  className="hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white-eske rounded"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="p-4 sm:p-0">
+                {!texts ? (
+                  <div className="space-y-3">
+                    {[24, 80, 120, 100, 90, 80].map((h, i) => (
+                      <div key={i} className="rounded-md bg-gray-eske-10 animate-pulse" style={{ height: h }} />
+                    ))}
+                  </div>
+                ) : (
+                  <DynamicTextBlock texts={{ ...texts, alcance: subtituloConCorte }} />
+                )}
+              </div>
             </div>
           </div>
 
@@ -427,6 +534,14 @@ export default function HistoricoView() {
 
       {/* Modal de metodología — renderizado sobre el layout */}
       {showMetodologia && <ModalMetodologia onClose={closeMetodologia} />}
+
+      {/* ── Barra inferior mobile ── */}
+      <MobileBottomBar
+        leftOpen={leftOpen}
+        rightOpen={rightOpen}
+        onFiltros={() => { setLeftOpen((v) => !v); setRightOpen(false); }}
+        onAnalisis={() => { setRightOpen((v) => !v); setLeftOpen(false); }}
+      />
     </div>
   );
 }

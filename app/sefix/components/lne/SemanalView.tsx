@@ -8,6 +8,8 @@ import {
   useRef,
   useMemo,
 } from "react";
+import { useEscapeKey } from "@/app/hooks/useEscapeKey";
+import MobileBottomBar from "./MobileBottomBar";
 import { useLneSemanal, useGeoTerritorios } from "@/app/sefix/hooks/useLneSemanal";
 import { useLneSemanalesSerie } from "@/app/sefix/hooks/useLneSemanalesSerie";
 import { useLneOrigenMatriz } from "@/app/sefix/hooks/useLneOrigenMatriz";
@@ -213,12 +215,14 @@ interface PanelProps {
   secciones?: string[];
   scopeLabel: string;
   queryVersion: number;
+  rightOpen: boolean;
+  onCloseRight: () => void;
 }
 
 // ──────────────────────────────────────────────
 // Sub-panel Edad
 // ──────────────────────────────────────────────
-function EdadPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion }: PanelProps) {
+function EdadPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion, rightOpen, onCloseRight }: PanelProps) {
   const { isLoading, error, data, fecha } =
     useLneSemanal("edad", ambito, undefined, entidad ?? null, queryVersion, cveDistrito, cveMunicipio, secciones);
   const { serie, isLoading: serieLoading } = useLneSemanalesSerie("edad", ambito, entidad, queryVersion, cveDistrito, cveMunicipio, secciones);
@@ -276,17 +280,47 @@ function EdadPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
           </ChartCard>
         </div>
 
-        {/* Columna lateral: análisis textual */}
-        <div className="mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-eske-20">
-          <SemanalTextBlock
-            tipo="edad"
-            ambito={ambito}
-            fecha={fecha}
-            data={data ?? {}}
-            serie={serie}
-            isLoading={isLoading}
-            scopeLabel={scopeLabel}
+        {/* Overlay derecho — solo mobile cuando está abierto */}
+        {rightOpen && (
+          <div
+            className="fixed inset-0 bg-black-eske/40 z-30 sm:hidden"
+            aria-hidden="true"
+            onClick={onCloseRight}
           />
+        )}
+
+        {/* Drawer derecho / col2 desktop */}
+        <div className={[
+          "fixed right-0 top-0 bottom-14 w-[min(85vw,320px)]",
+          "bg-white-eske overflow-y-auto z-40 shadow-xl",
+          "transition-transform duration-300 ease-in-out",
+          rightOpen ? "translate-x-0" : "translate-x-full",
+          "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
+          "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
+          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20",
+        ].join(" ")}>
+          <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
+            <span className="text-sm font-semibold">Análisis Textual</span>
+            <button
+              type="button"
+              onClick={onCloseRight}
+              aria-label="Cerrar análisis"
+              className="hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white-eske rounded"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="p-4 sm:p-0">
+            <SemanalTextBlock
+              tipo="edad"
+              ambito={ambito}
+              fecha={fecha}
+              data={data ?? {}}
+              serie={serie}
+              isLoading={isLoading}
+              scopeLabel={scopeLabel}
+            />
+          </div>
         </div>
       </div>
 
@@ -309,7 +343,7 @@ function EdadPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
 // ──────────────────────────────────────────────
 // Sub-panel Sexo
 // ──────────────────────────────────────────────
-function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion }: PanelProps) {
+function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion, rightOpen, onCloseRight }: PanelProps) {
   const {
     isLoading: loadingEdad,
     error: errorEdad,
@@ -378,17 +412,47 @@ function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
           </ChartCard>
         </div>
 
-        {/* Columna lateral */}
-        <div className="mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-eske-20">
-          <SemanalTextBlock
-            tipo="sexo"
-            ambito={ambito}
-            fecha={fecha}
-            data={dataSexo ?? {}}
-            dataEdad={dataEdad}
-            isLoading={loadingSexo}
-            scopeLabel={scopeLabel}
+        {/* Overlay derecho — solo mobile cuando está abierto */}
+        {rightOpen && (
+          <div
+            className="fixed inset-0 bg-black-eske/40 z-30 sm:hidden"
+            aria-hidden="true"
+            onClick={onCloseRight}
           />
+        )}
+
+        {/* Drawer derecho / col2 desktop */}
+        <div className={[
+          "fixed right-0 top-0 bottom-14 w-[min(85vw,320px)]",
+          "bg-white-eske overflow-y-auto z-40 shadow-xl",
+          "transition-transform duration-300 ease-in-out",
+          rightOpen ? "translate-x-0" : "translate-x-full",
+          "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
+          "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
+          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20",
+        ].join(" ")}>
+          <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
+            <span className="text-sm font-semibold">Análisis Textual</span>
+            <button
+              type="button"
+              onClick={onCloseRight}
+              aria-label="Cerrar análisis"
+              className="hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white-eske rounded"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="p-4 sm:p-0">
+            <SemanalTextBlock
+              tipo="sexo"
+              ambito={ambito}
+              fecha={fecha}
+              data={dataSexo ?? {}}
+              dataEdad={dataEdad}
+              isLoading={loadingSexo}
+              scopeLabel={scopeLabel}
+            />
+          </div>
         </div>
       </div>
 
@@ -411,7 +475,7 @@ function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
 // ──────────────────────────────────────────────
 // Sub-panel Origen
 // ──────────────────────────────────────────────
-function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion }: PanelProps) {
+function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scopeLabel, queryVersion, rightOpen, onCloseRight }: PanelProps) {
   const [topN, setTopN] = useState(5);
 
   // Matriz completa por_entidad para O1/O2
@@ -489,16 +553,46 @@ function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, sc
           </ChartCard>
         </div>
 
-        {/* Columna lateral */}
-        <div className="mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-gray-eske-20">
-          <SemanalTextBlock
-            tipo="origen"
-            ambito={ambito}
-            fecha={fecha}
-            data={isLoading ? {} : (data ?? {})}
-            isLoading={isLoading}
-            scopeLabel={scopeLabel}
+        {/* Overlay derecho — solo mobile cuando está abierto */}
+        {rightOpen && (
+          <div
+            className="fixed inset-0 bg-black-eske/40 z-30 sm:hidden"
+            aria-hidden="true"
+            onClick={onCloseRight}
           />
+        )}
+
+        {/* Drawer derecho / col2 desktop */}
+        <div className={[
+          "fixed right-0 top-0 bottom-14 w-[min(85vw,320px)]",
+          "bg-white-eske overflow-y-auto z-40 shadow-xl",
+          "transition-transform duration-300 ease-in-out",
+          rightOpen ? "translate-x-0" : "translate-x-full",
+          "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
+          "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
+          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20",
+        ].join(" ")}>
+          <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
+            <span className="text-sm font-semibold">Análisis Textual</span>
+            <button
+              type="button"
+              onClick={onCloseRight}
+              aria-label="Cerrar análisis"
+              className="hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white-eske rounded"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="p-4 sm:p-0">
+            <SemanalTextBlock
+              tipo="origen"
+              ambito={ambito}
+              fecha={fecha}
+              data={isLoading ? {} : (data ?? {})}
+              isLoading={isLoading}
+              scopeLabel={scopeLabel}
+            />
+          </div>
         </div>
       </div>
 
@@ -530,15 +624,11 @@ function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, sc
 // ──────────────────────────────────────────────
 interface FilterPanelProps {
   committedAmbito: Ambito;
-  desglose: SemanalDesglose;
-  onDesgloseChange: (d: SemanalDesglose) => void;
   onConsultar: (params: { ambito: Ambito; geoInfo: GeoInfo }) => void;
 }
 
 function SemanalFilterPanel({
   committedAmbito,
-  desglose,
-  onDesgloseChange,
   onConsultar,
 }: FilterPanelProps) {
   const [pendingAmbito, setPendingAmbito] = useState<Ambito>(committedAmbito);
@@ -663,7 +753,7 @@ function SemanalFilterPanel({
   return (
     <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
 
-      {/* Fila 1: Ámbito + Desglose + Indicador geo */}
+      {/* Fila 1: Ámbito + Indicador geo */}
       <div className="flex flex-wrap items-start sm:items-center gap-3 sm:gap-4">
 
         {/* Ámbito */}
@@ -685,24 +775,6 @@ function SemanalFilterPanel({
             ))}
           </div>
         </fieldset>
-
-        {/* Desglose */}
-        <div className="flex items-center gap-2">
-          {DESGLOSES.map((d) => (
-            <button
-              key={d.id}
-              onClick={() => onDesgloseChange(d.id)}
-              className={[
-                "px-3 py-1 text-xs font-medium rounded-full transition-colors border",
-                desglose === d.id
-                  ? "bg-blue-eske text-white-eske border-blue-eske"
-                  : "bg-white-eske text-black-eske-60 border-gray-eske-30 hover:border-blue-eske hover:text-blue-eske",
-              ].join(" ")}
-            >
-              {d.label}
-            </button>
-          ))}
-        </div>
 
         {/* Indicador de alcance */}
         <div className="flex items-center gap-1.5 ml-auto">
@@ -757,9 +829,11 @@ function SemanalFilterPanel({
               className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[200px]"
             >
               <option value="">Todos</option>
-              {distritos.map((d) => (
-                <option key={d.cve} value={d.cve}>{d.nombre}</option>
-              ))}
+              {distritos
+                .filter((d) => !d.nombre.toUpperCase().includes("RESIDENTES"))
+                .map((d) => (
+                  <option key={d.cve} value={d.cve}>{d.nombre}</option>
+                ))}
             </select>
           </div>
         )}
@@ -906,7 +980,7 @@ function SemanalFilterPanel({
             className="sm:ml-auto rounded-md px-3 py-2 text-xs text-black-eske sm:self-end"
             style={{ backgroundColor: "#bcd1e3" }}
           >
-            Los datos de Residentes en el Extranjero sólo están disponibles a nivel estatal.
+            Los datos de Residentes en el Extranjero sólo están disponibles a nivel nacional y estatal.
           </div>
         )}
       </div>
@@ -932,16 +1006,25 @@ export default function SemanalView() {
   const [geoInfo, setGeoInfo] = useState<GeoInfo>(DEFAULT_GEO_INFO);
   const [queryVersion, setQueryVersion] = useState(0);
 
+  // Estado de drawers mobile
+  const [leftOpen, setLeftOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
+
+  useEscapeKey(leftOpen, useCallback(() => setLeftOpen(false), []));
+  useEscapeKey(rightOpen, useCallback(() => setRightOpen(false), []));
+
   const handleConsultar = useCallback(
     ({ ambito: a, geoInfo: g }: { ambito: Ambito; geoInfo: GeoInfo }) => {
       setAmbito(a);
       setGeoInfo(g);
       setQueryVersion((v) => v + 1);
+      setLeftOpen(false);
     },
     [],
   );
 
   const scopeLabel = geoInfoToScopeLabel(geoInfo);
+  const onCloseRight = useCallback(() => setRightOpen(false), []);
 
   const panelProps: PanelProps = {
     ambito,
@@ -951,23 +1034,82 @@ export default function SemanalView() {
     secciones: geoInfo.secciones,
     scopeLabel,
     queryVersion,
+    rightOpen,
+    onCloseRight,
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-14 sm:pb-0">
 
-      {/* ── Panel de filtros + desglose ── */}
-      <SemanalFilterPanel
-        committedAmbito={ambito}
-        desglose={desglose}
-        onDesgloseChange={setDesglose}
-        onConsultar={handleConsultar}
-      />
+      {/* ── Overlay izquierdo — solo mobile ── */}
+      {leftOpen && (
+        <div
+          className="fixed inset-0 bg-black-eske/40 z-30 sm:hidden"
+          aria-hidden="true"
+          onClick={() => setLeftOpen(false)}
+        />
+      )}
+
+      {/* ── Drawer izquierdo (filtros) ── */}
+      <div className={[
+        "fixed left-0 top-0 bottom-14 w-[min(85vw,320px)]",
+        "bg-white-eske overflow-y-auto z-40 shadow-xl",
+        "transition-transform duration-300 ease-in-out",
+        leftOpen ? "translate-x-0" : "-translate-x-full",
+        "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
+        "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
+      ].join(" ")}>
+        <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
+          <span className="text-sm font-semibold">Filtros de Consulta</span>
+          <button
+            type="button"
+            onClick={() => setLeftOpen(false)}
+            aria-label="Cerrar filtros"
+            className="hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white-eske rounded"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="p-4 sm:p-0">
+          <SemanalFilterPanel
+            committedAmbito={ambito}
+            onConsultar={handleConsultar}
+          />
+        </div>
+      </div>
+
+      {/* ── Selector de categoría — siempre visible en una sola fila ── */}
+      <div className="flex items-center gap-1.5 overflow-x-auto">
+        {DESGLOSES.map((d) => (
+          <button
+            key={d.id}
+            type="button"
+            onClick={() => setDesglose(d.id)}
+            aria-pressed={desglose === d.id}
+            className={[
+              "px-2.5 py-0.5 text-[11px] font-medium rounded-full transition-colors border whitespace-nowrap shrink-0",
+              desglose === d.id
+                ? "bg-blue-eske text-white-eske border-blue-eske"
+                : "bg-white-eske text-black-eske-60 border-gray-eske-30 hover:border-blue-eske hover:text-blue-eske",
+            ].join(" ")}
+          >
+            {d.label}
+          </button>
+        ))}
+      </div>
 
       {/* ── Panel activo ── */}
       {desglose === "edad" && <EdadPanel   {...panelProps} />}
       {desglose === "sexo" && <SexoPanel   {...panelProps} />}
       {desglose === "origen" && <OrigenPanel {...panelProps} />}
+
+      {/* ── Barra inferior mobile ── */}
+      <MobileBottomBar
+        leftOpen={leftOpen}
+        rightOpen={rightOpen}
+        onFiltros={() => { setLeftOpen((v) => !v); setRightOpen(false); }}
+        onAnalisis={() => { setRightOpen((v) => !v); setLeftOpen(false); }}
+      />
     </div>
   );
 }

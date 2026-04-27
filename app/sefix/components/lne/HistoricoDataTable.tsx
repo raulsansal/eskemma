@@ -294,6 +294,11 @@ export default function HistoricoDataTable({ ambito, geoInfo, year }: Props) {
         </table>
       </div>
 
+      {/* Indicador de scroll horizontal */}
+      <p className="text-[11px] text-black-eske-60 text-center sm:hidden py-1">
+        ← Desliza horizontalmente para ver todas las columnas →
+      </p>
+
       {/* ── Pie: info + paginación ─────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-2.5 border-t border-gray-eske-20 bg-white-eske text-xs text-black-eske-60">
         <span>

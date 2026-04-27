@@ -260,12 +260,10 @@ export default function SemanalDataTable({
           </tbody>
         </table>
       </div>
-      {/* Indicador de scroll horizontal en mobile para tabla con muchas columnas */}
-      {tipo === "sexo" && (
-        <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
-          ← Desliza horizontalmente para ver todas las columnas →
-        </p>
-      )}
+      {/* Indicador de scroll horizontal */}
+      <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
+        ← Desliza horizontalmente para ver todas las columnas →
+      </p>
 
       {/* Paginación */}
       {!isLoading && (

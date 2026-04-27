@@ -361,9 +361,11 @@ export function O1HeatmapChart({ porEntidad, topN = 5, ambito = "nacional" }: He
   return (
     <div className="space-y-2">
       <HeatmapGrid matrix={matrix} palette={palette} dataKey="lne" />
-      <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
-        ← Desliza horizontalmente para ver todas las entidades →
-      </p>
+      {matrix.receptors.length > 1 && (
+        <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
+          ← Desliza horizontalmente para ver todas las entidades →
+        </p>
+      )}
       <p className="text-[10px] text-black-eske-60 leading-relaxed text-center">
         <strong>LN87</strong>: ciudadanos mexicanos nacidos en el extranjero (código especial INE).{" "}
         <strong>LN88</strong>: ciudadanos naturalizados mexicanos (código especial INE).
@@ -378,7 +380,7 @@ export function O1HeatmapChart({ porEntidad, topN = 5, ambito = "nacional" }: He
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          {showNota ? "Ocultar nota" : "¿Cómo leer esta tabla?"}
+          {showNota ? "Ocultar nota" : "¿Cómo leer esta gráfica?"}
         </button>
       </div>
       {showNota && (
@@ -451,9 +453,11 @@ export function O2PadronLneChart({ porEntidad, topN = 5, ambito = "nacional" }: 
         dataKey={vista}
         label={vistaLabel}
       />
-      <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
-        ← Desliza horizontalmente para ver todas las entidades →
-      </p>
+      {matrix.receptors.length > 1 && (
+        <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
+          ← Desliza horizontalmente para ver todas las entidades →
+        </p>
+      )}
 
       <div className="flex justify-center">
         <button
@@ -465,13 +469,13 @@ export function O2PadronLneChart({ porEntidad, topN = 5, ambito = "nacional" }: 
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          {showNota ? "Ocultar nota" : "¿Qué significan PAD87 / LN87?"}
+          {showNota ? "Ocultar nota" : "¿Qué significa PAD87-PAD88 / LN87-LN88?"}
         </button>
       </div>
       {showNota && (
         <p className="text-[10px] text-black-eske-60 leading-relaxed text-center bg-gray-eske-10 rounded-lg px-3 py-2 border border-gray-eske-20">
-          <strong>PAD87</strong> / <strong>LN87</strong>: ciudadanos mexicanos nacidos en el extranjero.{" "}
-          <strong>PAD88</strong> / <strong>LN88</strong>: ciudadanos naturalizados mexicanos.
+          <strong>PAD87 / LN87</strong>: Padrón o LNE de ciudadanos mexicanos nacidos en el extranjero.{" "}
+          <strong>PAD88 / LN88</strong>: Padrón o LNE de ciudadanos naturalizados mexicanos.
         </p>
       )}
     </div>
