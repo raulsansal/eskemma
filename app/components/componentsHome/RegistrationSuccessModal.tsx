@@ -34,11 +34,11 @@ export default function RegistrationSuccessModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="registration-success-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 dark:text-[#9AAEBE] hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar modal"
         >
@@ -65,10 +65,10 @@ export default function RegistrationSuccessModal({
         </h2>
 
         {/* Mensaje */}
-        <p className="text-[16px] max-sm:text-sm text-black-eske font-semibold text-center mb-6 max-sm:mb-4">
+        <p className="text-[16px] max-sm:text-sm text-black-eske dark:text-[#C7D6E0] font-semibold text-center mb-6 max-sm:mb-4">
           ¡Gracias por completar el Registro!
         </p>
-        <p className="text-[16px] max-sm:text-sm text-black-eske text-center mb-6 max-sm:mb-4">
+        <p className="text-[16px] max-sm:text-sm text-black-eske dark:text-[#C7D6E0] text-center mb-6 max-sm:mb-4">
           Ya puedes iniciar sesión y comenzar a explorar el ecosistema digital para tu proyecto político.
         </p>
 

@@ -51,20 +51,20 @@ export default function PhaseTransitionReview({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black-eske/50">
-      <div className="bg-white-eske rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="bg-white-eske dark:bg-[#18324A] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header con semáforo */}
         <div className={`px-6 py-5 rounded-t-2xl ${
-          integrityLevel === "green" ? "bg-green-50 border-b border-green-200" :
-          integrityLevel === "yellow" ? "bg-yellow-50 border-b border-yellow-200" :
-          "bg-red-50 border-b border-red-200"
+          integrityLevel === "green" ? "bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800" :
+          integrityLevel === "yellow" ? "bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800" :
+          "bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800"
         }`}>
           <div className="flex items-center gap-3">
             <IntegrityBadge level={integrityLevel} />
             <div>
-              <h2 className="font-bold text-gray-eske-80 text-lg">
+              <h2 className="font-bold text-gray-eske-80 dark:text-[#C7D6E0] text-lg">
                 Revisión de cierre — {PHASE_NAMES[phaseId]}
               </h2>
-              <p className="text-sm text-gray-eske-60 mt-0.5">
+              <p className="text-sm text-gray-eske-60 dark:text-[#9AAEBE] mt-0.5">
                 {integrityLevel === "green" && "La fase está lista para cerrar. Todo se ve sólido."}
                 {integrityLevel === "yellow" && "Hay observaciones pendientes. Puedes avanzar, pero revísalas."}
                 {integrityLevel === "red" && "Se detectaron riesgos críticos. Te recomiendo resolverlos antes de avanzar."}
@@ -77,10 +77,10 @@ export default function PhaseTransitionReview({
           {/* Completitud XPCTO */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-eske-70">Completitud del XPCTO</span>
-              <span className="text-sm font-bold text-gray-eske-80">{completionPct}%</span>
+              <span className="text-sm font-medium text-gray-eske-70 dark:text-[#9AAEBE]">Completitud del XPCTO</span>
+              <span className="text-sm font-bold text-gray-eske-80 dark:text-[#C7D6E0]">{completionPct}%</span>
             </div>
-            <div className="h-2 bg-gray-eske-20 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-eske-20 dark:bg-[#112230] rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${
                   completionPct === 100 ? "bg-green-500" :
@@ -91,7 +91,7 @@ export default function PhaseTransitionReview({
             </div>
             <div className="mt-2 grid grid-cols-2 gap-1">
               {xpctoFields.map((f) => (
-                <div key={f.key} className="flex items-center gap-1.5 text-xs text-gray-eske-60">
+                <div key={f.key} className="flex items-center gap-1.5 text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
                   {f.value && f.value.toString().trim().length > 0 ? (
                     <svg className="w-3.5 h-3.5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -110,7 +110,7 @@ export default function PhaseTransitionReview({
           {/* Riesgos detectados */}
           {hasRisks && (
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-eske-70">
+              <h3 className="text-sm font-semibold text-gray-eske-70 dark:text-[#9AAEBE]">
                 Señales detectadas por Moddulo
               </h3>
 
@@ -122,14 +122,14 @@ export default function PhaseTransitionReview({
               ))}
 
               {/* Checkbox de reconocimiento */}
-              <label className="flex items-start gap-3 cursor-pointer mt-3 p-3 bg-gray-eske-10 rounded-lg">
+              <label className="flex items-start gap-3 cursor-pointer mt-3 p-3 bg-gray-eske-10 dark:bg-[#112230] rounded-lg">
                 <input
                   type="checkbox"
                   checked={acknowledged}
                   onChange={(e) => setAcknowledged(e.target.checked)}
                   className="mt-0.5 w-4 h-4 accent-bluegreen-eske cursor-pointer"
                 />
-                <span className="text-xs text-gray-eske-60 leading-relaxed">
+                <span className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] leading-relaxed">
                   Entiendo las observaciones de Moddulo y decido avanzar de todas formas.
                   El consultor tiene soberanía sobre esta decisión.
                 </span>
@@ -139,11 +139,11 @@ export default function PhaseTransitionReview({
 
           {/* Siguiente fase */}
           {nextPhaseId && (
-            <div className="flex items-center gap-2 text-sm text-gray-eske-50 pt-1">
+            <div className="flex items-center gap-2 text-sm text-gray-eske-50 dark:text-[#9AAEBE] pt-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-              <span>Siguiente fase: <strong className="text-gray-eske-70">{PHASE_NAMES[nextPhaseId]}</strong></span>
+              <span>Siguiente fase: <strong className="text-gray-eske-70 dark:text-[#C7D6E0]">{PHASE_NAMES[nextPhaseId]}</strong></span>
             </div>
           )}
         </div>
@@ -153,7 +153,7 @@ export default function PhaseTransitionReview({
           <button
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1 py-2.5 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-sm font-medium hover:bg-gray-eske-10 transition-colors disabled:opacity-40"
+            className="flex-1 py-2.5 border border-gray-eske-20 dark:border-white/10 text-gray-eske-60 dark:text-[#9AAEBE] rounded-lg text-sm font-medium hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors disabled:opacity-40"
           >
             Seguir trabajando
           </button>
@@ -202,8 +202,8 @@ function RiskCard({ risk }: { risk: RiskSignal }) {
   return (
     <div className={`p-3 rounded-lg border text-sm ${
       isCritical
-        ? "bg-red-50 border-red-200"
-        : "bg-yellow-50 border-yellow-200"
+        ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+        : "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800"
     }`}>
       <div className="flex items-start gap-2">
         <span className={`text-xs font-bold uppercase tracking-wide mt-0.5 ${
@@ -212,10 +212,10 @@ function RiskCard({ risk }: { risk: RiskSignal }) {
           {isCritical ? "⚠ Crítico" : "○ Aviso"}
         </span>
       </div>
-      <p className={`font-semibold mt-0.5 ${isCritical ? "text-red-800" : "text-yellow-800"}`}>
+      <p className={`font-semibold mt-0.5 ${isCritical ? "text-red-800 dark:text-red-300" : "text-yellow-800 dark:text-yellow-300"}`}>
         {risk.title}
       </p>
-      <p className={`text-xs mt-1 leading-relaxed ${isCritical ? "text-red-700" : "text-yellow-700"}`}>
+      <p className={`text-xs mt-1 leading-relaxed ${isCritical ? "text-red-700 dark:text-red-400" : "text-yellow-700 dark:text-yellow-400"}`}>
         {risk.description}
       </p>
     </div>

@@ -23,7 +23,7 @@ const DIMENSION_LABELS: Record<string, string> = {
 const CLASSIFICATION_STYLES: Record<string, string> = {
   OPORTUNIDAD: "bg-green-eske/10 text-green-eske border border-green-eske/30",
   AMENAZA: "bg-red-eske/10 text-red-eske border border-red-eske/30",
-  NEUTRAL: "bg-gray-eske-20 text-gray-eske-60 border border-gray-eske-30",
+  NEUTRAL: "bg-gray-eske-20 dark:bg-[#21425E] text-gray-eske-60 dark:text-[#9AAEBE] border border-gray-eske-30 dark:border-white/10",
 };
 
 export default function ScorecardTable({ scorecard, dimensions }: Props) {
@@ -31,11 +31,11 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="border-b border-gray-eske-20">
-            <th className="text-left py-2 px-3 font-semibold text-black-eske">
+          <tr className="border-b border-gray-eske-20 dark:border-white/10">
+            <th className="text-left py-2 px-3 font-semibold text-black-eske dark:text-[#EAF2F8]">
               Dimensión
             </th>
-            <th className="text-left py-2 px-3 font-semibold text-black-eske">
+            <th className="text-left py-2 px-3 font-semibold text-black-eske dark:text-[#EAF2F8]">
               <span className="inline-flex items-center gap-1">
                 Señal
                 <InfoTooltip
@@ -44,7 +44,7 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                 />
               </span>
             </th>
-            <th className="text-center py-2 px-3 font-semibold text-black-eske">
+            <th className="text-center py-2 px-3 font-semibold text-black-eske dark:text-[#EAF2F8]">
               <span className="inline-flex items-center justify-center gap-1">
                 Tendencia
                 <InfoTooltip
@@ -53,7 +53,7 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                 />
               </span>
             </th>
-            <th className="text-center py-2 px-3 font-semibold text-black-eske">
+            <th className="text-center py-2 px-3 font-semibold text-black-eske dark:text-[#EAF2F8]">
               <span className="inline-flex items-center justify-center gap-1">
                 Clasificación
                 <InfoTooltip
@@ -62,7 +62,7 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                 />
               </span>
             </th>
-            <th className="text-center py-2 px-3 font-semibold text-black-eske">
+            <th className="text-center py-2 px-3 font-semibold text-black-eske dark:text-[#EAF2F8]">
               <span className="inline-flex items-center justify-center gap-1">
                 Confianza
                 <InfoTooltip
@@ -71,7 +71,7 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                 />
               </span>
             </th>
-            <th className="text-center py-2 px-3 font-semibold text-black-eske">
+            <th className="text-center py-2 px-3 font-semibold text-black-eske dark:text-[#EAF2F8]">
               <span className="inline-flex items-center justify-center gap-1">
                 Peso
                 <InfoTooltip
@@ -80,7 +80,7 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                 />
               </span>
             </th>
-            <th className="text-center py-2 px-3 font-semibold text-black-eske">
+            <th className="text-center py-2 px-3 font-semibold text-black-eske dark:text-[#EAF2F8]">
               <span className="inline-flex items-center justify-center gap-1">
                 Score
                 <InfoTooltip
@@ -98,9 +98,9 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
             return (
               <tr
                 key={ds.code}
-                className="border-b border-gray-eske-10 hover:bg-gray-eske-10/50"
+                className="border-b border-gray-eske-10 dark:border-white/10 hover:bg-gray-eske-10/50 dark:hover:bg-white/5"
               >
-                <td className="py-2.5 px-3 font-medium text-black-eske">
+                <td className="py-2.5 px-3 font-medium text-black-eske dark:text-[#EAF2F8]">
                   <span className="inline-flex items-center gap-1.5">
                     <span className="w-6 h-6 rounded-full bg-bluegreen-eske text-white text-xs font-bold flex items-center justify-center shrink-0">
                       {ds.code}
@@ -108,7 +108,7 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                     {DIMENSION_LABELS[ds.code]}
                   </span>
                 </td>
-                <td className="py-2.5 px-3 text-black-eske max-w-[200px]">
+                <td className="py-2.5 px-3 text-black-eske dark:text-[#C7D6E0] max-w-[200px]">
                   <span
                     className="block truncate"
                     title={dim.mainSignal}
@@ -128,10 +128,10 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                     {dim.classification}
                   </span>
                 </td>
-                <td className="py-2.5 px-3 text-center text-black-eske">
+                <td className="py-2.5 px-3 text-center text-black-eske dark:text-[#C7D6E0]">
                   {dim.confidence}%
                 </td>
-                <td className="py-2.5 px-3 text-center text-black-eske">
+                <td className="py-2.5 px-3 text-center text-black-eske dark:text-[#C7D6E0]">
                   {ds.dimWeight}
                 </td>
                 <td className="py-2.5 px-3 text-center">
@@ -142,10 +142,10 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
           })}
         </tbody>
         <tfoot>
-          <tr className="border-t-2 border-gray-eske-30 bg-gray-eske-10">
+          <tr className="border-t-2 border-gray-eske-30 dark:border-white/10 bg-gray-eske-10 dark:bg-[#112230]">
             <td
               colSpan={6}
-              className="py-3 px-3 font-semibold text-black-eske text-right"
+              className="py-3 px-3 font-semibold text-black-eske dark:text-[#EAF2F8] text-right"
             >
               <span className="inline-flex items-center justify-end gap-1">
                 Score global ponderado
@@ -160,7 +160,7 @@ export default function ScorecardTable({ scorecard, dimensions }: Props) {
                 className={`text-lg font-bold ${globalScoreColor(scorecard.globalScore)}`}
               >
                 {scorecard.globalScore}
-                <span className="text-sm font-normal text-black-eske">
+                <span className="text-sm font-normal text-black-eske dark:text-[#9AAEBE]">
                   /100
                 </span>
               </span>
@@ -176,9 +176,9 @@ function TrendBadge({ trend }: { trend: string }) {
   const map: Record<string, { label: string; color: string }> = {
     ASCENDENTE: { label: "↑ Asc.", color: "text-orange-eske" },
     DESCENDENTE: { label: "↓ Desc.", color: "text-bluegreen-eske" },
-    ESTABLE: { label: "→ Estable", color: "text-black-eske" },
+    ESTABLE: { label: "→ Estable", color: "text-black-eske dark:text-[#C7D6E0]" },
   };
-  const entry = map[trend] ?? { label: trend, color: "text-black-eske" };
+  const entry = map[trend] ?? { label: trend, color: "text-black-eske dark:text-[#C7D6E0]" };
   return (
     <span className={`text-xs font-medium ${entry.color}`}>{entry.label}</span>
   );
@@ -200,13 +200,13 @@ function ScoreBar({
 
   return (
     <div className="flex items-center gap-2 justify-center">
-      <div className="w-16 h-1.5 bg-gray-eske-20 rounded-full overflow-hidden">
+      <div className="w-16 h-1.5 bg-gray-eske-20 dark:bg-[#21425E] rounded-full overflow-hidden">
         <div
           className={`h-1.5 rounded-full ${color}`}
           style={{ width: `${Math.min(score, 100)}%` }}
         />
       </div>
-      <span className="text-xs font-semibold text-black-eske w-6 text-right">
+      <span className="text-xs font-semibold text-black-eske dark:text-[#C7D6E0] w-6 text-right">
         {score}
       </span>
     </div>

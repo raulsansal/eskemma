@@ -241,7 +241,7 @@ export default function InformesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] flex items-center justify-center">
         <div
           className="w-8 h-8 border-4 border-bluegreen-eske border-t-transparent
             rounded-full animate-spin"
@@ -253,8 +253,8 @@ export default function InformesPage() {
 
   if (loadError) {
     return (
-      <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center px-6">
-        <div className="bg-white-eske rounded-xl p-8 max-w-md text-center shadow-sm border border-gray-eske-20">
+      <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] flex items-center justify-center px-6">
+        <div className="bg-white-eske dark:bg-[#18324A] rounded-xl p-8 max-w-md text-center shadow-sm border border-gray-eske-20 dark:border-white/10">
           <p className="font-semibold text-red-eske">{loadError}</p>
           <button
             onClick={() => router.push("/monitor/centinela")}
@@ -268,7 +268,7 @@ export default function InformesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-eske-10">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* ── Header ── */}
       <div className="bg-bluegreen-eske text-white px-6 py-5">
         <div className="max-w-4xl mx-auto">
@@ -317,12 +317,12 @@ export default function InformesPage() {
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col gap-6">
         {/* ── Scorecard ── */}
         {scorecard && analysis && (
-          <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-eske-20">
-              <h2 className="font-semibold text-black-eske">
+          <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-eske-20 dark:border-white/10">
+              <h2 className="font-semibold text-black-eske dark:text-[#EAF2F8]">
                 Scorecard ponderado
               </h2>
-              <p className="text-xs text-black-eske mt-0.5">
+              <p className="text-xs text-black-eske dark:text-[#9AAEBE] mt-0.5">
                 Calculado con los pesos configurados en la Etapa 3
               </p>
             </div>
@@ -336,11 +336,11 @@ export default function InformesPage() {
         )}
 
         {/* ── Format selector ── */}
-        <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
-          <h2 className="font-semibold text-black-eske mb-1">
+        <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5">
+          <h2 className="font-semibold text-black-eske dark:text-[#EAF2F8] mb-1">
             Generar informe
           </h2>
-          <p className="text-xs text-black-eske mb-4">
+          <p className="text-xs text-black-eske dark:text-[#9AAEBE] mb-4">
             Selecciona el formato y Centinela generará el texto en tiempo real.
             Los informes ya generados se guardan en esta sesión.
           </p>
@@ -359,7 +359,7 @@ export default function InformesPage() {
                     "text-left transition-all",
                     isActive
                       ? "border-bluegreen-eske bg-bluegreen-eske/5 ring-1 ring-bluegreen-eske"
-                      : "border-gray-eske-20 hover:border-bluegreen-eske/40 hover:bg-gray-eske-10",
+                      : "border-gray-eske-20 dark:border-white/10 hover:border-bluegreen-eske/40 hover:bg-gray-eske-10 dark:hover:bg-white/5",
                     generating ? "opacity-50 cursor-not-allowed" : "",
                   ].join(" ")}
                 >
@@ -371,10 +371,10 @@ export default function InformesPage() {
                       ✓
                     </span>
                   )}
-                  <span className="font-medium text-sm text-black-eske pr-4">
+                  <span className="font-medium text-sm text-black-eske dark:text-[#EAF2F8] pr-4">
                     {opt.label}
                   </span>
-                  <span className="text-xs text-black-eske leading-snug">
+                  <span className="text-xs text-black-eske dark:text-[#9AAEBE] leading-snug">
                     {opt.description}
                   </span>
                 </button>
@@ -385,7 +385,7 @@ export default function InformesPage() {
 
         {/* ── Report viewer ── */}
         {(currentContent || generating) && (
-          <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5 flex flex-col gap-3">
+          <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5 flex flex-col gap-3">
             {/* Toolbar */}
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
@@ -400,7 +400,7 @@ export default function InformesPage() {
                   </span>
                 )}
                 {!generating && activeFormat && (
-                  <span className="text-xs font-medium text-black-eske">
+                  <span className="text-xs font-medium text-black-eske dark:text-[#C7D6E0]">
                     {FORMAT_OPTIONS.find((f) => f.id === activeFormat)?.label}{" "}
                     — listo
                   </span>
@@ -411,8 +411,9 @@ export default function InformesPage() {
                   type="button"
                   onClick={handleCopy}
                   disabled={!currentContent || generating}
-                  className="px-3 py-1.5 text-xs border border-gray-eske-20 rounded-lg
-                    hover:bg-gray-eske-10 disabled:opacity-40 transition-colors"
+                  className="px-3 py-1.5 text-xs border border-gray-eske-20 dark:border-white/10 rounded-lg
+                    hover:bg-gray-eske-10 dark:hover:bg-white/5 disabled:opacity-40 transition-colors
+                    text-black-eske dark:text-[#C7D6E0]"
                 >
                   {copyLabel}
                 </button>
@@ -422,8 +423,9 @@ export default function InformesPage() {
                     activeFormat && handleGenerate(activeFormat, true)
                   }
                   disabled={generating || !activeFormat}
-                  className="px-3 py-1.5 text-xs border border-gray-eske-20 rounded-lg
-                    hover:bg-gray-eske-10 disabled:opacity-40 transition-colors"
+                  className="px-3 py-1.5 text-xs border border-gray-eske-20 dark:border-white/10 rounded-lg
+                    hover:bg-gray-eske-10 dark:hover:bg-white/5 disabled:opacity-40 transition-colors
+                    text-black-eske dark:text-[#C7D6E0]"
                 >
                   Regenerar
                 </button>
@@ -458,8 +460,8 @@ export default function InformesPage() {
 
         {/* ── Generate error ── */}
         {generateError && (
-          <div className="bg-red-50 border border-red-eske/20 rounded-xl p-4">
-            <p className="text-sm text-red-eske font-medium">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-eske/20 dark:border-red-700/40 rounded-xl p-4">
+            <p className="text-sm text-red-eske dark:text-red-300 font-medium">
               Error al generar el informe
             </p>
             <p className="text-sm text-red-eske/80 mt-1">{generateError}</p>

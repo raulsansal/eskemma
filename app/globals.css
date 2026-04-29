@@ -2,16 +2,72 @@
 @import "tailwindcss";
 @import "./markdown-content.css";
 
+/* Dark mode via .dark class on <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f7fafb;
   --foreground: #2b2b2b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #865353;
-    --foreground: #ededed;
-  }
+/* ── Dark mode tokens — derivados del sistema Eskemma ── */
+.dark,
+[data-theme="dark"] {
+  /* Surfaces (jerarquía L0-L4) */
+  --background: #0B1620;
+  --surface-1: #112230;
+  --surface-2: #18324A;
+  --surface-3: #21425E;
+  --surface-4: #2C5273;
+
+  /* Mapeo de colores light a dark para componentes específicos */
+  --color-red-eske-70: var(--surface-5);
+  /* #005378 light → #112230 dark */
+
+  /* Borders */
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-glass: rgba(83, 178, 224, 0.22);
+  --border-focus: rgba(83, 178, 224, 0.55);
+
+  /* Text */
+  --foreground: #EAF2F8;
+  --text-hi: #EAF2F8;
+  --text: #C7D6E0;
+  --text-mid: #9AAEBE;
+  --text-low: #6D8294;
+  --text-disabled: #4F6473;
+
+  /* Brand — sube +1 step para mejor contraste sobre oscuro */
+  --color-brand-primary: var(--color-blue-eske-40);
+  /* #53b2e0 */
+  --color-brand-primary-hover: var(--color-blue-eske-30);
+  /* #6fc3ec */
+  --color-brand-secondary: var(--color-bluegreen-eske-40);
+  /* #4791b3 */
+  --color-brand-secondary-hover: var(--color-bluegreen-eske-30);
+  /* #6ba4c6 */
+  --color-brand-emphasis: var(--color-orange-eske-20);
+  /* #ff924d */
+
+  /* Semánticos */
+  --color-success: var(--color-green-eske-30);
+  /* #99c374 */
+  --color-success-soft: rgba(153, 195, 116, 0.14);
+  --color-warning: var(--color-yellow-eske-40);
+  /* #ffdf70 */
+  --color-warning-soft: rgba(255, 223, 112, 0.14);
+  --color-danger: var(--color-red-eske-20);
+  /* #f15f8e */
+  --color-danger-soft: rgba(241, 95, 142, 0.14);
+  --color-info: var(--color-blue-eske-40);
+  /* #53b2e0 */
+  --color-info-soft: rgba(83, 178, 224, 0.14);
+
+  /* Focus */
+  --color-focus-ring: var(--color-blue-eske-30);
+  /* #6fc3ec */
 }
 
 @theme {
@@ -104,6 +160,7 @@
 }
 
 @layer base {
+
   html,
   body {
     max-width: 100vw;
@@ -111,9 +168,10 @@
   }
 
   body {
-    color: #2b2b2b;
-    background: #f7fafb;
-    font-family: var(--font-arimo), sans-serif; /* Arimo como fuente primaria */
+    color: var(--foreground);
+    background: var(--background);
+    font-family: var(--font-arimo), sans-serif;
+    /* Arimo como fuente primaria */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -124,12 +182,15 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-arimo), sans-serif; /* Arimo para encabezados */
+    font-family: var(--font-arimo), sans-serif;
+    /* Arimo para encabezados */
   }
 
   .caption {
-    font-family: var(--font-pt-sans), sans-serif; /* PT Sans para captions */
-    font-size: 0.75rem; /* Tamaño pequeño para captions (12px) */
+    font-family: var(--font-pt-sans), sans-serif;
+    /* PT Sans para captions */
+    font-size: 0.75rem;
+    /* Tamaño pequeño para captions (12px) */
   }
 
   html {
@@ -172,10 +233,8 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+.dark {
+  color-scheme: dark;
 }
 
 /* css para animación de modal de tabla de moderación de comentarios */
@@ -185,6 +244,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -260,6 +320,7 @@
    Solo se muestran con navegación por teclado
    ======================================== */
 @layer utilities {
+
   /* CORREGIDO: focus → focus-visible para evitar anillos al hacer clic con mouse */
   .focus-ring-primary {
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske focus-visible:ring-offset-2;
@@ -291,7 +352,8 @@ textarea:focus-visible,
 
 /* Mejorar contraste de gray-eske-60 para cumplir WCAG AA */
 @theme {
-  --color-gray-eske-60: #9a9a9a; /* Cambiado de #b8b8b8 para mejor contraste (4.6:1) */
+  --color-gray-eske-60: #9a9a9a;
+  /* Cambiado de #b8b8b8 para mejor contraste (4.6:1) */
 }
 
 /* ============================================
@@ -304,6 +366,7 @@ textarea:focus-visible,
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);

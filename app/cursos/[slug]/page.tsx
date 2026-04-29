@@ -27,9 +27,9 @@ export default function CursoPage() {
   
   if (!course) {
     return (
-      <main className="min-h-screen bg-white-eske flex items-center justify-center">
+      <main className="min-h-screen bg-white-eske dark:bg-[#0B1620] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-eske-80 mb-4">
+          <h1 className="text-2xl font-bold text-gray-eske-80 dark:text-[#EAF2F8] mb-4">
             Curso no encontrado
           </h1>
           <Link href="/cursos" className="text-bluegreen-eske hover:underline">
@@ -53,7 +53,7 @@ export default function CursoPage() {
   // Si es el taller de diagnóstico, mostrar el contenido completo
   if (slug === "taller-diagnostico-electoral") {
     return (
-      <main className="min-h-screen bg-white-eske">
+      <main className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
         {/* Hero Section — Diseño Optimizado */}
         <section className="relative bg-bluegreen-eske text-white py-12 md:py-20 px-4 overflow-hidden">
           {/* Overlay sutil para profundidad */}
@@ -158,22 +158,22 @@ export default function CursoPage() {
         </section>
 
         {/* Características */}
-        <section className="py-16 px-4 bg-gray-eske-10">
+        <section className="py-16 px-4 bg-gray-eske-10 dark:bg-[#112230]">
           <div className="w-[90%] mx-auto max-w-7xl">
-            <h2 className="text-3xl font-bold text-center mb-12">
+            <h2 className="text-3xl font-bold text-center mb-12 dark:text-[#EAF2F8]">
               ¿Qué aprenderás en este taller?
             </h2>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {course.hero.features.map((feature: string, index: number) => (
-                <div key={index} className="bg-white-eske p-6 rounded-lg shadow-md">
+                <div key={index} className="bg-white-eske dark:bg-[#18324A] p-6 rounded-lg shadow-md">
                   <div className="w-12 h-12 bg-bluegreen-eske/10 rounded-lg flex items-center justify-center mb-4">
                     <svg className="w-6 h-6 text-bluegreen-eske" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">{feature}</h3>
-                  <p className="text-black-eske font-normal">
+                  <h3 className="text-xl font-semibold mb-2 dark:text-[#EAF2F8]">{feature}</h3>
+                  <p className="text-black-eske dark:text-[#C7D6E0] font-normal">
                     {index === 0 && "Sube tus propios datasets y trabaja con ellos durante todo el taller."}
                     {index === 1 && "Ejercicios con código real que puedes ejecutar directamente en el navegador."}
                     {index === 2 && "Conecta con APIs de Twitter, Google Civic Info y datos públicos."}
@@ -188,30 +188,30 @@ export default function CursoPage() {
         {/* Módulos del taller */}
         <section className="py-16 px-4">
           <div className="w-[90%] mx-auto max-w-7xl">
-            <h2 className="text-3xl font-bold text-center mb-4">
+            <h2 className="text-3xl font-bold text-center mb-4 dark:text-[#EAF2F8]">
               Estructura del taller
             </h2>
-            <p className="text-center text-black-eske font-normal mb-12 max-w-2xl mx-auto">
+            <p className="text-center text-black-eske dark:text-[#C7D6E0] font-normal mb-12 max-w-2xl mx-auto">
               6 módulos diseñados para llevarte desde los fundamentos hasta la práctica avanzada del diagnóstico electoral.
             </p>
             
             <div className="space-y-6">
               {course.modules.map((module: any, index: number) => (
-                <div key={module.id} className="border border-gray-eske-30 rounded-lg overflow-hidden">
-                  <div className="bg-gray-eske-10 p-4 flex items-center justify-between">
+                <div key={module.id} className="border border-gray-eske-30 dark:border-white/10 rounded-lg overflow-hidden">
+                  <div className="bg-gray-eske-10 dark:bg-[#21425E] p-4 flex items-center justify-between">
                     <div>
-                      <span className="text-sm text-black-eske font-normal">Módulo {index + 1}</span>
-                      <h3 className="text-xl font-semibold">{module.title}</h3>
-                      <p className="text-black-eske text-sm mt-1 font-normal">{module.description}</p>
+                      <span className="text-sm text-black-eske dark:text-[#9AAEBE] font-normal">Módulo {index + 1}</span>
+                      <h3 className="text-xl font-semibold dark:text-[#EAF2F8]">{module.title}</h3>
+                      <p className="text-black-eske dark:text-[#C7D6E0] text-sm mt-1 font-normal">{module.description}</p>
                     </div>
-                    <div className="text-sm text-black-eske font-normal">
+                    <div className="text-sm text-black-eske dark:text-[#9AAEBE] font-normal">
                       {module.sessions.length} sesiones · {Math.round(module.estimatedDuration / 60)}h
                     </div>
                   </div>
-                  <div className="p-4 bg-white-eske">
+                  <div className="p-4 bg-white-eske dark:bg-[#18324A]">
                     <div className="grid md:grid-cols-2 gap-2">
                       {module.sessions.map((session: any) => (
-                        <div key={session.id} className="text-sm text-black-eske font-normal flex items-center gap-2">
+                        <div key={session.id} className="text-sm text-black-eske dark:text-[#C7D6E0] font-normal flex items-center gap-2">
                           <span className="w-1.5 h-1.5 bg-bluegreen-eske rounded-full"></span>
                           {session.title}
                         </div>
@@ -260,7 +260,7 @@ export default function CursoPage() {
     <main className="min-h-screen bg-white-eske">
       <div className="w-[90%] mx-auto max-w-7xl py-16">
         <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
-        <p className="text-lg text-black-eske font-normal">{course.description}</p>
+        <p className="text-lg text-black-eske dark:text-[#C7D6E0] font-normal">{course.description}</p>
         {/* Template para otros cursos */}
       </div>
     </main>

@@ -90,7 +90,7 @@ export default function NuevoProyectoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-eske-10">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* Header */}
       <div className="bg-bluegreen-eske text-white px-6 py-5">
         <div className="max-w-3xl mx-auto">
@@ -121,7 +121,7 @@ export default function NuevoProyectoPage() {
                       ? "bg-bluegreen-eske text-white"
                       : idx === step
                       ? "bg-bluegreen-eske text-white ring-4 ring-bluegreen-eske/20"
-                      : "bg-gray-eske-20 text-gray-eske-70",
+                      : "bg-gray-eske-20 dark:bg-[#21425E] text-gray-eske-70 dark:text-[#9AAEBE]",
                   ].join(" ")}
                 >
                   {idx < step ? "✓" : idx + 1}
@@ -129,7 +129,7 @@ export default function NuevoProyectoPage() {
                 <span
                   className={[
                     "text-sm font-medium hidden sm:block",
-                    idx <= step ? "text-bluegreen-eske" : "text-gray-eske-60",
+                    idx <= step ? "text-bluegreen-eske dark:text-[#6BA4C6]" : "text-gray-eske-60 dark:text-[#9AAEBE]",
                   ].join(" ")}
                 >
                   {label}
@@ -139,7 +139,7 @@ export default function NuevoProyectoPage() {
                 <div
                   className={[
                     "flex-1 h-0.5 mx-3",
-                    idx < step ? "bg-bluegreen-eske" : "bg-gray-eske-20",
+                    idx < step ? "bg-bluegreen-eske" : "bg-gray-eske-20 dark:bg-[#21425E]",
                   ].join(" ")}
                 />
               )}
@@ -176,7 +176,7 @@ export default function NuevoProyectoPage() {
         )}
 
         {error && (
-          <p className="mt-4 text-sm text-red-eske bg-red-50 px-4 py-2 rounded-lg">
+          <p className="mt-4 text-sm text-red-eske dark:text-red-300 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
             {error}
           </p>
         )}

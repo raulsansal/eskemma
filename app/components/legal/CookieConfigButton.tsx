@@ -44,7 +44,7 @@ export default function CookieConfigButton({
   const buttonStyles = {
     default: "px-6 max-sm:px-4 py-3 max-sm:py-2 bg-bluegreen-eske text-white-eske rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-colors duration-300 text-[15px] max-sm:text-[14px] shadow-md hover:shadow-lg focus-ring-primary",
     compact: "px-4 max-sm:px-3 py-2 max-sm:py-1.5 bg-bluegreen-eske text-white-eske rounded-lg font-medium hover:bg-bluegreen-eske-70 transition-colors duration-300 text-[14px] max-sm:text-[13px] focus-ring-primary",
-    light: "px-6 max-sm:px-4 py-3 max-sm:py-2 bg-white-eske text-bluegreen-eske rounded-lg font-bold hover:bg-gray-eske-10 transition-colors duration-300 text-[15px] max-sm:text-[14px] shadow-lg hover:shadow-xl focus-ring-primary border-2 border-bluegreen-eske"
+    light: "px-6 max-sm:px-4 py-3 max-sm:py-2 bg-white-eske dark:bg-[#18324A] text-bluegreen-eske rounded-lg font-bold hover:bg-gray-eske-10 transition-colors duration-300 text-[15px] max-sm:text-[14px] shadow-lg hover:shadow-xl focus-ring-primary border-2 border-bluegreen-eske dark:border-[#4791B3]"
   };
 
   return (

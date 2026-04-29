@@ -30,9 +30,9 @@ const CLASSIFICATION_STYLES: Record<
     badge: "bg-red-eske/10 text-red-eske border border-red-eske/30",
   },
   NEUTRAL: {
-    bg: "bg-gray-eske-10 border-gray-eske-20",
-    text: "text-gray-eske-60",
-    badge: "bg-gray-eske-20 text-gray-eske-60 border border-gray-eske-30",
+    bg: "bg-gray-eske-10 dark:bg-[#21425E] border-gray-eske-20 dark:border-white/10",
+    text: "text-gray-eske-60 dark:text-[#9AAEBE]",
+    badge: "bg-gray-eske-20 dark:bg-[#112230] text-gray-eske-60 dark:text-[#9AAEBE] border border-gray-eske-30 dark:border-white/10",
   },
 };
 
@@ -51,7 +51,7 @@ const INTENSITY_LABELS: Record<string, string> = {
 export default function DimensionStatusGrid({ dimensions }: Props) {
   if (!dimensions || dimensions.length === 0) {
     return (
-      <p className="text-sm text-black-eske">
+      <p className="text-sm text-black-eske dark:text-[#9AAEBE]">
         No hay datos de dimensiones disponibles.
       </p>
     );
@@ -85,13 +85,13 @@ export default function DimensionStatusGrid({ dimensions }: Props) {
             </div>
 
             {/* Dimension name */}
-            <p className="text-xs font-semibold text-black-eske leading-tight">
+            <p className="text-xs font-semibold text-black-eske dark:text-[#EAF2F8] leading-tight">
               {DIMENSION_LABELS[dim.code] ?? dim.code}
             </p>
 
             {/* Signal */}
             <p
-              className="text-xs text-black-eske leading-snug line-clamp-2"
+              className="text-xs text-black-eske dark:text-[#C7D6E0] leading-snug line-clamp-2"
               title={dim.mainSignal}
             >
               {dim.mainSignal}
@@ -100,12 +100,12 @@ export default function DimensionStatusGrid({ dimensions }: Props) {
             {/* Confidence bar */}
             <div className="flex flex-col gap-0.5">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-black-eske">Confianza</span>
+                <span className="text-xs text-black-eske dark:text-[#9AAEBE]">Confianza</span>
                 <span className={`text-xs font-semibold ${styles.text}`}>
                   {dim.confidence}%
                 </span>
               </div>
-              <div className="h-1 bg-gray-eske-20 rounded-full overflow-hidden">
+              <div className="h-1 bg-gray-eske-20 dark:bg-[#112230] rounded-full overflow-hidden">
                 <div
                   className={`h-1 rounded-full ${
                     dim.classification === "OPORTUNIDAD"
@@ -120,7 +120,7 @@ export default function DimensionStatusGrid({ dimensions }: Props) {
             </div>
 
             {/* Trend + Intensity */}
-            <div className="flex items-center justify-between text-xs text-black-eske pt-0.5">
+            <div className="flex items-center justify-between text-xs text-black-eske dark:text-[#9AAEBE] pt-0.5">
               <span>
                 <span className={styles.text}>
                   {TREND_ICONS[dim.trend] ?? "→"}

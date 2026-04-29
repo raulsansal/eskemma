@@ -62,7 +62,7 @@ export default function OnboardingModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="onboarding-modal-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
       >
         {/* Botón de Cierre */}
         <button
@@ -88,20 +88,20 @@ export default function OnboardingModal({
         </button>
 
         {/* Título Personalizado */}
-        <h2 id="onboarding-modal-title" className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske text-center mb-6 max-sm:mb-4">
+        <h2 id="onboarding-modal-title" className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske dark:text-[#6BA4C6] text-center mb-6 max-sm:mb-4">
           ¡Hola, {userName}!
         </h2>
 
         {/* Mensaje de Introducción */}
-        <p className="text-[18px] max-sm:text-base text-black-eske text-center mb-6 max-sm:mb-4">
+        <p className="text-[18px] max-sm:text-base text-black-eske dark:text-[#C7D6E0] text-center mb-6 max-sm:mb-4">
           Te damos la bienvenida a{" "}<br></br>
           <span className="text-blue-eske font-bold">Eskemma</span> <br></br>{" "}
-          <span className="text-center text-[13px] max-sm:text-xs text-bluegreen-eske font-semibold">
+          <span className="text-center text-[13px] max-sm:text-xs text-bluegreen-eske dark:text-[#6BA4C6] font-semibold">
             El ecosistema digital para tu proyecto político
           </span>
         </p>
 
-        <p className="text-[16px] max-sm:text-sm text-black-eske text-center mb-6 max-sm:mb-4">
+        <p className="text-[16px] max-sm:text-sm text-black-eske dark:text-[#C7D6E0] text-center mb-6 max-sm:mb-4">
           Aquí tienes nuestras sugerencias para comenzar:
         </p>
 
@@ -134,7 +134,7 @@ export default function OnboardingModal({
             className="mr-2 w-4 h-4 focus-ring-primary"
             aria-describedby="show-onboarding-description"
           />
-          <label htmlFor="showOnLogin" className="text-[14px] max-sm:text-xs text-black-eske cursor-pointer">
+          <label htmlFor="showOnLogin" className="text-[14px] max-sm:text-xs text-black-eske dark:text-[#C7D6E0] cursor-pointer">
             Mostrar este mensaje al iniciar sesión
           </label>
         </div>

@@ -78,12 +78,12 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
     ]);
 
     return (
-      <main className="min-h-screen bg-white-eske">
+      <main className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
         {/* Hero Section — Unificado con Moddulo/Monitor */}
         <CoursesHeroSection />
 
         {/* Sección de Contenido con Sidebar — Unificado con Blog */}
-        <section className="bg-gray-eske-10 py-12 px-4 sm:px-6 md:px-8 min-h-screen">
+        <section className="bg-gray-eske-10 dark:bg-[#112230] py-12 px-4 sm:px-6 md:px-8 min-h-screen">
           <div className="w-[90%] mx-auto max-w-7xl">
             
             {/* Layout Principal: 2 columnas */}
@@ -105,7 +105,7 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
                 {/* Resumen de resultados */}
                 <div className="mb-8 text-center sm:text-left flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                   <div>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 dark:text-[#9AAEBE] text-sm">
                       Explora <span className="font-semibold text-bluegreen-eske">{totalCourses}</span> cursos disponibles
                     </p>
                   </div>
@@ -154,7 +154,7 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-2">¡Ups! Algo salió mal</h2>
-          <p className="text-gray-600">No pudimos cargar los cursos en este momento.</p>
+          <p className="text-gray-600 dark:text-[#9AAEBE]">No pudimos cargar los cursos en este momento.</p>
           <button 
             onClick={() => window.location.reload()}
             className="mt-4 px-6 py-2 bg-bluegreen-eske text-white rounded-lg"

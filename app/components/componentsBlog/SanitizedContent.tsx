@@ -110,9 +110,9 @@ export default function SanitizedContent({
         aria-label="Cargando contenido del artículo"
       >
         <span className="sr-only">Cargando contenido...</span>
-        <div className="h-4 bg-gray-eske-20 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-eske-20 rounded w-5/6 mb-2"></div>
-        <div className="h-4 bg-gray-eske-20 rounded w-4/6"></div>
+        <div className="h-4 bg-gray-eske-20 dark:bg-[#21425E] rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-eske-20 dark:bg-[#21425E] rounded w-5/6 mb-2"></div>
+        <div className="h-4 bg-gray-eske-20 dark:bg-[#21425E] rounded w-4/6"></div>
       </div>
     );
   }

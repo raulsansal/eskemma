@@ -36,7 +36,7 @@ const tocItems: TocItem[] = [
 
 export default function PoliticaDeCookiesPage() {
   return (
-    <div className="min-h-screen bg-white-eske">
+    <div className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
       {/* Hero Section */}
       <LegalHero
         title="Política de Cookies"
@@ -46,13 +46,13 @@ export default function PoliticaDeCookiesPage() {
 
       <div className="w-[90%] max-w-screen-xl mx-auto py-12">
         {/* Botón de Configuración Rápida */}
-        <div className="mb-12 p-6 bg-bluegreen-eske-10 border-2 border-bluegreen-eske rounded-lg">
+        <div className="mb-12 p-6 bg-bluegreen-eske-10 dark:bg-[#112230] border-2 border-bluegreen-eske dark:border-[#4791B3] rounded-lg">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex-1">
               <h3 className="text-[18px] font-bold text-bluegreen-eske mb-2">
                 Configuración de Cookies
               </h3>
-              <p className="text-[14px] text-black-eske-20">
+              <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                 Puedes cambiar tus preferencias de cookies en cualquier momento.
                 Haz clic en el botón para abrir el panel de configuración.
               </p>
@@ -82,8 +82,8 @@ export default function PoliticaDeCookiesPage() {
                 visitando (cookies propias) o por terceros que ofrecen servicios
                 al sitio web (cookies de terceros).
               </p>
-              <div className="bg-gray-eske-10 p-4 rounded-lg border-l-4 border-bluegreen-eske">
-                <p className="text-[14px] text-black-eske-20">
+              <div className="bg-gray-eske-10 dark:bg-[#112230] p-4 rounded-lg border-l-4 border-bluegreen-eske">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                   <strong className="text-bluegreen-eske">
                     💡 Importante:
                   </strong>{" "}
@@ -106,39 +106,39 @@ export default function PoliticaDeCookiesPage() {
               </p>
 
               <div className="space-y-4 mb-6">
-                <div className="flex items-start gap-3 p-4 bg-green-eske-10 border-2 border-green-eske rounded-lg">
+                <div className="flex items-start gap-3 p-4 bg-green-eske-10 dark:bg-green-900/20 border-2 border-green-eske dark:border-green-700 rounded-lg">
                   <span className="text-2xl flex-shrink-0">🔒</span>
                   <div>
-                    <h4 className="font-bold text-[16px] text-black-eske mb-1">
+                    <h4 className="font-bold text-[16px] text-black-eske dark:text-[#EAF2F8] mb-1">
                       Cookies Esenciales
                     </h4>
-                    <p className="text-[14px] text-black-eske-20">
+                    <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                       Necesarias para el funcionamiento básico del sitio. No se
                       pueden desactivar.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 bg-gray-eske-10 border-2 border-gray-eske-40 rounded-lg">
+                <div className="flex items-start gap-3 p-4 bg-gray-eske-10 dark:bg-[#21425E] border-2 border-gray-eske-40 dark:border-white/10 rounded-lg">
                   <span className="text-2xl flex-shrink-0">📈</span>
                   <div>
-                    <h4 className="font-bold text-[16px] text-black-eske mb-1">
+                    <h4 className="font-bold text-[16px] text-black-eske dark:text-[#EAF2F8] mb-1">
                       Cookies Analíticas
                     </h4>
-                    <p className="text-[14px] text-black-eske-20">
+                    <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                       Nos ayudan a entender cómo usas el sitio para mejorarlo.
                       Totalmente opcionales.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 bg-gray-eske-10 border-2 border-gray-eske-40 rounded-lg">
+                <div className="flex items-start gap-3 p-4 bg-gray-eske-10 dark:bg-[#21425E] border-2 border-gray-eske-40 dark:border-white/10 rounded-lg">
                   <span className="text-2xl flex-shrink-0">📢</span>
                   <div>
-                    <h4 className="font-bold text-[16px] text-black-eske mb-1">
+                    <h4 className="font-bold text-[16px] text-black-eske dark:text-[#EAF2F8] mb-1">
                       Cookies de Marketing
                     </h4>
-                    <p className="text-[14px] text-black-eske-20">
+                    <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                       Permiten mostrarte anuncios relevantes en otras
                       plataformas. Totalmente opcionales.
                     </p>
@@ -177,7 +177,7 @@ export default function PoliticaDeCookiesPage() {
                   </thead>
                   <tbody>
                     <tr className="border-b border-gray-eske-40">
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         session_token
                       </td>
                       <td className="p-3 text-[14px]">
@@ -186,7 +186,7 @@ export default function PoliticaDeCookiesPage() {
                       <td className="p-3 text-[14px]">7 días</td>
                     </tr>
                     <tr className="border-b border-gray-eske-40">
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         csrf_token
                       </td>
                       <td className="p-3 text-[14px]">
@@ -196,7 +196,7 @@ export default function PoliticaDeCookiesPage() {
                       <td className="p-3 text-[14px]">Sesión</td>
                     </tr>
                     <tr className="border-b border-gray-eske-40">
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         cookie_consent
                       </td>
                       <td className="p-3 text-[14px]">
@@ -205,7 +205,7 @@ export default function PoliticaDeCookiesPage() {
                       <td className="p-3 text-[14px]">1 año</td>
                     </tr>
                     <tr>
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         language_preference
                       </td>
                       <td className="p-3 text-[14px]">
@@ -217,8 +217,8 @@ export default function PoliticaDeCookiesPage() {
                 </table>
               </div>
 
-              <div className="bg-green-eske-10 p-4 rounded-lg border-l-4 border-green-eske">
-                <p className="text-[14px] text-black-eske-20">
+              <div className="bg-green-eske-10 dark:bg-green-900/20 p-4 rounded-lg border-l-4 border-green-eske dark:border-green-700">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                   <strong className="text-green-eske-70">
                     Siempre Activas:
                   </strong>{" "}
@@ -245,7 +245,7 @@ export default function PoliticaDeCookiesPage() {
 
               <div className="overflow-x-auto mb-6">
                 <table className="w-full border-2 border-gray-eske-40 rounded-lg overflow-hidden">
-                  <thead className="bg-bluegreen-eske-20">
+                  <thead className="bg-bluegreen-eske-20 dark:bg-[#112230]">
                     <tr>
                       <th className="text-left p-3 border-b-2 border-gray-eske-40 text-[14px] font-bold">
                         Cookie
@@ -263,7 +263,7 @@ export default function PoliticaDeCookiesPage() {
                   </thead>
                   <tbody>
                     <tr className="border-b border-gray-eske-40">
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         _ga
                       </td>
                       <td className="p-3 text-[14px]">Google Analytics</td>
@@ -273,7 +273,7 @@ export default function PoliticaDeCookiesPage() {
                       <td className="p-3 text-[14px]">2 años</td>
                     </tr>
                     <tr className="border-b border-gray-eske-40">
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         _ga_*
                       </td>
                       <td className="p-3 text-[14px]">Google Analytics</td>
@@ -283,7 +283,7 @@ export default function PoliticaDeCookiesPage() {
                       <td className="p-3 text-[14px]">2 años</td>
                     </tr>
                     <tr>
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         _gid
                       </td>
                       <td className="p-3 text-[14px]">Google Analytics</td>
@@ -296,7 +296,7 @@ export default function PoliticaDeCookiesPage() {
                 </table>
               </div>
 
-              <div className="bg-bluegreen-eske-10 p-4 rounded-lg border-l-4 border-bluegreen-eske mb-4">
+              <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg border-l-4 border-bluegreen-eske mb-4">
                 <p className="text-[14px] text-black-eske-20 mb-2">
                   <strong className="text-bluegreen-eske">
                     Información recopilada:
@@ -311,7 +311,7 @@ export default function PoliticaDeCookiesPage() {
                 </ul>
               </div>
 
-              <p className="text-[14px] text-black-eske-20">
+              <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                 <strong>Privacidad:</strong> Google Analytics está configurado
                 con anonimización de IP activada, lo que significa que tu
                 dirección IP se acorta antes de ser procesada, cumpliendo con
@@ -352,7 +352,7 @@ export default function PoliticaDeCookiesPage() {
                   </thead>
                   <tbody>
                     <tr className="border-b border-gray-eske-40">
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         _fbp
                       </td>
                       <td className="p-3 text-[14px]">Facebook Pixel</td>
@@ -362,7 +362,7 @@ export default function PoliticaDeCookiesPage() {
                       <td className="p-3 text-[14px]">90 días</td>
                     </tr>
                     <tr className="border-b border-gray-eske-40">
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         _gcl_au
                       </td>
                       <td className="p-3 text-[14px]">Google Ads</td>
@@ -372,7 +372,7 @@ export default function PoliticaDeCookiesPage() {
                       <td className="p-3 text-[14px]">90 días</td>
                     </tr>
                     <tr>
-                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10">
+                      <td className="p-3 text-[13px] font-mono bg-gray-eske-10 dark:bg-[#112230]">
                         fr
                       </td>
                       <td className="p-3 text-[14px]">Facebook</td>
@@ -386,7 +386,7 @@ export default function PoliticaDeCookiesPage() {
               </div>
 
               <div className="bg-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
-                <p className="text-[14px] text-black-eske-20">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                   <strong className="text-orange-600">
                     Consentimiento Requerido:
                   </strong>{" "}
@@ -406,7 +406,7 @@ export default function PoliticaDeCookiesPage() {
               </p>
 
               <div className="space-y-4">
-                <div className="p-4 bg-bluegreen-eske-10 border-2 border-bluegreen-eske rounded-lg">
+                <div className="p-4 bg-bluegreen-eske-10 dark:bg-[#112230] border-2 border-bluegreen-eske dark:border-[#4791B3] rounded-lg">
                   <h4 className="font-bold text-[16px] text-bluegreen-eske mb-2 flex items-center gap-2">
                     Panel de Configuración de Eskemma
                   </h4>
@@ -418,11 +418,11 @@ export default function PoliticaDeCookiesPage() {
                   <CookieConfigButton variant="compact" />
                 </div>
 
-                <div className="p-4 bg-gray-eske-10 border-2 border-gray-eske-40 rounded-lg">
-                  <h4 className="font-bold text-[16px] text-black-eske mb-2 flex items-center gap-2">
+                <div className="p-4 bg-gray-eske-10 dark:bg-[#21425E] border-2 border-gray-eske-40 dark:border-white/10 rounded-lg">
+                  <h4 className="font-bold text-[16px] text-black-eske dark:text-[#EAF2F8] mb-2 flex items-center gap-2">
                     Configuración del Navegador
                   </h4>
-                  <p className="text-[14px] text-black-eske-20">
+                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                     También puedes gestionar las cookies directamente desde la
                     configuración de tu navegador. Consulta la sección siguiente
                     para obtener instrucciones específicas según tu navegador.
@@ -442,7 +442,7 @@ export default function PoliticaDeCookiesPage() {
               </p>
 
               <div className="grid md:grid-cols-2 gap-4 mb-6">
-                <div className="p-4 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
+                <div className="p-4 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <div className="flex items-start gap-3 mb-2">
                     <span className="text-2xl">✅</span>
                     <div>
@@ -457,7 +457,7 @@ export default function PoliticaDeCookiesPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
+                <div className="p-4 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <div className="flex items-start gap-3 mb-2">
                     <span className="text-2xl">🔒</span>
                     <div>
@@ -472,7 +472,7 @@ export default function PoliticaDeCookiesPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
+                <div className="p-4 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <div className="flex items-start gap-3 mb-2">
                     <span className="text-2xl">⚙️</span>
                     <div>
@@ -487,7 +487,7 @@ export default function PoliticaDeCookiesPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
+                <div className="p-4 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <div className="flex items-start gap-3 mb-2">
                     <span className="text-2xl">🔄</span>
                     <div>
@@ -502,7 +502,7 @@ export default function PoliticaDeCookiesPage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-bluegreen-eske-10 rounded-lg">
+              <div className="p-4 bg-bluegreen-eske-10 dark:bg-[#112230] rounded-lg">
                 <p className="text-[14px] text-black-eske-20 mb-3">
                   <strong>¿Listo para configurar tus cookies?</strong> Haz clic
                   en el botón de abajo para abrir el panel de configuración:
@@ -526,7 +526,7 @@ export default function PoliticaDeCookiesPage() {
               <div className="space-y-4">
                 {/* Chrome */}
                 <details className="border-2 border-gray-eske-40 rounded-lg overflow-hidden">
-                  <summary className="p-4 bg-gray-eske-10 cursor-pointer hover:bg-gray-eske-20 transition-colors font-bold text-[15px] flex items-center gap-2">
+                  <summary className="p-4 bg-gray-eske-10 dark:bg-[#21425E] cursor-pointer hover:bg-gray-eske-20 dark:hover:bg-[#2C5273] transition-colors font-bold text-[15px] flex items-center gap-2 dark:text-[#EAF2F8]">
                     <span>🟢</span> Google Chrome
                   </summary>
                   <div className="p-4 text-[14px] text-black-eske-20">
@@ -565,7 +565,7 @@ export default function PoliticaDeCookiesPage() {
 
                 {/* Firefox */}
                 <details className="border-2 border-gray-eske-40 rounded-lg overflow-hidden">
-                  <summary className="p-4 bg-gray-eske-10 cursor-pointer hover:bg-gray-eske-20 transition-colors font-bold text-[15px] flex items-center gap-2">
+                  <summary className="p-4 bg-gray-eske-10 dark:bg-[#21425E] cursor-pointer hover:bg-gray-eske-20 dark:hover:bg-[#2C5273] transition-colors font-bold text-[15px] flex items-center gap-2 dark:text-[#EAF2F8]">
                     <span>🟠</span> Mozilla Firefox
                   </summary>
                   <div className="p-4 text-[14px] text-black-eske-20">
@@ -604,7 +604,7 @@ export default function PoliticaDeCookiesPage() {
 
                 {/* Safari */}
                 <details className="border-2 border-gray-eske-40 rounded-lg overflow-hidden">
-                  <summary className="p-4 bg-gray-eske-10 cursor-pointer hover:bg-gray-eske-20 transition-colors font-bold text-[15px] flex items-center gap-2">
+                  <summary className="p-4 bg-gray-eske-10 dark:bg-[#21425E] cursor-pointer hover:bg-gray-eske-20 dark:hover:bg-[#2C5273] transition-colors font-bold text-[15px] flex items-center gap-2 dark:text-[#EAF2F8]">
                     <span>🔵</span> Safari
                   </summary>
                   <div className="p-4 text-[14px] text-black-eske-20">
@@ -639,7 +639,7 @@ export default function PoliticaDeCookiesPage() {
 
                 {/* Edge */}
                 <details className="border-2 border-gray-eske-40 rounded-lg overflow-hidden">
-                  <summary className="p-4 bg-gray-eske-10 cursor-pointer hover:bg-gray-eske-20 transition-colors font-bold text-[15px] flex items-center gap-2">
+                  <summary className="p-4 bg-gray-eske-10 dark:bg-[#21425E] cursor-pointer hover:bg-gray-eske-20 dark:hover:bg-[#2C5273] transition-colors font-bold text-[15px] flex items-center gap-2 dark:text-[#EAF2F8]">
                     <span>🟣</span> Microsoft Edge
                   </summary>
                   <div className="p-4 text-[14px] text-black-eske-20">
@@ -677,7 +677,7 @@ export default function PoliticaDeCookiesPage() {
               </div>
 
               <div className="mt-6 bg-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
-                <p className="text-[14px] text-black-eske-20">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                   <strong className="text-orange-600">⚠️ Advertencia:</strong>{" "}
                   Si desactivas todas las cookies, algunas funciones del sitio
                   web podrían no funcionar correctamente, como el inicio de
@@ -697,7 +697,7 @@ export default function PoliticaDeCookiesPage() {
               </p>
 
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
+                <div className="p-4 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <h4 className="font-bold text-[16px] text-bluegreen-eske mb-2 flex items-center gap-2">
                     Cookies de Sesión
                   </h4>
@@ -709,7 +709,7 @@ export default function PoliticaDeCookiesPage() {
                   </p>
                 </div>
 
-                <div className="p-4 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
+                <div className="p-4 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <h4 className="font-bold text-[16px] text-bluegreen-eske mb-2 flex items-center gap-2">
                     Cookies Persistentes
                   </h4>
@@ -723,7 +723,7 @@ export default function PoliticaDeCookiesPage() {
               </div>
 
               <div className="mt-6 p-4 bg-bluegreen-eske-10 rounded-lg">
-                <p className="text-[14px] text-black-eske-20">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                   Todas nuestras cookies tienen una duración limitada y se
                   eliminan automáticamente al cumplir su plazo de expiración.
                   Puedes eliminar las cookies manualmente en cualquier momento
@@ -748,8 +748,8 @@ export default function PoliticaDeCookiesPage() {
                 última actualización se encuentra en la parte superior de esta
                 página.
               </p>
-              <div className="bg-bluegreen-eske-10 p-4 rounded-lg border-l-4 border-bluegreen-eske">
-                <p className="text-[14px] text-black-eske-20">
+              <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg border-l-4 border-bluegreen-eske">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                   <strong className="text-bluegreen-eske">
                     Te notificaremos:
                   </strong>{" "}
@@ -769,7 +769,7 @@ export default function PoliticaDeCookiesPage() {
               </p>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <div>
                     <p className="text-[13px] text-black-eske-30 mb-1">
                       Correo electrónico
@@ -783,12 +783,12 @@ export default function PoliticaDeCookiesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg">
+                <div className="flex items-center gap-3 p-3 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <div>
                     <p className="text-[13px] text-black-eske-30 mb-1">
                       Dirección postal
                     </p>
-                    <p className="text-[15px] font-semibold text-black-eske">
+                    <p className="text-[15px] font-semibold text-black-eske dark:text-[#EAF2F8]">
                       Eskemma
                       <br />
                       Atención: Departamento de Privacidad
@@ -799,8 +799,8 @@ export default function PoliticaDeCookiesPage() {
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-gray-eske-10 rounded-lg">
-                <p className="text-[14px] text-black-eske-20">
+              <div className="mt-6 p-4 bg-gray-eske-10 dark:bg-[#112230] rounded-lg">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                   <strong>Tiempo de respuesta:</strong> Nos comprometemos a
                   responder a tu consulta en un plazo máximo de 30 días desde su
                   recepción.
@@ -809,11 +809,11 @@ export default function PoliticaDeCookiesPage() {
             </LegalSection>
 
             {/* Call to Action Final */}
-            <div className="mt-12 p-6 bg-gray-eske-30 rounded-lg text-white-eske text-center">
-              <h3 className="text-2xl font-bold text-black-eske mb-3">
+            <div className="mt-12 p-6 bg-gray-eske-30 dark:bg-[#21425E] rounded-lg text-white-eske text-center">
+              <h3 className="text-2xl font-bold text-black-eske dark:text-[#EAF2F8] mb-3">
                 ¿Quieres gestionar tus cookies?
               </h3>
-              <p className="text-[16px] text-black-eske mb-6">
+              <p className="text-[16px] text-black-eske dark:text-[#C7D6E0] mb-6">
                 Configura tus preferencias en cualquier momento con un solo clic
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">

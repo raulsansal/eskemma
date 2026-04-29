@@ -55,7 +55,7 @@ export default function LoadingSpinner({
   if (fullScreen) {
     return (
       <div
-        className="fixed inset-0 bg-white-eske bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50"
+        className="fixed inset-0 bg-white-eske dark:bg-[#0B1620] bg-opacity-80 dark:bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50"
         role="dialog"
         aria-modal="true"
         aria-label="Cargando contenido"

@@ -30,7 +30,7 @@ function formatDate(iso: string): string {
 export default function HistoryChart({ history }: Props) {
   if (!history || history.length < 2) {
     return (
-      <div className="flex items-center justify-center h-20 text-xs text-black-eske text-center px-4">
+      <div className="flex items-center justify-center h-20 text-xs text-black-eske dark:text-[#9AAEBE] text-center px-4">
         Se necesitan al menos 2 análisis para mostrar la tendencia de confianza.
       </div>
     );
@@ -78,7 +78,7 @@ export default function HistoryChart({ history }: Props) {
             y1={y}
             x2={CHART_WIDTH - PADDING.right}
             y2={y}
-            stroke="#E5E7EB"
+            className="stroke-gray-eske-20 dark:stroke-white/10"
             strokeWidth={0.5}
           />
           <text
@@ -87,7 +87,7 @@ export default function HistoryChart({ history }: Props) {
             textAnchor="end"
             dominantBaseline="middle"
             fontSize={9}
-            fill="#1F2937"
+            className="fill-black-eske dark:fill-[#9AAEBE]"
           >
             {val}
           </text>
@@ -112,7 +112,7 @@ export default function HistoryChart({ history }: Props) {
             cy={p.y}
             r={4}
             fill="#0D9488"
-            stroke="#fff"
+            className="stroke-white dark:stroke-[#18324A]"
             strokeWidth={1.5}
           />
           <title>
@@ -131,7 +131,7 @@ export default function HistoryChart({ history }: Props) {
             y={CHART_HEIGHT - 4}
             textAnchor="middle"
             fontSize={9}
-            fill="#1F2937"
+            className="fill-black-eske dark:fill-[#9AAEBE]"
           >
             v{history[i].version}
           </text>

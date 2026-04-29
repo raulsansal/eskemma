@@ -27,11 +27,11 @@ export default function RelatedPosts({
       <div className="mb-8">
         <h2 
           id="related-posts-heading"
-          className="text-2xl font-bold text-gray-800 mb-2"
+          className="text-2xl font-bold text-gray-800 dark:text-[#EAF2F8] mb-2"
         >
           Posts relacionados
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-[#9AAEBE]">
           Más sobre{" "}
           <span
             className="inline-block px-2 py-1 text-xs font-semibold rounded-full text-white"
@@ -53,7 +53,7 @@ export default function RelatedPosts({
           <Link
             key={post.id}
             href={`/blog/${post.slug}`}
-            className="group flex flex-col bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300 overflow-hidden focus-ring-primary"
+            className="group flex flex-col bg-white-eske dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg hover:shadow-lg transition-all duration-300 overflow-hidden focus-ring-primary"
             aria-label={`Leer artículo: ${post.title}`}
             role="listitem"
           >
@@ -101,13 +101,13 @@ export default function RelatedPosts({
               </div>
 
               {/* Título */}
-              <h3 className="text-base font-semibold text-gray-800 group-hover:text-bluegreen-eske transition-colors line-clamp-2 mb-2">
+              <h3 className="text-base font-semibold text-gray-800 dark:text-[#C7D6E0] group-hover:text-bluegreen-eske dark:group-hover:text-[#6BA4C6] transition-colors line-clamp-2 mb-2">
                 {post.title}
               </h3>
 
               {/* Fecha */}
               <time 
-                className="text-xs text-gray-600 mt-auto"
+                className="text-xs text-gray-600 dark:text-[#6D8294] mt-auto"
                 dateTime={post.updatedAt.toISOString()}
               >
                 {post.updatedAt.toLocaleDateString("es-ES", {

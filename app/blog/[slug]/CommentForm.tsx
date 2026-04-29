@@ -103,7 +103,7 @@ export default function CommentForm({
       className="mb-8"
       aria-label="Formulario para añadir un comentario"
     >
-      <div className="bg-white-eske border border-gray-eske-30 rounded-lg p-6">
+      <div className="bg-white-eske dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg p-6">
         <div className="flex items-start gap-4">
           {/* Avatar del usuario */}
           <div className="flex-shrink-0" aria-hidden="true">
@@ -130,7 +130,7 @@ export default function CommentForm({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Escribe tu comentario..."
-              className="w-full p-3 border border-gray-eske-30 rounded-lg focus-ring-primary resize-none"
+              className="w-full p-3 border border-gray-eske-30 dark:border-white/10 dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder:text-[#6D8294] rounded-lg focus-ring-primary resize-none"
               rows={4}
               maxLength={maxLength}
               disabled={isSubmitting}
@@ -144,7 +144,7 @@ export default function CommentForm({
                 className={`text-sm ${
                   remainingChars < 50
                     ? "text-red-500 font-semibold"
-                    : "text-gray-600"
+                    : "text-gray-600 dark:text-[#9AAEBE]"
                 }`}
                 role="status"
                 aria-live="polite"
@@ -157,7 +157,7 @@ export default function CommentForm({
                 disabled={isSubmitting || !content.trim()}
                 className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 focus-ring-primary ${
                   isSubmitting || !content.trim()
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    ? "bg-gray-300 dark:bg-[#21425E] text-gray-500 dark:text-[#6D8294] cursor-not-allowed"
                     : "bg-bluegreen-eske text-white hover:bg-bluegreen-eske-70"
                 }`}
                 aria-label={

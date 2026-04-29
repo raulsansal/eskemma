@@ -129,7 +129,7 @@ const BenefitsSection = () => {
               >
                 {/* Frente de la tarjeta */}
                 <div
-                  className={`flip-card-front absolute w-full h-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex items-center justify-center ${card.bg} ${card.text} backface-hidden`}
+                  className={`flip-card-front absolute w-full h-full rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex items-center justify-center ${card.bg} ${card.text} backface-hidden${card.bg === "bg-white-eske" ? " dark:!bg-[#21425E] dark:!text-[#EAF2F8]" : ""}`}
                   aria-hidden={flippedCards[index]}
                 >
                   <p className="text-[20px] sm:text-[20px] max-sm:text-[12px] max-sm:leading-tight font-light text-center p-4 max-sm:p-2">

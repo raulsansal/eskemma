@@ -149,7 +149,7 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       className="mt-16 pt-8 border-t border-gray-eske-30"
       aria-labelledby="comments-title"
     >
-      <h2 id="comments-title" className="text-2xl font-bold text-gray-800 mb-6">
+      <h2 id="comments-title" className="text-2xl font-bold text-gray-800 dark:text-[#EAF2F8] mb-6">
         Comentarios ({totalComments})
       </h2>
 
@@ -158,10 +158,10 @@ export default function CommentSection({ postId }: CommentSectionProps) {
         <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
       ) : (
         <div
-          className="bg-gray-eske-10 border border-gray-eske-30 rounded-lg p-6 mb-8 text-center"
+          className="bg-gray-eske-10 dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg p-6 mb-8 text-center"
           role="status"
         >
-          <p className="text-gray-700 mb-4">
+          <p className="text-gray-700 dark:text-[#C7D6E0] mb-4">
             Inicia sesión para dejar un comentario
           </p>
           <button
@@ -177,10 +177,10 @@ export default function CommentSection({ postId }: CommentSectionProps) {
       {/* Lista de comentarios */}
       {isLoading ? (
         <div className="text-center py-8" role="status" aria-live="polite">
-          <p className="text-gray-600">Cargando comentarios...</p>
+          <p className="text-gray-600 dark:text-[#9AAEBE]">Cargando comentarios...</p>
         </div>
       ) : comments.length === 0 ? (
-        <div className="text-center py-8 text-gray-600" role="status">
+        <div className="text-center py-8 text-gray-600 dark:text-[#9AAEBE]" role="status">
           <p>Sé el primero en comentar</p>
         </div>
       ) : (

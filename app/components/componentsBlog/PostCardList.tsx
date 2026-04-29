@@ -31,7 +31,7 @@ export default function PostCardList({
   const categoryLabel = getCategoryLabel(category);
 
   return (
-    <article className="flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-4 sm:p-6">
+    <article className="flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-4 sm:p-6">
       {/* Imagen destacada - Responsive */}
       {featureImage && (
         <div className="w-full sm:w-48 md:w-64 shrink-0">
@@ -64,7 +64,7 @@ export default function PostCardList({
         </div>
 
         {/* Título */}
-        <h3 className="text-xl sm:text-2xl font-semibold text-bluegreen-eske-60 mb-2 sm:mb-3 hover:text-bluegreen-eske transition-colors duration-300">
+        <h3 className="text-xl sm:text-2xl font-semibold text-bluegreen-eske-60 dark:text-[#6BA4C6] mb-2 sm:mb-3 hover:text-bluegreen-eske transition-colors duration-300">
           <Link href={`/blog/${slug}`} className="focus-ring-primary rounded">
             {title}
           </Link>
@@ -72,17 +72,17 @@ export default function PostCardList({
 
         {/* Excerpt - Más líneas en desktop */}
         <div
-          className="text-sm sm:text-base text-gray-eske-90 mb-3 sm:mb-4 grow line-clamp-2 sm:line-clamp-3"
+          className="text-sm sm:text-base text-gray-eske-90 dark:text-[#9AAEBE] mb-3 sm:mb-4 grow line-clamp-2 sm:line-clamp-3"
           dangerouslySetInnerHTML={{ __html: excerpt }}
         />
 
         {/* Metadata y botón */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mt-auto">
           {/* Fecha, autor y vistas */}
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-700">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-700 dark:text-[#C7D6E0]">
             <div className="flex items-center gap-1">
               <svg
-                className="w-4 h-4 text-gray-eske-60"
+                className="w-4 h-4 text-gray-eske-60 dark:text-[#6D8294]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ export default function PostCardList({
                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <time className="text-gray-eske-70" dateTime={date.toISOString()}>
+              <time className="text-gray-eske-70 dark:text-[#9AAEBE]" dateTime={date.toISOString()}>
                 {date.toLocaleDateString("es-ES", {
                   year: "numeric",
                   month: "short",
@@ -106,7 +106,7 @@ export default function PostCardList({
 
             <div className="flex items-center gap-1">
               <svg
-                className="w-4 h-4 text-gray-eske-60"
+                className="w-4 h-4 text-gray-eske-60 dark:text-[#6D8294]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -124,7 +124,7 @@ export default function PostCardList({
 
             <div className="flex items-center gap-1">
               <svg
-                className="w-4 h-4 text-gray-eske-60"
+                className="w-4 h-4 text-gray-eske-60 dark:text-[#6D8294]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -143,7 +143,7 @@ export default function PostCardList({
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 />
               </svg>
-              <span className="text-gray-eske-70">
+              <span className="text-gray-eske-70 dark:text-[#9AAEBE]">
                 {views} vista{views !== 1 ? "s" : ""}
               </span>
             </div>

@@ -31,11 +31,11 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
       {previous ? (
         <Link
           href={`/blog/${previous.slug}`}
-          className="group flex flex-col p-6 bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300 focus-ring-primary"
+          className="group flex flex-col p-6 bg-white-eske dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg hover:shadow-lg transition-all duration-300 focus-ring-primary"
           aria-label={`Artículo anterior: ${previous.title}`}
           role="listitem"
         >
-          <div className="flex items-center gap-2 text-sm text-gray-800 font-medium mb-3">
+          <div className="flex items-center gap-2 text-sm text-gray-800 dark:text-[#C7D6E0] font-medium mb-3">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -72,7 +72,7 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
             </span>
           </div>
 
-          <h4 className="text-base font-semibold text-gray-800 group-hover:text-bluegreen-eske transition-colors line-clamp-2">
+          <h4 className="text-base font-semibold text-gray-800 dark:text-[#EAF2F8] group-hover:text-bluegreen-eske dark:group-hover:text-[#6BA4C6] transition-colors line-clamp-2">
             {previous.title}
           </h4>
         </Link>
@@ -84,11 +84,11 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
       {next && (
         <Link
           href={`/blog/${next.slug}`}
-          className="group flex flex-col p-6 bg-white-eske border border-gray-eske-30 rounded-lg hover:shadow-lg transition-all duration-300 focus-ring-primary"
+          className="group flex flex-col p-6 bg-white-eske dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg hover:shadow-lg transition-all duration-300 focus-ring-primary"
           aria-label={`Artículo siguiente: ${next.title}`}
           role="listitem"
         >
-          <div className="flex items-center justify-end gap-2 text-sm text-gray-800 font-medium mb-3">
+          <div className="flex items-center justify-end gap-2 text-sm text-gray-800 dark:text-[#C7D6E0] font-medium mb-3">
             <span>Siguiente</span>
             <svg
               className="w-5 h-5"

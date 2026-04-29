@@ -47,17 +47,17 @@ export default function ProgressTracker({
     return (
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-black-eske font-normal">Progreso general</span>
+          <span className="text-black-eske dark:text-[#C7D6E0] font-normal">Progreso general</span>
           <span className="font-medium text-bluegreen-eske">{Math.round(percentage)}%</span>
         </div>
-        <div className="w-full bg-gray-eske-20 rounded-full h-2">
+        <div className="w-full bg-gray-eske-20 dark:bg-[#21425E] rounded-full h-2">
           <div
             className="bg-bluegreen-eske h-2 rounded-full transition-all"
             style={{ width: `${percentage}%` }}
           />
         </div>
         {showDetails && (
-          <p className="text-xs text-black-eske/60 font-normal">
+          <p className="text-xs text-black-eske/60 dark:text-[#9AAEBE] font-normal">
             {completedSessions} de {totalSessions} sesiones completadas
           </p>
         )}
@@ -69,29 +69,29 @@ export default function ProgressTracker({
     <div className="space-y-6">
       {/* Progreso general */}
       <div className="space-y-2">
-        <h3 className="font-semibold text-lg">Tu progreso</h3>
+        <h3 className="font-semibold text-lg dark:text-[#EAF2F8]">Tu progreso</h3>
         <div className="flex justify-between text-sm">
-          <span className="text-black-eske font-normal">Completado</span>
+          <span className="text-black-eske dark:text-[#C7D6E0] font-normal">Completado</span>
           <span className="font-medium text-bluegreen-eske">{Math.round(percentage)}%</span>
         </div>
-        <div className="w-full bg-gray-eske-20 rounded-full h-3">
+        <div className="w-full bg-gray-eske-20 dark:bg-[#21425E] rounded-full h-3">
           <div
             className="bg-bluegreen-eske h-3 rounded-full transition-all"
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <p className="text-sm text-black-eske font-normal">
+        <p className="text-sm text-black-eske dark:text-[#C7D6E0] font-normal">
           {completedSessions} de {totalSessions} sesiones completadas
         </p>
       </div>
 
       {/* Progreso por módulo */}
       <div className="space-y-4">
-        <h4 className="font-medium text-black-eske">Detalle por módulo</h4>
+        <h4 className="font-medium text-black-eske dark:text-[#C7D6E0]">Detalle por módulo</h4>
         {moduleProgress.map(module => (
           <div key={module.id} className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span className="text-black-eske font-normal">{module.title}</span>
+              <span className="text-black-eske dark:text-[#C7D6E0] font-normal">{module.title}</span>
               <span className="font-medium">
                 {module.completed}/{module.total}
               </span>
@@ -108,8 +108,8 @@ export default function ProgressTracker({
 
       {/* Tiempo estimado restante */}
       {progress && (
-        <div className="pt-4 border-t border-gray-eske-20">
-          <p className="text-sm text-black-eske font-normal">
+        <div className="pt-4 border-t border-gray-eske-20 dark:border-white/10">
+          <p className="text-sm text-black-eske dark:text-[#C7D6E0] font-normal">
             <span className="font-medium">Tiempo restante estimado:</span>{' '}
             {Math.round((totalSessions - completedSessions) * 0.75)} horas
           </p>

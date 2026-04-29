@@ -167,12 +167,12 @@ export default function ModduloChat({
   };
 
   return (
-    <div className={`flex flex-col bg-white-eske rounded-xl border border-gray-eske-20 overflow-hidden ${className}`}>
+    <div className={`flex flex-col bg-white-eske dark:bg-[#18324A] rounded-xl border border-gray-eske-20 dark:border-white/10 overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="shrink-0 px-4 py-3 border-b border-gray-eske-20 flex items-center gap-2 bg-bluegreen-eske/5">
+      <div className="shrink-0 px-4 py-3 border-b border-gray-eske-20 dark:border-white/10 flex items-center gap-2 bg-bluegreen-eske/5 dark:bg-bluegreen-eske/10">
         <div className="w-2 h-2 rounded-full bg-bluegreen-eske animate-pulse" />
-        <span className="text-sm font-semibold text-bluegreen-eske">Moddulo</span>
-        <span className="text-xs text-gray-eske-60 ml-1">Colaborador Estratégico</span>
+        <span className="text-sm font-semibold text-bluegreen-eske dark:text-[#6BA4C6]">Moddulo</span>
+        <span className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] ml-1">Colaborador Estratégico</span>
       </div>
 
       {/* Messages — scroll interno, sin empujar el layout */}
@@ -198,7 +198,7 @@ export default function ModduloChat({
         {isLoading && !streamingContent && (
           <div className="flex gap-2 items-start">
             <ModduloAvatar />
-            <div className="bg-gray-eske-10 rounded-xl rounded-tl-none px-4 py-3">
+            <div className="bg-gray-eske-10 dark:bg-[#112230] rounded-xl rounded-tl-none px-4 py-3">
               <div className="flex gap-1 items-center">
                 {[0, 150, 300].map((delay) => (
                   <span
@@ -216,7 +216,7 @@ export default function ModduloChat({
       </div>
 
       {/* Input */}
-      <div className="shrink-0 px-4 py-3 border-t border-gray-eske-20 bg-white-eske">
+      <div className="shrink-0 px-4 py-3 border-t border-gray-eske-20 dark:border-white/10 bg-white-eske dark:bg-[#18324A]">
         <div className="flex gap-2 items-end">
           <textarea
             ref={inputRef}
@@ -226,7 +226,7 @@ export default function ModduloChat({
             placeholder="Escribe tu respuesta aquí..."
             rows={2}
             disabled={isLoading}
-            className="flex-1 resize-none px-4 py-3 text-sm font-medium border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske disabled:opacity-50 text-gray-800 placeholder:text-gray-400 bg-gray-50 transition-colors"
+            className="flex-1 resize-none px-4 py-3 text-sm font-medium border-2 border-gray-300 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske disabled:opacity-50 text-gray-800 dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder-[#6D8294] bg-gray-50 dark:bg-[#112230] transition-colors"
             style={{ maxHeight: "120px" }}
           />
           <button
@@ -240,10 +240,10 @@ export default function ModduloChat({
             </svg>
           </button>
         </div>
-        <p className="text-xs font-medium text-gray-500 mt-2">
-          <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-600 text-xs">Enter</kbd> para enviar
+        <p className="text-xs font-medium text-gray-500 dark:text-[#9AAEBE] mt-2">
+          <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-[#112230] border border-gray-300 dark:border-white/10 rounded text-gray-600 dark:text-[#C7D6E0] text-xs">Enter</kbd> para enviar
           {" · "}
-          <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-600 text-xs">Shift+Enter</kbd> para nueva línea
+          <kbd className="px-1 py-0.5 bg-gray-100 dark:bg-[#112230] border border-gray-300 dark:border-white/10 rounded text-gray-600 dark:text-[#C7D6E0] text-xs">Shift+Enter</kbd> para nueva línea
         </p>
       </div>
     </div>
@@ -271,7 +271,7 @@ function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; is
       <div className="flex gap-3 items-start">
         <ModduloAvatar />
         <div className="flex-1 min-w-0">
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl rounded-tl-none px-4 py-3 text-sm text-gray-800 leading-relaxed">
+          <div className="bg-gray-50 dark:bg-[#18324A] border border-gray-200 dark:border-white/10 rounded-2xl rounded-tl-none px-4 py-3 text-sm text-gray-800 dark:text-[#C7D6E0] leading-relaxed">
             <MarkdownContent content={message.content} />
             {isStreaming && (
               <span className="inline-block w-0.5 h-4 bg-bluegreen-eske ml-0.5 animate-pulse rounded-sm align-middle" />
@@ -283,7 +283,7 @@ function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; is
             <div className="mt-1.5 ml-1">
               <button
                 onClick={() => setReasoningOpen((v) => !v)}
-                className="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-bluegreen-eske transition-colors"
+                className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-[#9AAEBE] hover:text-bluegreen-eske transition-colors"
               >
                 <svg
                   className={`w-3.5 h-3.5 transition-transform ${reasoningOpen ? "rotate-90" : ""}`}
@@ -296,7 +296,7 @@ function ChatBubble({ message, isStreaming = false }: { message: ChatMessage; is
                 Ver razonamiento
               </button>
               {reasoningOpen && (
-                <div className="mt-1.5 px-3 py-2 bg-bluegreen-eske/5 border border-bluegreen-eske/20 rounded-lg text-xs font-medium text-gray-600 italic leading-relaxed">
+                <div className="mt-1.5 px-3 py-2 bg-bluegreen-eske/5 dark:bg-bluegreen-eske/10 border border-bluegreen-eske/20 rounded-lg text-xs font-medium text-gray-600 dark:text-[#9AAEBE] italic leading-relaxed">
                   {message.reasoning}
                 </div>
               )}
@@ -324,47 +324,47 @@ function MarkdownContent({ content }: { content: string }) {
       remarkPlugins={[remarkGfm]}
       components={{
         h1: ({ children }) => (
-          <h1 className="text-base font-bold text-gray-900 mt-3 mb-2 first:mt-0">{children}</h1>
+          <h1 className="text-base font-bold text-gray-900 dark:text-[#C7D6E0] mt-3 mb-2 first:mt-0">{children}</h1>
         ),
         h2: ({ children }) => (
-          <h2 className="text-sm font-bold text-gray-800 mt-3 mb-1.5 first:mt-0">{children}</h2>
+          <h2 className="text-sm font-bold text-gray-800 dark:text-[#C7D6E0] mt-3 mb-1.5 first:mt-0">{children}</h2>
         ),
         h3: ({ children }) => (
-          <h3 className="text-sm font-semibold text-gray-700 mt-2 mb-1 first:mt-0">{children}</h3>
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-[#9AAEBE] mt-2 mb-1 first:mt-0">{children}</h3>
         ),
         p: ({ children }) => (
-          <p className="text-sm text-gray-800 leading-relaxed mb-2 last:mb-0">{children}</p>
+          <p className="text-sm text-gray-800 dark:text-[#C7D6E0] leading-relaxed mb-2 last:mb-0">{children}</p>
         ),
         strong: ({ children }) => (
-          <strong className="font-semibold text-gray-900">{children}</strong>
+          <strong className="font-semibold text-gray-900 dark:text-[#C7D6E0]">{children}</strong>
         ),
         em: ({ children }) => (
-          <em className="italic text-gray-700">{children}</em>
+          <em className="italic text-gray-700 dark:text-[#9AAEBE]">{children}</em>
         ),
         ul: ({ children }) => (
-          <ul className="list-disc list-inside space-y-1 mb-2 text-sm text-gray-800">{children}</ul>
+          <ul className="list-disc list-inside space-y-1 mb-2 text-sm text-gray-800 dark:text-[#C7D6E0]">{children}</ul>
         ),
         ol: ({ children }) => (
-          <ol className="list-decimal list-inside space-y-1 mb-2 text-sm text-gray-800">{children}</ol>
+          <ol className="list-decimal list-inside space-y-1 mb-2 text-sm text-gray-800 dark:text-[#C7D6E0]">{children}</ol>
         ),
         li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-        hr: () => <hr className="border-gray-200 my-3" />,
+        hr: () => <hr className="border-gray-200 dark:border-white/10 my-3" />,
         table: ({ children }) => (
           <div className="overflow-x-auto my-2">
             <table className="text-xs border-collapse w-full">{children}</table>
           </div>
         ),
         th: ({ children }) => (
-          <th className="border border-gray-300 px-3 py-1.5 bg-gray-100 font-semibold text-gray-700 text-left">{children}</th>
+          <th className="border border-gray-300 dark:border-white/10 px-3 py-1.5 bg-gray-100 dark:bg-[#112230] font-semibold text-gray-700 dark:text-[#C7D6E0] text-left">{children}</th>
         ),
         td: ({ children }) => (
-          <td className="border border-gray-300 px-3 py-1.5 text-gray-800">{children}</td>
+          <td className="border border-gray-300 dark:border-white/10 px-3 py-1.5 text-gray-800 dark:text-[#C7D6E0]">{children}</td>
         ),
         blockquote: ({ children }) => (
-          <blockquote className="border-l-4 border-bluegreen-eske/40 pl-3 italic text-gray-600 my-2">{children}</blockquote>
+          <blockquote className="border-l-4 border-bluegreen-eske/40 pl-3 italic text-gray-600 dark:text-[#9AAEBE] my-2">{children}</blockquote>
         ),
         code: ({ children }) => (
-          <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-gray-700">{children}</code>
+          <code className="bg-gray-100 dark:bg-[#112230] px-1.5 py-0.5 rounded text-xs font-mono text-gray-700 dark:text-[#C7D6E0]">{children}</code>
         ),
       }}
     >

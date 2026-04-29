@@ -128,11 +128,11 @@ export default function DownloadableResources({
           aria-labelledby="login-modal-title"
         >
           <div
-            className="bg-white rounded-lg shadow-lg w-full max-w-md p-8 relative"
+            className="bg-white dark:bg-[#18324A] rounded-lg shadow-lg w-full max-w-md p-8 relative"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="absolute top-4 right-4 text-gray-700 hover:text-red-500 transition-colors focus-ring-primary rounded"
+              className="absolute top-4 right-4 text-gray-700 dark:text-[#C7D6E0] hover:text-red-500 transition-colors focus-ring-primary rounded"
               onClick={() => {
                 setShowLoginPrompt(false);
                 setSelectedResource(null);
@@ -177,12 +177,12 @@ export default function DownloadableResources({
 
               <h3
                 id="login-modal-title"
-                className="text-xl font-bold text-black-eske mb-4"
+                className="text-xl font-bold text-black-eske dark:text-[#EAF2F8] mb-4"
               >
                 Debes iniciar sesión para descargar recursos
               </h3>
 
-              <p className="text-black-eske-80 mb-6">
+              <p className="text-black-eske-80 dark:text-[#C7D6E0] mb-6">
                 Si aún no tienes tu usuario y contraseña, te invitamos a
                 registrarte en nuestra comunidad de Eskemma.
               </p>
@@ -205,13 +205,13 @@ export default function DownloadableResources({
 
       {/* Card de recursos */}
       <aside
-        className="bg-white-eske rounded-lg shadow-sm p-6 border border-gray-eske-20"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-sm p-6 border border-gray-eske-20 dark:border-white/10"
         aria-labelledby="resources-title"
       >
         <div className="flex items-center justify-between mb-4">
           <h3
             id="resources-title"
-            className="text-lg font-semibold text-gray-800 flex items-center gap-2"
+            className="text-lg font-semibold text-gray-800 dark:text-[#EAF2F8] flex items-center gap-2"
           >
             <svg
               className="w-5 h-5 text-bluegreen-eske"
@@ -231,7 +231,7 @@ export default function DownloadableResources({
           </h3>
         </div>
 
-        <p className="text-xs text-gray-600 mb-4">
+        <p className="text-xs text-gray-600 dark:text-[#9AAEBE] mb-4">
           Materiales complementarios para este tema
         </p>
 
@@ -243,7 +243,7 @@ export default function DownloadableResources({
           {resources.map((resource) => (
             <article
               key={resource.id}
-              className="group border border-gray-eske-30 rounded-lg p-3 hover:border-bluegreen-eske hover:shadow-sm transition-all"
+              className="group border border-gray-eske-30 dark:border-white/10 rounded-lg p-3 hover:border-bluegreen-eske hover:shadow-sm transition-all"
               role="listitem"
             >
               {/* Header con icono y badge */}
@@ -257,10 +257,10 @@ export default function DownloadableResources({
                     {getFileIcon(resource.fileType)}
                   </div>
                   <div>
-                    <span className="text-xs font-medium text-gray-700 uppercase">
+                    <span className="text-xs font-medium text-gray-700 dark:text-[#9AAEBE] uppercase">
                       {resource.fileType}
                     </span>
-                    <span className="text-xs text-gray-600 ml-2">
+                    <span className="text-xs text-gray-600 dark:text-[#6D8294] ml-2">
                       {resource.fileSize}
                     </span>
                   </div>
@@ -277,12 +277,12 @@ export default function DownloadableResources({
               </div>
 
               {/* Título */}
-              <h4 className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">
+              <h4 className="text-sm font-semibold text-gray-800 dark:text-[#C7D6E0] mb-1 line-clamp-2">
                 {resource.title}
               </h4>
 
               {/* Descripción */}
-              <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+              <p className="text-xs text-gray-600 dark:text-[#9AAEBE] mb-3 line-clamp-2">
                 {resource.description}
               </p>
 

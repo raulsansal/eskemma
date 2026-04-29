@@ -177,13 +177,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     const resolvedPosts = await Promise.all(publishedPosts);
 
     return (
-      <main className="min-h-screen bg-white-eske">
+      <main className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
         {/* Hero Section */}
         <FoucheHeroSection />
 
         {/* Sección de Posts */}
         <section
-          className="bg-gray-eske-10 min-h-145 py-12 px-4 sm:px-6 md:px-8"
+          className="bg-gray-eske-10 dark:bg-[#112230] min-h-145 py-12 px-4 sm:px-6 md:px-8"
           aria-labelledby="posts-section-title"
         >
           <div className="w-[90%] mx-auto max-w-7xl">
@@ -191,7 +191,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               Artículos del blog
             </h2>
 
-            <p className="text-center text-black-eske-80 mb-8 text-lg">
+            <p className="text-center text-black-eske-80 dark:text-[#C7D6E0] mb-8 text-lg">
               Explora nuestros artículos sobre estrategia, análisis electoral y
               comunicación política.
             </p>
@@ -199,18 +199,18 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             {/* Contador de posts */}
             <div className="mb-8 text-center" role="status" aria-live="polite">
               {totalPosts === 0 ? (
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 dark:text-[#9AAEBE] text-sm">
                   No se encontraron artículos con los filtros seleccionados
                 </p>
               ) : (
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 dark:text-[#9AAEBE] text-sm">
                   Mostrando{" "}
                   <span className="font-semibold text-bluegreen-eske">
                     {totalPosts}
                   </span>{" "}
                   {totalPosts === 1 ? "artículo" : "artículos"}
                   {searchTerm && (
-                    <span className="text-gray-700">
+                    <span className="text-gray-700 dark:text-[#C7D6E0]">
                       {" "}
                       para{" "}
                       <span className="font-medium">
@@ -265,7 +265,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     console.error("Error al obtener los posts:", error);
     return (
       <div
-        className="min-h-screen flex items-center justify-center bg-gray-eske-10"
+        className="min-h-screen flex items-center justify-center bg-gray-eske-10 dark:bg-[#112230]"
         role="alert"
         aria-live="assertive"
       >
@@ -273,7 +273,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           <p className="text-xl text-red-500 mb-4">
             Ocurrió un error al cargar los posts.
           </p>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-[#9AAEBE]">
             Por favor, inténtalo de nuevo más tarde.
           </p>
         </div>

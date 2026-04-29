@@ -76,11 +76,11 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
   };
 
   return (
-    <div className="mb-8 bg-white-eske rounded-lg shadow-sm p-4 sm:p-6">
+    <div className="mb-8 bg-white-eske dark:bg-[#18324A] rounded-lg shadow-sm p-4 sm:p-6">
       {/* ✅ NUEVO: Fila superior con título y ViewToggle */}
       {onViewChange && (
-        <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-eske-20">
-          <h3 className="text-lg font-semibold text-gray-800">
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-eske-20 dark:border-white/10">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-[#C7D6E0]">
             Filtros y Vista
           </h3>
           <ViewToggle onViewChange={onViewChange} />
@@ -93,7 +93,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
         <div>
           <label
             htmlFor="category-filter"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-[#C7D6E0] mb-2"
           >
             Categoría
           </label>
@@ -101,7 +101,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
             id="category-filter"
             value={currentCategory}
             onChange={handleCategoryChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus-ring-primary bg-white text-gray-700 cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-white/10 rounded-lg focus-ring-primary bg-white dark:bg-[#112230] text-gray-700 dark:text-[#EAF2F8] cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
             aria-label="Filtrar publicaciones por categoría"
           >
             <option value="todos">Todas las categorías</option>
@@ -117,7 +117,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
         <div>
           <label
             htmlFor="search-posts"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-[#C7D6E0] mb-2"
           >
             Buscar
           </label>
@@ -128,14 +128,14 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Título, contenido o autor..."
-              className="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus-ring-primary bg-white text-gray-700 transition-all duration-200 hover:border-bluegreen-eske"
+              className="w-full px-4 py-2 pr-20 border border-gray-300 dark:border-white/10 rounded-lg focus-ring-primary bg-white dark:bg-[#112230] text-gray-700 dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder:text-[#6D8294] transition-all duration-200 hover:border-bluegreen-eske"
               aria-label="Buscar publicaciones por título, contenido o autor"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus-ring-primary rounded"
+                className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-[#6D8294] hover:text-gray-600 dark:hover:text-[#9AAEBE] transition-colors focus-ring-primary rounded"
                 aria-label="Limpiar búsqueda"
               >
                 <svg
@@ -181,7 +181,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
         <div>
           <label
             htmlFor="sort-posts"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-[#C7D6E0] mb-2"
           >
             Ordenar por
           </label>
@@ -189,7 +189,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
             id="sort-posts"
             value={currentSort}
             onChange={handleSortChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus-ring-primary bg-white text-gray-700 cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-white/10 rounded-lg focus-ring-primary bg-white dark:bg-[#112230] text-gray-700 dark:text-[#EAF2F8] cursor-pointer transition-all duration-200 hover:border-bluegreen-eske"
             aria-label="Ordenar publicaciones"
           >
             <option value="newest">Más recientes</option>
@@ -209,7 +209,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
           aria-live="polite"
           aria-label="Filtros activos"
         >
-          <span className="text-sm text-gray-600">Filtros activos:</span>
+          <span className="text-sm text-gray-600 dark:text-[#9AAEBE]">Filtros activos:</span>
 
           {currentCategory !== "todos" && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-bluegreen-eske text-white-eske">
@@ -226,7 +226,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
           )}
 
           {currentSearch && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-eske/20 text-blue-800 dark:text-[#C7D6E0]">
               Búsqueda: &quot;{currentSearch}&quot;
               <button
                 onClick={handleClearSearch}
@@ -239,7 +239,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
           )}
 
           {currentSort !== "newest" && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
               {currentSort === "oldest" ? "Más antiguos" : "Más populares"}
               <button
                 onClick={() => router.push(buildUrl({ sort: "newest" }))}
@@ -253,7 +253,7 @@ export default function BlogToolbar({ onViewChange }: BlogToolbarProps) {
 
           <button
             onClick={() => router.push("/blog")}
-            className="text-xs text-gray-600 hover:text-bluegreen-eske underline focus-ring-primary rounded"
+            className="text-xs text-gray-600 dark:text-[#9AAEBE] hover:text-bluegreen-eske dark:hover:text-[#4791B3] underline focus-ring-primary rounded"
             aria-label="Limpiar todos los filtros"
           >
             Limpiar todos

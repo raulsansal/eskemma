@@ -23,7 +23,7 @@ export default function WorkshopHeader({
   const { user } = useAuth();
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-20 bg-white-eske border-b border-gray-eske-20 h-16 flex items-center px-4">
+    <header className="fixed top-0 right-0 left-0 z-20 bg-white-eske dark:bg-[#0B1620] border-b border-gray-eske-20 dark:border-white/10 h-16 flex items-center px-4">
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-4">
           {/* Botón menú (solo visible en móvil) */}
@@ -58,7 +58,7 @@ export default function WorkshopHeader({
           <div className="flex items-center gap-3">
             {/* Progreso del día (si aplica) */}
             {progress && (
-              <div className="hidden md:flex items-center gap-2 text-sm text-black-eske font-normal">
+              <div className="hidden md:flex items-center gap-2 text-sm text-black-eske dark:text-[#C7D6E0] font-normal">
                 <span>Último acceso:</span>
                 <span>
                   {progress.lastAccessedAt 
@@ -85,7 +85,7 @@ export default function WorkshopHeader({
                   {user.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
               )}
-              <span className="hidden md:inline text-sm font-medium">
+              <span className="hidden md:inline text-sm font-medium dark:text-[#C7D6E0]">
                 {user.displayName || user.email?.split('@')[0]}
               </span>
             </div>

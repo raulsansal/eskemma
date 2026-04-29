@@ -44,8 +44,8 @@ export default function ReportViewer({
         onInput={handleInput}
         className={[
           "report-container",
-          "min-h-[300px] w-full rounded-lg border border-gray-eske-20",
-          "bg-white-eske p-5 text-sm text-black-eske leading-relaxed",
+          "min-h-[300px] w-full rounded-lg border border-gray-eske-20 dark:border-white/10",
+          "bg-white-eske dark:bg-[#112230] p-5 text-sm text-black-eske dark:text-[#C7D6E0] leading-relaxed",
           "whitespace-pre-wrap font-sans outline-none",
           "focus-visible:ring-2 focus-visible:ring-bluegreen-eske/30",
           streaming ? "cursor-default" : "cursor-text",
@@ -61,7 +61,7 @@ export default function ReportViewer({
         />
       )}
       {!streaming && content && (
-        <p className="mt-1.5 text-xs text-gray-eske-50">
+        <p className="mt-1.5 text-xs text-gray-eske-50 dark:text-[#6D8294]">
           Puedes editar el texto antes de exportar.
         </p>
       )}

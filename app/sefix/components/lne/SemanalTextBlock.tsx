@@ -23,7 +23,7 @@ interface SemanalTextBlockProps {
 function RichText({ html }: { html: string }) {
   return (
     <p
-      className="leading-relaxed text-black-eske font-normal"
+      className="leading-relaxed text-black-eske dark:text-[#C7D6E0] font-normal"
       // Content is entirely server-generated (no user input) — safe to render
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: html }}
@@ -33,8 +33,8 @@ function RichText({ html }: { html: string }) {
 
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="p-3 bg-gray-eske-10 rounded-md border-l-2 border-bluegreen-eske-40">
-      <p className="text-xs font-semibold text-bluegreen-eske mb-1 uppercase tracking-wide">
+    <div className="p-3 bg-gray-eske-10 dark:bg-blue-eske/10 rounded-md border-l-2 border-bluegreen-eske-40">
+      <p className="text-xs font-semibold text-bluegreen-eske dark:text-[#4791B3] mb-1 uppercase tracking-wide">
         {label}
       </p>
       {children}
@@ -61,10 +61,10 @@ export default function SemanalTextBlock({
               className="w-8 h-8 border-4 border-gray-eske-20 border-t-blue-eske rounded-full animate-spin"
               aria-hidden="true"
             />
-            <p className="text-xs text-black-eske-60">Procesando análisis…</p>
+            <p className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">Procesando análisis…</p>
           </div>
         )}
-        <div className="bg-gray-eske-10 rounded-lg p-4 animate-pulse h-40" aria-hidden="true" />
+        <div className="bg-gray-eske-10 dark:bg-blue-eske/10 rounded-lg p-4 animate-pulse h-40" aria-hidden="true" />
       </div>
     );
   }
@@ -72,7 +72,7 @@ export default function SemanalTextBlock({
   return (
     <aside className="space-y-3 text-sm" aria-label="Análisis dinámico semanal">
       {/* Header */}
-      <p className="text-xs font-bold text-bluegreen-eske uppercase tracking-widest text-center">
+      <p className="text-xs font-bold text-bluegreen-eske dark:text-[#6BA4C6] uppercase tracking-widest text-center">
         Análisis Dinámico
       </p>
 
@@ -86,7 +86,7 @@ export default function SemanalTextBlock({
         <OrigenTexts data={data} ambito={ambito} fecha={fecha} scopeLabel={scopeLabel} />
       )}
 
-      <p className="text-[11px] text-black-eske-60 text-center mt-1">
+      <p className="text-[11px] text-black-eske-60 dark:text-[#9AAEBE] text-center mt-1">
         Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado.
       </p>
     </aside>
@@ -106,18 +106,18 @@ function EdadTexts({
   return (
     <>
       {texts.titulo && (
-        <div className="p-3 bg-gray-eske-10 rounded-md border-l-2 border-bluegreen-eske-40">
-          <p className="font-semibold text-base text-black-eske text-center leading-snug">
+        <div className="p-3 bg-gray-eske-10 dark:bg-blue-eske/10 rounded-md border-l-2 border-bluegreen-eske-40">
+          <p className="font-semibold text-base text-black-eske dark:text-[#C7D6E0] text-center leading-snug">
             {texts.titulo}
           </p>
           {fecha && (
-            <p className="text-xs text-black-eske-60 text-center mt-0.5">Corte: {fecha}</p>
+            <p className="text-xs text-black-eske-60 dark:text-[#9AAEBE] text-center mt-0.5">Corte: {fecha}</p>
           )}
         </div>
       )}
       {scopeLabel && (
         <Block label="Alcance">
-          <p className="leading-relaxed text-black-eske font-normal">{scopeLabel}</p>
+          <p className="leading-relaxed text-black-eske dark:text-[#C7D6E0] font-normal">{scopeLabel}</p>
         </Block>
       )}
       <Block label="Inclusión">
@@ -146,18 +146,18 @@ function SexoTexts({
   return (
     <>
       {texts.titulo && (
-        <div className="p-3 bg-gray-eske-10 rounded-md border-l-2 border-bluegreen-eske-40">
-          <p className="font-semibold text-base text-black-eske text-center leading-snug">
+        <div className="p-3 bg-gray-eske-10 dark:bg-blue-eske/10 rounded-md border-l-2 border-bluegreen-eske-40">
+          <p className="font-semibold text-base text-black-eske dark:text-[#C7D6E0] text-center leading-snug">
             {texts.titulo}
           </p>
           {fecha && (
-            <p className="text-xs text-black-eske-60 text-center mt-0.5">Corte: {fecha}</p>
+            <p className="text-xs text-black-eske-60 dark:text-[#9AAEBE] text-center mt-0.5">Corte: {fecha}</p>
           )}
         </div>
       )}
       {scopeLabel && (
         <Block label="Alcance">
-          <p className="leading-relaxed text-black-eske font-normal">{scopeLabel}</p>
+          <p className="leading-relaxed text-black-eske dark:text-[#C7D6E0] font-normal">{scopeLabel}</p>
         </Block>
       )}
       <Block label="Distribución">
@@ -192,18 +192,18 @@ function OrigenTexts({
   return (
     <>
       {texts.titulo && (
-        <div className="p-3 bg-gray-eske-10 rounded-md border-l-2 border-bluegreen-eske-40">
-          <p className="font-semibold text-base text-black-eske text-center leading-snug">
+        <div className="p-3 bg-gray-eske-10 dark:bg-blue-eske/10 rounded-md border-l-2 border-bluegreen-eske-40">
+          <p className="font-semibold text-base text-black-eske dark:text-[#C7D6E0] text-center leading-snug">
             {texts.titulo}
           </p>
           {fecha && (
-            <p className="text-xs text-black-eske-60 text-center mt-0.5">Corte: {fecha}</p>
+            <p className="text-xs text-black-eske-60 dark:text-[#9AAEBE] text-center mt-0.5">Corte: {fecha}</p>
           )}
         </div>
       )}
       {scopeLabel && (
         <Block label="Alcance">
-          <p className="leading-relaxed text-black-eske font-normal">{scopeLabel}</p>
+          <p className="leading-relaxed text-black-eske dark:text-[#C7D6E0] font-normal">{scopeLabel}</p>
         </Block>
       )}
       <Block label="Top Entidades">

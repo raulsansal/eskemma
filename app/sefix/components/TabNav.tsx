@@ -10,7 +10,7 @@ interface TabNavProps {
 export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
   return (
     <nav
-      className="w-full bg-white-eske border-b border-gray-eske-20 overflow-x-auto"
+      className="w-full bg-white-eske dark:bg-[#0B1620] border-b border-gray-eske-20 dark:border-white/10 overflow-x-auto"
       aria-label="Navegación de módulos Sefix"
     >
       <ul
@@ -33,7 +33,7 @@ export default function TabNav({ activeTab, onTabChange }: TabNavProps) {
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske",
                   isActive
                     ? "text-blue-eske border-b-2 border-blue-eske"
-                    : "text-black-eske-60 hover:text-blue-eske border-b-2 border-transparent",
+                    : "text-black-eske-60 dark:text-[#9AAEBE] hover:text-blue-eske border-b-2 border-transparent",
                 ].join(" ")}
               >
                 {tab.label}

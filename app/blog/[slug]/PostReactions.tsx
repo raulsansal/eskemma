@@ -78,7 +78,7 @@ export default function PostReactions({
         className={`flex items-center gap-3 px-6 py-3 rounded-full border-2 transition-all duration-300 focus-ring-primary ${
           hasLiked
             ? "bg-red-50 border-red-500 text-red-600 hover:bg-red-100"
-            : "bg-white-eske border-gray-eske-30 text-gray-700 hover:border-red-500 hover:text-red-600"
+            : "bg-white-eske dark:bg-[#18324A] border-gray-eske-30 dark:border-white/10 text-gray-700 dark:text-[#C7D6E0] hover:border-red-500 hover:text-red-600"
         } ${isAnimating ? "scale-110" : "scale-100"} ${
           isLoading ? "opacity-50 cursor-not-allowed" : ""
         }`}

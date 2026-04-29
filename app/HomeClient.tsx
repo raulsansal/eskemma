@@ -64,7 +64,16 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           alt=""
           fill
           style={{ objectFit: "cover" }}
-          className="object-cover max-sm:object-contain"
+          className="object-cover max-sm:object-contain dark:hidden"
+          priority
+          aria-hidden="true"
+        />
+        <Image
+          src="/images/hero_dark_mode.webp"
+          alt=""
+          fill
+          style={{ objectFit: "cover" }}
+          className="object-cover max-sm:object-contain hidden dark:block"
           priority
           aria-hidden="true"
         />
@@ -90,13 +99,13 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Blog Section */}
       <section
-        className="bg-gray-eske-10 min-h-145 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+        className="bg-gray-eske-10 min-h-145 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8 dark:bg-[#112230]"
         aria-labelledby="blog-heading"
       >
         <div className="w-[90%] mx-auto max-w-7xl">
           <h2
             id="blog-heading"
-            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8"
+            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8 dark:text-[#6BA4C6]"
           >
             Hoy en Eskemma
           </h2>
@@ -112,7 +121,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {blogPosts.map((post) => (
                 <article
                   key={post.id}
-                  className="flex flex-col items-center text-center bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 min-h-full"
+                  className="flex flex-col items-center text-center bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 min-h-full dark:bg-[#18324A] dark:border dark:border-white/10"
                 >
                   {/* Imagen */}
                   {post.featureImage && (
@@ -124,7 +133,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   )}
 
                   {/* Título - con flex-grow para ocupar espacio variable */}
-                  <h3 className="text-xl max-sm:text-base text-bluegreen-eske-60 font-semibold mb-2 max-sm:mb-1 hover:text-bluegreen-eske transition-colors duration-300 grow-0">
+                  <h3 className="text-xl max-sm:text-base text-bluegreen-eske-60 font-semibold mb-2 max-sm:mb-1 hover:text-bluegreen-eske transition-colors duration-300 grow-0 dark:text-[#6BA4C6] dark:hover:text-[#EAF2F8]">
                     <Link
                       href={`/blog/${post.slug}`}
                       className="focus-ring-primary rounded"
@@ -134,12 +143,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                   </h3>
 
                   {/* Contenido - con flex-grow para ocupar espacio variable */}
-                  <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90 mb-4 max-sm:mb-2 line-clamp-3 grow">
+                  <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90 mb-4 max-sm:mb-2 line-clamp-3 grow dark:text-[#9AAEBE]">
                     {post.content.substring(0, 160)}...
                   </p>
 
                   {/* Fecha y autor */}
-                  <div className="flex justify-between w-full text-sm max-sm:text-xs text-gray-700 mb-4 max-sm:mb-2 px-2 max-sm:px-1">
+                  <div className="flex justify-between w-full text-sm max-sm:text-xs text-gray-700 mb-4 max-sm:mb-2 px-2 max-sm:px-1 dark:text-[#9AAEBE]">
                     <time
                       className="text-gray-eske-60"
                       dateTime={post.updatedAt.toISOString()}
@@ -150,7 +159,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                         day: "numeric",
                       })}
                     </time>
-                    <span className="text-bluegreen-eske font-medium">
+                    <span className="text-bluegreen-eske font-medium dark:text-[#4791B3]">
                       {post.author?.displayName || "Desconocido"}
                     </span>
                   </div>
@@ -173,13 +182,13 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Información Relevante Section */}
       <section
-        className="bg-white-eske min-h-125 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+        className="bg-white-eske min-h-125 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8 dark:bg-[#0B1620]"
         aria-labelledby="info-heading"
       >
         <div className="w-[90%] mx-auto max-w-7xl">
           <h2
             id="info-heading"
-            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8"
+            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8 dark:text-[#6BA4C6]"
           >
             Información relevante
           </h2>
@@ -195,7 +204,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 className="w-full h-auto object-contain rounded-lg mb-4 max-sm:mb-2"
                 unoptimized={true}
               />
-              <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 grow">
+              <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 grow dark:text-[#9AAEBE]">
                 Participación electoral por circunscripción{" "}
                 <br className="max-sm:hidden" />
                 en las elecciones federales de México 2006-2021
@@ -222,7 +231,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 className="w-full h-auto object-contain rounded-lg mb-4 max-sm:mb-2"
                 unoptimized={true}
               />
-              <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 grow">
+              <p className="text-[16px] max-sm:text-sm text-gray mb-4 max-sm:mb-2 grow dark:text-[#9AAEBE]">
                 ¿Por qué la participación electoral aumenta en las{" "}
                 <br className="max-sm:hidden" />
                 elecciones presidenciales en México?
@@ -307,20 +316,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Sobre Nosotros Section - CON SPINNER DE CARGA */}
       <section
-        className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+        className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8 dark:bg-[#0B1620]"
         aria-labelledby="about-heading"
       >
         <div className="w-[90%] mx-auto max-w-7xl text-center">
           {/* Subtítulo */}
           <h2
             id="about-heading"
-            className="text-3xl max-sm:text-xl font-bold text-bluegreen-eske mb-6 max-sm:mb-4"
+            className="text-3xl max-sm:text-xl font-bold text-bluegreen-eske mb-6 max-sm:mb-4 dark:text-[#6BA4C6]"
           >
             Sobre nosotros
           </h2>
 
           {/* Párrafo Principal */}
-          <p className="text-xl max-sm:text-base font-normal text-black-eske mb-6 max-sm:mb-4">
+          <p className="text-xl max-sm:text-base font-normal text-black-eske mb-6 max-sm:mb-4 dark:text-[#C7D6E0]">
             Nuestro propósito es profesionalizar la vida pública.
           </p>
 
@@ -387,13 +396,13 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Sección - Testimonios - OPTIMIZADA CON ALTERNANCIA MOBILE */}
       <section
-        className="bg-gray-eske-10 min-h-150 max-sm:min-h-100 py-20 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        className="bg-gray-eske-10 min-h-150 max-sm:min-h-100 py-20 max-sm:py-12 px-4 sm:px-6 md:px-8 dark:bg-[#112230]"
         aria-labelledby="testimonials-heading"
       >
         <div className="w-[90%] mx-auto max-w-7xl">
           <h2
             id="testimonials-heading"
-            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8"
+            className="text-3xl max-sm:text-xl font-semibold text-center text-bluegreen-eske mb-12 max-sm:mb-8 dark:text-[#6BA4C6]"
           >
             ¿Qué opinan nuestros clientes?
           </h2>
@@ -417,20 +426,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                 {/* Datos de la persona */}
                 <div className="text-center sm:text-center max-sm:text-left">
-                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight">
+                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight dark:text-[#4791B3]">
                     Carmen Arriaga
                   </p>
-                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5">
+                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5 dark:text-[#9AAEBE]">
                     Regidora
                   </p>
-                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5">
+                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5 dark:text-[#6D8294]">
                     @carriaganl
                   </p>
                 </div>
               </div>
 
               {/* Texto del testimonio - Mobile: izquierda, Desktop: izquierda */}
-              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-left sm:text-left w-full sm:max-w-[70%]">
+              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-left sm:text-left w-full sm:max-w-[70%] dark:text-[#C7D6E0]">
                 <p>
                   "Cuando pensé que no había nada más que hacer en mi
                   candidatura decidí utilizar el <em>Moddulo</em> de Eskemma.
@@ -455,20 +464,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                 {/* Datos de la persona */}
                 <div className="text-center sm:text-center max-sm:text-left">
-                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight">
+                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight dark:text-[#4791B3]">
                     Sergio Hernández
                   </p>
-                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5">
+                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5 dark:text-[#9AAEBE]">
                     Analista
                   </p>
-                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5">
+                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5 dark:text-[#6D8294]">
                     @sergehernan33
                   </p>
                 </div>
               </div>
 
               {/* Texto del testimonio - Mobile: derecha, Desktop: derecha */}
-              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-right sm:text-right w-full sm:max-w-[70%]">
+              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-right sm:text-right w-full sm:max-w-[70%] dark:text-[#C7D6E0]">
                 <p>
                   "En los cursos de comunicación política siempre hablan de
                   estrategia, pero hasta ahora sé cómo hacerlo en territorio, no
@@ -493,20 +502,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                 {/* Datos de la persona */}
                 <div className="text-center sm:text-center max-sm:text-left">
-                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight">
+                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight dark:text-[#4791B3]">
                     Juan Carlos Montañez L.
                   </p>
-                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5">
+                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5 dark:text-[#9AAEBE]">
                     Candidato diputado local
                   </p>
-                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5">
+                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5 dark:text-[#6D8294]">
                     @JCMontañez
                   </p>
                 </div>
               </div>
 
               {/* Texto del testimonio - Mobile: izquierda, Desktop: izquierda */}
-              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-left sm:text-left w-full sm:max-w-[70%]">
+              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-left sm:text-left w-full sm:max-w-[70%] dark:text-[#C7D6E0]">
                 <p>
                   "Con su ayuda logré analizar mejor la información y saber cómo
                   aventajar a los otros partidos. Lo mejor es que lo hice yo
@@ -531,20 +540,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
                 {/* Datos de la persona */}
                 <div className="text-center sm:text-center max-sm:text-left">
-                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight">
+                  <p className="text-[12px] max-sm:text-[12px] font-semibold text-bluegreen-eske leading-tight dark:text-[#4791B3]">
                     Martha T. Sepúlveda
                   </p>
-                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5">
+                  <p className="text-[12px] max-sm:text-[11px] text-gray-eske-90 leading-tight mt-0.5 dark:text-[#9AAEBE]">
                     Concejal
                   </p>
-                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5">
+                  <p className="text-[11px] max-sm:text-[10px] text-gray-eske-80 leading-tight mt-0.5 dark:text-[#6D8294]">
                     @mtsepulvedaCDMX
                   </p>
                 </div>
               </div>
 
               {/* Texto del testimonio - Mobile: derecha, Desktop: derecha */}
-              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-right sm:text-right w-full sm:max-w-[70%]">
+              <blockquote className="text-[16px] max-sm:text-sm text-black-eske font-light max-sm:text-right sm:text-right w-full sm:max-w-[70%] dark:text-[#C7D6E0]">
                 <p>
                   "Pensé que estos servicios sólo eran para grandes campañas.
                   Participé en una elección local en 2024 y pude utilizar mucha
@@ -559,20 +568,20 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
       {/* Sección - Planes de suscripción */}
       <section
         id="suscripciones"
-        className="bg-white-eske min-h-200 py-18 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        className="bg-white-eske min-h-200 py-18 max-sm:py-12 px-4 sm:px-6 md:px-8 dark:bg-[#0B1620]"
         aria-labelledby="subscriptions-heading"
       >
         <div className="w-[90%] mx-auto max-w-7xl">
           {/* Título de la Sección */}
           <h2
             id="subscriptions-heading"
-            className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-6 max-sm:mb-4"
+            className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-6 max-sm:mb-4 dark:text-[#6BA4C6]"
           >
             Selecciona el mejor plan para tu proyecto político
           </h2>
 
           {/* Párrafo Descriptivo */}
-          <p className="mt-12 max-sm:mt-6 text-2xl max-sm:text-lg font-light text-center text-black-eske mb-24 max-sm:mb-12 max-w-150 mx-auto">
+          <p className="mt-12 max-sm:mt-6 text-2xl max-sm:text-lg font-light text-center text-black-eske mb-24 max-sm:mb-12 max-w-150 mx-auto dark:text-[#C7D6E0]">
             <span>Suscríbete y accede al</span>
             <br />
             <span>ecosistema digital de Eskemma</span>
@@ -581,10 +590,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
           {/* Contenedor de las Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-sm:gap-6">
             {/* Card 1 - Sólo un producto (Plan Básico) */}
-            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col order-2 sm:order-">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col dark:bg-[#18324A] dark:border dark:border-white/10 order-2 sm:order-1">
               {/* Encabezado con fondo white-eske */}
               <div
-                className="absolute -top-3.75 left-1/2 transform -translate-x-1/2 bg-white-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-black-eske text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
+                className="absolute -top-3.75 left-1/2 transform -translate-x-1/2 bg-white-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-black-eske text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap dark:bg-[#21425E] dark:text-[#EAF2F8] dark:border-white/20"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
                 aria-hidden="true"
               >
@@ -594,12 +603,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {/* Contenido de la card */}
               <div className="flex flex-col grow">
                 {/* Título del Plan */}
-                <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3">
+                <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3 dark:text-[#6BA4C6]">
                   Plan Básico
                 </h3>
 
                 {/* Detalles del Plan */}
-                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow">
+                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow dark:text-[#C7D6E0]">
                   <p className="text-center">Mensual | Para 1 persona</p>                   
                   <p className="mt-4 max-sm:mt-2 text-[16px] text-center max-sm:text-[9px]">
                     <strong>Ideal para candidatos locales y equipos pequeños.</strong>
@@ -627,7 +636,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                     />
                   </div>
                   {/* Precio */}
-                  <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
+                  <p className="text-[16px] max-sm:text-sm font-bold text-black-eske dark:text-[#C7D6E0]">
                     $ 2,899 MX / mes
                   </p>
                 </div>
@@ -644,7 +653,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             </article>
 
             {/* Card 2 - Todo Eskemma (Plan Premium) */}
-            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col order-1 sm:order-0">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col dark:bg-[#18324A] dark:border dark:border-white/10 order-1 sm:order-2">
               {/* Encabezado con fondo black-eske */}
               <div
                 className="absolute -top-3.75 left-1/2 transform -translate-x-1/2 bg-black-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-white-eske text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
@@ -657,12 +666,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {/* Contenido de la card */}
               <div className="flex flex-col grow">
                 {/* Título del Plan */}
-                <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3">
+                <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3 dark:text-[#6BA4C6]">
                   Plan Premium
                 </h3>
 
                 {/* Detalles del Plan */}
-                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow">
+                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow dark:text-[#C7D6E0]">
                   <p className="text-center">Mensual | Hasta 5 personas</p> 
                   <p className="mt-4 max-sm:mt-2 text-[16px] text-center max-sm:text-[9px]">
                     <strong>Ideal para equipos de 5-15 personas</strong>
@@ -690,7 +699,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                     />
                   </div>
                   {/* Precio */}
-                  <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
+                  <p className="text-[16px] max-sm:text-sm font-bold text-black-eske dark:text-[#C7D6E0]">
                     $ 5,899 MX / mes
                   </p>
                 </div>
@@ -707,10 +716,10 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             </article>
 
             {/* Card 3 - Trabajo colaborativo (Plan Grupal) */}
-            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col order-3 sm:order-0">
+            <article className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4 text-center relative overflow-visible w-full max-w-87.5 mx-auto flex flex-col dark:bg-[#18324A] dark:border dark:border-white/10 order-3 sm:order-3">
               {/* Encabezado con fondo white-eske */}
               <div
-                className="absolute -top-3.75 left-1/2 transform -translate-x-1/2 bg-white-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-black text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap"
+                className="absolute -top-3.75 left-1/2 transform -translate-x-1/2 bg-white-eske px-6 max-sm:px-4 py-2 max-sm:py-1 border border-bluegreen-eske text-black text-[14px] max-sm:text-xs font-medium z-10 whitespace-nowrap dark:bg-[#21425E] dark:text-[#EAF2F8] dark:border-white/20"
                 style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)" }}
                 aria-hidden="true"
               >
@@ -720,12 +729,12 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
               {/* Contenido de la card */}
               <div className="flex flex-col grow">
                 {/* Título del Plan */}
-                <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3">
+                <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mt-6 max-sm:mt-4 mb-4 max-sm:mb-3 dark:text-[#6BA4C6]">
                   Plan Profesional
                 </h3>
 
                 {/* Detalles del Plan */}
-                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow">
+                <div className="text-left text-[16px] max-sm:text-sm text-black-eske space-y-2 max-sm:space-y-1 grow dark:text-[#C7D6E0]">
                   <p className="text-center">Mensual | Usuarios ilimitados</p>
                   <p className="mt-4 max-sm:mt-2 text-center text-[16px] max-sm:text-sm">
                     <strong>Ideal para equipos de 15-50+ personas</strong>
@@ -755,7 +764,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                     />
                   </div>
                   {/* Precio */}
-                  <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
+                  <p className="text-[16px] max-sm:text-sm font-bold text-black-eske dark:text-[#C7D6E0]">
                     $ 9,899 MX / mes
                   </p>
                 </div>
@@ -817,13 +826,13 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
 
       {/* Enlaces Rápidos Section */}
       <section
-        className="bg-white-eske min-h-125 py-16 max-sm:py-12 px-4 sm:px-6 md:px-8"
+        className="bg-white-eske min-h-125 py-16 max-sm:py-12 px-4 sm:px-6 md:px-8 dark:bg-[#0B1620]"
         aria-labelledby="quick-links-heading"
       >
         <div className="w-[90%] mx-auto max-w-7xl">
           <h2
             id="quick-links-heading"
-            className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-14 max-sm:mb-8"
+            className="text-3xl max-sm:text-xl font-bold text-center text-bluegreen-eske mb-14 max-sm:mb-8 dark:text-[#6BA4C6]"
           >
             Enlaces rápidos
           </h2>
@@ -840,9 +849,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 src="/icons/icon_Moddulo.svg"
                 alt=""
                 aria-hidden="true"
-                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 dark:hidden"
               />
-              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60">
+              <img
+                src="/icons/icons_dark_mode/icon_Moddulo_wd.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 hidden dark:block"
+              />
+              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60 dark:text-[#4791B3]">
                 Moddulo
               </span>
             </Link>
@@ -855,9 +870,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 src="/icons/icon_Sefix.svg"
                 alt=""
                 aria-hidden="true"
-                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 dark:hidden"
               />
-              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60">
+              <img
+                src="/icons/icons_dark_mode/icon_Sefix_wd.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 hidden dark:block"
+              />
+              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60 dark:text-[#4791B3]">
                 Sefix
               </span>
             </Link>
@@ -870,9 +891,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 src="/icons/icon_Consultoria.svg"
                 alt=""
                 aria-hidden="true"
-                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 dark:hidden"
               />
-              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60">
+              <img
+                src="/icons/icons_dark_mode/icon_Consultoría_wd.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 hidden dark:block"
+              />
+              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60 dark:text-[#4791B3]">
                 Servicios
               </span>
             </Link>
@@ -885,9 +912,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 src="/icons/icon_Cursos.svg"
                 alt=""
                 aria-hidden="true"
-                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 dark:hidden"
               />
-              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60">
+              <img
+                src="/icons/icons_dark_mode/icon_Cursos_wd.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 hidden dark:block"
+              />
+              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60 dark:text-[#4791B3]">
                 Cursos
               </span>
             </Link>
@@ -900,9 +933,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 src="/icons/icon_Monitor.svg"
                 alt=""
                 aria-hidden="true"
-                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 dark:hidden"
               />
-              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-80">
+              <img
+                src="/icons/icons_dark_mode/icon_Monitor_wd.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 hidden dark:block"
+              />
+              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-80 dark:text-[#4791B3]">
                 Monitor
               </span>
             </Link>
@@ -915,9 +954,15 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
                 src="/icons/icon_Blog.svg"
                 alt=""
                 aria-hidden="true"
-                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 dark:hidden"
               />
-              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60">
+              <img
+                src="/icons/icons_dark_mode/icon_Blog_wd.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-32 h-32 max-sm:w-20 max-sm:h-20 mb-4 max-sm:mb-2 transition-transform duration-300 ease-in-out hover:scale-110 hidden dark:block"
+              />
+              <span className="text-xl max-sm:text-sm text-bluegreen-eske font-medium hover:text-bluegreen-60 dark:text-[#4791B3]">
                 El baúl de Fouché
               </span>
             </Link>

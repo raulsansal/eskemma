@@ -66,14 +66,14 @@ export default function WizardStep1Tipo({
     <div className="flex flex-col gap-8">
       {/* Type selection */}
       <div>
-        <h2 className="text-lg font-semibold text-black-eske mb-1 flex items-center gap-1.5">
+        <h2 className="text-lg font-semibold text-black-eske dark:text-[#EAF2F8] mb-1 flex items-center gap-1.5">
           ¿Qué tipo de proyecto es?
           <InfoTooltip
             content="Define el marco metodológico del análisis. Cada tipo activa un conjunto distinto de variables PEST-L por defecto, ajustado a su contexto político."
             example="Si coordinas una campaña a diputado local → Electoral"
           />
         </h2>
-        <p className="text-sm text-gray-eske-70 mb-4">
+        <p className="text-sm text-gray-eske-70 dark:text-[#9AAEBE] mb-4">
           El tipo define las variables PEST-L que se activan por defecto.
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -85,16 +85,16 @@ export default function WizardStep1Tipo({
               className={[
                 "flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition-all",
                 tipo === pt.value
-                  ? "border-bluegreen-eske bg-bluegreen-eske/5"
-                  : "border-gray-eske-20 bg-white-eske hover:border-gray-eske-40",
+                  ? "border-bluegreen-eske bg-bluegreen-eske/5 dark:bg-bluegreen-eske/10"
+                  : "border-gray-eske-20 dark:border-white/10 bg-white-eske dark:bg-[#21425E] hover:border-gray-eske-40 dark:hover:border-white/20",
               ].join(" ")}
               aria-pressed={tipo === pt.value}
             >
               <span className="text-2xl" aria-hidden="true">
                 {pt.icon}
               </span>
-              <span className="font-semibold text-black-eske">{pt.label}</span>
-              <span className="text-xs text-gray-eske-70">{pt.description}</span>
+              <span className="font-semibold text-black-eske dark:text-[#EAF2F8]">{pt.label}</span>
+              <span className="text-xs text-gray-eske-70 dark:text-[#9AAEBE]">{pt.description}</span>
             </button>
           ))}
         </div>
@@ -102,7 +102,7 @@ export default function WizardStep1Tipo({
 
       {/* Project name */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="project-name" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
+        <label htmlFor="project-name" className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5">
           Nombre del proyecto
           <InfoTooltip
             content="Identificador interno del proyecto. No es público. Usa un nombre que permita distinguirlo de otros proyectos."
@@ -115,12 +115,13 @@ export default function WizardStep1Tipo({
           value={nombre}
           onChange={(e) => onChange({ nombre: e.target.value })}
           placeholder={selectedType?.placeholder ?? "Nombre del proyecto"}
-          className="px-3 py-2.5 border border-gray-eske-30 rounded-lg text-sm
+          className="px-3 py-2.5 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm
             focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske
-            placeholder:text-gray-eske-50"
+            placeholder:text-gray-eske-50 dark:placeholder-[#6D8294]
+            bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
           maxLength={80}
         />
-        <p className="text-xs text-gray-eske-60">
+        <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
           Máximo 80 caracteres. Usa un nombre descriptivo que recuerdes fácilmente.
         </p>
       </div>
@@ -128,7 +129,7 @@ export default function WizardStep1Tipo({
       {/* Horizon slider */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <label htmlFor="horizonte" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
+          <label htmlFor="horizonte" className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5">
             Horizonte temporal
             <InfoTooltip
               content="Período futuro que el análisis debe anticipar. Más meses implica mayor incertidumbre pero mayor utilidad para planeación estratégica."
@@ -149,7 +150,7 @@ export default function WizardStep1Tipo({
           onChange={(e) => onChange({ horizonte: Number(e.target.value) })}
           className="w-full accent-bluegreen-eske"
         />
-        <div className="flex justify-between text-xs text-gray-eske-60">
+        <div className="flex justify-between text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
           <span>1 mes</span>
           <span>24 meses</span>
         </div>

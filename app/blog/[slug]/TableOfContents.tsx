@@ -64,7 +64,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <nav 
-      className="sticky top-24 bg-white-eske border border-gray-eske-30 rounded-lg p-6 shadow-sm max-h-[calc(100vh-120px)] overflow-y-auto"
+      className="sticky top-24 bg-white-eske dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg p-6 shadow-sm max-h-[calc(100vh-120px)] overflow-y-auto"
       aria-labelledby="toc-heading"
     >
       <h3 
@@ -89,7 +89,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
               className={`block text-sm transition-colors duration-200 hover:text-bluegreen-eske focus-ring-primary rounded ${
                 activeId === id
                   ? "text-bluegreen-eske font-semibold"
-                  : "text-gray-eske-70"
+                  : "text-gray-eske-70 dark:text-[#9AAEBE]"
               }`}
               aria-label={`Ir a la sección: ${text}`}
               aria-current={activeId === id ? "location" : undefined}

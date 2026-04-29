@@ -104,10 +104,10 @@ export default function WizardStep3Variables({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold text-black-eske mb-1">
+        <h2 className="text-lg font-semibold text-black-eske dark:text-[#EAF2F8] mb-1">
           Variables PEST-L
         </h2>
-        <p className="text-sm text-gray-eske-70">
+        <p className="text-sm text-gray-eske-70 dark:text-[#9AAEBE]">
           Cargamos las variables por defecto para un proyecto{" "}
           <span className="font-medium capitalize">{tipo}</span>. Personaliza
           según el contexto específico de tu proyecto.
@@ -116,7 +116,7 @@ export default function WizardStep3Variables({
 
       {/* Total counter */}
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-eske-70">Total de variables:</span>
+        <span className="text-sm text-gray-eske-70 dark:text-[#9AAEBE]">Total de variables:</span>
         <span
           className={[
             "text-sm font-semibold",
@@ -126,7 +126,7 @@ export default function WizardStep3Variables({
           {totalVars} / 30
         </span>
         {totalVars >= 30 && (
-          <span className="text-xs text-red-eske bg-red-50 px-2 py-0.5 rounded">
+          <span className="text-xs text-red-eske dark:text-red-300 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded">
             Límite alcanzado
           </span>
         )}
@@ -141,11 +141,11 @@ export default function WizardStep3Variables({
           return (
             <div
               key={dim.code}
-              className="border border-gray-eske-20 rounded-xl overflow-hidden"
+              className="border border-gray-eske-20 dark:border-white/10 rounded-xl overflow-hidden"
             >
               {/* Accordion header — wrapper div prevents nested <button> */}
               <div className="flex items-center justify-between px-4 py-3
-                bg-white-eske hover:bg-gray-eske-10 transition-colors">
+                bg-white-eske dark:bg-[#18324A] hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors">
                 <button
                   type="button"
                   onClick={() =>
@@ -159,10 +159,10 @@ export default function WizardStep3Variables({
                     justify-center shrink-0">
                     {dim.code}
                   </span>
-                  <span className="font-medium text-black-eske text-sm">
+                  <span className="font-medium text-black-eske dark:text-[#EAF2F8] text-sm">
                     {DIMENSION_LABELS[dim.code]}
                   </span>
-                  <span className="text-xs text-gray-eske-60">
+                  <span className="text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
                     {dim.variables.length} variable{dim.variables.length !== 1 ? "s" : ""}
                   </span>
                   {hasWarning && (
@@ -189,7 +189,7 @@ export default function WizardStep3Variables({
 
               {/* Accordion body */}
               {isOpen && (
-                <div className="px-4 pb-4 pt-2 bg-white-eske border-t border-gray-eske-10">
+                <div className="px-4 pb-4 pt-2 bg-white-eske dark:bg-[#18324A] border-t border-gray-eske-10 dark:border-white/10">
                   {hasWarning && (
                     <p className="text-xs text-yellow-eske-70 bg-yellow-eske/5
                       border border-yellow-eske/20 px-3 py-2 rounded-lg mb-3">
@@ -203,10 +203,10 @@ export default function WizardStep3Variables({
                       <div
                         key={v.id}
                         className="flex items-center gap-2 p-3 rounded-lg
-                          bg-gray-eske-10 group"
+                          bg-gray-eske-10 dark:bg-[#21425E] group"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-black-eske wrap-break-words">
+                          <p className="text-sm text-black-eske dark:text-[#EAF2F8] wrap-break-words">
                             {v.name}
                             {!v.isDefault && (
                               <span className="ml-2 text-xs text-blue-eske bg-blue-eske/10
@@ -238,8 +238,9 @@ export default function WizardStep3Variables({
                                 weight: Number(e.target.value) as PestlVariable["weight"],
                               })
                             }
-                            className="text-xs border border-gray-eske-20 rounded px-1.5 py-1
-                              bg-white-eske focus:outline-none focus-visible:ring-1
+                            className="text-xs border border-gray-eske-20 dark:border-white/10 rounded px-1.5 py-1
+                              bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]
+                              focus:outline-none focus-visible:ring-1
                               focus-visible:ring-bluegreen-eske"
                             aria-label={`Peso de ${v.name}`}
                           >
@@ -263,7 +264,7 @@ export default function WizardStep3Variables({
                             "text-xs px-2 py-1 rounded transition-colors shrink-0",
                             v.isPriority
                               ? "bg-orange-eske/10 text-orange-eske"
-                              : "bg-gray-eske-20 text-gray-eske-60 hover:bg-gray-eske-30",
+                              : "bg-gray-eske-20 dark:bg-[#112230] text-gray-eske-60 dark:text-[#9AAEBE] hover:bg-gray-eske-30 dark:hover:bg-white/5",
                           ].join(" ")}
                           aria-label={v.isPriority ? "Quitar prioridad" : "Marcar como prioritaria"}
                           title={v.isPriority ? "Prioritaria" : "Sin prioridad"}
@@ -304,9 +305,10 @@ export default function WizardStep3Variables({
                           }
                         }}
                         placeholder="Nombre de la nueva variable"
-                        className="flex-1 px-3 py-1.5 border border-gray-eske-30 rounded-lg
+                        className="flex-1 px-3 py-1.5 border border-gray-eske-30 dark:border-white/10 rounded-lg
                           text-xs focus:outline-none focus-visible:ring-2
-                          focus-visible:ring-bluegreen-eske placeholder:text-gray-eske-50"
+                          focus-visible:ring-bluegreen-eske placeholder:text-gray-eske-50 dark:placeholder-[#6D8294]
+                          bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
                         aria-label={`Agregar variable a ${DIMENSION_LABELS[dim.code]}`}
                       />
                       <InfoTooltip
@@ -338,8 +340,8 @@ export default function WizardStep3Variables({
           type="button"
           onClick={onBack}
           disabled={saving}
-          className="px-5 py-2.5 border border-gray-eske-30 text-gray-eske-80
-            rounded-lg text-sm font-medium hover:bg-gray-eske-10 transition-colors
+          className="px-5 py-2.5 border border-gray-eske-30 dark:border-white/10 text-gray-eske-80 dark:text-[#C7D6E0]
+            rounded-lg text-sm font-medium hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors
             disabled:opacity-50"
         >
           ← Atrás

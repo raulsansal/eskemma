@@ -156,9 +156,9 @@ export default function ContactoPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white-eske">
+    <main className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
       {/* Hero Section - Responsiva CON IMAGEN EN MOBILE */}
-      <section 
+      <section
         className="relative min-h-[250px] sm:h-[200px] md:h-[200px] w-full flex items-center bg-bluegreen-eske overflow-hidden"
         aria-labelledby="hero-title"
       >
@@ -174,8 +174,8 @@ export default function ContactoPage() {
         />
 
         {/* Overlay con opacidad */}
-        <div className="absolute inset-0 bg-bluegreen-eske opacity-75 z-10" aria-hidden="true"></div>
-       
+        <div className="absolute inset-0 bg-bluegreen-eske dark:bg-bluegreen-eske-80 opacity-75 z-10" aria-hidden="true"></div>
+
         <div className="relative z-20 w-full max-w-screen-xl mx-auto flex flex-col md:flex-row items-center md:h-full px-4 sm:px-6 md:px-8 py-6 md:py-0">
           {/* Imagen de Persona Sonriendo - Mobile: arriba (120px), Desktop: izquierda (altura completa) */}
           <div className="w-full md:w-1/2 relative h-[120px] md:h-full max-md:mb-4" aria-hidden="true">
@@ -193,7 +193,7 @@ export default function ContactoPage() {
 
           {/* Contenido del Hero - Mobile: centrado, Desktop: izquierda */}
           <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
-            <h1 
+            <h1
               id="hero-title"
               className="text-2xl sm:text-[26px] md:text-[28px] max-sm:text-xl leading-tight font-bold text-white-eske"
             >
@@ -210,18 +210,18 @@ export default function ContactoPage() {
       </section>
 
       {/* Sección: ¿Para qué puedes contactarnos? */}
-      <section 
-        className="bg-gray-eske-10 py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+      <section
+        className="bg-gray-eske-10 dark:bg-[#112230] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
         aria-labelledby="contact-reasons-title"
       >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 
+          <h2
             id="contact-reasons-title"
-            className="text-3xl max-sm:text-2xl font-semibold text-center text-bluegreen-eske mb-8 max-sm:mb-6"
+            className="text-3xl max-sm:text-2xl font-semibold text-center text-bluegreen-eske dark:text-[#6BA4C6] mb-8 max-sm:mb-6"
           >
             ¿Para qué puedes contactarnos?
           </h2>
-          <div 
+          <div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-sm:gap-6"
             role="list"
             aria-label="Razones para contactarnos"
@@ -236,10 +236,10 @@ export default function ContactoPage() {
                 className="mb-4 max-sm:mb-3 max-sm:w-12 max-sm:h-12 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske dark:text-[#6BA4C6] mb-2 max-sm:mb-1">
                 Contratar Servicios
               </h3>
-              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90 dark:text-[#9AAEBE]">
                 Si deseas contratar nuestros servicios.
               </p>
             </article>
@@ -254,10 +254,10 @@ export default function ContactoPage() {
                 className="mb-4 max-sm:mb-3 max-sm:w-12 max-sm:h-12 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske dark:text-[#6BA4C6] mb-2 max-sm:mb-1">
                 Pedir Información
               </h3>
-              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90 dark:text-[#9AAEBE]">
                 Para resolver dudas sobre nuestros productos o servicios.
               </p>
             </article>
@@ -272,10 +272,10 @@ export default function ContactoPage() {
                 className="mb-4 max-sm:mb-3 max-sm:w-12 max-sm:h-12 transition-transform duration-300 ease-in-out hover:scale-130"
                 aria-hidden="true"
               />
-              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske mb-2 max-sm:mb-1">
+              <h3 className="text-xl max-sm:text-lg font-semibold text-bluegreen-eske dark:text-[#6BA4C6] mb-2 max-sm:mb-1">
                 Publicar en el Blog
               </h3>
-              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90">
+              <p className="text-[16px] max-sm:text-sm font-light text-gray-eske-90 dark:text-[#9AAEBE]">
                 Si tienes contenido relevante para nuestro blog.
               </p>
             </article>
@@ -284,23 +284,23 @@ export default function ContactoPage() {
       </section>
 
       {/* Sección: ¿Cómo puedes contactarnos? */}
-      <section 
-        className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
+      <section
+        className="bg-white-eske dark:bg-[#0B1620] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8"
         aria-labelledby="contact-methods-title"
       >
         <div className="w-[90%] mx-auto max-w-screen-xl">
-          <h2 
+          <h2
             id="contact-methods-title"
-            className="text-3xl max-sm:text-2xl font-semibold text-center text-bluegreen-eske mb-8 max-sm:mb-6"
+            className="text-3xl max-sm:text-2xl font-semibold text-center text-bluegreen-eske dark:text-[#6BA4C6] mb-8 max-sm:mb-6"
           >
             ¿Cómo puedes contactarnos?
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-sm:gap-6">
             {/* Datos de Contacto */}
             <div className="space-y-4 max-sm:space-y-3" role="region" aria-label="Información de contacto">
-              <p className="text-lg max-sm:text-base font-light text-black-eske">
+              <p className="text-lg max-sm:text-base font-light text-black-eske dark:text-[#C7D6E0]">
                 <span className="font-bold text-bluegreen-eske">Teléfono:</span>{" "}
-                <a 
+                <a
                   href="tel:+525555555555"
                   className="hover:text-bluegreen-eske transition-colors focus-ring-primary rounded"
                   aria-label="Llamar al teléfono +52 55 5555 5555"
@@ -308,9 +308,9 @@ export default function ContactoPage() {
                   +52 55 5555 5555
                 </a>
               </p>
-              <p className="text-lg max-sm:text-base font-light text-black-eske">
+              <p className="text-lg max-sm:text-base font-light text-black-eske dark:text-[#C7D6E0]">
                 <span className="font-bold text-bluegreen-eske">Email:</span>{" "}
-                <a 
+                <a
                   href="mailto:contacto@eskemma.com"
                   className="hover:text-bluegreen-eske transition-colors focus-ring-primary rounded"
                   aria-label="Enviar correo a contacto@eskemma.com"
@@ -318,19 +318,19 @@ export default function ContactoPage() {
                   contacto@eskemma.com
                 </a>
               </p>
-              <p className="text-lg max-sm:text-base font-light text-black-eske">
+              <p className="text-lg max-sm:text-base font-light text-black-eske dark:text-[#C7D6E0]">
                 <span className="font-bold text-bluegreen-eske">
                   Dirección:
                 </span>{" "}
                 Av. Reforma #222, CDMX, México
               </p>
-              <p className="text-lg max-sm:text-base font-light text-black-eske">
+              <p className="text-lg max-sm:text-base font-light text-black-eske dark:text-[#C7D6E0]">
                 <span className="font-bold text-bluegreen-eske">
                   Horario de Atención:
                 </span>{" "}
                 <time>Lunes a Viernes, 9:00 - 18:00</time>
               </p>
-              <p className="text-lg max-sm:text-base font-light text-black-eske">
+              <p className="text-lg max-sm:text-base font-light text-black-eske dark:text-[#C7D6E0]">
                 <span className="font-bold text-bluegreen-eske">
                   Tiempo de Respuesta:
                 </span>{" "}
@@ -340,23 +340,22 @@ export default function ContactoPage() {
 
             {/* Formulario */}
             <div>
-              <form 
-                onSubmit={handleSubmit} 
+              <form
+                onSubmit={handleSubmit}
                 className="space-y-4 max-sm:space-y-3"
                 aria-label="Formulario de contacto"
               >
-                <h3 className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske mb-4 max-sm:mb-3">
+                <h3 className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske dark:text-[#6BA4C6] mb-4 max-sm:mb-3">
                   Escríbenos
                 </h3>
 
                 {/* ✅ Mensaje de éxito/error global */}
                 {submitStatus.type && (
                   <div
-                    className={`p-4 max-sm:p-3 rounded-lg mb-4 max-sm:mb-3 ${
-                      submitStatus.type === "success"
-                        ? "bg-green-50 border border-green-200 text-green-800"
-                        : "bg-red-50 border border-red-200 text-red-800"
-                    }`}
+                    className={`p-4 max-sm:p-3 rounded-lg mb-4 max-sm:mb-3 ${submitStatus.type === "success"
+                        ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-400"
+                        : "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-400"
+                      }`}
                     role={submitStatus.type === "error" ? "alert" : "status"}
                     aria-live={submitStatus.type === "error" ? "assertive" : "polite"}
                   >
@@ -370,7 +369,7 @@ export default function ContactoPage() {
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-black-eske font-medium mb-1 text-base max-sm:text-sm"
+                    className="block text-black-eske dark:text-[#C7D6E0] font-medium mb-1 text-base max-sm:text-sm"
                   >
                     Nombre <span className="text-red-500" aria-label="campo requerido">*</span>
                   </label>
@@ -381,15 +380,15 @@ export default function ContactoPage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus-ring-primary px-3 py-2 max-sm:py-1.5 transition-colors bg-white text-base max-sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 dark:border-white/10 rounded-md shadow-sm focus-ring-primary px-3 py-2 max-sm:py-1.5 transition-colors bg-white dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294] text-base max-sm:text-sm"
                     placeholder="Tu nombre completo"
                     aria-describedby={isAuthenticatedUser && formData.name ? "name-hint" : undefined}
                   />
                   {/* ✅ Mensaje informativo para usuarios autenticados */}
                   {isAuthenticatedUser && formData.name && (
-                    <p 
+                    <p
                       id="name-hint"
-                      className="text-xs max-sm:text-[10px] text-gray-400 mt-1"
+                      className="text-xs max-sm:text-[10px] text-gray-400 dark:text-[#6D8294] mt-1"
                       role="status"
                     >
                       ℹ️ Prellenado con tu información de perfil (puedes
@@ -402,7 +401,7 @@ export default function ContactoPage() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-black-eske font-medium mb-1 text-base max-sm:text-sm"
+                    className="block text-black-eske dark:text-[#C7D6E0] font-medium mb-1 text-base max-sm:text-sm"
                   >
                     Email <span className="text-red-500" aria-label="campo requerido">*</span>
                   </label>
@@ -413,15 +412,15 @@ export default function ContactoPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus-ring-primary px-3 py-2 max-sm:py-1.5 transition-colors bg-white text-base max-sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 dark:border-white/10 rounded-md shadow-sm focus-ring-primary px-3 py-2 max-sm:py-1.5 transition-colors bg-white dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294] text-base max-sm:text-sm"
                     placeholder="tu@email.com"
                     aria-describedby={isAuthenticatedUser && formData.email ? "email-hint" : undefined}
                   />
                   {/* ✅ Mensaje informativo para usuarios autenticados */}
                   {isAuthenticatedUser && formData.email && (
-                    <p 
+                    <p
                       id="email-hint"
-                      className="text-xs max-sm:text-[10px] text-gray-400 mt-1"
+                      className="text-xs max-sm:text-[10px] text-gray-400 dark:text-[#6D8294] mt-1"
                       role="status"
                     >
                       ℹ️ Prellenado con tu información de perfil (puedes
@@ -434,7 +433,7 @@ export default function ContactoPage() {
                 <div>
                   <label
                     htmlFor="message"
-                    className="block text-black-eske font-medium mb-1 text-base max-sm:text-sm"
+                    className="block text-black-eske dark:text-[#C7D6E0] font-medium mb-1 text-base max-sm:text-sm"
                   >
                     Mensaje <span className="text-red-500" aria-label="campo requerido">*</span>
                   </label>
@@ -445,18 +444,18 @@ export default function ContactoPage() {
                     onChange={handleChange}
                     rows={4}
                     required
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus-ring-primary px-3 py-2 max-sm:py-1.5 text-base max-sm:text-sm"
+                    className="mt-1 block w-full border border-gray-300 dark:border-white/10 rounded-md shadow-sm focus-ring-primary px-3 py-2 max-sm:py-1.5 dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294] text-base max-sm:text-sm"
                     placeholder="Escribe tu mensaje aquí..."
                   ></textarea>
                 </div>
 
                 {/* ✅ Mensaje para usuarios NO autenticados */}
                 {!isAuthenticatedUser && (
-                  <div 
-                    className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-sm:p-3 mb-4 max-sm:mb-3 text-center"
+                  <div
+                    className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/40 rounded-lg p-4 max-sm:p-3 mb-4 max-sm:mb-3 text-center"
                     role="note"
                   >
-                    <p className="text-sm max-sm:text-xs text-blue-800">
+                    <p className="text-sm max-sm:text-xs text-blue-800 dark:text-blue-200">
                       ¿No tienes cuenta?{" "}
                       <button
                         type="button"

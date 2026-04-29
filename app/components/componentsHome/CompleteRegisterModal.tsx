@@ -40,11 +40,11 @@ export default function CompleteRegisterModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="complete-register-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske dark:text-[#9AAEBE] hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar modal"
         >
@@ -71,10 +71,10 @@ export default function CompleteRegisterModal({
         </h2>
 
         {/* Mensaje */}
-        <p className="text-[18px] max-sm:text-base text-black-eske text-center mb-6 max-sm:mb-4">
+        <p className="text-[18px] max-sm:text-base text-black-eske dark:text-[#C7D6E0] text-center mb-6 max-sm:mb-4">
           ¡Gracias por verificar tu correo electrónico!
         </p>
-        <p className="text-[18px] max-sm:text-base text-black-eske text-center mb-6 max-sm:mb-4">
+        <p className="text-[18px] max-sm:text-base text-black-eske dark:text-[#C7D6E0] text-center mb-6 max-sm:mb-4">
           Ahora puedes completar tu registro proporcionando información adicional de tu perfil.
         </p>
 

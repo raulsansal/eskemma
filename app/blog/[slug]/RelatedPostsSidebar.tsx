@@ -17,13 +17,13 @@ export default function RelatedPostsSidebar({
 
   return (
     <aside 
-      className="bg-white-eske rounded-lg shadow-sm p-6 border border-gray-eske-20"
+      className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-sm p-6 border border-gray-eske-20 dark:border-white/10"
       aria-labelledby="related-posts-sidebar-title"
     >
       <div className="flex items-center justify-between mb-4">
         <h3 
           id="related-posts-sidebar-title"
-          className="text-lg font-semibold text-gray-800 flex items-center gap-2"
+          className="text-lg font-semibold text-gray-800 dark:text-[#EAF2F8] flex items-center gap-2"
         >
           <svg
             className="w-5 h-5 text-bluegreen-eske"
@@ -43,7 +43,7 @@ export default function RelatedPostsSidebar({
         </h3>
       </div>
 
-      <p className="text-xs text-gray-600 mb-4">
+      <p className="text-xs text-gray-600 dark:text-[#9AAEBE] mb-4">
         Más sobre{" "}
         <span
           className="inline-block px-2 py-0.5 text-xs font-semibold rounded-full text-white"
@@ -64,7 +64,7 @@ export default function RelatedPostsSidebar({
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}
-              className="group flex gap-3 hover:bg-gray-eske-10 p-2 rounded-lg transition-colors focus-ring-primary"
+              className="group flex gap-3 hover:bg-gray-eske-10 dark:hover:bg-white/5 p-2 rounded-lg transition-colors focus-ring-primary"
               aria-label={`Leer artículo relacionado: ${post.title}`}
               role="listitem"
             >
@@ -99,11 +99,11 @@ export default function RelatedPostsSidebar({
 
               {/* Contenido */}
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-gray-800 group-hover:text-bluegreen-eske transition-colors line-clamp-2 mb-1">
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-[#C7D6E0] group-hover:text-bluegreen-eske dark:group-hover:text-[#6BA4C6] transition-colors line-clamp-2 mb-1">
                   {post.title}
                 </h4>
                 <time 
-                  className="text-xs text-gray-600"
+                  className="text-xs text-gray-600 dark:text-[#6D8294]"
                   dateTime={post.updatedAt.toISOString()}
                 >
                   {post.updatedAt.toLocaleDateString("es-ES", {

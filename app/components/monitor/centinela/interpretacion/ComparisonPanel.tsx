@@ -23,7 +23,7 @@ const CLASSIFICATION_LABELS: Record<Classification, string> = {
 const CLASSIFICATION_COLORS: Record<Classification, string> = {
   OPORTUNIDAD: "text-green-eske bg-green-eske/10",
   AMENAZA: "text-red-eske bg-red-eske/10",
-  NEUTRAL: "text-gray-eske-70 bg-gray-eske-20",
+  NEUTRAL: "text-gray-eske-70 dark:text-[#9AAEBE] bg-gray-eske-20 dark:bg-[#21425E]",
 };
 
 interface Props {
@@ -65,7 +65,7 @@ export default function ComparisonPanel({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs text-gray-eske-60">
+      <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
         Comparativa con el análisis anterior. Los cambios de clasificación
         deben tenerse en cuenta al interpretar la matriz.
       </p>
@@ -95,7 +95,7 @@ export default function ComparisonPanel({
               >
                 {c.code}
               </span>
-              <span className="text-sm text-black-eske flex-1 min-w-0">
+              <span className="text-sm text-black-eske dark:text-[#C7D6E0] flex-1 min-w-0">
                 {DIMENSION_LABELS[c.code]}
               </span>
               <div className="flex items-center gap-2 shrink-0 text-xs">
@@ -107,7 +107,7 @@ export default function ComparisonPanel({
                 >
                   {CLASSIFICATION_LABELS[c.previous!]}
                 </span>
-                <span className="text-gray-eske-40" aria-hidden="true">
+                <span className="text-gray-eske-40 dark:text-[#6D8294]" aria-hidden="true">
                   →
                 </span>
                 <span
@@ -126,7 +126,7 @@ export default function ComparisonPanel({
 
       {stable.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h4 className="text-xs font-semibold text-gray-eske-60 uppercase tracking-wide">
+          <h4 className="text-xs font-semibold text-gray-eske-60 dark:text-[#6D8294] uppercase tracking-wide">
             Dimensiones estables
           </h4>
           <div className="flex flex-wrap gap-2">
@@ -134,12 +134,12 @@ export default function ComparisonPanel({
               <div
                 key={c.code}
                 className="flex items-center gap-1.5 px-3 py-1.5
-                  bg-gray-eske-10 border border-gray-eske-20 rounded-lg"
+                  bg-gray-eske-10 dark:bg-[#21425E] border border-gray-eske-20 dark:border-white/10 rounded-lg"
               >
                 <span className="text-xs font-bold text-bluegreen-eske">
                   {c.code}
                 </span>
-                <span className="text-xs text-gray-eske-70">
+                <span className="text-xs text-gray-eske-70 dark:text-[#9AAEBE]">
                   {DIMENSION_LABELS[c.code]}
                 </span>
                 <span

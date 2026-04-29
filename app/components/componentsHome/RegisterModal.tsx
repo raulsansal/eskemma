@@ -335,11 +335,11 @@ export default function RegisterModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="register-modal-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[85vh] max-sm:max-h-[90vh]"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[85vh] max-sm:max-h-[90vh]"
         style={{ marginTop: "20px" }}
       >
         <button
-          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 dark:text-[#9AAEBE] hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           disabled={isSubmitting}
           aria-label="Cerrar modal de registro"
@@ -370,7 +370,7 @@ export default function RegisterModal({
           <div>
             <label
               htmlFor="register-name"
-              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-1"
             >
               Nombre <span className="text-red-500">*</span>
             </label>
@@ -382,13 +382,13 @@ export default function RegisterModal({
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 dark:border-white/10 rounded focus-ring-primary disabled:bg-gray-100 dark:disabled:bg-[#21425E] bg-white dark:bg-[#112230] dark:text-[#EAF2F8] text-base max-sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="register-lastName"
-              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-1"
             >
               Apellidos <span className="text-red-500">*</span>
             </label>
@@ -400,13 +400,13 @@ export default function RegisterModal({
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 dark:border-white/10 rounded focus-ring-primary disabled:bg-gray-100 dark:disabled:bg-[#21425E] bg-white dark:bg-[#112230] dark:text-[#EAF2F8] text-base max-sm:text-sm"
             />
           </div>
           <div>
             <label
               htmlFor="register-userName"
-              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-1"
             >
               Nombre de usuario <span className="text-red-500">*</span>
             </label>
@@ -427,8 +427,8 @@ export default function RegisterModal({
                     : undefined
               }
               className={`w-full px-3 py-2 max-sm:py-1.5 border ${
-                !isUserNameValid ? "border-red-500" : "border-gray-300"
-              } rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm`}
+                !isUserNameValid ? "border-red-500" : "border-gray-300 dark:border-white/10"
+              } rounded focus-ring-primary disabled:bg-gray-100 dark:disabled:bg-[#21425E] bg-white dark:bg-[#112230] dark:text-[#EAF2F8] text-base max-sm:text-sm`}
             />
             {!isUserNameValid && (
               <p
@@ -452,7 +452,7 @@ export default function RegisterModal({
           <div>
             <label
               htmlFor="register-sex"
-              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-1"
             >
               Sexo <span className="text-red-500">*</span>
             </label>
@@ -463,7 +463,7 @@ export default function RegisterModal({
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 dark:border-white/10 rounded focus-ring-primary disabled:bg-gray-100 dark:disabled:bg-[#21425E] bg-white dark:bg-[#112230] dark:text-[#EAF2F8] text-base max-sm:text-sm"
             >
               <option value="">Selecciona una opción</option>
               <option value="hombre">Hombre</option>
@@ -474,7 +474,7 @@ export default function RegisterModal({
           <div>
             <label
               htmlFor="register-country"
-              className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1"
+              className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-1"
             >
               País <span className="text-red-500">*</span>
             </label>
@@ -485,7 +485,7 @@ export default function RegisterModal({
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 dark:border-white/10 rounded focus-ring-primary disabled:bg-gray-100 dark:disabled:bg-[#21425E] bg-white dark:bg-[#112230] dark:text-[#EAF2F8] text-base max-sm:text-sm"
             >
               <option value="">Selecciona una opción</option>
               {sortedCountries.map((country) => (
@@ -504,7 +504,7 @@ export default function RegisterModal({
           </div>
           <div>
             <fieldset>
-              <legend className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-2 max-sm:mb-1.5">
+              <legend className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-2 max-sm:mb-1.5">
                 Roles
               </legend>
               <div className="space-y-2 max-sm:space-y-1.5">
@@ -517,7 +517,7 @@ export default function RegisterModal({
                   "Academia",
                   "Otro",
                 ].map((role) => (
-                  <label key={role} className="flex items-center min-h-[44px] max-sm:min-h-[40px] cursor-pointer">
+                  <label key={role} className="flex items-center min-h-[44px] max-sm:min-h-[40px] cursor-pointer dark:text-[#C7D6E0]">
                     <input
                       type="checkbox"
                       name="roles"
@@ -549,12 +549,12 @@ export default function RegisterModal({
           <div>
             <hr className="border-bluegreen-eske my-4 max-sm:my-3" />
             <fieldset>
-              <legend className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-2 max-sm:mb-1.5">
+              <legend className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-2 max-sm:mb-1.5">
                 Temas de interés
               </legend>
               <div className="space-y-2 max-sm:space-y-1.5">
                 {interestsList.map((interest) => (
-                  <label key={interest} className="flex items-center min-h-[44px] max-sm:min-h-[40px] cursor-pointer">
+                  <label key={interest} className="flex items-center min-h-[44px] max-sm:min-h-[40px] cursor-pointer dark:text-[#C7D6E0]">
                     <input
                       type="checkbox"
                       name="interests"
@@ -604,7 +604,7 @@ export default function RegisterModal({
             disabled={isSubmitting}
             type="submit"
           />
-          <p className="mt-4 max-sm:mt-3 text-[14px] max-sm:text-xs text-black-eske text-center">
+          <p className="mt-4 max-sm:mt-3 text-[14px] max-sm:text-xs text-black-eske dark:text-[#C7D6E0] text-center">
             Al registrarme acepto las{" "}
             <Link
               href="/condiciones-de-uso"
@@ -629,7 +629,7 @@ export default function RegisterModal({
           </p>
 
           <hr className="border-gray-300 my-4 max-sm:my-3" />
-          <p className="text-[14px] max-sm:text-xs text-black-eske text-center">
+          <p className="text-[14px] max-sm:text-xs text-black-eske dark:text-[#C7D6E0] text-center">
             ¿Ya te has registrado?{" "}
             <button
               type="button"

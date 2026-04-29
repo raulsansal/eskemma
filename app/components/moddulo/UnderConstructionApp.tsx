@@ -17,8 +17,8 @@ export default function UnderConstructionApp({
   isComingSoon,
 }: UnderConstructionAppProps) {
   return (
-    <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-white-eske rounded-lg shadow-lg p-8 max-sm:p-6 text-center">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full bg-white-eske dark:bg-[#18324A] rounded-lg shadow-lg p-8 max-sm:p-6 text-center">
         {/* Ícono de la app */}
         <div className="relative w-24 h-24 max-sm:w-20 max-sm:h-20 mx-auto mb-6">
           <Image
@@ -31,33 +31,33 @@ export default function UnderConstructionApp({
         </div>
 
         {/* Título */}
-        <h1 className="text-3xl max-sm:text-2xl font-bold text-black-eske mb-4">
+        <h1 className="text-3xl max-sm:text-2xl font-bold text-black-eske dark:text-[#EAF2F8] mb-4">
           {appName}
         </h1>
 
         {/* Estado */}
         {isComingSoon ? (
           <>
-            <div className="inline-block bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full mb-6">
+            <div className="inline-block bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 px-4 py-2 rounded-full mb-6">
               <span className="font-medium text-sm">Próximamente</span>
             </div>
-            <p className="text-lg max-sm:text-base text-gray-eske-70 mb-8">
+            <p className="text-lg max-sm:text-base text-gray-eske-70 dark:text-[#9AAEBE] mb-8">
               Estamos trabajando en esta aplicación. Pronto estará disponible para ti.
             </p>
           </>
         ) : (
           <>
-            <div className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full mb-6">
+            <div className="inline-block bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 px-4 py-2 rounded-full mb-6">
               <span className="font-medium text-sm">En Desarrollo</span>
             </div>
-            <p className="text-lg max-sm:text-base text-gray-eske-70 mb-8">
+            <p className="text-lg max-sm:text-base text-gray-eske-70 dark:text-[#9AAEBE] mb-8">
               Esta aplicación está actualmente en proceso de construcción.
             </p>
           </>
         )}
 
         {/* Ilustración */}
-        <div className="bg-gray-eske-10 rounded-lg p-8 max-sm:p-6 mb-8">
+        <div className="bg-gray-eske-10 dark:bg-[#112230] rounded-lg p-8 max-sm:p-6 mb-8">
           <svg
             className="w-32 h-32 max-sm:w-24 max-sm:h-24 mx-auto text-gray-eske-40"
             fill="none"
@@ -75,11 +75,11 @@ export default function UnderConstructionApp({
         </div>
 
         {/* Información adicional */}
-        <div className="bg-bluegreen-50 border border-bluegreen-eske rounded-lg p-4 mb-8 text-left">
+        <div className="bg-bluegreen-50 dark:bg-[#112230] border border-bluegreen-eske dark:border-bluegreen-eske-60 rounded-lg p-4 mb-8 text-left">
           <h2 className="font-bold text-base text-bluegreen-eske mb-2">
             💡 ¿Qué puedes hacer mientras?
           </h2>
-          <ul className="space-y-2 text-sm text-gray-eske-70">
+          <ul className="space-y-2 text-sm text-gray-eske-70 dark:text-[#9AAEBE]">
             <li className="flex items-start gap-2">
               <span className="text-bluegreen-eske">•</span>
               <span>Explora las demás aplicaciones disponibles en tu plan</span>
@@ -118,8 +118,8 @@ export default function UnderConstructionApp({
           <Link
             href="/contacto"
             className="
-              bg-gray-eske-10
-              text-gray-eske-80
+              bg-gray-eske-10 dark:bg-[#21425E]
+              text-gray-eske-80 dark:text-[#C7D6E0]
               px-6 py-3 max-sm:py-2.5
               rounded-lg
               font-medium

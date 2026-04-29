@@ -51,7 +51,7 @@ export default function CourseCardList({ course, userRole: userRoleProp }: Cours
   };
 
   return (
-    <article className="flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-4 sm:p-5 border border-gray-eske-20">
+    <article className="flex flex-col sm:flex-row gap-4 sm:gap-6 bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-4 sm:p-5 border border-gray-eske-20 dark:border-white/10">
       {/* Imagen - Responsive */}
       <div className="w-full sm:w-48 md:w-64 shrink-0 relative h-40 sm:h-auto bg-linear-to-br from-blue-eske-40 to-bluegreen-eske rounded-lg overflow-hidden">
         {course.thumbnail ? (
@@ -82,7 +82,7 @@ export default function CourseCardList({ course, userRole: userRoleProp }: Cours
             <span className={`hidden sm:inline-block px-3 py-1 text-xs font-semibold rounded-full ${badgeColor}`}>
               {roleInfo.label}
             </span>
-            <span className="bg-gray-eske-10 text-black-eske font-normal px-2 py-1 rounded-full text-xs">
+            <span className="bg-gray-eske-10 dark:bg-[#21425E] text-black-eske dark:text-[#C7D6E0] font-normal px-2 py-1 rounded-full text-xs">
               {course.category}
             </span>
           </div>
@@ -92,7 +92,7 @@ export default function CourseCardList({ course, userRole: userRoleProp }: Cours
         </div>
 
         {/* Título */}
-        <h3 className="text-xl sm:text-2xl font-semibold text-bluegreen-eske-60 mb-2 hover:text-bluegreen-eske transition-colors">
+        <h3 className="text-xl sm:text-2xl font-semibold text-bluegreen-eske-60 dark:text-[#6BA4C6] mb-2 hover:text-bluegreen-eske dark:hover:text-[#EAF2F8] transition-colors">
           <Link 
             href={`/cursos/${course.slug}`}
             className="focus-ring-primary rounded"
@@ -102,14 +102,14 @@ export default function CourseCardList({ course, userRole: userRoleProp }: Cours
         </h3>
 
         {/* Descripción */}
-        <p className="text-black-eske text-sm sm:text-base mb-4 line-clamp-2 sm:line-clamp-3 font-normal">
+        <p className="text-black-eske dark:text-[#9AAEBE] text-sm sm:text-base mb-4 line-clamp-2 sm:line-clamp-3 font-normal">
           {course.description}
         </p>
 
         {/* Footer: Metadata y Botón */}
-        <div className="mt-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-eske-10">
+        <div className="mt-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-gray-eske-10 dark:border-white/10">
           {/* Metadata */}
-          <div className="flex flex-wrap items-center gap-4 text-xs text-black-eske font-normal">
+          <div className="flex flex-wrap items-center gap-4 text-xs text-black-eske dark:text-[#9AAEBE] font-normal">
             <div className="flex items-center gap-1">
               <span>{getTypeIcon()}</span>
               <span className="capitalize">{course.type === "workshop" ? "Taller" : course.type}</span>
@@ -139,12 +139,12 @@ export default function CourseCardList({ course, userRole: userRoleProp }: Cours
               </Link>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-black-eske/60 font-normal max-w-[120px] text-right leading-tight">
+                <span className="text-[10px] text-black-eske/60 dark:text-[#9AAEBE] font-normal max-w-[120px] text-right leading-tight">
                   {getUpgradeMessage(course.requiredRole as any)}
                 </span>
                 <button
                   disabled
-                  className="bg-gray-eske-30 text-gray-eske-70 font-medium py-2 px-4 rounded-lg cursor-not-allowed text-sm"
+                  className="bg-gray-eske-30 dark:bg-[#21425E] text-gray-eske-70 dark:text-[#6D8294] font-medium py-2 px-4 rounded-lg cursor-not-allowed text-sm"
                 >
                   Restringido
                 </button>

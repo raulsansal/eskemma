@@ -36,7 +36,7 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
       {posts.length === 0 ? (
         <div className="text-center py-12" role="status" aria-live="polite">
           <svg
-            className="mx-auto h-24 w-24 text-gray-400 mb-4"
+            className="mx-auto h-24 w-24 text-gray-400 dark:text-[#6D8294] mb-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -49,10 +49,10 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <p className="text-xl text-gray-eske-60 mb-2">
+          <p className="text-xl text-gray-eske-60 dark:text-[#6D8294] mb-2">
             No se encontraron resultados
           </p>
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-500 dark:text-[#9AAEBE] mb-4">
             Intenta ajustar los filtros o términos de búsqueda
           </p>
           <Link
@@ -86,7 +86,7 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                 }) => (
                   <article
                     key={id}
-                    className="flex flex-col items-center text-center bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6"
+                    className="flex flex-col items-center text-center bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6"
                     role="listitem"
                   >
                     {featureImage && (
@@ -103,7 +103,7 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                       </Link>
                     )}
 
-                    <h3 className="text-xl text-bluegreen-eske-60 font-semibold mb-2 hover:text-bluegreen-eske transition-colors duration-300">
+                    <h3 className="text-xl text-bluegreen-eske-60 dark:text-[#6BA4C6] font-semibold mb-2 hover:text-bluegreen-eske transition-colors duration-300">
                       <Link
                         href={`/blog/${slug}`}
                         className="focus-ring-primary rounded"
@@ -113,13 +113,13 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                     </h3>
 
                     <div
-                      className="text-[16px] font-light text-gray-eske-90 mb-4 line-clamp-3"
+                      className="text-[16px] font-light text-gray-eske-90 dark:text-[#9AAEBE] mb-4 line-clamp-3"
                       dangerouslySetInnerHTML={{ __html: excerpt }}
                     />
 
-                    <div className="flex justify-between w-full text-sm text-gray-700 mb-4 px-2">
+                    <div className="flex justify-between w-full text-sm text-gray-700 dark:text-[#C7D6E0] mb-4 px-2">
                       <time
-                        className="text-gray-eske-60 text-sm"
+                        className="text-gray-eske-60 dark:text-[#6D8294] text-sm"
                         dateTime={date.toISOString()}
                       >
                         {date.toLocaleDateString("es-ES", {
@@ -134,7 +134,7 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                     </div>
 
                     {sortBy === "popular" && (
-                      <div className="w-full text-xs text-gray-500 mb-2 flex items-center justify-center gap-1">
+                      <div className="w-full text-xs text-gray-500 dark:text-[#9AAEBE] mb-2 flex items-center justify-center gap-1">
                         <svg
                           className="w-4 h-4"
                           fill="none"

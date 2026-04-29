@@ -151,7 +151,7 @@ export default function NewsletterSignup() {
             placeholder="Tu nombre"
             required
             disabled={status === "loading" || status === "success"}
-            className="w-full px-4 py-2 rounded-lg border-0 bg-gray-eske-30 text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal focus-ring-primary hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
+            className="w-full px-4 py-2 rounded-lg border-0 bg-gray-eske-30 dark:bg-[#112230] text-gray-900 dark:text-[#EAF2F8] font-medium placeholder:text-gray-400 dark:placeholder:text-[#6D8294] placeholder:font-normal focus-ring-primary hover:bg-gray-50 dark:hover:bg-white/5 disabled:bg-gray-200 dark:disabled:bg-[#21425E] disabled:cursor-not-allowed transition-colors"
             aria-label="Tu nombre para el newsletter"
           />
         </div>
@@ -169,7 +169,7 @@ export default function NewsletterSignup() {
             placeholder="tu@email.com"
             required
             disabled={status === "loading" || status === "success"}
-            className="w-full px-4 py-2 rounded-lg border-0 bg-gray-eske-30 text-gray-900 font-medium placeholder:text-gray-400 placeholder:font-normal focus-ring-primary hover:bg-gray-50 disabled:bg-gray-200 disabled:cursor-not-allowed transition-colors"
+            className="w-full px-4 py-2 rounded-lg border-0 bg-gray-eske-30 dark:bg-[#112230] text-gray-900 dark:text-[#EAF2F8] font-medium placeholder:text-gray-400 dark:placeholder:text-[#6D8294] placeholder:font-normal focus-ring-primary hover:bg-gray-50 dark:hover:bg-white/5 disabled:bg-gray-200 dark:disabled:bg-[#21425E] disabled:cursor-not-allowed transition-colors"
             aria-label="Tu correo electrónico para el newsletter"
           />
         </div>
@@ -187,7 +187,7 @@ export default function NewsletterSignup() {
         <button
           type="submit"
           disabled={status === "loading" || status === "success"}
-          className="w-full bg-white text-bluegreen-eske font-medium py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-ring-primary"
+          className="w-full bg-white dark:bg-[#112230] text-bluegreen-eske font-medium py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-ring-primary"
           aria-label={
             status === "loading"
               ? "Procesando suscripción"

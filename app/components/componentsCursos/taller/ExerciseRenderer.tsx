@@ -47,11 +47,11 @@ export default function ExerciseRenderer({
       case "analysis":
         return (
           <div className="space-y-4">
-            <p className="text-black-eske font-normal">{exercise.description}</p>
+            <p className="text-black-eske dark:text-[#C7D6E0] font-normal">{exercise.description}</p>
             <textarea
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              className="w-full p-3 border border-gray-eske-30 rounded-lg focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+              className="w-full p-3 border border-gray-eske-30 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent bg-white dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294]"
               rows={4}
               placeholder="Escribe tu análisis aquí..."
               aria-label="Respuesta del ejercicio"
@@ -62,15 +62,15 @@ export default function ExerciseRenderer({
       case "code":
         return (
           <div className="space-y-4">
-            <p className="text-black-eske font-normal">{exercise.description}</p>
-            <div className="bg-gray-eske-10 p-4 rounded-lg">
-              <pre className="text-sm overflow-x-auto">
+            <p className="text-black-eske dark:text-[#C7D6E0] font-normal">{exercise.description}</p>
+            <div className="bg-gray-eske-10 dark:bg-[#112230] p-4 rounded-lg">
+              <pre className="text-sm overflow-x-auto dark:text-[#C7D6E0]">
                 <code>{exercise.codeConfig?.initialCode || "# Escribe tu código aquí"}</code>
               </pre>
             </div>
             {exercise.codeConfig?.solution && showSolution && (
-              <div className="mt-4 p-4 bg-green-eske-10 border border-green-eske rounded-lg">
-                <h4 className="font-semibold text-green-eske-80 mb-2">Solución:</h4>
+              <div className="mt-4 p-4 bg-green-eske-10 dark:bg-green-900/20 border border-green-eske dark:border-green-700/40 rounded-lg">
+                <h4 className="font-semibold text-green-eske-80 dark:text-green-400 mb-2">Solución:</h4>
                 <pre className="text-sm overflow-x-auto">
                   <code>{exercise.codeConfig.solution}</code>
                 </pre>
@@ -82,13 +82,13 @@ export default function ExerciseRenderer({
       case "quiz":
         return (
           <div className="space-y-4">
-            <p className="text-black-eske font-normal">{exercise.description}</p>
+            <p className="text-black-eske dark:text-[#C7D6E0] font-normal">{exercise.description}</p>
             {exercise.quizConfig?.questions.map((q, idx) => (
-              <div key={idx} className="p-4 border border-gray-eske-30 rounded-lg">
-                <p className="mb-3 text-black-eske font-normal">{q.question}</p>
+              <div key={idx} className="p-4 border border-gray-eske-30 dark:border-white/10 rounded-lg dark:bg-[#112230]">
+                <p className="mb-3 text-black-eske dark:text-[#C7D6E0] font-normal">{q.question}</p>
                 <div className="space-y-2">
                   {q.options.map((option, optIdx) => (
-                    <label key={optIdx} className="flex items-center gap-2">
+                    <label key={optIdx} className="flex items-center gap-2 dark:text-[#C7D6E0]">
                       <input
                         type="radio"
                         name={`question-${idx}`}
@@ -114,9 +114,9 @@ export default function ExerciseRenderer({
   };
 
   return (
-    <div className="border border-gray-eske-30 rounded-lg p-6 bg-white-eske">
+    <div className="border border-gray-eske-30 dark:border-white/10 rounded-lg p-6 bg-white-eske dark:bg-[#18324A]">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold">{exercise.title}</h3>
+        <h3 className="text-xl font-semibold dark:text-[#EAF2F8]">{exercise.title}</h3>
         {exercise.isRequired && (
           <span className="bg-red-eske-10 text-red-eske-80 text-xs px-2 py-1 rounded-full">
             Requerido
@@ -156,7 +156,7 @@ export default function ExerciseRenderer({
         {exercise.type === "code" && exercise.codeConfig?.solution && (
           <button
             onClick={() => setShowSolution(!showSolution)}
-            className="px-4 py-2 border border-gray-eske-30 rounded-lg hover:bg-gray-eske-10 transition-colors focus-ring-primary"
+            className="px-4 py-2 border border-gray-eske-30 dark:border-white/10 rounded-lg hover:bg-gray-eske-10 dark:hover:bg-white/5 dark:text-[#C7D6E0] transition-colors focus-ring-primary"
           >
             {showSolution ? "Ocultar solución" : "Ver solución"}
           </button>

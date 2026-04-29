@@ -162,17 +162,17 @@ const MONITOR_APPS = [
 
 export default function MonitorPage() {
   return (
-    <main className="min-h-screen bg-gray-eske-10">
+    <main className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       <MonitorHeroSection />
 
       {/* Sección de apps */}
       <section className="max-w-7l mx-auto px-4 sm:px-6 md:px-8 py-10 md:py-14">
         {/* Encabezado de sección */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-[#EAF2F8]">
             Herramientas de Monitoreo
           </h2>
-          <p className="mt-1 text-sm text-gray-eske-90">
+          <p className="mt-1 text-sm text-gray-eske-90 dark:text-[#9AAEBE]">
             Selecciona una app para comenzar tu análisis de contexto.
           </p>
         </div>

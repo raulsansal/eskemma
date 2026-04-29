@@ -205,7 +205,7 @@ export default function AnalisisPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] flex items-center justify-center">
         <div
           className="w-8 h-8 border-4 border-bluegreen-eske border-t-transparent
             rounded-full animate-spin"
@@ -216,7 +216,7 @@ export default function AnalisisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-eske-10">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* Header */}
       <div className="bg-bluegreen-eske text-white px-6 py-5">
         <div className="max-w-4xl mx-auto">
@@ -265,7 +265,7 @@ export default function AnalisisPage() {
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Polling state */}
         {isPolling && (
-          <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10
             p-8 flex flex-col items-center gap-4 mb-6">
             <div
               className="w-10 h-10 border-4 border-bluegreen-eske border-t-transparent
@@ -273,15 +273,15 @@ export default function AnalisisPage() {
               aria-label="Analizando"
             />
             <div className="text-center">
-              <p className="font-semibold text-black-eske">
+              <p className="font-semibold text-black-eske dark:text-[#EAF2F8]">
                 Analizando con IA…
               </p>
-              <p className="text-sm text-black-eske mt-1">
+              <p className="text-sm text-black-eske dark:text-[#C7D6E0] mt-1">
                 Centinela está procesando las 5 dimensiones PEST-L en
                 paralelo. Este proceso tarda entre 2 y 8 minutos. Por favor, espera.
               </p>
               {elapsedSeconds > 0 && (
-                <p className="text-xs text-black-eske mt-2">
+                <p className="text-xs text-black-eske dark:text-[#9AAEBE] mt-2">
                   Tiempo transcurrido:{" "}
                   {Math.floor(elapsedSeconds / 60) > 0
                     ? `${Math.floor(elapsedSeconds / 60)} min `
@@ -290,7 +290,7 @@ export default function AnalisisPage() {
                 </p>
               )}
             </div>
-            <div className="w-full max-w-xs h-1.5 bg-gray-eske-20 rounded-full overflow-hidden">
+            <div className="w-full max-w-xs h-1.5 bg-gray-eske-20 dark:bg-[#21425E] rounded-full overflow-hidden">
               <div className="h-1.5 bg-bluegreen-eske rounded-full animate-pulse w-2/3" />
             </div>
           </div>
@@ -298,7 +298,7 @@ export default function AnalisisPage() {
 
         {/* Job error */}
         {(jobStatus === "failed" || error) && (
-          <div className="bg-red-50 border border-red-eske/20 rounded-xl p-4 mb-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-eske/20 dark:border-red-700/40 rounded-xl p-4 mb-6">
             <p className="text-sm text-red-eske font-medium">Error en el análisis</p>
             <p className="text-sm text-red-eske/80 mt-1">
               {jobError ?? error}
@@ -319,10 +319,10 @@ export default function AnalisisPage() {
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-black-eske">
+                <h2 className="text-lg font-semibold text-black-eske dark:text-[#EAF2F8]">
                   Etapa 5 — Resultados del análisis IA
                 </h2>
-                <p className="text-xs text-black-eske">
+                <p className="text-xs text-black-eske dark:text-[#9AAEBE]">
                   {formatDate(analysis.analyzedAt)}
                 </p>
               </div>
@@ -354,14 +354,14 @@ export default function AnalisisPage() {
 
         {/* Empty state — only show when not loading and no pending job */}
         {!loading && !isPolling && !jobIdParam && !analysis && !error && (
-          <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10
             p-12 flex flex-col items-center gap-5 text-center">
             <span className="text-5xl" aria-hidden="true">🔍</span>
             <div>
-              <p className="font-semibold text-black-eske text-lg">
+              <p className="font-semibold text-black-eske dark:text-[#EAF2F8] text-lg">
                 No hay análisis para este proyecto
               </p>
-              <p className="text-sm text-black-eske mt-1">
+              <p className="text-sm text-black-eske dark:text-[#9AAEBE] mt-1">
                 Agrega fuentes de datos y ejecuta el primer análisis IA.
               </p>
             </div>

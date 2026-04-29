@@ -30,14 +30,14 @@ export default function ModduloPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-eske-10">
+      <div className="min-h-screen flex items-center justify-center bg-gray-eske-10 dark:bg-[#112230]">
         <div className="animate-spin rounded-full h-10 w-10 border-4 border-bluegreen-eske border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-white-eske">
+    <main className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
       {/* Hero — mismo patrón que servicios/ */}
       <section className="relative min-h-50 max-sm:min-h-40 w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
         <Image
@@ -49,7 +49,7 @@ export default function ModduloPage() {
           priority
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-bluegreen-eske opacity-75" aria-hidden="true" />
+        <div className="absolute inset-0 bg-bluegreen-eske dark:bg-bluegreen-eske-80 opacity-75" aria-hidden="true" />
         <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full py-8 max-sm:py-6">
           <h1 className="text-[36px] max-sm:text-2xl leading-tight font-bold">
             Moddulo
@@ -61,13 +61,13 @@ export default function ModduloPage() {
       </section>
 
       {/* Cuerpo del hub */}
-      <section className="bg-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
+      <section className="bg-white-eske dark:bg-[#0B1620] py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-7xl">
 
           {/* Encabezado de sección + CTA */}
           <div className="flex items-center justify-between mb-8 gap-4">
             <div>
-              <h2 className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske">
+              <h2 className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske dark:text-[#6BA4C6]">
                 Mis proyectos
               </h2>
               <p className="text-base font-light text-gray-eske-60 mt-1">
@@ -128,20 +128,20 @@ function ProjectCard({ project }: { project: ModduloProject }) {
   return (
     <Link
       href={`/moddulo/proyecto/${project.id}/${project.currentPhase}`}
-      className="block bg-white-eske rounded-xl border border-gray-eske-20 p-5 hover:border-bluegreen-eske/40 hover:shadow-sm transition-all"
+      className="block bg-white-eske dark:bg-[#18324A] rounded-xl border border-gray-eske-20 dark:border-white/10 p-5 hover:border-bluegreen-eske/40 hover:shadow-sm transition-all"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-eske-80 truncate">{project.name}</h3>
+          <h3 className="font-semibold text-gray-eske-80 dark:text-[#C7D6E0] truncate">{project.name}</h3>
           {project.description && (
-            <p className="text-xs text-gray-eske-50 mt-0.5 line-clamp-2">{project.description}</p>
+            <p className="text-xs text-gray-eske-50 dark:text-[#9AAEBE] mt-0.5 line-clamp-2">{project.description}</p>
           )}
         </div>
         <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[project.status]}`}>
           {statusLabels[project.status]}
         </span>
       </div>
-      <div className="flex items-center gap-3 text-xs text-gray-eske-50">
+      <div className="flex items-center gap-3 text-xs text-gray-eske-50 dark:text-[#9AAEBE]">
         <span className="font-medium text-bluegreen-eske/80">
           {PROJECT_TYPE_LABELS[project.type]}
         </span>
@@ -158,17 +158,17 @@ function ProjectCard({ project }: { project: ModduloProject }) {
 
 function EmptyState() {
   return (
-    <div className="bg-white-eske rounded-xl border border-gray-eske-20 p-12 max-sm:p-8 text-center mb-12">
+    <div className="bg-white-eske dark:bg-[#18324A] rounded-xl border border-gray-eske-20 dark:border-white/10 p-12 max-sm:p-8 text-center mb-12">
       <div className="w-16 h-16 bg-bluegreen-eske/10 rounded-full flex items-center justify-center mx-auto mb-4">
         <svg className="w-8 h-8 text-bluegreen-eske" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       </div>
-      <h2 className="text-lg font-semibold text-gray-eske-80 mb-2">
+      <h2 className="text-lg font-semibold text-gray-eske-80 dark:text-[#C7D6E0] mb-2">
         Aún no tienes proyectos
       </h2>
-      <p className="text-gray-eske-50 mb-6 text-sm font-light max-w-sm mx-auto">
+      <p className="text-gray-eske-50 dark:text-[#9AAEBE] mb-6 text-sm font-light max-w-sm mx-auto">
         Crea tu primer proyecto estratégico y comienza a trabajar con Moddulo como tu colaborador estratégico
       </p>
       <Link

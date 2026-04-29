@@ -50,7 +50,7 @@ export default function CentinelaStageNav({
   const router = useRouter();
 
   return (
-    <div className="bg-white-eske border-b border-gray-eske-20">
+    <div className="bg-white-eske dark:bg-[#18324A] border-b border-gray-eske-20 dark:border-white/10">
       <div className="max-w-4xl mx-auto px-6 py-3">
         <nav aria-label="Progreso de etapas Centinela">
           <ol className="flex items-center">
@@ -69,14 +69,14 @@ export default function CentinelaStageNav({
                   ? "bg-bluegreen-eske text-white ring-4 ring-bluegreen-eske/20"
                   : status === "completed"
                   ? "bg-bluegreen-eske text-white"
-                  : "bg-gray-eske-20 text-gray-eske-60",
+                  : "bg-gray-eske-20 dark:bg-[#21425E] text-gray-eske-60 dark:text-[#9AAEBE]",
               ].join(" ");
 
               const lineClass = [
                 "flex-1 h-0.5 mx-2",
                 status === "completed" || isActive
                   ? "bg-bluegreen-eske"
-                  : "bg-gray-eske-20",
+                  : "bg-gray-eske-20 dark:bg-[#21425E]",
               ].join(" ");
 
               const labelClass = [
@@ -85,7 +85,7 @@ export default function CentinelaStageNav({
                   ? "text-bluegreen-eske"
                   : status === "completed"
                   ? "text-bluegreen-eske-60"
-                  : "text-gray-eske-60",
+                  : "text-gray-eske-60 dark:text-[#9AAEBE]",
               ].join(" ");
 
               const nodeContent = (

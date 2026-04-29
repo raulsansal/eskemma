@@ -22,7 +22,7 @@ export default function AppCard({
 }: AppCardProps) {
   const cardContent = (
     <div
-      className={`group relative bg-white-eske rounded-lg shadow-md p-6 flex flex-col gap-4 transition-all duration-200 h-full ${
+      className={`group relative bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md p-6 flex flex-col gap-4 transition-all duration-200 h-full ${
         available
           ? "hover:shadow-xl hover:-translate-y-0.5 cursor-pointer"
           : "opacity-60 cursor-default"
@@ -41,7 +41,7 @@ export default function AppCard({
             </span>
           )}
           {!available && (
-            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-500">
+            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-[#112230] text-gray-500 dark:text-[#9AAEBE]">
               Próximamente
             </span>
           )}
@@ -53,19 +53,19 @@ export default function AppCard({
         <h3
           className={`text-lg font-semibold mb-1 transition-colors duration-200 ${
             available
-              ? "text-bluegreen-eske-60 group-hover:text-bluegreen-eske"
-              : "text-gray-500"
+              ? "text-bluegreen-eske-60 group-hover:text-bluegreen-eske dark:text-[#6BA4C6] dark:group-hover:text-[#EAF2F8]"
+              : "text-gray-500 dark:text-[#9AAEBE]"
           }`}
         >
           {name}
         </h3>
-        <p className="text-sm text-gray-eske-90 leading-relaxed line-clamp-3">
+        <p className="text-sm text-gray-eske-90 dark:text-[#9AAEBE] leading-relaxed line-clamp-3">
           {description}
         </p>
       </div>
 
       {/* Botón de acción */}
-      <div className="mt-auto pt-2 border-t border-gray-100">
+      <div className="mt-auto pt-2 border-t border-gray-100 dark:border-white/10">
         {available ? (
           <span className="inline-flex items-center gap-1.5 text-sm font-medium text-bluegreen-eske group-hover:gap-2.5 transition-all duration-200">
             Abrir app
@@ -85,7 +85,7 @@ export default function AppCard({
             </svg>
           </span>
         ) : (
-          <span className="text-sm text-gray-400">Disponible próximamente</span>
+          <span className="text-sm text-gray-400 dark:text-[#6D8294]">Disponible próximamente</span>
         )}
       </div>
     </div>

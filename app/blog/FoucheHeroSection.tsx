@@ -26,7 +26,7 @@ export default function FoucheHeroSection() {
 
         {/* Overlay con opacidad */}
         <div
-          className="absolute inset-0 bg-bluegreen-eske opacity-75 z-10"
+          className="absolute inset-0 bg-bluegreen-eske dark:bg-bluegreen-eske-80 opacity-75 z-10"
           aria-hidden="true"
         ></div>
         <div className="relative z-20 w-full max-w-screen-xl mx-auto flex flex-col md:flex-row items-center md:h-full py-6 md:py-0">

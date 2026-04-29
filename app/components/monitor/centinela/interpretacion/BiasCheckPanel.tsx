@@ -73,7 +73,7 @@ export default function BiasCheckPanel({
       {/* Automated bias alerts from E5 */}
       {biasAlerts.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h3 className="text-sm font-semibold text-black-eske">
+          <h3 className="text-sm font-semibold text-black-eske dark:text-[#EAF2F8]">
             Alertas de sesgo detectadas por IA
           </h3>
           {biasAlerts.map((alert, i) => (
@@ -82,8 +82,8 @@ export default function BiasCheckPanel({
               className={[
                 "flex items-start gap-3 px-3 py-2.5 rounded-lg border",
                 alert.acknowledgedAt
-                  ? "border-gray-eske-20 bg-gray-eske-10 opacity-60"
-                  : "border-yellow-eske/30 bg-yellow-eske/5",
+                  ? "border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] opacity-60"
+                  : "border-yellow-eske/30 bg-yellow-eske/5 dark:bg-yellow-900/10",
               ].join(" ")}
             >
               <span
@@ -93,7 +93,7 @@ export default function BiasCheckPanel({
                 {alert.acknowledgedAt ? "✅" : "⚠️"}
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-black-eske leading-relaxed">
+                <p className="text-xs text-black-eske dark:text-[#C7D6E0] leading-relaxed">
                   {alert.description}
                 </p>
               </div>
@@ -115,10 +115,10 @@ export default function BiasCheckPanel({
 
       {/* Manual verification checklist */}
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold text-black-eske">
+        <h3 className="text-sm font-semibold text-black-eske dark:text-[#EAF2F8]">
           Verificación de calidad
         </h3>
-        <p className="text-xs text-gray-eske-60">
+        <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
           Confirma que revisaste cada punto antes de aprobar el análisis.
         </p>
         {BIAS_CHECKS.map((check) => {
@@ -131,7 +131,7 @@ export default function BiasCheckPanel({
                 "transition-colors select-none",
                 checked
                   ? "border-green-eske/40 bg-green-eske/5"
-                  : "border-gray-eske-20 hover:bg-gray-eske-10",
+                  : "border-gray-eske-20 dark:border-white/10 hover:bg-gray-eske-10 dark:hover:bg-white/5",
               ].join(" ")}
             >
               <input
@@ -140,7 +140,7 @@ export default function BiasCheckPanel({
                 onChange={() => toggleCheck(check.id)}
                 className="mt-0.5 accent-bluegreen-eske shrink-0"
               />
-              <span className="text-xs text-black-eske leading-relaxed">
+              <span className="text-xs text-black-eske dark:text-[#C7D6E0] leading-relaxed">
                 {check.question}
               </span>
             </label>
@@ -149,7 +149,7 @@ export default function BiasCheckPanel({
       </div>
 
       {/* Progress indicator */}
-      <p className="text-xs text-gray-eske-60 text-right">
+      <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] text-right">
         {checkedIds.size} / {BIAS_CHECKS.length} puntos confirmados
         {unacknowledgedBiases.length > 0 && (
           <span className="text-yellow-eske ml-2">

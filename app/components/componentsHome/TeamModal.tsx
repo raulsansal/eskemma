@@ -109,11 +109,11 @@ const TeamModal = () => {
             aria-modal="true"
             aria-labelledby="team-member-name"
             aria-describedby="team-member-bio"
-            className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-hidden"
+            className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-hidden"
           >
             {/* Botón de Cierre */}
             <button
-              className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+              className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 dark:text-[#6D8294] hover:text-red-eske dark:hover:text-[#C7D6E0] transition-colors duration-300 focus-ring-primary rounded"
               onClick={() => setIsOpen(false)}
               aria-label="Cerrar modal del equipo"
             >
@@ -135,7 +135,7 @@ const TeamModal = () => {
             </button>
 
             {/* Encabezado */}
-            <h3 id="team-member-name" className="text-2xl max-sm:text-xl font-medium text-bluegreen-eske mb-1 text-center">
+            <h3 id="team-member-name" className="text-2xl max-sm:text-xl font-medium text-bluegreen-eske dark:text-[#6BA4C6] mb-1 text-center">
               {currentMember.name}
             </h3>
             <p className="text-xl max-sm:text-lg text-orange-eske mb-8 max-sm:mb-6 text-center">
@@ -155,7 +155,7 @@ const TeamModal = () => {
 
               {/* Biografía */}
               <div className="mt-2 max-sm:mt-1 text-center">
-                <p id="team-member-bio" className="text-10px max-sm:text-[10px] text-gray-700">{currentMember.bio}</p>
+                <p id="team-member-bio" className="text-10px max-sm:text-[10px] text-gray-700 dark:text-[#C7D6E0]">{currentMember.bio}</p>
               </div>
             </div>
 
@@ -163,7 +163,7 @@ const TeamModal = () => {
             <div className="flex justify-between mt-6 max-sm:mt-4">
               {/* Botón Anterior */}
               <button
-                className="text-gray-700 hover:text-blue-eske transition-colors duration-300 focus-ring-primary rounded p-2 max-sm:p-1"
+                className="text-gray-700 dark:text-[#6D8294] hover:text-blue-eske dark:hover:text-[#C7D6E0] transition-colors duration-300 focus-ring-primary rounded p-2 max-sm:p-1"
                 onClick={prevMember}
                 onKeyDown={(e) => handleKeyDown(e, 'prev')}
                 aria-label="Ver miembro anterior del equipo"
@@ -195,7 +195,7 @@ const TeamModal = () => {
                     aria-label={`Ver ${member.name}`}
                     onClick={() => setCurrentIndex(index)}
                     className={`h-2 w-2 max-sm:h-1.5 max-sm:w-1.5 rounded-full focus-ring-primary ${
-                      index === currentIndex ? "bg-orange-eske" : "bg-gray-300"
+                      index === currentIndex ? "bg-orange-eske" : "bg-gray-300 dark:bg-[#6D8294]"
                     }`}
                   />
                 ))}
@@ -203,7 +203,7 @@ const TeamModal = () => {
 
               {/* Botón Siguiente */}
               <button
-                className="text-gray-700 hover:text-blue-eske transition-colors duration-300 focus-ring-primary rounded p-2 max-sm:p-1"
+                className="text-gray-700 dark:text-[#6D8294] hover:text-blue-eske dark:hover:text-[#C7D6E0] transition-colors duration-300 focus-ring-primary rounded p-2 max-sm:p-1"
                 onClick={nextMember}
                 onKeyDown={(e) => handleKeyDown(e, 'next')}
                 aria-label="Ver siguiente miembro del equipo"

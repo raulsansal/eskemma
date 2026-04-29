@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function CoursesHeroSection() {
   return (
-    <section 
+    <section
       className="relative min-h-50 max-sm:min-h-40 w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden"
       aria-labelledby="hero-title"
     >
@@ -19,16 +19,16 @@ export default function CoursesHeroSection() {
         priority
         aria-hidden="true"
       />
-      
+
       {/* Overlay con opacidad estándar */}
-      <div 
-        className="absolute inset-0 bg-bluegreen-eske opacity-75 z-10" 
+      <div
+        className="absolute inset-0 bg-bluegreen-eske dark:bg-bluegreen-eske-80 opacity-75 z-10"
         aria-hidden="true"
       />
-      
+
       {/* Contenido Centrado */}
       <div className="relative z-20 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full py-8 max-sm:py-6">
-        <h1 
+        <h1
           id="hero-title"
           className="text-[36px] max-sm:text-2xl leading-tight font-bold"
         >

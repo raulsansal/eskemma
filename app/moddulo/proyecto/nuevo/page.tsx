@@ -77,7 +77,7 @@ function NuevoProyectoContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-eske-10">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* Header */}
       <div className="bg-bluegreen-eske text-white-eske py-4 px-6">
         <div className="max-w-2xl mx-auto flex items-center gap-4">
@@ -105,7 +105,7 @@ function NuevoProyectoContent() {
               <p className="text-sm font-semibold text-bluegreen-eske-60">
                 Proyecto vinculado a Centinela
               </p>
-              <p className="text-xs text-gray-eske-60 mt-0.5">
+              <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] mt-0.5">
                 El análisis PEST-L de{" "}
                 <strong>{centinelaProjectName ?? "tu proyecto Centinela"}</strong>{" "}
                 estará disponible para importar en la Fase 2 — Exploración.
@@ -122,7 +122,7 @@ function NuevoProyectoContent() {
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
                   step >= s
                     ? "bg-bluegreen-eske text-white-eske"
-                    : "bg-gray-eske-20 text-gray-eske-50"
+                    : "bg-gray-eske-20 dark:bg-[#21425E] text-gray-eske-50 dark:text-[#9AAEBE]"
                 }`}
               >
                 {s}
@@ -130,30 +130,30 @@ function NuevoProyectoContent() {
               {s < 2 && (
                 <div
                   className={`h-0.5 w-12 transition-colors ${
-                    step > s ? "bg-bluegreen-eske" : "bg-gray-eske-20"
+                    step > s ? "bg-bluegreen-eske" : "bg-gray-eske-20 dark:bg-[#21425E]"
                   }`}
                 />
               )}
             </div>
           ))}
-          <span className="ml-2 text-sm text-gray-eske-50">
+          <span className="ml-2 text-sm text-gray-eske-50 dark:text-[#9AAEBE]">
             {step === 1 ? "Nombre y tipo" : "Confirmación"}
           </span>
         </div>
 
         {/* Step 1: Nombre y tipo */}
         {step === 1 && (
-          <div className="bg-white-eske rounded-xl border border-gray-eske-20 p-6">
-            <h1 className="text-xl font-bold text-black-eske mb-1">
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl border border-gray-eske-20 dark:border-white/10 p-6">
+            <h1 className="text-xl font-bold text-black-eske dark:text-[#EAF2F8] mb-1">
               Nuevo proyecto estratégico
             </h1>
-            <p className="text-black-eske-10 font-medium text-sm mb-6">
+            <p className="text-black-eske-10 dark:text-[#C7D6E0] font-medium text-sm mb-6">
               Define el nombre y el tipo de proyecto político que vas a desarrollar.
             </p>
 
             {/* Nombre */}
             <div className="mb-5">
-              <label htmlFor="project-name" className="block text-sm font-medium text-black-eske-10 mb-2">
+              <label htmlFor="project-name" className="block text-sm font-medium text-black-eske-10 dark:text-[#C7D6E0] mb-2">
                 Nombre del proyecto <span className="text-red-eske">*</span>
               </label>
               <input
@@ -162,18 +162,18 @@ function NuevoProyectoContent() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ej. Campaña Municipal Guadalajara 2027"
-                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20
+                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20 dark:border-white/10
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske/30
-                  focus-visible:border-bluegreen-eske text-black-eske text-sm"
+                  focus-visible:border-bluegreen-eske bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] text-sm"
                 maxLength={100}
                 autoFocus={!fromCentinela}
               />
-              <p className="text-xs text-gray-eske-40 mt-1">{name.length}/100</p>
+              <p className="text-xs text-gray-eske-40 dark:text-[#6D8294] mt-1">{name.length}/100</p>
             </div>
 
             {/* Descripción */}
             <div className="mb-6">
-              <label htmlFor="project-description" className="block text-sm font-medium text-black-eske-10 mb-2">
+              <label htmlFor="project-description" className="block text-sm font-medium text-black-eske-10 dark:text-[#C7D6E0] mb-2">
                 Descripción breve <span className="text-gray-eske-40">(opcional)</span>
               </label>
               <textarea
@@ -182,16 +182,16 @@ function NuevoProyectoContent() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Un párrafo que contextualice el proyecto..."
                 rows={2}
-                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20
+                className="w-full px-4 py-3 rounded-lg border border-gray-eske-20 dark:border-white/10
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske/30
-                  focus-visible:border-bluegreen-eske text-black-eske text-sm resize-none"
+                  focus-visible:border-bluegreen-eske bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] text-sm resize-none"
                 maxLength={300}
               />
             </div>
 
             {/* Tipo de proyecto */}
             <div className="mb-6">
-              <p className="text-sm font-medium text-black-eske-10 mb-3">
+              <p className="text-sm font-medium text-black-eske-10 dark:text-[#C7D6E0] mb-3">
                 Tipo de proyecto <span className="text-red-eske">*</span>
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -203,13 +203,13 @@ function NuevoProyectoContent() {
                     className={`text-left p-4 rounded-lg border-2 transition-all ${
                       type === pt
                         ? "border-bluegreen-eske bg-bluegreen-eske/5"
-                        : "border-gray-eske-20 hover:border-gray-eske-40"
+                        : "border-gray-eske-20 dark:border-white/10 hover:border-gray-eske-40 dark:hover:border-white/20"
                     }`}
                   >
-                    <div className="font-bold text-black-eske text-sm mb-1">
+                    <div className="font-bold text-black-eske dark:text-[#EAF2F8] text-sm mb-1">
                       {PROJECT_TYPE_LABELS[pt]}
                     </div>
-                    <div className="text-xs text-black-eske-10 font-medium leading-relaxed">
+                    <div className="text-xs text-black-eske-10 dark:text-[#9AAEBE] font-medium leading-relaxed">
                       {PROJECT_TYPE_DESCRIPTIONS[pt]}
                     </div>
                   </button>
@@ -232,39 +232,39 @@ function NuevoProyectoContent() {
 
         {/* Step 2: Confirmación */}
         {step === 2 && (
-          <div className="bg-white-eske rounded-xl border border-gray-eske-20 p-6">
-            <h1 className="text-xl font-bold text-black-eske mb-1">
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl border border-gray-eske-20 dark:border-white/10 p-6">
+            <h1 className="text-xl font-bold text-black-eske dark:text-[#EAF2F8] mb-1">
               Confirma tu proyecto
             </h1>
-            <p className="text-black-eske-10 font-medium text-sm mb-6">
+            <p className="text-black-eske-10 dark:text-[#C7D6E0] font-medium text-sm mb-6">
               Al crear el proyecto, Moddulo te guiará a través de la Fase 1 — Propósito,
               donde definirás las variables XPCTO del proyecto.
             </p>
 
             {/* Resumen */}
-            <div className="bg-gray-eske-10 rounded-lg p-4 mb-6 space-y-3">
+            <div className="bg-gray-eske-10 dark:bg-[#112230] rounded-lg p-4 mb-6 space-y-3">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40">Nombre</span>
-                <p className="text-black-eske font-medium mt-0.5">{name}</p>
+                <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40 dark:text-[#6D8294]">Nombre</span>
+                <p className="text-black-eske dark:text-[#EAF2F8] font-medium mt-0.5">{name}</p>
               </div>
               <div>
-                <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40">Tipo</span>
-                <p className="text-black-eske font-medium mt-0.5">
+                <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40 dark:text-[#6D8294]">Tipo</span>
+                <p className="text-black-eske dark:text-[#EAF2F8] font-medium mt-0.5">
                   {type && PROJECT_TYPE_LABELS[type]}
                 </p>
-                <p className="text-gray-eske-50 text-xs mt-0.5">
+                <p className="text-gray-eske-50 dark:text-[#9AAEBE] text-xs mt-0.5">
                   {type && PROJECT_TYPE_DESCRIPTIONS[type]}
                 </p>
               </div>
               {description && (
                 <div>
-                  <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40">Descripción</span>
-                  <p className="text-black-eske-10 text-sm mt-0.5">{description}</p>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40 dark:text-[#6D8294]">Descripción</span>
+                  <p className="text-black-eske-10 dark:text-[#C7D6E0] text-sm mt-0.5">{description}</p>
                 </div>
               )}
               {fromCentinela && (
                 <div>
-                  <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40">Vinculado a Centinela</span>
+                  <span className="text-xs font-semibold uppercase tracking-widest text-gray-eske-40 dark:text-[#6D8294]">Vinculado a Centinela</span>
                   <p className="text-bluegreen-eske text-sm font-medium mt-0.5">
                     🛡️ {centinelaProjectName ?? centinelaProjectId}
                   </p>
@@ -283,8 +283,8 @@ function NuevoProyectoContent() {
                 type="button"
                 onClick={() => setStep(1)}
                 disabled={isCreating}
-                className="flex-1 py-3 border border-gray-eske-20 text-gray-eske-60 rounded-lg
-                  font-medium text-sm hover:bg-gray-eske-10 transition-colors disabled:opacity-40"
+                className="flex-1 py-3 border border-gray-eske-20 dark:border-white/10 text-gray-eske-60 dark:text-[#C7D6E0] rounded-lg
+                  font-medium text-sm hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors disabled:opacity-40"
               >
                 Regresar
               </button>

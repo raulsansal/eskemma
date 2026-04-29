@@ -83,6 +83,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" suppressHydrationWarning>
+      <head>
+        {/* Script anti-FOUC: aplica .dark antes de que React hidrate */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('eskemma:theme');if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}})();` }} />
+      </head>
       <body
         className={`${arimo.variable} ${ptSans.variable} ${philosopher.variable} min-h-screen`}
       >

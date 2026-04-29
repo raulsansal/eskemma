@@ -63,9 +63,9 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
   return (
     <div className="flex flex-col gap-6">
       {/* Global confidence */}
-      <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
+      <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-black-eske">Confianza global del análisis</h3>
+          <h3 className="font-semibold text-black-eske dark:text-[#EAF2F8]">Confianza global del análisis</h3>
           <span
             className={[
               "text-2xl font-bold",
@@ -79,7 +79,7 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
             {analysis.globalConfidence}%
           </span>
         </div>
-        <div className="h-2 bg-gray-eske-20 rounded-full">
+        <div className="h-2 bg-gray-eske-20 dark:bg-[#21425E] rounded-full">
           <div
             className={[
               "h-2 rounded-full transition-all",
@@ -117,7 +117,7 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
         <section aria-labelledby="bias-heading">
           <h3
             id="bias-heading"
-            className="font-semibold text-black-eske mb-3"
+            className="font-semibold text-black-eske dark:text-[#EAF2F8] mb-3"
           >
             Alertas de sesgo detectadas
           </h3>
@@ -142,14 +142,14 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
       <section aria-labelledby="dims-heading">
         <h3
           id="dims-heading"
-          className="font-semibold text-black-eske mb-3"
+          className="font-semibold text-black-eske dark:text-[#EAF2F8] mb-3"
         >
           Análisis por dimensión
         </h3>
         <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 overflow-hidden">
           {/* Tab list */}
           <div
-            className="flex border-b border-gray-eske-20 overflow-x-auto"
+            className="flex border-b border-gray-eske-20 dark:border-white/10 overflow-x-auto"
             role="tablist"
             aria-label="Dimensiones PEST-L"
           >
@@ -165,7 +165,7 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
                     "px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
                     activeTab === dim.code
                       ? "border-bluegreen-eske text-bluegreen-eske bg-bluegreen-eske/5"
-                      : "border-transparent text-gray-eske-70 hover:text-black-eske",
+                      : "border-transparent text-gray-eske-70 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8]",
                   ].join(" ")}
                 >
                   <span className="font-bold mr-1.5">{dim.code}</span>
@@ -199,7 +199,7 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
           <div className="flex items-center justify-between">
             <span
               id="chains-heading"
-              className="inline-flex items-center gap-1.5 font-semibold text-black-eske"
+              className="inline-flex items-center gap-1.5 font-semibold text-black-eske dark:text-[#EAF2F8]"
             >
               Cadenas de impacto transversal ({analysis.impactChains.length})
               <InfoTooltip
@@ -211,7 +211,7 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
             <button
               type="button"
               onClick={() => setChainsExpanded((v) => !v)}
-              className="text-black-eske hover:text-bluegreen-eske transition-colors"
+              className="text-black-eske dark:text-[#9AAEBE] hover:text-bluegreen-eske dark:hover:text-[#6BA4C6] transition-colors"
               aria-expanded={chainsExpanded}
               aria-controls="chains-list"
               aria-label={chainsExpanded ? "Colapsar cadenas" : "Expandir cadenas"}
@@ -261,26 +261,26 @@ function DimensionPanel({ dim }: { dim: DimensionAnalysis }) {
           >
             {config.label}
           </span>
-          <span className="text-xs text-black-eske bg-gray-eske-10
+          <span className="text-xs text-black-eske dark:text-[#C7D6E0] bg-gray-eske-10 dark:bg-[#21425E]
             px-2.5 py-1 rounded-full">
             Tendencia {TREND_ICONS[dim.trend]} {dim.trend.toLowerCase()}
           </span>
-          <span className="text-xs text-black-eske bg-gray-eske-10
+          <span className="text-xs text-black-eske dark:text-[#C7D6E0] bg-gray-eske-10 dark:bg-[#21425E]
             px-2.5 py-1 rounded-full">
             Intensidad {dim.intensity.toLowerCase()}
           </span>
         </div>
-        <p className="text-base font-semibold text-black-eske leading-snug">
+        <p className="text-base font-semibold text-black-eske dark:text-[#EAF2F8] leading-snug">
           {dim.mainSignal}
         </p>
       </div>
 
       {/* Confidence */}
       <div className="flex items-center gap-3">
-        <span className="text-xs text-black-eske w-20 shrink-0">
+        <span className="text-xs text-black-eske dark:text-[#9AAEBE] w-20 shrink-0">
           Confianza
         </span>
-        <div className="flex-1 h-1.5 bg-gray-eske-20 rounded-full">
+        <div className="flex-1 h-1.5 bg-gray-eske-20 dark:bg-[#21425E] rounded-full">
           <div
             className={[
               "h-1.5 rounded-full",
@@ -297,18 +297,18 @@ function DimensionPanel({ dim }: { dim: DimensionAnalysis }) {
             aria-valuemax={100}
           />
         </div>
-        <span className="text-xs text-black-eske w-10 text-right">
+        <span className="text-xs text-black-eske dark:text-[#9AAEBE] w-10 text-right">
           {dim.confidence}%
         </span>
       </div>
 
       {/* Narrative */}
       <div>
-        <h4 className="text-xs font-semibold text-black-eske uppercase
+        <h4 className="text-xs font-semibold text-black-eske dark:text-[#9AAEBE] uppercase
           tracking-wide mb-2">
           Narrativa
         </h4>
-        <div className="text-sm text-black-eske leading-relaxed whitespace-pre-line">
+        <div className="text-sm text-black-eske dark:text-[#C7D6E0] leading-relaxed whitespace-pre-line">
           {dim.narrative}
         </div>
       </div>
@@ -332,18 +332,18 @@ function BiasAlertCard({
       className={[
         "flex items-start gap-3 p-4 rounded-xl border",
         isAcknowledged
-          ? "border-gray-eske-20 bg-gray-eske-10 opacity-60"
-          : "border-yellow-eske/30 bg-yellow-eske/5",
+          ? "border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] opacity-60"
+          : "border-yellow-eske/30 bg-yellow-eske/5 dark:bg-yellow-900/10",
       ].join(" ")}
     >
       <span className="text-lg mt-0.5" aria-hidden="true">
         {isAcknowledged ? "✅" : "⚠️"}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-black-eske capitalize">
+        <p className="text-sm font-medium text-black-eske dark:text-[#EAF2F8] capitalize">
           {alert.type.replace(/_/g, " ")}
         </p>
-        <p className="text-xs text-black-eske mt-0.5">{alert.description}</p>
+        <p className="text-xs text-black-eske dark:text-[#C7D6E0] mt-0.5">{alert.description}</p>
         {isAcknowledged && (
           <p className="text-xs text-gray-eske-50 mt-1">Revisado</p>
         )}
@@ -367,7 +367,7 @@ function ImpactChainCard({ chain }: { chain: ImpactChain }) {
   const riskClass = RISK_COLORS[chain.riskLevel] ?? RISK_COLORS.BAJO;
 
   return (
-    <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-4">
+    <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-4">
       <div className="flex items-start gap-3">
         <div className="flex items-center gap-1 shrink-0">
           {chain.dimensions.map((code, i) => (
@@ -391,7 +391,7 @@ function ImpactChainCard({ chain }: { chain: ImpactChain }) {
           {chain.riskLevel}
         </span>
       </div>
-      <p className="text-sm text-black-eske mt-2">{chain.description}</p>
+      <p className="text-sm text-black-eske dark:text-[#C7D6E0] mt-2">{chain.description}</p>
       {chain.recommendation && (
         <p className="text-xs text-bluegreen-eske mt-2 font-medium">
           → {chain.recommendation}

@@ -106,10 +106,10 @@ export default function AlertsFeed({ projectId, onAlertsChange }: Props) {
         <p className="text-2xl mb-2" aria-hidden="true">
           🟢
         </p>
-        <p className="text-sm font-medium text-black-eske">
+        <p className="text-sm font-medium text-black-eske dark:text-[#EAF2F8]">
           Sin alertas recientes
         </p>
-        <p className="text-xs text-black-eske mt-1">
+        <p className="text-xs text-black-eske dark:text-[#9AAEBE] mt-1">
           El sistema monitoreará automáticamente cada 6 horas.
         </p>
       </div>
@@ -117,7 +117,7 @@ export default function AlertsFeed({ projectId, onAlertsChange }: Props) {
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-gray-eske-10" role="list">
+    <ul className="flex flex-col divide-y divide-gray-eske-10 dark:divide-white/10" role="list">
       {alerts.map((alert) => {
         const isRead = Boolean(alert.readAt);
         return (
@@ -132,10 +132,10 @@ export default function AlertsFeed({ projectId, onAlertsChange }: Props) {
               {alert.isCrisis ? "🔴" : (ALERT_ICONS[alert.type] ?? "🔔")}
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-black-eske leading-snug">
+              <p className="text-sm text-black-eske dark:text-[#C7D6E0] leading-snug">
                 {alert.description}
               </p>
-              <p className="text-xs text-black-eske mt-0.5">
+              <p className="text-xs text-black-eske dark:text-[#9AAEBE] mt-0.5">
                 {formatRelative(alert.generadoEn)}
                 {alert.isCrisis && (
                   <span className="ml-2 inline-block px-1.5 py-0.5 bg-red-eske/10
@@ -150,7 +150,7 @@ export default function AlertsFeed({ projectId, onAlertsChange }: Props) {
                 type="button"
                 onClick={() => handleMarkRead(alert.id)}
                 disabled={markingRead === alert.id}
-                className="shrink-0 text-xs text-gray-eske-50 hover:text-bluegreen-eske
+                className="shrink-0 text-xs text-gray-eske-50 dark:text-[#6D8294] hover:text-bluegreen-eske dark:hover:text-[#6BA4C6]
                   transition-colors disabled:opacity-40"
                 aria-label="Marcar como leída"
               >

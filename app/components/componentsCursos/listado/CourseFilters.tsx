@@ -63,11 +63,11 @@ export default function CourseFilters({
     searchInput !== "";
 
   return (
-    <div className="bg-white-eske rounded-lg shadow-md p-4 mb-8">
+    <div className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md p-4 mb-8">
       <div className="flex flex-col md:flex-row gap-4 items-end">
         {/* Búsqueda */}
         <form onSubmit={handleSearch} className="flex-1">
-          <label htmlFor="search" className="block text-sm text-black-eske font-normal mb-1">
+          <label htmlFor="search" className="block text-sm text-black-eske dark:text-[#C7D6E0] font-normal mb-1">
             Buscar cursos
           </label>
           <div className="flex gap-2">
@@ -77,7 +77,7 @@ export default function CourseFilters({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Ej: análisis electoral..."
-              className="flex-1 p-2 border border-gray-eske-30 rounded-lg focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+              className="flex-1 p-2 border border-gray-eske-30 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent bg-white-eske dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294]"
               aria-label="Buscar cursos por título, descripción o etiquetas"
             />
             <button
@@ -94,14 +94,14 @@ export default function CourseFilters({
 
         {/* Filtro por tipo */}
         <div className="w-full md:w-48">
-          <label htmlFor="type" className="block text-sm text-black-eske font-normal mb-1">
+          <label htmlFor="type" className="block text-sm text-black-eske dark:text-[#C7D6E0] font-normal mb-1">
             Tipo
           </label>
           <select
             id="type"
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full p-2 border border-gray-eske-30 rounded-lg focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+            className="w-full p-2 border border-gray-eske-30 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent bg-white-eske dark:bg-[#112230] dark:text-[#EAF2F8]"
             aria-label="Filtrar por tipo de curso"
           >
             <option value="todos">Todos los tipos</option>
@@ -120,7 +120,7 @@ export default function CourseFilters({
             id="difficulty"
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
-            className="w-full p-2 border border-gray-eske-30 rounded-lg focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent"
+            className="w-full p-2 border border-gray-eske-30 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent bg-white-eske dark:bg-[#112230] dark:text-[#EAF2F8]"
             aria-label="Filtrar por nivel de dificultad"
           >
             <option value="todos">Todos los niveles</option>
@@ -134,7 +134,7 @@ export default function CourseFilters({
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="px-4 py-2 text-black-eske font-normal hover:text-bluegreen-eske transition-colors focus-ring-primary"
+            className="px-4 py-2 text-black-eske dark:text-[#9AAEBE] font-normal hover:text-bluegreen-eske dark:hover:text-[#4791B3] transition-colors focus-ring-primary"
             aria-label="Limpiar todos los filtros"
           >
             Limpiar filtros

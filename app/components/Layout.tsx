@@ -32,7 +32,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
       {/* Encabezado Fixed */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white-eske">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white-eske dark:bg-[#112230]">
         <Header />
       </header>
 

@@ -226,7 +226,7 @@ export default function DatosPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-bluegreen-eske border-t-transparent
           rounded-full animate-spin" aria-label="Cargando" />
       </div>
@@ -234,7 +234,7 @@ export default function DatosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-eske-10">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* Header */}
       <div className="bg-bluegreen-eske text-white px-6 py-5">
         <div className="max-w-4xl mx-auto">
@@ -269,7 +269,7 @@ export default function DatosPage() {
         <section aria-labelledby="coverage-heading">
           <h2
             id="coverage-heading"
-            className="text-lg font-semibold text-black-eske mb-4 flex items-center gap-2"
+            className="text-lg font-semibold text-black-eske dark:text-[#EAF2F8] mb-4 flex items-center gap-2"
           >
             Semáforo de cobertura
             <InfoTooltip
@@ -277,25 +277,25 @@ export default function DatosPage() {
               placement="right"
             />
           </h2>
-          <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 overflow-hidden">
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 overflow-hidden">
             {coverage.length === 0 ? (
-              <div className="p-6 text-sm text-black-eske text-center">
+              <div className="p-6 text-sm text-black-eske dark:text-[#9AAEBE] text-center">
                 Sin datos aún. Agrega fuentes para ver el estado de cobertura.
               </div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-eske-10 bg-gray-eske-10">
-                    <th className="text-left px-4 py-3 font-medium text-black-eske">
+                  <tr className="border-b border-gray-eske-10 dark:border-white/10 bg-gray-eske-10 dark:bg-[#112230]">
+                    <th className="text-left px-4 py-3 font-medium text-black-eske dark:text-[#C7D6E0]">
                       Dimensión
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-black-eske">
+                    <th className="text-left px-4 py-3 font-medium text-black-eske dark:text-[#C7D6E0]">
                       Estado
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-black-eske">
+                    <th className="text-left px-4 py-3 font-medium text-black-eske dark:text-[#C7D6E0]">
                       Fuentes
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-black-eske">
+                    <th className="text-left px-4 py-3 font-medium text-black-eske dark:text-[#C7D6E0]">
                       Confianza
                     </th>
                   </tr>
@@ -306,9 +306,9 @@ export default function DatosPage() {
                     return (
                       <tr
                         key={c.code}
-                        className="border-b border-gray-eske-10 last:border-0"
+                        className="border-b border-gray-eske-10 dark:border-white/10 last:border-0"
                       >
-                        <td className="px-4 py-3 font-medium text-black-eske">
+                        <td className="px-4 py-3 font-medium text-black-eske dark:text-[#C7D6E0]">
                           <span className="text-xs text-bluegreen-eske font-bold mr-2">
                             {c.code}
                           </span>
@@ -327,12 +327,12 @@ export default function DatosPage() {
                             {config.label}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-black-eske">
+                        <td className="px-4 py-3 text-black-eske dark:text-[#C7D6E0]">
                           {c.variablesWithData}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <div className="flex-1 h-1.5 bg-gray-eske-20 rounded-full max-w-24">
+                            <div className="flex-1 h-1.5 bg-gray-eske-20 dark:bg-[#21425E] rounded-full max-w-24">
                               <div
                                 className={[
                                   "h-1.5 rounded-full transition-all",
@@ -349,7 +349,7 @@ export default function DatosPage() {
                                 aria-valuemax={100}
                               />
                             </div>
-                            <span className="text-xs text-black-eske w-10">
+                            <span className="text-xs text-black-eske dark:text-[#C7D6E0] w-10">
                               {c.confidence}%
                             </span>
                           </div>
@@ -367,12 +367,12 @@ export default function DatosPage() {
         <section aria-labelledby="manual-heading">
           <h2
             id="manual-heading"
-            className="text-lg font-semibold text-black-eske mb-4"
+            className="text-lg font-semibold text-black-eske dark:text-[#EAF2F8] mb-4"
           >
             Agregar dato manualmente
           </h2>
-          <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-6">
-            <p className="text-sm text-black-eske mb-5">
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-6">
+            <p className="text-sm text-black-eske dark:text-[#C7D6E0] mb-5">
               Encuestas propias, notas de campo, entrevistas u otros datos
               que la IA no puede recopilar automáticamente.
             </p>
@@ -382,7 +382,7 @@ export default function DatosPage() {
             >
               {/* Input mode tabs */}
               <div>
-                <label className="text-sm font-medium text-black-eske flex items-center gap-1.5 mb-2">
+                <label className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5 mb-2">
                   Contenido
                   <InfoTooltip
                     content="Información que tú o tu equipo recopilaron en campo y que la IA no puede obtener automáticamente. Se integra al análisis con la ponderación que asignes."
@@ -390,7 +390,7 @@ export default function DatosPage() {
                   />
                 </label>
                 {/* Tabs */}
-                <div className="flex border-b border-gray-eske-20 mb-3" role="tablist">
+                <div className="flex border-b border-gray-eske-20 dark:border-white/10 mb-3" role="tablist">
                   {(["text", "file"] as const).map((tab) => (
                     <button
                       key={tab}
@@ -405,7 +405,7 @@ export default function DatosPage() {
                         "px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
                         inputTab === tab
                           ? "border-bluegreen-eske text-bluegreen-eske"
-                          : "border-transparent text-gray-eske-60 hover:text-black-eske",
+                          : "border-transparent text-gray-eske-60 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8]",
                       ].join(" ")}
                     >
                       {tab === "text" ? "Texto" : "Archivo"}
@@ -421,9 +421,10 @@ export default function DatosPage() {
                     onChange={(e) => setManualContent(e.target.value)}
                     placeholder="Pega aquí el texto de la encuesta, nota de campo o entrevista…"
                     rows={4}
-                    className="w-full px-3 py-2.5 border border-gray-eske-30 rounded-lg
+                    className="w-full px-3 py-2.5 border border-gray-eske-30 dark:border-white/10 rounded-lg
                       text-sm focus:outline-none focus-visible:ring-2
-                      focus-visible:ring-bluegreen-eske placeholder:text-gray-eske-50
+                      focus-visible:ring-bluegreen-eske placeholder:text-gray-eske-50 dark:placeholder-[#6D8294]
+                      bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]
                       resize-none"
                     required={inputTab === "text"}
                   />
@@ -439,8 +440,8 @@ export default function DatosPage() {
                         "border-2 border-dashed rounded-lg px-4 py-6 cursor-pointer",
                         "transition-colors text-center",
                         selectedFile
-                          ? "border-bluegreen-eske bg-bluegreen-eske/5"
-                          : "border-gray-eske-30 hover:border-bluegreen-eske/60",
+                          ? "border-bluegreen-eske bg-bluegreen-eske/5 dark:bg-bluegreen-eske/10"
+                          : "border-gray-eske-30 dark:border-white/10 hover:border-bluegreen-eske/60",
                       ].join(" ")}
                     >
                       <span className="text-2xl" aria-hidden="true">
@@ -449,19 +450,19 @@ export default function DatosPage() {
                       {selectedFile ? (
                         <span className="text-sm font-medium text-bluegreen-eske">
                           {selectedFile.name}
-                          <span className="ml-2 text-xs text-black-eske font-normal">
+                          <span className="ml-2 text-xs text-black-eske dark:text-[#9AAEBE] font-normal">
                             ({(selectedFile.size / 1024).toFixed(0)} KB)
                           </span>
                         </span>
                       ) : (
-                        <span className="text-sm text-black-eske">
+                        <span className="text-sm text-black-eske dark:text-[#C7D6E0]">
                           Arrastra un archivo o{" "}
                           <span className="text-bluegreen-eske font-medium underline">
                             haz clic para seleccionar
                           </span>
                         </span>
                       )}
-                      <span className="text-xs text-black-eske">
+                      <span className="text-xs text-black-eske dark:text-[#9AAEBE]">
                         PDF, Word (.docx) o texto plano — máx. 10 MB
                       </span>
                       <input
@@ -498,7 +499,7 @@ export default function DatosPage() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="manual-dim"
-                    className="text-sm font-medium text-black-eske flex items-center gap-1.5"
+                    className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5"
                   >
                     Dimensión
                     <InfoTooltip
@@ -512,9 +513,9 @@ export default function DatosPage() {
                     onChange={(e) =>
                       setManualDimension(e.target.value as DimensionCode)
                     }
-                    className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
+                    className="px-3 py-2 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm
                       focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske
-                      bg-white-eske"
+                      bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
                   >
                     {(["P", "E", "S", "T", "L"] as DimensionCode[]).map(
                       (code) => (
@@ -529,7 +530,7 @@ export default function DatosPage() {
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="manual-source"
-                    className="text-sm font-medium text-black-eske flex items-center gap-1.5"
+                    className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5"
                   >
                     Fuente
                     <InfoTooltip
@@ -543,16 +544,17 @@ export default function DatosPage() {
                     value={manualSource}
                     onChange={(e) => setManualSource(e.target.value)}
                     placeholder="ej. Encuesta propia, Entrevista…"
-                    className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
+                    className="px-3 py-2 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm
                       focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske
-                      placeholder:text-gray-eske-50"
+                      placeholder:text-gray-eske-50 dark:placeholder-[#6D8294]
+                      bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
                   <label
                     htmlFor="manual-reliability"
-                    className="text-sm font-medium text-black-eske flex items-center gap-1.5"
+                    className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5"
                   >
                     Confiabilidad
                     <InfoTooltip
@@ -566,9 +568,9 @@ export default function DatosPage() {
                     onChange={(e) =>
                       setManualReliability(e.target.value as ReliabilityLevel)
                     }
-                    className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
+                    className="px-3 py-2 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm
                       focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske
-                      bg-white-eske"
+                      bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
                   >
                     {(["HIGH", "MEDIUM", "LOW"] as ReliabilityLevel[]).map(
                       (level) => (
@@ -618,16 +620,16 @@ export default function DatosPage() {
         <section aria-labelledby="auto-heading">
           <h2
             id="auto-heading"
-            className="text-lg font-semibold text-black-eske mb-4"
+            className="text-lg font-semibold text-black-eske dark:text-[#EAF2F8] mb-4"
           >
             Fuentes automáticas
           </h2>
-          <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-6">
-            <p className="text-sm text-black-eske mb-3">
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-6">
+            <p className="text-sm text-black-eske dark:text-[#C7D6E0] mb-3">
               Al ejecutar el análisis, Centinela recopila automáticamente datos
               de las siguientes fuentes públicas para el territorio configurado:
             </p>
-            <ul className="text-sm text-black-eske list-none flex flex-col gap-1.5">
+            <ul className="text-sm text-black-eske dark:text-[#C7D6E0] list-none flex flex-col gap-1.5">
               <li className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-bluegreen-eske shrink-0" aria-hidden="true" />
                 Google News — noticias recientes del territorio
@@ -659,7 +661,7 @@ export default function DatosPage() {
 
         {/* Error */}
         {error && (
-          <p className="text-sm text-red-eske bg-red-50 px-4 py-2 rounded-lg">
+          <p className="text-sm text-red-eske dark:text-red-300 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
             {error}
           </p>
         )}
@@ -687,7 +689,7 @@ export default function DatosPage() {
               content="Inicia el análisis con IA usando todas las fuentes disponibles. El proceso tarda 2-8 minutos y no se puede cancelar una vez iniciado."
             />
           </div>
-          <p className="text-xs text-black-eske text-center max-w-sm">
+          <p className="text-xs text-black-eske dark:text-[#9AAEBE] text-center max-w-sm">
             El análisis puede tardar 2-8 minutos. Serás redirigido
             automáticamente al completarse.
           </p>

@@ -46,13 +46,13 @@ export default function LegalSection({
 }: LegalSectionProps) {
   // Estilos según el nivel - RESPONSIVE
   const titleStyles = {
-    1: "text-2xl md:text-3xl max-sm:text-xl font-bold text-bluegreen-eske mb-4 max-sm:mb-3",
-    2: "text-xl md:text-2xl max-sm:text-lg font-bold text-bluegreen-eske-70 mb-3 max-sm:mb-2",
+    1: "text-2xl md:text-3xl max-sm:text-xl font-bold text-bluegreen-eske dark:text-[#6BA4C6] mb-4 max-sm:mb-3",
+    2: "text-xl md:text-2xl max-sm:text-lg font-bold text-bluegreen-eske-70 dark:text-[#6BA4C6] mb-3 max-sm:mb-2",
   };
 
   const containerStyles = {
     1: "mb-12 max-sm:mb-8 scroll-mt-24",
-    2: "mb-8 max-sm:mb-6 pl-4 max-sm:pl-3 border-l-4 max-sm:border-l-3 border-bluegreen-eske-20 scroll-mt-24",
+    2: "mb-8 max-sm:mb-6 pl-4 max-sm:pl-3 border-l-4 max-sm:border-l-3 border-bluegreen-eske-20 dark:border-[#4791B3]/40 scroll-mt-24",
   };
 
   // Usar el heading correcto según el nivel jerárquico
@@ -78,7 +78,7 @@ export default function LegalSection({
       </HeadingTag>
 
       {/* Contenido de la sección - RESPONSIVE */}
-      <div className="text-[15px] max-sm:text-[14px] text-black-eske leading-relaxed space-y-4 max-sm:space-y-3">
+      <div className="text-[15px] max-sm:text-[14px] text-black-eske dark:text-[#C7D6E0] leading-relaxed space-y-4 max-sm:space-y-3">
         {children}
       </div>
     </section>

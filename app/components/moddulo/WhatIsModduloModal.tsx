@@ -39,7 +39,7 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
     >
       <div
         className="
-          bg-white-eske
+          bg-white-eske dark:bg-[#18324A]
           rounded-lg
           shadow-2xl
           w-full
@@ -57,8 +57,8 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
           className="
             absolute
             top-4 right-4
-            text-gray-eske-70
-            hover:text-black-eske
+            text-gray-eske-70 dark:text-[#9AAEBE]
+            hover:text-black-eske dark:hover:text-[#EAF2F8]
             transition-colors
             focus-ring-primary
             rounded-full
@@ -82,11 +82,11 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
           <div className="pr-8">
             <h2
               id="moddulo-modal-title"
-              className="text-2xl max-sm:text-xl font-bold text-black-eske mb-2"
+              className="text-2xl max-sm:text-xl font-bold text-black-eske dark:text-[#EAF2F8] mb-2"
             >
               ¿Qué incluye Moddulo?
             </h2>
-            <p className="text-base max-sm:text-sm text-gray-eske-90">
+            <p className="text-base max-sm:text-sm text-gray-eske-90 dark:text-[#9AAEBE]">
               Tu ecosistema completo de apps políticas impulsadas por IA
             </p>
           </div>
@@ -94,19 +94,19 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
           {/* Lista de planes */}
           <div className="space-y-4">
             {/* Plan Basic */}
-            <div className="bg-blue-50 rounded-lg p-4 max-sm:p-3">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 max-sm:p-3">
               <div className="flex items-start gap-3">
                 <div className="bg-blue-eske text-white-eske rounded-full w-8 h-8 flex items-center justify-center shrink-0 font-bold text-sm">
                   8
                 </div>
                 <div>
-                  <h3 className="font-bold text-base max-sm:text-sm text-black-eske mb-1">
+                  <h3 className="font-bold text-base max-sm:text-sm text-black-eske dark:text-[#EAF2F8] mb-1">
                     Plan Basic
                   </h3>
-                  <p className="text-sm max-sm:text-xs text-gray-eske-90 mb-2">
+                  <p className="text-sm max-sm:text-xs text-gray-eske-90 dark:text-[#9AAEBE] mb-2">
                     Herramientas fundamentales para gestión de campañas
                   </p>
-                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 space-y-1">
+                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 dark:text-[#9AAEBE] space-y-1">
                     <li>• Redactor Político</li>
                     <li>• CRM Comunitario</li>
                     <li>• Dashboard, Calendario y más</li>
@@ -116,19 +116,19 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
             </div>
 
             {/* Plan Premium */}
-            <div className="bg-orange-50 rounded-lg p-4 max-sm:p-3">
+            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 max-sm:p-3">
               <div className="flex items-start gap-3">
                 <div className="bg-orange-eske text-white-eske rounded-full w-8 h-8 flex items-center justify-center shrink-0 font-bold text-sm">
                   16
                 </div>
                 <div>
-                  <h3 className="font-bold text-base max-sm:text-sm text-black-eske mb-1">
+                  <h3 className="font-bold text-base max-sm:text-sm text-black-eske dark:text-[#EAF2F8] mb-1">
                     Plan Premium
                   </h3>
-                  <p className="text-sm max-sm:text-xs text-gray-eske-90 mb-2">
+                  <p className="text-sm max-sm:text-xs text-gray-eske-90 dark:text-[#9AAEBE] mb-2">
                     Todo lo de Basic + IA avanzada y multi-agente
                   </p>
-                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 space-y-1">
+                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 dark:text-[#9AAEBE] space-y-1">
                     <li>• Centro de Escucha Social</li>
                     <li>• Estratega IA</li>
                     <li>• Upgrades Premium con ML</li>
@@ -138,19 +138,19 @@ export default function WhatIsModduloModal({ isOpen, onClose }: WhatIsModduloMod
             </div>
 
             {/* Plan Professional */}
-            <div className="bg-green-50 rounded-lg p-4 max-sm:p-3">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 max-sm:p-3">
               <div className="flex items-start gap-3">
                 <div className="bg-green-600 text-white-eske rounded-full w-8 h-8 flex items-center justify-center shrink-0 font-bold text-sm">
                   25
                 </div>
                 <div>
-                  <h3 className="font-bold text-base max-sm:text-sm text-black-eske mb-1">
+                  <h3 className="font-bold text-base max-sm:text-sm text-black-eske dark:text-[#EAF2F8] mb-1">
                     Plan Professional
                   </h3>
-                  <p className="text-sm max-sm:text-xs text-gray-eske-90 mb-2">
+                  <p className="text-sm max-sm:text-xs text-gray-eske-90 dark:text-[#9AAEBE] mb-2">
                     Suite completa para campañas exitosas
                   </p>
-                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 space-y-1">
+                  <ul className="text-xs max-sm:text-[11px] text-gray-eske-80 dark:text-[#9AAEBE] space-y-1">
                     <li>• Sala de Crisis</li>
                     <li>• Monitor de Redes Avanzado</li>
                     <li>• Territorio Digital y más</li>

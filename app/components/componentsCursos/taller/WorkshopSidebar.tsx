@@ -51,7 +51,7 @@ export default function WorkshopSidebar({
   return (
     <aside
       className={`
-        fixed top-0 left-0 z-40 w-80 h-screen bg-white-eske border-r border-gray-eske-20
+        fixed top-0 left-0 z-40 w-80 h-screen bg-white-eske dark:bg-[#0B1620] border-r border-gray-eske-20 dark:border-white/10
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
@@ -65,17 +65,17 @@ export default function WorkshopSidebar({
           
           {/* Barra de progreso general */}
           <div className="mt-4">
-            <div className="flex justify-between text-sm text-black-eske font-normal mb-1">
+            <div className="flex justify-between text-sm text-black-eske dark:text-[#C7D6E0] font-normal mb-1">
               <span>Progreso general</span>
               <span>{Math.round(progressPercentage)}%</span>
             </div>
-            <div className="w-full bg-gray-eske-20 rounded-full h-2">
+            <div className="w-full bg-gray-eske-20 dark:bg-[#21425E] rounded-full h-2">
               <div
                 className="bg-bluegreen-eske h-2 rounded-full transition-all"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
-            <p className="text-xs text-gray-eske-60 mt-2">
+            <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] mt-2">
               {completedSessions} de {totalSessions} sesiones completadas
             </p>
           </div>
@@ -87,22 +87,22 @@ export default function WorkshopSidebar({
             const moduleCompleted = module.sessions.every(s => isSessionCompleted(s.id));
             
             return (
-              <div key={module.id} className="border border-gray-eske-20 rounded-lg overflow-hidden">
+              <div key={module.id} className="border border-gray-eske-20 dark:border-white/10 rounded-lg overflow-hidden">
                 {/* Módulo header (clickeable) */}
                 <button
                   onClick={() => toggleModule(module.id)}
                   className={`
                     w-full flex items-center justify-between p-3 text-left
-                    ${moduleCompleted ? 'bg-green-eske-10' : 'bg-gray-eske-10'}
-                    hover:bg-gray-eske-20 transition-colors
+                    ${moduleCompleted ? 'bg-green-eske-10 dark:bg-green-900/20' : 'bg-gray-eske-10 dark:bg-[#112230]'}
+                    hover:bg-gray-eske-20 dark:hover:bg-white/5 transition-colors
                     focus-ring-primary
                   `}
                   aria-expanded={expandedModules.includes(module.id)}
                   aria-controls={`module-${module.id}-sessions`}
                 >
                   <div className="flex-1">
-                    <span className="text-xs text-black-eske font-normal">Módulo {moduleIndex + 1}</span>
-                    <h3 className="font-medium flex items-center gap-2">
+                    <span className="text-xs text-black-eske dark:text-[#9AAEBE] font-normal">Módulo {moduleIndex + 1}</span>
+                    <h3 className="font-medium flex items-center gap-2 dark:text-[#C7D6E0]">
                       {module.title}
                       {moduleCompleted && (
                         <span className="text-green-eske" aria-label="Módulo completado">✓</span>
@@ -124,7 +124,7 @@ export default function WorkshopSidebar({
                 {expandedModules.includes(module.id) && (
                   <ul
                     id={`module-${module.id}-sessions`}
-                    className="p-2 space-y-1 bg-white-eske"
+                    className="p-2 space-y-1 bg-white-eske dark:bg-[#18324A]"
                     aria-label={`Sesiones del ${module.title}`}
                   >
                     {module.sessions.map((session) => {
@@ -140,8 +140,8 @@ export default function WorkshopSidebar({
                               ${current 
                                 ? 'bg-bluegreen-eske text-white' 
                                 : completed
-                                  ? 'text-green-eske-70 hover:bg-gray-eske-10'
-                                  : 'text-black-eske font-normal hover:bg-gray-eske-10'
+                                  ? 'text-green-eske-70 dark:text-green-400 hover:bg-gray-eske-10 dark:hover:bg-white/5'
+                                  : 'text-black-eske dark:text-[#C7D6E0] font-normal hover:bg-gray-eske-10 dark:hover:bg-white/5'
                               }
                               transition-colors focus-ring-primary
                             `}
@@ -170,10 +170,10 @@ export default function WorkshopSidebar({
         </nav>
 
         {/* Footer del sidebar */}
-        <div className="mt-6 pt-4 border-t border-gray-eske-20">
+        <div className="mt-6 pt-4 border-t border-gray-eske-20 dark:border-white/10">
           <Link
             href="/cursos"
-            className="flex items-center gap-2 text-sm text-black-eske font-normal hover:text-bluegreen-eske p-2 rounded-lg transition-colors focus-ring-primary"
+            className="flex items-center gap-2 text-sm text-black-eske dark:text-[#9AAEBE] font-normal hover:text-bluegreen-eske dark:hover:text-[#4791B3] p-2 rounded-lg transition-colors focus-ring-primary"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

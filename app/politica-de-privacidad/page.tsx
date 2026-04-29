@@ -31,7 +31,7 @@ export default function PoliticaPrivacidad() {
   ];
 
   return (
-    <div className="min-h-screen bg-white-eske">
+    <div className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
       {/* Hero Section */}
       <LegalHero
         title="Política de Privacidad"
@@ -49,7 +49,7 @@ export default function PoliticaPrivacidad() {
           {/* Contenido Principal */}
           <div className="lg:col-start-2">
             {/* Introducción */}
-            <div className="mb-8 text-[16px] max-sm:text-[14px] text-black-eske-10 leading-relaxed">
+            <div className="mb-8 text-[16px] max-sm:text-[14px] text-black-eske-10 dark:text-[#C7D6E0] leading-relaxed">
               <p className="mb-4">
                 En Eskemma, valoramos tu privacidad y nos comprometemos a
                 proteger tus datos personales. Esta Política de Privacidad
@@ -86,7 +86,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-4">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   1.1. Delegado de Protección de Datos (para usuarios de la
                   Unión Europea)
                 </h4>
@@ -117,7 +117,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.1. Datos de Identificación
                 </h4>
                 <ul className="list-disc list-inside space-y-1 ml-4">
@@ -133,7 +133,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.2. Datos de Uso
                 </h4>
                 <ul className="list-disc list-inside space-y-1 ml-4">
@@ -149,7 +149,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.3. Datos de Pago
                 </h4>
                 <ul className="list-disc list-inside space-y-1 ml-4">
@@ -166,7 +166,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.4. Datos de Proyectos Políticos
                 </h4>
                 <p className="mb-2">
@@ -187,7 +187,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-3">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-3">
                   3.1. Base Legal para el Tratamiento de Datos
                 </h4>
                 <p className="mb-2">
@@ -216,7 +216,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   3.2. Fines Específicos
                 </h4>
 
@@ -261,7 +261,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   4.1. Medidas Técnicas
                 </h4>
                 <ul className="list-disc list-inside space-y-1 ml-4">
@@ -280,7 +280,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   4.2. Medidas Organizativas
                 </h4>
                 <ul className="list-disc list-inside space-y-1 ml-4">
@@ -302,7 +302,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   4.3. Cumplimiento Normativo
                 </h4>
                 <ul className="list-disc list-inside space-y-1 ml-4">
@@ -336,7 +336,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   5.1. Proveedores de Servicios
                 </h4>
                 <p className="mb-2">
@@ -356,7 +356,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   5.2. Transferencias Internacionales de Datos (importante para
                   usuarios de la UE)
                 </h4>
@@ -393,7 +393,7 @@ export default function PoliticaPrivacidad() {
             {/* Sección 6: Derechos del Usuario */}
             <LegalSection id="derechos" title="6. Tus Derechos sobre Tus Datos">
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-3">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-3">
                   6.1. Para Usuarios en la Unión Europea (GDPR)
                 </h4>
                 <p className="mb-2">
@@ -435,7 +435,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-3">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-3">
                   6.2. Para Usuarios en California, USA (CCPA)
                 </h4>
                 <ul className="list-disc list-inside space-y-2 ml-4">
@@ -463,7 +463,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-3">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-3">
                   6.3. Para Usuarios en México (LFPDPPP)
                 </h4>
                 <p className="mb-2">Tienes los siguientes derechos ARCO:</p>
@@ -488,7 +488,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6 bg-blue-eske-10 p-4 rounded-lg">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   6.4. ¿Cómo Ejercer Estos Derechos?
                 </h4>
                 <p className="mb-2">
@@ -534,7 +534,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   7.1. Después de Cancelar tu Suscripción
                 </h4>
                 <ul className="list-disc list-inside space-y-2 ml-4">
@@ -559,7 +559,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   7.2. Eliminación Segura
                 </h4>
                 <p>
@@ -582,7 +582,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   8.1. Tipos de Cookies
                 </h4>
 
@@ -615,8 +615,8 @@ export default function PoliticaPrivacidad() {
                 </ul>
               </div>
 
-              <div className="mt-6 mb-6 bg-yellow-eske-10 p-4 rounded-lg">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+              <div className="mt-6 mb-6 bg-yellow-eske-10 dark:bg-yellow-900/20 p-4 rounded-lg">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   8.2. Gestión de Cookies
                 </h4>
                 <p className="mb-2">
@@ -644,7 +644,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   9.1. Para Usuarios en Estados Unidos (COPPA)
                 </h4>
                 <ul className="list-disc list-inside space-y-1 ml-4">
@@ -670,7 +670,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   9.2. Para Usuarios en la Unión Europea (GDPR)
                 </h4>
                 <p className="mb-2">
@@ -680,7 +680,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   9.3. Para Usuarios en México (LFPDPPP)
                 </h4>
                 <p>Menores de 18 años requieren autorización de padre/tutor.</p>
@@ -699,7 +699,7 @@ export default function PoliticaPrivacidad() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   10.1. Para Usuarios en la Unión Europea (GDPR Art. 33-34)
                 </h4>
                 <ul className="list-disc list-inside space-y-2 ml-4">
@@ -719,7 +719,7 @@ export default function PoliticaPrivacidad() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   10.2. Para Usuarios en California, USA
                 </h4>
                 <p>
@@ -736,8 +736,8 @@ export default function PoliticaPrivacidad() {
                 o esta política:
               </p>
 
-              <div className="bg-bluegreen-eske-10 p-4 rounded-lg">
-                <p className="mb-2 text-black-eske">
+              <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg">
+                <p className="mb-2 text-black-eske dark:text-[#C7D6E0]">
                   <strong>Correo general:</strong>{" "}
                   <a
                     href="mailto:contacto@eskemma.com"
@@ -762,7 +762,7 @@ export default function PoliticaPrivacidad() {
                     dpo@eskemma.com
                   </a>
                 </p>
-                <p className="mt-2 text-[14px] text-black-eske">
+                <p className="mt-2 text-[14px] text-black-eske dark:text-[#C7D6E0]">
                   <strong>Horario de atención:</strong>
                   <br />
                   Lunes a Viernes, 9:00 AM - 6:00 PM (Hora del Centro de México)
@@ -777,7 +777,7 @@ export default function PoliticaPrivacidad() {
             >
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     12.1. Para Usuarios en México
                   </h4>
                   <p>
@@ -788,7 +788,7 @@ export default function PoliticaPrivacidad() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     12.2. Para Usuarios en la Unión Europea
                   </h4>
                   <p>
@@ -798,7 +798,7 @@ export default function PoliticaPrivacidad() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     12.3. Para Usuarios en California, USA
                   </h4>
                   <p>
@@ -810,11 +810,11 @@ export default function PoliticaPrivacidad() {
             </LegalSection>
 
             {/* CTA Final */}
-            <div className="mt-12 p-6 bg-gray-eske-30 rounded-lg text-white-eske text-center">
-              <h3 className="text-2xl font-bold text-black-eske mb-4">
+            <div className="mt-12 p-6 bg-gray-eske-30 dark:bg-[#21425E] rounded-lg text-white-eske text-center">
+              <h3 className="text-2xl font-bold text-black-eske dark:text-[#EAF2F8] mb-4">
                 ¿Tienes dudas sobre tu privacidad?
               </h3>
-              <p className="text-[16px] text-black-eske mb-6">
+              <p className="text-[16px] text-black-eske dark:text-[#C7D6E0] mb-6">
                 Estamos aquí para ayudarte. Contáctanos o revisa nuestros otros
                 documentos legales.
               </p>
@@ -829,7 +829,7 @@ export default function PoliticaPrivacidad() {
             </div>
 
             {/* Nota final */}
-            <div className="mt-8 text-center text-[12px] text-black-eske-30">
+            <div className="mt-8 text-center text-[12px] text-black-eske-30 dark:text-[#6D8294]">
               <p>
                 Esta Política de Privacidad se aplica únicamente a los servicios
                 de Eskemma. Si accedes a enlaces de terceros, te recomendamos

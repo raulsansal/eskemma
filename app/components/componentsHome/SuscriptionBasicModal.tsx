@@ -39,12 +39,12 @@ export default function SuscriptionBasicModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="subscription-basic-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[85vh] max-sm:max-h-[90vh]"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[85vh] max-sm:max-h-[90vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 dark:text-[#6D8294] hover:text-red-eske dark:hover:text-[#C7D6E0] transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar modal de suscripción basic"
         >
@@ -69,7 +69,7 @@ export default function SuscriptionBasicModal({
           {/* Título del Modal */}
           <h2
             id="subscription-basic-title"
-            className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske text-center"
+            className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske dark:text-[#6BA4C6] text-center"
           >
             Suscripción
           </h2>
@@ -84,18 +84,18 @@ export default function SuscriptionBasicModal({
           </div>
 
           {/* Nombre del Plan */}
-          <p className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske">
+          <p className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske dark:text-[#6BA4C6]">
             Plan Básico
           </p>
 
           {/* Precio */}
-          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske dark:text-[#C7D6E0]">
             $2,899 (MX) / mes
           </p>
 
           {/* Descripción */}
           <div className="space-y-2 max-sm:space-y-1.5">
-            <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
+            <p className="text-[16px] max-sm:text-sm font-normal text-black-eske dark:text-[#C7D6E0]">
               Tu suscripción mensual incluye:
             </p>
             <ul className="list-disc pl-6 max-sm:pl-5 text-[16px] max-sm:text-sm text-black-eske space-y-1 max-sm:space-y-0.5">
@@ -118,7 +118,7 @@ export default function SuscriptionBasicModal({
             <div className="flex items-center space-x-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 max-sm:h-5 max-sm:w-5 text-gray-700"
+                className="h-6 w-6 max-sm:h-5 max-sm:w-5 text-gray-700 dark:text-[#C7D6E0]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -131,7 +131,7 @@ export default function SuscriptionBasicModal({
                   d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                 />
               </svg>
-              <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
+              <p className="text-[16px] max-sm:text-sm font-normal text-black-eske dark:text-[#C7D6E0]">
                 **** **** **** 1234
               </p>
             </div>

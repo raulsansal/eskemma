@@ -14,7 +14,27 @@ import { useEscapeKey } from "../hooks/useEscapeKey";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    if (next) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("eskemma:theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("eskemma:theme", "light");
+    }
+    setIsDark(next);
+    setIsAvatarMenuOpen(false);
+  };
 
   const {
     isSignInModalOpen,
@@ -120,13 +140,13 @@ const Header = () => {
       )}
 
       {/* Encabezado */}
-      <header className="bg-white-eske text-black-eske py-5 px-6 sm:px-10 md:px-14 sticky top-0 z-[100]">
+      <header className="bg-white-eske text-black-eske py-5 px-6 sm:px-10 md:px-14 sticky top-0 z-[100] dark:bg-[#112230] dark:text-[#EAF2F8]">
         <div className="w-full flex justify-between items-center">
           {/* Contenedor Izquierdo (Logo) */}
           <div>
             <a href="/" aria-label="Eskemma - Ir a la página de inicio" className="focus-ring-primary rounded">
               <img
-                src="/images/esk_log_csm.svg"
+                src={mounted && isDark ? "/images/esk_log_wsm.svg" : "/images/esk_log_csm.svg"}
                 alt="Eskemma - Consultoría política"
                 className="h-4 w-auto sm:h-8 md:h-10"
               />
@@ -139,14 +159,14 @@ const Header = () => {
             {!user && (
               <div className="flex items-center space-x-4 max-sm:space-x-2">
                 <button
-                  className="text-10px max-sm:text-xs font-semibold hover:text-blue-eske-80 cursor-pointer bg-transparent border-none p-1 focus-ring-primary rounded"
+                  className="text-10px max-sm:text-xs font-semibold hover:text-blue-eske-80 dark:hover:text-[#6FC3EC] cursor-pointer bg-transparent border-none p-1 focus-ring-primary rounded"
                   onClick={() => setIsSignInModalOpen(true)}
                   aria-label="Abrir formulario de registro"
                 >
                   REGISTRO
                 </button>
                 <button
-                  className="text-10px max-sm:text-xs font-semibold hover:text-blue-eske-80 cursor-pointer bg-transparent border-none p-1 focus-ring-primary rounded"
+                  className="text-10px max-sm:text-xs font-semibold hover:text-blue-eske-80 dark:hover:text-[#6FC3EC] cursor-pointer bg-transparent border-none p-1 focus-ring-primary rounded"
                   onClick={() => setIsLoginModalOpen(true)}
                   aria-label="Abrir formulario de inicio de sesión"
                 >
@@ -157,13 +177,13 @@ const Header = () => {
 
             {/* Ícono de Hamburguesa */}
             <button
-              className="cursor-pointer p-2 text-black-eske hover:text-blue-eske-80 focus-ring-primary rounded menu-button"
+              className="cursor-pointer p-2 text-black-eske hover:text-blue-eske-80 dark:text-[#EAF2F8] dark:hover:text-[#6FC3EC] focus-ring-primary rounded menu-button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label={isMenuOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
               aria-expanded={isMenuOpen}
               aria-controls="main-navigation"
             >
-              <Bars3Icon className="h-6 w-6 max-sm:h-6 max-sm:w-6 text-black-eske hover:text-blue-eske-80" aria-hidden="true" />
+              <Bars3Icon className="h-6 w-6 max-sm:h-6 max-sm:w-6 text-black-eske hover:text-blue-eske-80 dark:text-[#EAF2F8]" aria-hidden="true" />
             </button>                     
           
             {/* Avatar (Visible después de iniciar sesión) */}
@@ -192,7 +212,7 @@ const Header = () => {
                 {/* Menú Desplegable del Avatar */}
                 {isAvatarMenuOpen && (
                   <div 
-                    className="absolute top-full right-0 mt-2 w-48 bg-white shadow-md rounded-lg overflow-hidden z-[110] avatar-dropdown"
+                    className="absolute top-full right-0 mt-2 w-48 bg-white shadow-md rounded-lg overflow-hidden z-[110] avatar-dropdown dark:bg-[#18324A] dark:border dark:border-white/10 dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
                     role="menu"
                     aria-label="Menú de usuario"
                   >
@@ -200,7 +220,7 @@ const Header = () => {
                       <li role="none">
                         <button
                           role="menuitem"
-                          className="w-full text-left px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold focus-ring-primary"
+                          className="w-full text-left px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold focus-ring-primary dark:text-[#C7D6E0] dark:hover:bg-white/5 dark:hover:text-[#6FC3EC]"
                           onClick={handleProfileClick}
                         >
                           Perfil
@@ -209,16 +229,16 @@ const Header = () => {
                       <li role="none">
                         <button
                           role="menuitem"
-                          className="w-full text-left px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold focus-ring-primary"
-                          onClick={() => alert("Modo Oscuro")}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold focus-ring-primary dark:text-[#C7D6E0] dark:hover:bg-white/5 dark:hover:text-[#6FC3EC]"
+                          onClick={toggleTheme}
                         >
-                          Modo Oscuro
+                          {mounted && isDark ? "Modo Claro" : "Modo Oscuro"}
                         </button>
                       </li>
                       <li role="none">
                         <button
                           role="menuitem"
-                          className="w-full text-left px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold focus-ring-primary"
+                          className="w-full text-left px-4 py-2 hover:bg-gray-eske-10 cursor-pointer hover:text-bluegreen-eske hover:font-semibold focus-ring-primary dark:text-[#C7D6E0] dark:hover:bg-white/5 dark:hover:text-[#6FC3EC]"
                           onClick={logout}
                         >
                           Cerrar Sesión
@@ -238,7 +258,7 @@ const Header = () => {
           {/* Menú Desplegable (Hamburguesa) */}
           <div
             id="main-navigation"
-            className={`absolute top-full right-0 bg-white-eske shadow-md mt-2 py-4 z-[110] text-base max-sm:text-sm transition-all duration-300 menu-dropdown ${
+            className={`absolute top-full right-0 bg-white-eske shadow-md mt-2 py-4 z-[110] text-base max-sm:text-sm transition-all duration-300 menu-dropdown dark:bg-[#18324A] dark:text-[#C7D6E0] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4)] ${
               isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
             }`}
             role="menu"
@@ -250,7 +270,7 @@ const Header = () => {
                   <a
                     href="/"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     INICIO
@@ -260,7 +280,7 @@ const Header = () => {
                   <a
                     href="/sefix"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     SEFIX
@@ -270,7 +290,7 @@ const Header = () => {
                   <a
                     href="/moddulo"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     MODDULO
@@ -280,7 +300,7 @@ const Header = () => {
                   <a
                     href="/monitor"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     MONITOR
@@ -290,7 +310,7 @@ const Header = () => {
                   <a
                     href="/cursos"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     CURSOS
@@ -300,7 +320,7 @@ const Header = () => {
                   <a
                     href="/servicios"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     SERVICIOS
@@ -310,7 +330,7 @@ const Header = () => {
                   <a
                     href="/blog"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     EL BAÚL DE FOUCHÉ
@@ -320,7 +340,7 @@ const Header = () => {
                   <a
                     href="/recursos"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     RECURSOS
@@ -330,7 +350,7 @@ const Header = () => {
                   <a
                     href="/contacto"
                     role="menuitem"
-                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary"
+                    className="block px-4 max-sm:px-3 py-2 rounded hover:bg-blue-eske hover:text-white hover:font-bold transition-colors duration-300 focus-ring-primary dark:hover:bg-[#4791B3] dark:hover:text-[#EAF2F8]"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     CONTACTO

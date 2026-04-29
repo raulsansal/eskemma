@@ -184,19 +184,19 @@ export default function ProjectSelector({
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-eske-10">
+      <div className="min-h-screen flex items-center justify-center bg-gray-eske-10 dark:bg-[#0B1620]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-bluegreen-eske border-t-transparent" />
-          <p className="mt-4 text-gray-eske-70">Cargando proyectos...</p>
+          <p className="mt-4 text-gray-eske-70 dark:text-[#9AAEBE]">Cargando proyectos...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-eske-10">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* Header */}
-      <div className="bg-white-eske border-b border-gray-eske-20">
+      <div className="bg-white-eske dark:bg-[#112230] border-b border-gray-eske-20 dark:border-white/10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Link
             href="/moddulo"
@@ -211,13 +211,13 @@ export default function ProjectSelector({
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-bluegreen-eske mb-2">Redactor Político</h1>
-              <p className="text-sm text-gray-eske-70">
+              <p className="text-sm text-gray-eske-70 dark:text-[#9AAEBE]">
                 Selecciona un proyecto o crea uno nuevo para comenzar
               </p>
             </div>
 
             <div className="text-right">
-              <p className="text-xs text-gray-eske-60">Proyectos</p>
+              <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE]">Proyectos</p>
               <p className="text-2xl font-bold text-bluegreen-eske">
                 {projects.length} / {limits.maxProjects === 999 ? "∞" : limits.maxProjects}
               </p>
@@ -230,7 +230,7 @@ export default function ProjectSelector({
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error message */}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-900 p-4 rounded-r-lg mb-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-900 dark:text-red-300 p-4 rounded-r-lg mb-6">
             <div className="flex items-start gap-3">
               <svg className="w-5 h-5 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -279,7 +279,7 @@ export default function ProjectSelector({
 
         {/* Lista de proyectos */}
         {projects.length === 0 ? (
-          <div className="bg-white-eske rounded-lg shadow-md p-12 text-center">
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md p-12 text-center">
             <svg
               className="w-24 h-24 mx-auto text-gray-eske-30 mb-4"
               fill="none"
@@ -293,10 +293,10 @@ export default function ProjectSelector({
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            <h3 className="text-xl font-bold text-gray-eske-80 mb-2">
+            <h3 className="text-xl font-bold text-gray-eske-80 dark:text-[#C7D6E0] mb-2">
               Aún no tienes proyectos
             </h3>
-            <p className="text-gray-eske-60 mb-6">
+            <p className="text-gray-eske-60 dark:text-[#9AAEBE] mb-6">
               Crea tu primer proyecto para comenzar a generar contenido político profesional
             </p>
             <button
@@ -325,15 +325,15 @@ export default function ProjectSelector({
                 key={project.id}
                 onClick={() => handleSelectProject(project)}
                 className="
-                  bg-white-eske
+                  bg-white-eske dark:bg-[#18324A]
                   rounded-lg
                   shadow-md
                   p-6
                   text-left
                   hover:shadow-xl hover:-translate-y-1
                   transition-all duration-300
-                  border-2 border-transparent
-                  hover:border-bluegreen-eske
+                  border-2 border-transparent dark:border-white/10
+                  hover:border-bluegreen-eske dark:hover:border-bluegreen-eske-40
                   focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:ring-offset-2
                 "
               >
@@ -343,7 +343,7 @@ export default function ProjectSelector({
                       {project.name}
                     </h3>
                     {project.description && (
-                      <p className="text-sm text-gray-eske-70 line-clamp-2">
+                      <p className="text-sm text-gray-eske-70 dark:text-[#9AAEBE] line-clamp-2">
                         {project.description}
                       </p>
                     )}
@@ -356,7 +356,7 @@ export default function ProjectSelector({
                 </div>
 
                 {/* Stats */}
-                <div className="flex items-center gap-4 text-xs text-gray-eske-60">
+                <div className="flex items-center gap-4 text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
                   <div className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path

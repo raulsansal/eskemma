@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer>
       {/* Primera sección: Fondo bluegreen-eske */}
-      <div className="bg-bluegreen-eske text-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
+      <div className="bg-bluegreen-eske dark:bg-bluegreen-eske-70 text-white-eske py-12 max-sm:py-8 px-4 sm:px-6 md:px-8">
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Contenedor para Logotipo e Íconos de Redes Sociales */}
           <div className="flex flex-col md:flex-row items-center justify-between mb-8 max-sm:mb-6">
@@ -397,7 +397,7 @@ const Footer = () => {
               Política de privacidad
             </Link>{" "}
             |{" "}
-            <Link 
+            <Link
               href="/condiciones-asesorias-gratuitas"
               className="hover:text-blue-eske-10 transition-colors duration-300 focus-ring-light rounded"
             >

@@ -40,8 +40,8 @@ export default function RecoverPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-8 max-sm:p-6 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-[#0B1620] px-4">
+      <div className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-8 max-sm:p-6 w-full max-w-md">
         <h1 className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske text-center mb-6 max-sm:mb-4">
           Recuperar Contraseña
         </h1>
@@ -69,7 +69,7 @@ export default function RecoverPassword() {
           <div>
             <label 
               htmlFor="recover-email"
-              className="block text-[18px] max-sm:text-base font-medium text-black-eske mb-1"
+              className="block text-[18px] max-sm:text-base font-medium text-black-eske dark:text-[#C7D6E0] mb-1"
             >
               Email Address
             </label>
@@ -81,7 +81,7 @@ export default function RecoverPassword() {
               required
               disabled={loading}
               placeholder="tu@email.com"
-              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus-ring-primary disabled:bg-gray-100 text-base max-sm:text-sm"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 dark:border-white/10 rounded focus-ring-primary disabled:bg-gray-100 bg-white dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294] text-base max-sm:text-sm"
             />
           </div>
 

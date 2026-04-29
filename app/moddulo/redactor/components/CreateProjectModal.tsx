@@ -82,17 +82,17 @@ export default function CreateProjectModal({
     >
       {/* Modal */}
       <div
-        className="relative bg-white-eske rounded-lg shadow-2xl w-full max-w-md"
+        className="relative bg-white-eske dark:bg-[#18324A] rounded-lg shadow-2xl w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="border-b border-gray-eske-20 px-6 py-4">
+        <div className="border-b border-gray-eske-20 dark:border-white/10 px-6 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-bluegreen-eske">Crear Nuevo Proyecto</h2>
             <button
               onClick={handleClose}
               disabled={isLoading}
-              className="text-gray-eske-70 hover:text-gray-eske-90 transition-colors disabled:opacity-50"
+              className="text-gray-eske-70 dark:text-[#9AAEBE] hover:text-gray-eske-90 dark:hover:text-[#EAF2F8] transition-colors disabled:opacity-50"
               aria-label="Cerrar"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@ export default function CreateProjectModal({
         <div className="px-6 py-4 space-y-4">
           {/* Error message */}
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 text-red-900 p-3 rounded-r text-sm">
+            <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-900 dark:text-red-300 p-3 rounded-r text-sm">
               <p className="font-medium">{error}</p>
             </div>
           )}
@@ -120,7 +120,7 @@ export default function CreateProjectModal({
           <div>
             <label
               htmlFor="project-name"
-              className="block text-sm font-semibold text-gray-eske-90 mb-2"
+              className="block text-sm font-semibold text-gray-eske-90 dark:text-[#C7D6E0] mb-2"
             >
               Nombre del proyecto <span className="text-red-500">*</span>
             </label>
@@ -135,15 +135,16 @@ export default function CreateProjectModal({
               className="
                 w-full
                 px-4 py-2.5
-                border border-gray-eske-30
+                border border-gray-eske-30 dark:border-white/10
                 rounded-lg
                 text-sm
+                bg-white dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294]
                 focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent
-                disabled:bg-gray-eske-10 disabled:cursor-not-allowed
+                disabled:bg-gray-eske-10 dark:disabled:bg-[#21425E] disabled:cursor-not-allowed
                 transition-colors
               "
             />
-            <p className="text-xs text-gray-eske-60 mt-1">
+            <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] mt-1">
               {name.length}/50 caracteres
             </p>
           </div>
@@ -152,7 +153,7 @@ export default function CreateProjectModal({
           <div>
             <label
               htmlFor="project-description"
-              className="block text-sm font-semibold text-gray-eske-90 mb-2"
+              className="block text-sm font-semibold text-gray-eske-90 dark:text-[#C7D6E0] mb-2"
             >
               Descripción <span className="text-gray-eske-50 font-normal">(opcional)</span>
             </label>
@@ -176,14 +177,14 @@ export default function CreateProjectModal({
                 transition-colors
               "
             />
-            <p className="text-xs text-gray-eske-60 mt-1">
+            <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] mt-1">
               {description.length}/200 caracteres
             </p>
           </div>
 
           {/* Info */}
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r">
-            <p className="text-xs text-blue-900">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-3 rounded-r">
+            <p className="text-xs text-blue-900 dark:text-blue-300">
               <strong>Nota:</strong> Después de crear el proyecto, podrás configurar los detalles
               específicos (candidato, tipo de comunicación, etc.).
             </p>
@@ -191,16 +192,16 @@ export default function CreateProjectModal({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-eske-20 px-6 py-4 flex items-center justify-end gap-3">
+        <div className="border-t border-gray-eske-20 dark:border-white/10 px-6 py-4 flex items-center justify-end gap-3">
           <button
             onClick={handleClose}
             disabled={isLoading}
             className="
               px-4 py-2
               text-sm font-medium
-              text-gray-eske-80
-              bg-gray-eske-10
-              hover:bg-gray-eske-20
+              text-gray-eske-80 dark:text-[#C7D6E0]
+              bg-gray-eske-10 dark:bg-[#21425E]
+              hover:bg-gray-eske-20 dark:hover:bg-[#2C5273]
               rounded-lg
               transition-colors
               disabled:opacity-50 disabled:cursor-not-allowed

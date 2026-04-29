@@ -22,12 +22,12 @@ export default function TagCloud({ tags, maxTags = 15 }: TagCloudProps) {
 
   return (
     <aside
-      className="bg-white-eske rounded-lg shadow-sm p-6 mb-6"
+      className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-sm p-6 mb-6"
       aria-labelledby="tagcloud-title"
     >
       <h3
         id="tagcloud-title"
-        className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+        className="text-lg font-semibold text-gray-800 dark:text-[#C7D6E0] mb-4 flex items-center gap-2"
       >
         <svg
           className="w-5 h-5 text-bluegreen-eske"
@@ -51,7 +51,7 @@ export default function TagCloud({ tags, maxTags = 15 }: TagCloudProps) {
             <Link
               key={tag.tag}
               href={`/blog?search=${encodeURIComponent(tag.tag)}`}
-              className="inline-block px-3 py-1 bg-gray-100 hover:bg-bluegreen-eske hover:text-white-eske text-gray-700 rounded-full transition-colors duration-200 focus-ring-primary"
+              className="inline-block px-3 py-1 bg-gray-100 dark:bg-[#21425E] hover:bg-bluegreen-eske hover:text-white-eske text-gray-700 dark:text-[#C7D6E0] rounded-full transition-colors duration-200 focus-ring-primary"
               style={{
                 fontSize: `${getFontSize(tag.count)}rem`,
               }}

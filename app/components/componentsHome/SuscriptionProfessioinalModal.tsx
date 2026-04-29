@@ -36,12 +36,12 @@ export default function SuscriptionGrupalModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="subscription-grupal-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[85vh] max-sm:max-h-[90vh]"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[85vh] max-sm:max-h-[90vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 dark:text-[#6D8294] hover:text-red-eske dark:hover:text-[#C7D6E0] transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar modal de suscripción grupal"
         >
@@ -64,7 +64,7 @@ export default function SuscriptionGrupalModal({
 
         <div className="space-y-6 max-sm:space-y-4 text-left">
           {/* Título del Modal */}
-          <h2 id="subscription-grupal-title" className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske text-center">
+          <h2 id="subscription-grupal-title" className="text-3xl max-sm:text-2xl font-bold text-bluegreen-eske dark:text-[#6BA4C6] text-center">
             Suscripción
           </h2>
 
@@ -78,12 +78,12 @@ export default function SuscriptionGrupalModal({
           </div>
 
           {/* Nombre del Plan */}
-          <p className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske">
+          <p className="text-2xl max-sm:text-xl font-semibold text-bluegreen-eske dark:text-[#6BA4C6]">
             Plan Profesional
           </p>
 
           {/* Precio */}
-          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske dark:text-[#C7D6E0]">
             $9,899 (MX) / mes
           </p>
 
@@ -113,7 +113,7 @@ export default function SuscriptionGrupalModal({
             <div className="flex items-center space-x-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 max-sm:h-5 max-sm:w-5 text-gray-700"
+                className="h-6 w-6 max-sm:h-5 max-sm:w-5 text-gray-700 dark:text-[#C7D6E0]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

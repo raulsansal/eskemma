@@ -67,21 +67,21 @@ export default function AdjustmentModal({
       {/* Panel */}
       <div
         ref={containerRef as RefObject<HTMLDivElement>}
-        className="relative z-10 bg-white-eske rounded-xl shadow-lg
-          border border-gray-eske-20 w-full max-w-md p-6 flex flex-col gap-4
+        className="relative z-10 bg-white-eske dark:bg-[#18324A] rounded-xl shadow-lg
+          border border-gray-eske-20 dark:border-white/10 w-full max-w-md p-6 flex flex-col gap-4
           motion-safe:animate-in motion-safe:zoom-in-95 motion-safe:duration-150"
       >
         <div>
           <h2
             id="adj-modal-title"
-            className="text-base font-semibold text-black-eske"
+            className="text-base font-semibold text-black-eske dark:text-[#EAF2F8]"
           >
             Justificar ajuste —{" "}
             <span className="text-bluegreen-eske">
               {DIMENSION_LABELS[dimensionCode]}
             </span>
           </h2>
-          <p className="text-xs text-black-eske mt-0.5">
+          <p className="text-xs text-black-eske dark:text-[#C7D6E0] mt-0.5">
             Explica por qué reposicionas este factor. Mínimo 20 caracteres.
           </p>
         </div>
@@ -90,7 +90,7 @@ export default function AdjustmentModal({
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="adj-justification"
-            className="text-sm font-medium text-black-eske"
+            className="text-sm font-medium text-black-eske dark:text-[#C7D6E0]"
           >
             Justificación
           </label>
@@ -100,16 +100,17 @@ export default function AdjustmentModal({
             onChange={(e) => setJustification(e.target.value)}
             placeholder="ej. Datos de campo revelan que este factor tiene mayor probabilidad de ocurrencia que lo estimado por las fuentes digitales…"
             rows={4}
-            className="w-full px-3 py-2.5 border border-gray-eske-30 rounded-lg
-              text-sm focus:outline-none focus-visible:ring-2
-              focus-visible:ring-bluegreen-eske placeholder:text-gray-eske-50
+            className="w-full px-3 py-2.5 border border-gray-eske-30 dark:border-white/10 rounded-lg
+              text-sm bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]
+              focus:outline-none focus-visible:ring-2
+              focus-visible:ring-bluegreen-eske placeholder:text-gray-eske-50 dark:placeholder:text-[#6D8294]
               resize-none"
             autoFocus
           />
           <p
             className={[
               "text-xs text-right",
-              charCount >= 20 ? "text-green-eske" : "text-gray-eske-50",
+              charCount >= 20 ? "text-green-eske" : "text-gray-eske-50 dark:text-[#6D8294]",
             ].join(" ")}
             aria-live="polite"
           >
@@ -121,10 +122,10 @@ export default function AdjustmentModal({
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="adj-classification"
-            className="text-sm font-medium text-black-eske"
+            className="text-sm font-medium text-black-eske dark:text-[#C7D6E0]"
           >
             Clasificación{" "}
-            <span className="text-black-eske font-normal">(opcional)</span>
+            <span className="text-black-eske dark:text-[#9AAEBE] font-normal">(opcional)</span>
           </label>
           <select
             id="adj-classification"
@@ -132,9 +133,9 @@ export default function AdjustmentModal({
             onChange={(e) =>
               setClassification(e.target.value as Classification)
             }
-            className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
+            className="px-3 py-2 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm
               focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske
-              bg-white-eske"
+              bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
           >
             {(["OPORTUNIDAD", "AMENAZA", "NEUTRAL"] as Classification[]).map(
               (c) => (
@@ -152,8 +153,8 @@ export default function AdjustmentModal({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="px-4 py-2 border border-gray-eske-30 text-black-eske
-              rounded-lg text-sm font-medium hover:bg-gray-eske-10
+            className="px-4 py-2 border border-gray-eske-30 dark:border-white/10 text-black-eske dark:text-[#C7D6E0]
+              rounded-lg text-sm font-medium hover:bg-gray-eske-10 dark:hover:bg-white/5
               transition-colors disabled:opacity-50"
           >
             Cancelar

@@ -31,8 +31,8 @@ export default function CourseContent({ courses, userRole, categories }: CourseC
       />
 
       {courses.length === 0 ? (
-        <div className="text-center py-12 bg-white-eske rounded-lg border border-gray-eske-10 shadow-sm">
-          <p className="text-black-eske text-lg font-normal">
+        <div className="text-center py-12 bg-white-eske dark:bg-[#18324A] rounded-lg border border-gray-eske-10 dark:border-white/10 shadow-sm">
+          <p className="text-black-eske dark:text-[#C7D6E0] text-lg font-normal">
             No se encontraron cursos con los filtros seleccionados.
           </p>
           <button 

@@ -33,14 +33,14 @@ export default function MobileFirstVisitHint() {
 
       {/* Card */}
       <div
-        className="relative z-10 mx-4 w-full max-w-sm bg-white-eske rounded-xl shadow-2xl border border-gray-eske-20 p-5"
+        className="relative z-10 mx-4 w-full max-w-sm bg-white-eske dark:bg-[#18324A] rounded-xl shadow-2xl border border-gray-eske-20 dark:border-white/10 p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={dismiss}
           aria-label="Cerrar sugerencia"
-          className="absolute top-3 right-3 text-black-eske-40 hover:text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske rounded"
+          className="absolute top-3 right-3 text-black-eske-40 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske rounded"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -53,7 +53,7 @@ export default function MobileFirstVisitHint() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-sm text-black-eske leading-relaxed">
+          <p className="text-sm text-black-eske dark:text-[#C7D6E0] leading-relaxed">
             Configura tu consulta con el botón{" "}
             <strong className="text-bluegreen-eske">FILTROS</strong>{" "}
             y conoce el análisis dinámico de cada consulta con el botón{" "}
@@ -65,7 +65,7 @@ export default function MobileFirstVisitHint() {
         <button
           type="button"
           onClick={dismiss}
-          className="mt-4 w-full py-2 text-xs font-medium text-black-eske-60 hover:text-black-eske text-center border border-gray-eske-20 rounded-lg hover:bg-gray-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+          className="mt-4 w-full py-2 text-xs font-medium text-black-eske-60 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8] text-center border border-gray-eske-20 dark:border-white/10 rounded-lg hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
         >
           Entendido
         </button>

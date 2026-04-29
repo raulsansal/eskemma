@@ -17,7 +17,7 @@ export default function SefixDashboard({ role: _role }: SefixDashboardProps) {
   const [activeTab, setActiveTab] = useState<SefixTabId>("lne");
 
   return (
-    <main className="min-h-screen bg-white-eske">
+    <main className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
       <SefixHeroSection />
       <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
 

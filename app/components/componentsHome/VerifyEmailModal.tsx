@@ -138,11 +138,11 @@ export default function VerifyEmailModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="verify-email-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative"
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-black-eske dark:text-[#9AAEBE] hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar modal de verificación de email"
         >
@@ -169,10 +169,10 @@ export default function VerifyEmailModal({
         </h2>
 
         {/* Mensaje */}
-        <p className="text-[18px] max-sm:text-base text-black-eske text-center mb-6 max-sm:mb-4">
+        <p className="text-[18px] max-sm:text-base text-black-eske dark:text-[#C7D6E0] text-center mb-6 max-sm:mb-4">
           Hemos enviado un correo de verificación a tu dirección de email.
         </p>
-        <p className="text-[16px] max-sm:text-sm text-black-eske text-center mb-6 max-sm:mb-4">
+        <p className="text-[16px] max-sm:text-sm text-black-eske dark:text-[#C7D6E0] text-center mb-6 max-sm:mb-4">
           Por favor, revisa tu bandeja de entrada (o en tu carpeta de correos no
           deseados) y haz clic en el enlace que te hemos enviado para continuar
           con tu registro.
@@ -180,11 +180,11 @@ export default function VerifyEmailModal({
 
         {/* Indicador de verificación automática */}
         <div 
-          className="bg-blue-100 border-l-4 border-blue-eske p-3 max-sm:p-2 mb-4 max-sm:mb-3"
+          className="bg-blue-100 dark:bg-blue-900/20 border-l-4 border-blue-eske p-3 max-sm:p-2 mb-4 max-sm:mb-3"
           role="status"
           aria-live="polite"
         >
-          <p className="text-sm max-sm:text-xs text-blue-800">
+          <p className="text-sm max-sm:text-xs text-blue-800 dark:text-blue-300">
             <span role="img" aria-label="Cargando">🔄</span> Verificando automáticamente cada 3 segundos...
           </p>
         </div>
@@ -211,7 +211,7 @@ export default function VerifyEmailModal({
         <button
           type="button"
           onClick={onClose}
-          className="w-full bg-gray-300 text-black-eske py-2 max-sm:py-1.5 rounded hover:bg-gray-400 transition-colors duration-300 focus-ring-primary text-base max-sm:text-sm"
+          className="w-full bg-gray-300 dark:bg-[#21425E] text-black-eske dark:text-[#C7D6E0] py-2 max-sm:py-1.5 rounded hover:bg-gray-400 dark:hover:bg-[#2C5273] transition-colors duration-300 focus-ring-primary text-base max-sm:text-sm"
         >
           CERRAR
         </button>

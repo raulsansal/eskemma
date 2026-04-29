@@ -91,7 +91,7 @@ export default function CookieBanner() {
   return (
     <>
       {/* Banner Principal */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-eske-20 shadow-2xl border-t-2 border-bluegreen-eske animate-slide-up">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-eske-20 dark:bg-[#112230] shadow-2xl border-t-2 border-bluegreen-eske dark:border-[#4791B3] animate-slide-up">
         <div className="w-[90%] max-w-screen-xl mx-auto py-6 px-4 sm:px-6">
           {/* Contenedor principal */}
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
@@ -100,10 +100,10 @@ export default function CookieBanner() {
               <div className="flex items-start gap-3 mb-3">
                 <span className="text-3xl flex-shrink-0" role="img" aria-label="Cookie">🍪</span>
                 <div>
-                  <h3 className="text-[18px] max-sm:text-[16px] font-bold text-black-eske mb-2">
+                  <h3 className="text-[18px] max-sm:text-[16px] font-bold text-black-eske dark:text-[#C7D6E0] mb-2">
                     Usamos cookies para mejorar tu experiencia
                   </h3>
-                  <p className="text-[14px] max-sm:text-[12px] text-black-eske-20 leading-relaxed">
+                  <p className="text-[14px] max-sm:text-[12px] text-black-eske-20 dark:text-[#9AAEBE] leading-relaxed">
                     Utilizamos cookies esenciales para el funcionamiento del sitio y cookies opcionales 
                     para análisis y marketing. Puedes elegir qué cookies aceptar.
                   </p>
@@ -111,7 +111,7 @@ export default function CookieBanner() {
               </div>
 
               {/* Mini preview de categorías */}
-              <div className="ml-11 space-y-1 text-[12px] text-black-eske-30">
+              <div className="ml-11 space-y-1 text-[12px] text-black-eske-30 dark:text-[#6D8294]">
                 <div className="flex items-center gap-2">
                   <span className="inline-block w-3 h-3 bg-green-eske rounded-full" aria-hidden="true"></span>
                   <span>Esenciales: Siempre activas</span>
@@ -145,7 +145,7 @@ export default function CookieBanner() {
               
               <button
                 onClick={handleOpenConfig}
-                className="px-6 py-2 border-2 border-bluegreen-eske text-bluegreen-eske bg-white-eske rounded-lg font-medium hover:bg-bluegreen-eske-10 transition-colors duration-300 text-[14px] whitespace-nowrap focus-ring-primary"
+                className="px-6 py-2 border-2 border-bluegreen-eske dark:border-[#4791B3] text-bluegreen-eske bg-white-eske dark:bg-[#18324A] rounded-lg font-medium hover:bg-bluegreen-eske-10 transition-colors duration-300 text-[14px] whitespace-nowrap focus-ring-primary"
               >
                 Configurar
               </button>
@@ -178,17 +178,17 @@ export default function CookieBanner() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="cookie-config-title"
-            className="bg-white-eske rounded-lg shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[80vh] overflow-y-auto animate-modal-appear"
+            className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[80vh] overflow-y-auto animate-modal-appear"
           >
             {/* Header del modal */}
             <div className="flex items-center justify-between mb-6">
-              <h2 id="cookie-config-title" className="text-2xl font-bold text-bluegreen-eske flex items-center gap-2">
+              <h2 id="cookie-config-title" className="text-2xl font-bold text-bluegreen-eske dark:text-[#6BA4C6] flex items-center gap-2">
                 <span role="img" aria-label="Configuración">⚙️</span>
                 Configurar Cookies
               </h2>
               <button
                 onClick={() => setShowConfigModal(false)}
-                className="text-gray-700 hover:text-red-eske transition-colors focus-ring-primary rounded"
+                className="text-gray-700 dark:text-[#C7D6E0] hover:text-red-eske transition-colors focus-ring-primary rounded"
                 aria-label="Cerrar configuración de cookies"
               >
                 <svg
@@ -209,7 +209,7 @@ export default function CookieBanner() {
             </div>
 
             {/* Descripción */}
-            <p className="text-[14px] text-black-eske-20 mb-6 leading-relaxed">
+            <p className="text-[14px] text-black-eske-20 dark:text-[#9AAEBE] mb-6 leading-relaxed">
               Personaliza qué cookies deseas permitir. Las cookies esenciales son necesarias 
               para el funcionamiento del sitio y no se pueden desactivar.
             </p>
@@ -217,11 +217,11 @@ export default function CookieBanner() {
             {/* Categorías de cookies */}
             <div className="space-y-4">
               {/* Cookies Esenciales */}
-              <div className="border-2 border-green-eske rounded-lg p-4 bg-green-eske-10">
+              <div className="border-2 border-green-eske rounded-lg p-4 bg-green-eske-10 dark:bg-[#112230]">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xl" role="img" aria-label="Seguridad">🔒</span>
-                    <h3 className="text-[16px] font-bold text-black-eske">
+                    <h3 className="text-[16px] font-bold text-black-eske dark:text-[#C7D6E0]">
                       Cookies Esenciales
                     </h3>
                   </div>
@@ -229,10 +229,10 @@ export default function CookieBanner() {
                     SIEMPRE ACTIVAS
                   </span>
                 </div>
-                <p className="text-[14px] text-black-eske-20 mb-2">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#9AAEBE] mb-2">
                   Necesarias para la autenticación, seguridad y funcionamiento básico del sitio.
                 </p>
-                <ul className="text-[12px] text-black-eske-30 space-y-1 ml-4">
+                <ul className="text-[12px] text-black-eske-30 dark:text-[#6D8294] space-y-1 ml-4">
                   <li>• Sesión de usuario</li>
                   <li>• Seguridad y prevención de fraude</li>
                   <li>• Funcionalidad básica del sitio</li>
@@ -240,11 +240,11 @@ export default function CookieBanner() {
               </div>
 
               {/* Cookies Analíticas */}
-              <div className="border border-gray-eske-40 rounded-lg p-4">
+              <div className="border border-gray-eske-40 dark:border-white/10 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xl" role="img" aria-label="Análisis">📊</span>
-                    <h3 className="text-[16px] font-bold text-black-eske">
+                    <h3 className="text-[16px] font-bold text-black-eske dark:text-[#C7D6E0]">
                       Cookies Analíticas
                     </h3>
                   </div>
@@ -265,10 +265,10 @@ export default function CookieBanner() {
                     ></span>
                   </button>
                 </div>
-                <p className="text-[14px] text-black-eske-20 mb-2">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#9AAEBE] mb-2">
                   Nos ayudan a entender cómo usas el sitio para mejorarlo. Los datos se anonimizan.
                 </p>
-                <ul className="text-[12px] text-black-eske-30 space-y-1 ml-4">
+                <ul className="text-[12px] text-black-eske-30 dark:text-[#6D8294] space-y-1 ml-4">
                   <li>• Google Analytics (datos anonimizados)</li>
                   <li>• Análisis de uso y comportamiento</li>
                   <li>• Duración: hasta 2 años</li>
@@ -276,11 +276,11 @@ export default function CookieBanner() {
               </div>
 
               {/* Cookies de Marketing */}
-              <div className="border border-gray-eske-40 rounded-lg p-4">
+              <div className="border border-gray-eske-40 dark:border-white/10 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xl" role="img" aria-label="Marketing">📢</span>
-                    <h3 className="text-[16px] font-bold text-black-eske">
+                    <h3 className="text-[16px] font-bold text-black-eske dark:text-[#C7D6E0]">
                       Cookies de Marketing
                     </h3>
                   </div>
@@ -301,10 +301,10 @@ export default function CookieBanner() {
                     ></span>
                   </button>
                 </div>
-                <p className="text-[14px] text-black-eske-20 mb-2">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#9AAEBE] mb-2">
                   Permiten mostrarte anuncios relevantes en otras plataformas.
                 </p>
-                <ul className="text-[12px] text-black-eske-30 space-y-1 ml-4">
+                <ul className="text-[12px] text-black-eske-30 dark:text-[#6D8294] space-y-1 ml-4">
                   <li>• Facebook Pixel</li>
                   <li>• Google Ads (remarketing)</li>
                   <li>• Duración: hasta 90 días</li>
@@ -322,14 +322,14 @@ export default function CookieBanner() {
               </button>
               <button
                 onClick={() => setShowConfigModal(false)}
-                className="flex-1 px-6 py-3 border-2 border-gray-eske-40 text-black-eske rounded-lg font-medium hover:bg-gray-eske-10 transition-colors duration-300 focus-ring-primary"
+                className="flex-1 px-6 py-3 border-2 border-gray-eske-40 dark:border-white/10 text-black-eske dark:text-[#C7D6E0] rounded-lg font-medium hover:bg-gray-eske-10 transition-colors duration-300 focus-ring-primary"
               >
                 Cancelar
               </button>
             </div>
 
             {/* Link adicional */}
-            <p className="text-[12px] text-center text-black-eske-30 mt-4">
+            <p className="text-[12px] text-center text-black-eske-30 dark:text-[#6D8294] mt-4">
               Para más información, consulta nuestra{" "}
               <Link 
                 href="/politica-de-cookies" 

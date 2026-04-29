@@ -126,7 +126,7 @@ export default function TableOfContents({
       <div className={`lg:hidden mb-8 ${className}`} suppressHydrationWarning>
         <button
           onClick={toggleMobileMenu}
-          className="w-full flex items-center justify-between bg-bluegreen-eske-10 p-4 rounded-lg border-2 border-bluegreen-eske hover:bg-bluegreen-eske-20 transition-colors duration-300 focus-ring-primary"
+          className="w-full flex items-center justify-between bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg border-2 border-bluegreen-eske dark:border-[#4791B3] hover:bg-bluegreen-eske-20 transition-colors duration-300 focus-ring-primary"
           suppressHydrationWarning
           aria-expanded={isMobileOpen}
           aria-controls="toc-mobile-menu"
@@ -148,7 +148,7 @@ export default function TableOfContents({
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
-            <span className="text-[16px] font-bold text-bluegreen-eske">
+            <span className="text-[16px] font-bold text-bluegreen-eske dark:text-[#6BA4C6]">
               {title}
             </span>
           </div>
@@ -175,7 +175,7 @@ export default function TableOfContents({
         {isMobileOpen && (
           <nav 
             id="toc-mobile-menu"
-            className="mt-2 bg-white-eske border-2 border-bluegreen-eske rounded-lg p-4 shadow-lg animate-slide-down"
+            className="mt-2 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske dark:border-[#4791B3] rounded-lg p-4 shadow-lg animate-slide-down"
             aria-label="Tabla de contenidos"
           >
             <ul className="space-y-2">
@@ -191,7 +191,7 @@ export default function TableOfContents({
                       ${
                         activeSection === item.id
                           ? "bg-bluegreen-eske text-white-eske font-semibold"
-                          : "text-black-eske hover:bg-bluegreen-eske-10 hover:text-bluegreen-eske"
+                          : "text-black-eske dark:text-[#C7D6E0] hover:bg-bluegreen-eske-10 hover:text-bluegreen-eske"
                       }
                     `}
                   >
@@ -213,9 +213,9 @@ export default function TableOfContents({
         suppressHydrationWarning
         aria-label="Tabla de contenidos"
       >
-        <nav className="bg-white-eske border-2 border-bluegreen-eske-20 rounded-lg p-6 shadow-md">
+        <nav className="bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg p-6 shadow-md">
           {/* Título */}
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-bluegreen-eske-20">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b-2 border-bluegreen-eske-20 dark:border-white/10">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5 text-bluegreen-eske"
@@ -231,7 +231,7 @@ export default function TableOfContents({
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
-            <h2 className="text-[18px] font-bold text-bluegreen-eske">
+            <h2 className="text-[18px] font-bold text-bluegreen-eske dark:text-[#6BA4C6]">
               {title}
             </h2>
           </div>
@@ -250,7 +250,7 @@ export default function TableOfContents({
                     ${
                       activeSection === item.id
                         ? "bg-bluegreen-eske text-white-eske font-semibold shadow-md"
-                        : "text-black-eske hover:bg-bluegreen-eske-10 hover:text-bluegreen-eske hover:pl-4"
+                        : "text-black-eske dark:text-[#C7D6E0] hover:bg-bluegreen-eske-10 hover:text-bluegreen-eske hover:pl-4"
                     }
                   `}
                 >
@@ -272,8 +272,8 @@ export default function TableOfContents({
           </ul>
 
           {/* Nota informativa */}
-          <div className="mt-6 pt-4 border-t border-bluegreen-eske-20">
-            <p className="text-[12px] text-black-eske-30 text-center">
+          <div className="mt-6 pt-4 border-t border-bluegreen-eske-20 dark:border-white/10">
+            <p className="text-[12px] text-black-eske-30 dark:text-[#6D8294] text-center">
               Click en cualquier sección para navegar
             </p>
           </div>

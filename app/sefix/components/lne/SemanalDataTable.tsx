@@ -150,18 +150,18 @@ export default function SemanalDataTable({
     <div className="space-y-3">
       {/* Encabezado */}
       <div className="text-center space-y-1">
-        <h3 className="text-base font-bold text-black-eske">Tabla de Datos</h3>
+        <h3 className="text-base font-bold text-black-eske dark:text-[#EAF2F8]">Tabla de Datos</h3>
         <p className="text-xs font-semibold text-bluegreen-eske">
           Ámbito:{" "}
           <span className="font-bold">{ambitoLabel}</span>
           {fecha && (
-            <span className="text-black-eske-60 font-normal ml-2">
+            <span className="text-black-eske-60 dark:text-[#6D8294] font-normal ml-2">
               — Corte: {fecha}
             </span>
           )}
         </p>
         {scopeLabel && (
-          <p className="text-xs text-black-eske-60">{scopeLabel}</p>
+          <p className="text-xs text-black-eske-60 dark:text-[#6D8294]">{scopeLabel}</p>
         )}
       </div>
 
@@ -170,7 +170,7 @@ export default function SemanalDataTable({
         <div className="flex items-center gap-2">
           <label
             htmlFor="semanal-tabla-pagesize"
-            className="text-xs text-black-eske-60 whitespace-nowrap"
+            className="text-xs text-black-eske-60 dark:text-[#9AAEBE] whitespace-nowrap"
           >
             Mostrar
           </label>
@@ -178,17 +178,17 @@ export default function SemanalDataTable({
             id="semanal-tabla-pagesize"
             value={pageSize}
             onChange={(e) => handlePageSize(parseInt(e.target.value, 10))}
-            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+            className="text-sm border border-gray-eske-30 dark:border-white/10 rounded-md px-2 py-1 bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
           >
             {PAGE_SIZES.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          <span className="text-xs text-black-eske-60">entradas</span>
+          <span className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">entradas</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="semanal-tabla-search" className="text-xs text-black-eske-60">
+          <label htmlFor="semanal-tabla-search" className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">
             Buscar:
           </label>
           <input
@@ -197,13 +197,13 @@ export default function SemanalDataTable({
             placeholder="Filtrar..."
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[140px]"
+            className="text-sm border border-gray-eske-30 dark:border-white/10 rounded-md px-2 py-1 bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-[140px]"
           />
         </div>
       </div>
 
       {/* Tabla */}
-      <div className="overflow-x-auto rounded-lg border border-gray-eske-20">
+      <div className="overflow-x-auto rounded-lg border border-gray-eske-20 dark:border-white/10">
         <table className="w-full text-sm">
           <thead className="bg-bluegreen-eske text-white-eske">
             <tr>
@@ -220,10 +220,10 @@ export default function SemanalDataTable({
           <tbody>
             {isLoading ? (
               Array.from({ length: Math.min(pageSize, 5) }).map((_, i) => (
-                <tr key={i} className="border-t border-gray-eske-10">
+                <tr key={i} className="border-t border-gray-eske-10 dark:border-white/5">
                   {cols.map((c) => (
                     <td key={c.key} className={`px-3 py-2 ${c.mobileHide ? "hidden sm:table-cell" : ""}`}>
-                      <div className="h-3 w-full rounded bg-gray-eske-10 animate-pulse" />
+                      <div className="h-3 w-full rounded bg-gray-eske-10 dark:bg-[#21425E] animate-pulse" />
                     </td>
                   ))}
                 </tr>
@@ -236,7 +236,7 @@ export default function SemanalDataTable({
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={cols.length} className="px-3 py-6 text-center text-sm text-black-eske-60">
+                <td colSpan={cols.length} className="px-3 py-6 text-center text-sm text-black-eske-60 dark:text-[#6D8294]">
                   Sin datos para los filtros seleccionados.
                 </td>
               </tr>
@@ -244,12 +244,12 @@ export default function SemanalDataTable({
               rows.map((row, idx) => (
                 <tr
                   key={idx}
-                  className={`border-t border-gray-eske-10 ${idx % 2 === 0 ? "bg-white-eske" : "bg-gray-eske-10"} hover:bg-blue-eske-10 transition-colors`}
+                  className={`border-t border-gray-eske-10 dark:border-white/5 ${idx % 2 === 0 ? "bg-white-eske dark:bg-[#18324A]" : "bg-gray-eske-10 dark:bg-[#21425E]"} hover:bg-blue-eske-10 dark:hover:bg-white/5 transition-colors`}
                 >
                   {cols.map((c) => (
                     <td
                       key={c.key}
-                      className={`px-3 py-1.5 text-xs text-black-eske ${c.numeric ? "text-right tabular-nums" : ""} ${c.mobileHide ? "hidden sm:table-cell" : ""}`}
+                      className={`px-3 py-1.5 text-xs text-black-eske dark:text-[#C7D6E0] ${c.numeric ? "text-right tabular-nums" : ""} ${c.mobileHide ? "hidden sm:table-cell" : ""}`}
                     >
                       {c.numeric ? fmtNum(row[c.key] ?? 0) : String(row[c.key] ?? "—")}
                     </td>
@@ -261,13 +261,13 @@ export default function SemanalDataTable({
         </table>
       </div>
       {/* Indicador de scroll horizontal */}
-      <p className="text-[11px] text-black-eske-60 text-center sm:hidden">
+      <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] text-center sm:hidden">
         ← Desliza horizontalmente para ver todas las columnas →
       </p>
 
       {/* Paginación */}
       {!isLoading && (
-        <div className="flex items-center justify-between text-xs text-black-eske-60">
+        <div className="flex items-center justify-between text-xs text-black-eske-60 dark:text-[#6D8294]">
           <span>
             {total === 0
               ? "Sin resultados"
@@ -278,7 +278,7 @@ export default function SemanalDataTable({
               <button
                 onClick={() => handlePage(page - 1)}
                 disabled={page <= 1}
-                className="px-2 py-1 rounded border border-gray-eske-30 disabled:opacity-40 hover:border-blue-eske"
+                className="px-2 py-1 rounded border border-gray-eske-30 dark:border-white/10 dark:text-[#C7D6E0] disabled:opacity-40 hover:border-blue-eske"
                 aria-label="Página anterior"
               >
                 ‹
@@ -289,7 +289,7 @@ export default function SemanalDataTable({
               <button
                 onClick={() => handlePage(page + 1)}
                 disabled={page >= totalPages}
-                className="px-2 py-1 rounded border border-gray-eske-30 disabled:opacity-40 hover:border-blue-eske"
+                className="px-2 py-1 rounded border border-gray-eske-30 dark:border-white/10 dark:text-[#C7D6E0] disabled:opacity-40 hover:border-blue-eske"
                 aria-label="Página siguiente"
               >
                 ›
@@ -300,7 +300,7 @@ export default function SemanalDataTable({
       )}
 
       {/* Descargar CSV — al pie */}
-      <div className="flex justify-center py-4 border-t border-gray-eske-20 bg-white-eske">
+      <div className="flex justify-center py-4 border-t border-gray-eske-20 dark:border-white/10 bg-white-eske dark:bg-[#18324A]">
         <button
           onClick={handleDownload}
           disabled={isLoading || rows.length === 0}

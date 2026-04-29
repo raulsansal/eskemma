@@ -179,7 +179,7 @@ export default function ImpactMatrix({
         {/* Axis labels */}
         <div className="flex items-end gap-2">
           <div
-            className="flex flex-col items-center gap-1 text-xs text-black-eske"
+            className="flex flex-col items-center gap-1 text-xs text-black-eske dark:text-[#9AAEBE]"
             aria-hidden="true"
           >
             <span className="[writing-mode:vertical-rl] rotate-180 leading-none
@@ -192,7 +192,7 @@ export default function ImpactMatrix({
           <div className="flex-1 flex flex-col gap-1">
             <div
               ref={containerRef}
-              className="relative w-full rounded-xl border border-gray-eske-20
+              className="relative w-full rounded-xl border border-gray-eske-20 dark:border-white/10
                 overflow-hidden cursor-crosshair"
               style={{ paddingBottom: "100%" }}
               onPointerMove={handlePointerMove}
@@ -213,15 +213,15 @@ export default function ImpactMatrix({
                   bg-green-eske/5" aria-hidden="true" />
                 {/* Bottom-right: low impact, high probability */}
                 <div className="absolute bottom-0 right-0 w-1/2 h-1/2
-                  bg-gray-eske-10" aria-hidden="true" />
+                  bg-gray-eske-10 dark:bg-white/5" aria-hidden="true" />
 
                 {/* Center crosshair */}
                 <div className="absolute inset-0 pointer-events-none"
                   aria-hidden="true">
                   <div className="absolute top-1/2 left-0 right-0 h-px
-                    bg-gray-eske-20" />
+                    bg-gray-eske-20 dark:bg-white/10" />
                   <div className="absolute left-1/2 top-0 bottom-0 w-px
-                    bg-gray-eske-20" />
+                    bg-gray-eske-20 dark:bg-white/10" />
                 </div>
 
                 {/* Quadrant labels */}
@@ -241,7 +241,7 @@ export default function ImpactMatrix({
                   Monitoreo básico
                 </span>
                 <span className="absolute bottom-2 right-2 text-[10px]
-                  text-gray-eske-50 font-medium pointer-events-none text-right"
+                  text-gray-eske-50 dark:text-[#6D8294] font-medium pointer-events-none text-right"
                   aria-hidden="true">
                   Atención moderada
                 </span>
@@ -325,7 +325,7 @@ export default function ImpactMatrix({
               </div>
             </div>
             {/* X axis label */}
-            <p className="text-xs text-black-eske text-center"
+            <p className="text-xs text-black-eske dark:text-[#9AAEBE] text-center"
               aria-hidden="true">
               Probabilidad →
             </p>
@@ -333,7 +333,7 @@ export default function ImpactMatrix({
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-3 mt-1 text-xs text-black-eske">
+        <div className="flex flex-wrap gap-3 mt-1 text-xs text-black-eske dark:text-[#9AAEBE]">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full bg-bluegreen-eske
               inline-block shrink-0" aria-hidden="true" />

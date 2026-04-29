@@ -42,11 +42,11 @@ export default function FoucheModal({
       aria-labelledby="fouche-modal-title"
     >
       <div
-        className="bg-white-eske rounded-lg shadow-lg w-full max-w-2xl p-8 relative overflow-y-auto max-h-[85vh] m-4"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-lg w-full max-w-2xl p-8 relative overflow-y-auto max-h-[85vh] m-4"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          className="absolute top-4 right-4 text-black-eske hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 right-4 text-black-eske dark:text-[#C7D6E0] hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar modal de información sobre Joseph Fouché"
         >
@@ -69,7 +69,7 @@ export default function FoucheModal({
 
         <h2 
           id="fouche-modal-title"
-          className="text-2xl font-bold text-bluegreen-eske mb-6 text-center"
+          className="text-2xl font-bold text-bluegreen-eske dark:text-[#6BA4C6] mb-6 text-center"
         >
           ¿Quién fue Joseph Fouché?
         </h2>
@@ -86,7 +86,7 @@ export default function FoucheModal({
           </div>
         </div>
 
-        <div className="space-y-4 text-gray-eske-90 leading-relaxed">
+        <div className="space-y-4 text-gray-eske-90 dark:text-[#9AAEBE] leading-relaxed">
           <p className="text-[16px]">
             <strong className="text-bluegreen-eske">Joseph Fouché</strong>{" "}
             (1759-1820) fue un político francés que desempeñó un papel crucial
@@ -111,15 +111,15 @@ export default function FoucheModal({
             estratégicamente para mantener su poder e influencia.
           </p>
 
-          <div 
-            className="bg-gray-eske-20 border-l-4 border-bluegreen-eske p-4 rounded"
+          <div
+            className="bg-gray-eske-20 dark:bg-[#112230] border-l-4 border-bluegreen-eske p-4 rounded"
             role="note"
             aria-label="Información sobre el nombre del blog"
           >
-            <h3 className="text-lg font-semibold text-bluegreen-eske mb-2">
+            <h3 className="text-lg font-semibold text-bluegreen-eske dark:text-[#6BA4C6] mb-2">
               ¿Por qué "El Baúl de Fouché"?
             </h3>
-            <p className="text-[15px] text-gray-eske-90">
+            <p className="text-[15px] text-gray-eske-90 dark:text-[#9AAEBE]">
               Nuestro blog toma su nombre del legendario{" "}
               <strong>"Joseph Fouché"</strong>, una metáfora de los archivos
               secretos que este político mantenía sobre sus aliados y enemigos.
@@ -130,7 +130,7 @@ export default function FoucheModal({
             </p>
           </div>
 
-          <blockquote className="text-[14px] italic text-center text-bluegreen-eske-60 mt-6">
+          <blockquote className="text-[14px] italic text-center text-bluegreen-eske-60 dark:text-[#6BA4C6] mt-6">
             "Un hombre que no sabe nada puede ser útil, pero un hombre que lo
             sabe todo es peligroso." — Joseph Fouché
           </blockquote>

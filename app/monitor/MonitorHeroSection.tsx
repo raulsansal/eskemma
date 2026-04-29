@@ -16,7 +16,7 @@ export default function MonitorHeroSection() {
         priority
         aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-bluegreen-eske opacity-75" aria-hidden="true" />
+      <div className="absolute inset-0 bg-bluegreen-eske dark:bg-bluegreen-eske-80 opacity-75" aria-hidden="true" />
       <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full py-8 max-sm:py-6">
         <h1
           id="monitor-hero-title"

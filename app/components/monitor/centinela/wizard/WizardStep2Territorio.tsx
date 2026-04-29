@@ -66,17 +66,17 @@ export default function WizardStep2Territorio({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold text-black-eske mb-1">
+        <h2 className="text-lg font-semibold text-black-eske dark:text-[#EAF2F8] mb-1">
           ¿Cuál es el territorio de análisis?
         </h2>
-        <p className="text-sm text-gray-eske-70">
+        <p className="text-sm text-gray-eske-70 dark:text-[#9AAEBE]">
           Define el alcance geográfico del proyecto.
         </p>
       </div>
 
       {/* Nivel */}
       <div className="flex flex-col gap-1.5">
-        <label htmlFor="nivel" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
+        <label htmlFor="nivel" className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5">
           Nivel territorial
           <InfoTooltip
             content="Define la escala geográfica del monitoreo. Afecta qué fuentes se consultan y la profundidad del análisis electoral."
@@ -87,9 +87,9 @@ export default function WizardStep2Territorio({
           id="nivel"
           value={nivel}
           onChange={(e) => setNivel(e.target.value as NivelTerritorial)}
-          className="px-3 py-2.5 border border-gray-eske-30 rounded-lg text-sm
+          className="px-3 py-2.5 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm
             focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske
-            bg-white-eske"
+            bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
         >
           <option value="nacional">Nacional</option>
           <option value="estatal">Estatal</option>
@@ -101,7 +101,7 @@ export default function WizardStep2Territorio({
       {/* Estado */}
       {requiresEstado && (
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="estado" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
+          <label htmlFor="estado" className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5">
             Estado
             <InfoTooltip
               content="Limita el scraping de noticias y los datos electorales al estado seleccionado, mejorando la relevancia del análisis."
@@ -129,7 +129,7 @@ export default function WizardStep2Territorio({
       {/* Municipio */}
       {requiresMunicipio && (
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="municipio" className="text-sm font-medium text-black-eske flex items-center gap-1.5">
+          <label htmlFor="municipio" className="text-sm font-medium text-black-eske dark:text-[#C7D6E0] flex items-center gap-1.5">
             {nivel === "distrito" ? "Distrito / descripción" : "Municipio"}
             <InfoTooltip
               content="Permite segmentar noticias y datos electorales al nivel más específico posible dentro del estado."
@@ -146,9 +146,10 @@ export default function WizardStep2Territorio({
                 ? "ej. Distrito 5 — Atizapán de Zaragoza"
                 : "ej. Atizapán de Zaragoza"
             }
-            className="px-3 py-2.5 border border-gray-eske-30 rounded-lg text-sm
+            className="px-3 py-2.5 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm
               focus:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske
-              placeholder:text-gray-eske-50"
+              placeholder:text-gray-eske-50 dark:placeholder-[#6D8294]
+              bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
           />
         </div>
       )}
@@ -159,7 +160,7 @@ export default function WizardStep2Territorio({
           <p className="text-xs text-bluegreen-eske font-medium uppercase tracking-wide mb-0.5">
             Territorio seleccionado
           </p>
-          <p className="text-sm font-semibold text-black-eske">
+          <p className="text-sm font-semibold text-black-eske dark:text-[#EAF2F8]">
             {territorio.nombre}
           </p>
         </div>
@@ -169,8 +170,8 @@ export default function WizardStep2Territorio({
         <button
           type="button"
           onClick={onBack}
-          className="px-5 py-2.5 border border-gray-eske-30 text-gray-eske-80
-            rounded-lg text-sm font-medium hover:bg-gray-eske-10 transition-colors"
+          className="px-5 py-2.5 border border-gray-eske-30 dark:border-white/10 text-gray-eske-80 dark:text-[#C7D6E0]
+            rounded-lg text-sm font-medium hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors"
         >
           ← Atrás
         </button>

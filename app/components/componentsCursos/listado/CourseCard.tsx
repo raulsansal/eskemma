@@ -58,7 +58,7 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
 
   return (
     <article 
-      className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full border border-gray-eske-20"
+      className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full border border-gray-eske-20 dark:border-white/10"
       role="listitem"
     >
       {/* Imagen o placeholder */}
@@ -93,18 +93,18 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
       {/* Contenido */}
       <div className="p-5 flex-1 flex flex-col">
         {/* Tipo y categoría */}
-        <div className="flex justify-between items-center mb-2 text-sm text-black-eske font-normal">
+        <div className="flex justify-between items-center mb-2 text-sm text-black-eske dark:text-[#C7D6E0] font-normal">
           <span className="flex items-center gap-1">
             <span>{getTypeIcon()}</span>
             <span className="capitalize">{course.type === "workshop" ? "Taller" : course.type}</span>
           </span>
-          <span className="bg-gray-eske-10 px-2 py-1 rounded-full text-xs">
+          <span className="bg-gray-eske-10 dark:bg-[#21425E] dark:text-[#C7D6E0] px-2 py-1 rounded-full text-xs">
             {course.category}
           </span>
         </div>
 
         {/* Título */}
-        <h3 className="text-xl font-semibold text-bluegreen-eske-60 mb-2 hover:text-bluegreen-eske transition-colors">
+        <h3 className="text-xl font-semibold text-bluegreen-eske-60 dark:text-[#6BA4C6] mb-2 hover:text-bluegreen-eske dark:hover:text-[#EAF2F8] transition-colors">
           <Link 
             href={`/cursos/${course.slug}`}
             className="focus-ring-primary rounded"
@@ -116,12 +116,12 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
 
 
         {/* Descripción */}
-        <p className="text-black-eske text-sm mb-4 line-clamp-3 font-normal">
+        <p className="text-black-eske dark:text-[#9AAEBE] text-sm mb-4 line-clamp-3 font-normal">
           {course.description}
         </p>
 
         {/* Metadata */}
-        <div className="flex flex-wrap items-center gap-3 text-xs text-black-eske font-normal mb-4">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-black-eske dark:text-[#9AAEBE] font-normal mb-4">
           <div className="flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -143,7 +143,7 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
             {course.tags.slice(0, 3).map(tag => (
               <span 
                 key={tag} 
-                className="text-xs bg-gray-eske-10 text-black-eske font-normal px-2 py-1 rounded-full"
+                className="text-xs bg-gray-eske-10 dark:bg-[#21425E] text-black-eske dark:text-[#C7D6E0] font-normal px-2 py-1 rounded-full"
               >
                 #{tag}
               </span>
@@ -155,7 +155,7 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
         )}
 
         {/* Botón de acceso condicional */}
-        <div className="mt-auto pt-4 border-t border-gray-eske-20">
+        <div className="mt-auto pt-4 border-t border-gray-eske-20 dark:border-white/10">
           {hasAccess ? (
             <Link
               href={`/cursos/${course.slug}`}
@@ -168,12 +168,12 @@ export default function CourseCard({ course, userRole: userRoleProp }: CourseCar
             <div className="space-y-2">
               <button
                 disabled
-                className="block w-full text-center bg-gray-eske-30 text-gray-eske-70 font-medium py-2 px-4 rounded-lg cursor-not-allowed"
+                className="block w-full text-center bg-gray-eske-30 dark:bg-[#21425E] text-gray-eske-70 dark:text-[#6D8294] font-medium py-2 px-4 rounded-lg cursor-not-allowed"
                 aria-label="Curso bloqueado"
               >
                 Acceso restringido
               </button>
-              <p className="text-xs text-center text-black-eske/70 font-normal">
+              <p className="text-xs text-center text-black-eske/70 dark:text-[#9AAEBE] font-normal">
                 {getUpgradeMessage(course.requiredRole as any)}
               </p>
             </div>

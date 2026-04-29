@@ -392,7 +392,7 @@ export default function FaqPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-eske-10">
+    <main className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* Hero Section - HOMOLOGADO CON SERVICIOS */}
       <section className="relative min-h-[200px] max-sm:min-h-[150px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden">
         <Image
@@ -420,10 +420,10 @@ export default function FaqPage() {
         <div className="w-[90%] mx-auto max-w-screen-xl">
           {/* Intro */}
           <div className="text-center mb-12 max-sm:mb-8">
-            <p className="text-[18px] max-sm:text-base text-black-eske max-w-3xl mx-auto">
+            <p className="text-[18px] max-sm:text-base text-black-eske dark:text-[#C7D6E0] max-w-3xl mx-auto">
               ¿No encuentras la respuesta que buscas?{" "}
             </p>
-            <p className="text-[16px] max-sm:text-sm text-black-eske max-w-3xl mt-2 max-sm:mt-1 mx-auto">
+            <p className="text-[16px] max-sm:text-sm text-black-eske dark:text-[#C7D6E0] max-w-3xl mt-2 max-sm:mt-1 mx-auto">
               Contáctanos directamente y nuestro equipo te ayudará.
             </p>
             <div className="max-w-[300px] mx-auto mt-6 max-sm:mt-4">
@@ -447,7 +447,7 @@ export default function FaqPage() {
                   return (
                     <div
                       key={currentIndex}
-                      className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4"
+                      className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 max-sm:p-4"
                     >
                       <button
                         className="flex items-center justify-between w-full text-left focus-ring-primary rounded"
@@ -486,7 +486,7 @@ export default function FaqPage() {
                           aria-labelledby={`faq-question-${currentIndex}`}
                           className="mt-4 max-sm:mt-2"
                         >
-                          <div className="text-[16px] max-sm:text-sm text-black-eske leading-relaxed">
+                          <div className="text-[16px] max-sm:text-sm text-black-eske dark:text-[#C7D6E0] leading-relaxed">
                             {faq.answer}
                           </div>
 

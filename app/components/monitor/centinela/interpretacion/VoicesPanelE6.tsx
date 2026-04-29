@@ -40,7 +40,7 @@ export default function VoicesPanelE6({ sources }: Props) {
 
   if (sources.length === 0) {
     return (
-      <p className="text-sm text-gray-eske-60 text-center py-4">
+      <p className="text-sm text-gray-eske-60 dark:text-[#9AAEBE] text-center py-4">
         No hay fuentes manuales cargadas para este proyecto.
       </p>
     );
@@ -67,13 +67,13 @@ export default function VoicesPanelE6({ sources }: Props) {
         return (
           <div
             key={code}
-            className="border border-gray-eske-20 rounded-xl overflow-hidden"
+            className="border border-gray-eske-20 dark:border-white/10 rounded-xl overflow-hidden"
           >
             <button
               type="button"
               onClick={() => setOpenDimension(isOpen ? null : code)}
               className="flex items-center gap-3 w-full px-4 py-3
-                bg-white-eske hover:bg-gray-eske-10 transition-colors text-left"
+                bg-white-eske dark:bg-[#18324A] hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors text-left"
               aria-expanded={isOpen}
             >
               <span
@@ -83,14 +83,14 @@ export default function VoicesPanelE6({ sources }: Props) {
               >
                 {code}
               </span>
-              <span className="text-sm font-medium text-black-eske flex-1">
+              <span className="text-sm font-medium text-black-eske dark:text-[#EAF2F8] flex-1">
                 {DIMENSION_LABELS[code]}
               </span>
-              <span className="text-xs text-gray-eske-60">
+              <span className="text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
                 {items.length} fuente{items.length !== 1 ? "s" : ""}
               </span>
               <span
-                className="text-gray-eske-60 transition-transform"
+                className="text-gray-eske-60 dark:text-[#9AAEBE] transition-transform"
                 style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
                 aria-hidden="true"
               >
@@ -99,8 +99,8 @@ export default function VoicesPanelE6({ sources }: Props) {
             </button>
 
             {isOpen && (
-              <div className="px-4 pb-4 pt-2 border-t border-gray-eske-10
-                bg-white-eske flex flex-col gap-3">
+              <div className="px-4 pb-4 pt-2 border-t border-gray-eske-10 dark:border-white/10
+                bg-white-eske dark:bg-[#18324A] flex flex-col gap-3">
                 {items.map((item) => {
                   const rel = RELIABILITY_LABELS[item.reliabilityLevel];
                   // Show a preview — first 300 chars
@@ -115,11 +115,11 @@ export default function VoicesPanelE6({ sources }: Props) {
                       className="border-l-2 border-bluegreen-eske/30 pl-3
                         flex flex-col gap-1"
                     >
-                      <p className="text-xs text-black-eske leading-relaxed italic">
+                      <p className="text-xs text-black-eske dark:text-[#C7D6E0] leading-relaxed italic">
                         "{preview}"
                       </p>
                       <footer className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-gray-eske-60 not-italic">
+                        <span className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] not-italic">
                           — {item.source}
                         </span>
                         <span

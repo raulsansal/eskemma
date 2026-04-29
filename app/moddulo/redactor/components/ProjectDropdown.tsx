@@ -57,10 +57,10 @@ export default function ProjectDropdown({
         className="
           flex items-center gap-2
           px-4 py-2
-          bg-white-eske
-          border border-gray-eske-30
+          bg-white-eske dark:bg-[#18324A]
+          border border-gray-eske-30 dark:border-white/10
           rounded-lg
-          hover:bg-gray-eske-10
+          hover:bg-gray-eske-10 dark:hover:bg-white/5
           transition-colors
           text-sm
           focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:ring-offset-2
@@ -82,7 +82,7 @@ export default function ProjectDropdown({
         </svg>
 
         {/* Nombre del proyecto */}
-        <span className="font-medium text-gray-eske-90 max-w-37.5 truncate">
+        <span className="font-medium text-gray-eske-90 dark:text-[#C7D6E0] max-w-37.5 truncate">
           {currentProject.name}
         </span>
 
@@ -107,8 +107,8 @@ export default function ProjectDropdown({
             top-full mt-2
             right-0
             w-72
-            bg-white-eske
-            border border-gray-eske-20
+            bg-white-eske dark:bg-[#18324A]
+            border border-gray-eske-20 dark:border-white/10
             rounded-lg
             shadow-xl
             z-50
@@ -117,8 +117,8 @@ export default function ProjectDropdown({
           "
         >
           {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-eske-20">
-            <p className="text-xs font-semibold text-gray-eske-60 uppercase">Mis Proyectos</p>
+          <div className="px-4 py-3 border-b border-gray-eske-20 dark:border-white/10">
+            <p className="text-xs font-semibold text-gray-eske-60 dark:text-[#9AAEBE] uppercase">Mis Proyectos</p>
           </div>
 
           {/* Lista de proyectos */}
@@ -134,9 +134,9 @@ export default function ProjectDropdown({
                     w-full
                     text-left
                     px-4 py-3
-                    hover:bg-gray-eske-10
+                    hover:bg-gray-eske-10 dark:hover:bg-white/5
                     transition-colors
-                    ${isActive ? "bg-blue-50" : ""}
+                    ${isActive ? "bg-blue-50 dark:bg-blue-900/20" : ""}
                   `}
                 >
                   <div className="flex items-start justify-between">
@@ -145,13 +145,13 @@ export default function ProjectDropdown({
                         className={`
                           text-sm font-semibold
                           truncate
-                          ${isActive ? "text-bluegreen-eske" : "text-gray-eske-90"}
+                          ${isActive ? "text-bluegreen-eske" : "text-gray-eske-90 dark:text-[#C7D6E0]"}
                         `}
                       >
                         {project.name}
                       </p>
                       {project.description && (
-                        <p className="text-xs text-gray-eske-60 truncate mt-0.5">
+                        <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] truncate mt-0.5">
                           {project.description}
                         </p>
                       )}
@@ -183,7 +183,7 @@ export default function ProjectDropdown({
           </div>
 
           {/* Divider */}
-          <div className="border-t border-gray-eske-20" />
+          <div className="border-t border-gray-eske-20 dark:border-white/10" />
 
           {/* Crear nuevo proyecto */}
           <div className="p-2">
@@ -195,7 +195,7 @@ export default function ProjectDropdown({
                 px-3 py-2
                 text-sm font-semibold
                 text-bluegreen-eske
-                hover:bg-blue-50
+                hover:bg-blue-50 dark:hover:bg-white/5
                 rounded-lg
                 transition-colors
               "

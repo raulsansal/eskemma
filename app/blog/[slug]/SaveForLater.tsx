@@ -131,7 +131,7 @@ export default function SaveForLater({
         aria-live="polite"
         aria-label="Verificando estado de guardado"
       >
-        <div className="animate-pulse flex items-center gap-2 text-gray-600">
+        <div className="animate-pulse flex items-center gap-2 text-gray-600 dark:text-[#9AAEBE]">
           <svg
             className="w-5 h-5"
             fill="none"
@@ -165,12 +165,12 @@ export default function SaveForLater({
           aria-labelledby="save-login-modal-title"
         >
           <div
-            className="bg-white rounded-lg shadow-lg w-full max-w-md p-8 relative"
+            className="bg-white dark:bg-[#18324A] rounded-lg shadow-lg w-full max-w-md p-8 relative"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Botón de cierre */}
             <button
-              className="absolute top-4 right-4 text-gray-700 hover:text-red-500 transition-colors focus-ring-primary rounded"
+              className="absolute top-4 right-4 text-gray-700 dark:text-[#C7D6E0] hover:text-red-500 transition-colors focus-ring-primary rounded"
               onClick={() => setShowLoginPrompt(false)}
               aria-label="Cerrar modal de inicio de sesión"
             >
@@ -213,12 +213,12 @@ export default function SaveForLater({
 
               <h3 
                 id="save-login-modal-title"
-                className="text-xl font-bold text-black-eske mb-4"
+                className="text-xl font-bold text-black-eske dark:text-[#EAF2F8] mb-4"
               >
                 Debes iniciar sesión para guardar posts
               </h3>
 
-              <p className="text-black-eske-80 mb-6">
+              <p className="text-black-eske-80 dark:text-[#C7D6E0] mb-6">
                 Si aún no tienes tu usuario y contraseña, te invitamos a
                 registrarte en nuestra comunidad de Eskemma.
               </p>
@@ -246,7 +246,7 @@ export default function SaveForLater({
           className={`flex items-center gap-3 px-6 py-3 rounded-lg border-2 transition-all duration-300 focus-ring-primary ${
             isSaved
               ? "bg-bluegreen-eske text-white border-bluegreen-eske hover:bg-bluegreen-eske-70"
-              : "bg-white-eske border-gray-eske-30 text-gray-700 hover:border-bluegreen-eske hover:text-bluegreen-eske"
+              : "bg-white-eske dark:bg-[#18324A] border-gray-eske-30 dark:border-white/10 text-gray-700 dark:text-[#C7D6E0] hover:border-bluegreen-eske hover:text-bluegreen-eske"
           } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           aria-label={isSaved ? "Artículo guardado. Clic para quitar de guardados" : "Guardar artículo para leer después"}
           aria-pressed={isSaved}

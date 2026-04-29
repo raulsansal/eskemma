@@ -28,7 +28,7 @@ export default function CondicionesDeUso() {
   ];
 
   return (
-    <div className="min-h-screen bg-white-eske">
+    <div className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
       {/* Hero Section */}
       <LegalHero
         title="Condiciones de Uso"
@@ -46,7 +46,7 @@ export default function CondicionesDeUso() {
           {/* Contenido Principal */}
           <div className="lg:col-start-2">
             {/* Introducción */}
-            <div className="mb-8 text-[16px] max-sm:text-[14px] text-black-eske-10 leading-relaxed">
+            <div className="mb-8 text-[16px] max-sm:text-[14px] text-black-eske-10 dark:text-[#C7D6E0] leading-relaxed">
               <p className="mb-4">
                 Bienvenido a Eskemma (en adelante, "la Plataforma"), operada por{" "}
                 <strong>Eskemma S.A.P.I. de C.V.</strong>
@@ -74,7 +74,7 @@ export default function CondicionesDeUso() {
                 </li>
               </ul>
 
-              <div className="mt-6 mb-6 bg-yellow-eske-10 p-4 rounded-lg">
+              <div className="mt-6 mb-6 bg-yellow-eske-10 dark:bg-yellow-900/20 p-4 rounded-lg">
                 <p className="font-semibold mb-2">Nota importante:</p>
                 <p>
                   Las asesorías gratuitas se rigen por sus propias{" "}
@@ -88,7 +88,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   1.1. Aceptación de los Términos
                 </h4>
                 <p className="mb-2">
@@ -109,7 +109,7 @@ export default function CondicionesDeUso() {
             {/* Sección 2: Registro y Cuenta */}
             <LegalSection id="registro" title="2. Registro y Cuenta de Usuario">
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.1. Requisitos para el Registro
                 </h4>
                 <p className="mb-2">Para crear una cuenta en Eskemma debes:</p>
@@ -129,7 +129,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.2. Seguridad de tu Cuenta
                 </h4>
                 <p className="mb-2 font-semibold">Eres responsable de:</p>
@@ -142,11 +142,11 @@ export default function CondicionesDeUso() {
                   </li>
                 </ul>
 
-                <div className="bg-red-eske-10 p-4 rounded-lg mt-4">
-                  <p className="font-semibold mb-2 text-black-eske">
+                <div className="bg-red-eske-10 dark:bg-red-900/20 p-4 rounded-lg mt-4">
+                  <p className="font-semibold mb-2 text-black-eske dark:text-[#EAF2F8]">
                     Para reportar accesos no autorizados:
                   </p>
-                  <p className="text-black-eske">
+                  <p className="text-black-eske dark:text-[#C7D6E0]">
                     Envía un correo a:{" "}
                     <a
                       href="mailto:soporte@eskemma.com"
@@ -160,7 +160,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.3. Suspensión o Cancelación de Cuenta
                 </h4>
                 <p className="mb-2">
@@ -190,7 +190,7 @@ export default function CondicionesDeUso() {
               title="3. Uso de la Plataforma y Herramientas"
             >
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   3.1. Licencia de Uso
                 </h4>
                 <p className="mb-4">
@@ -230,7 +230,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   3.2. Contenido Generado por el Usuario
                 </h4>
                 <p className="mb-2 font-semibold">
@@ -263,7 +263,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   3.3. Propiedad Intelectual
                 </h4>
                 <p className="mb-4 font-semibold text-bluegreen-eske">
@@ -283,7 +283,7 @@ export default function CondicionesDeUso() {
             {/* Sección 4: Suscripciones y Pagos */}
             <LegalSection id="suscripciones" title="4. Suscripciones y Pagos">
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   4.1. Planes y Precios
                 </h4>
                 <p className="mb-2">
@@ -300,7 +300,7 @@ export default function CondicionesDeUso() {
                   </li>
                 </ul>
 
-                <div className="bg-yellow-eske-10 p-4 rounded-lg">
+                <div className="bg-yellow-eske-10 dark:bg-yellow-900/20 p-4 rounded-lg">
                   <p className="font-semibold mb-2">
                     Importante sobre precios:
                   </p>
@@ -322,7 +322,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   4.2. Proceso de Pago
                 </h4>
                 <p className="mb-2">Métodos de pago aceptados:</p>
@@ -353,7 +353,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-3">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-3">
                   4.3. Reembolsos y Cancelaciones
                 </h4>
 
@@ -368,7 +368,7 @@ export default function CondicionesDeUso() {
                 </div>
 
                 <div className="mt-4 mb-4">
-                  <h5 className="text-[15px] font-semibold text-black-eske mb-2">
+                  <h5 className="text-[15px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     Para Usuarios en la Unión Europea (Derecho de Desistimiento)
                   </h5>
                   <p className="mb-2">
@@ -405,7 +405,7 @@ export default function CondicionesDeUso() {
                 </div>
 
                 <div className="mt-4 mb-4">
-                  <h5 className="text-[15px] font-semibold text-black-eske mb-2">
+                  <h5 className="text-[15px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     Cancelación de Suscripción (sin reembolso)
                   </h5>
                   <p className="mb-2">
@@ -495,11 +495,11 @@ export default function CondicionesDeUso() {
                 </ul>
               </div>
 
-              <div className="bg-red-eske-10 p-4 rounded-lg">
-                <p className="font-semibold mb-2 text-black-eske">
+              <div className="bg-red-eske-10 dark:bg-red-900/20 p-4 rounded-lg">
+                <p className="font-semibold mb-2 text-black-eske dark:text-[#EAF2F8]">
                   Consecuencias:
                 </p>
-                <p className="mb-2 text-black-eske">
+                <p className="mb-2 text-black-eske dark:text-[#C7D6E0]">
                   Eskemma se reserva el derecho de:
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4 text-black-eske">
@@ -518,7 +518,7 @@ export default function CondicionesDeUso() {
               title="6. Limitación de Responsabilidad"
             >
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   6.1. Disponibilidad del Servicio
                 </h4>
                 <p className="mb-2 font-semibold">
@@ -550,7 +550,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   6.2. Exclusiones de Responsabilidad
                 </h4>
 
@@ -591,8 +591,8 @@ export default function CondicionesDeUso() {
                 </div>
               </div>
 
-              <div className="mt-6 mb-6 bg-yellow-eske-10 p-4 rounded-lg">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+              <div className="mt-6 mb-6 bg-yellow-eske-10 dark:bg-yellow-900/20 p-4 rounded-lg">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   6.3. Limitación Monetaria de Responsabilidad
                 </h4>
                 <p className="mb-2 font-semibold">
@@ -607,7 +607,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   6.4. Para Usuarios en la Unión Europea
                 </h4>
                 <p className="mb-2 font-semibold text-bluegreen-eske">
@@ -645,7 +645,7 @@ export default function CondicionesDeUso() {
             >
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     7.1. Para Usuarios en México
                   </h4>
                   <p className="mb-2">
@@ -658,7 +658,7 @@ export default function CondicionesDeUso() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     7.2. Para Usuarios en la Unión Europea
                   </h4>
                   <p className="mb-2">
@@ -681,7 +681,7 @@ export default function CondicionesDeUso() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     7.3. Para Usuarios en Estados Unidos
                   </h4>
                   <p className="mb-2">
@@ -735,7 +735,7 @@ export default function CondicionesDeUso() {
               </p>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   8.1. Estándares de Accesibilidad
                 </h4>
                 <p className="mb-2">Trabajamos para cumplir con:</p>
@@ -753,7 +753,7 @@ export default function CondicionesDeUso() {
               </div>
 
               <div className="mt-6 mb-6 bg-blue-eske-10 p-4 rounded-lg">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   8.2. Solicitud de Ajustes Razonables
                 </h4>
                 <p className="mb-2">
@@ -779,8 +779,8 @@ export default function CondicionesDeUso() {
                 Si tienes dudas sobre estas Condiciones, contáctanos en:
               </p>
 
-              <div className="bg-bluegreen-eske-10 p-4 rounded-lg">
-                <p className="mb-2 text-black-eske">
+              <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg">
+                <p className="mb-2 text-black-eske dark:text-[#C7D6E0]">
                   <strong>Correo general:</strong>{" "}
                   <a
                     href="mailto:contacto@eskemma.com"
@@ -830,11 +830,11 @@ export default function CondicionesDeUso() {
             </LegalSection>
 
             {/* CTA Final */}
-            <div className="mt-12 p-6 bg-gray-eske-30 rounded-lg text-white-eske text-center">
-              <h3 className="text-2xl font-bold text-black-eske mb-4">
+            <div className="mt-12 p-6 bg-gray-eske-30 dark:bg-[#21425E] rounded-lg text-white-eske text-center">
+              <h3 className="text-2xl font-bold text-black-eske dark:text-[#EAF2F8] mb-4">
                 ¿Listo para comenzar?
               </h3>
-              <p className="text-[16px] text-black-eske mb-6">
+              <p className="text-[16px] text-black-eske dark:text-[#C7D6E0] mb-6">
                 Al usar Eskemma, confirmas que has leído y aceptado estas
                 Condiciones de Uso.
               </p>
@@ -852,7 +852,7 @@ export default function CondicionesDeUso() {
             </div>
 
             {/* Nota final */}
-            <div className="mt-8 text-center text-[12px] text-black-eske-30">
+            <div className="mt-8 text-center text-[12px] text-black-eske-30 dark:text-[#6D8294]">
               <p>
                 Estas Condiciones son complementarias a nuestra Política de
                 Privacidad. Te recomendamos leer ambos documentos para entender

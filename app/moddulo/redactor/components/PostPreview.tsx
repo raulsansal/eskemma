@@ -35,13 +35,13 @@ export default function PostPreview({
     <article
       className={`
         relative
-        bg-white-eske
+        bg-white-eske dark:bg-[#18324A]
         rounded-lg
         border-2
         p-5 max-sm:p-4
         transition-all
         cursor-pointer
-        ${isSelected ? "border-bluegreen-eske shadow-lg" : "border-gray-eske-20 hover:border-bluegreen-eske/50"}
+        ${isSelected ? "border-bluegreen-eske shadow-lg" : "border-gray-eske-20 dark:border-white/10 hover:border-bluegreen-eske/50"}
       `}
       onClick={onSelect}
       role="article"
@@ -68,13 +68,13 @@ export default function PostPreview({
 
       {/* Texto del post */}
       <div className="mb-4">
-        <p className="text-sm max-sm:text-xs text-gray-eske-90 leading-relaxed whitespace-pre-wrap">
+        <p className="text-sm max-sm:text-xs text-gray-eske-90 dark:text-[#C7D6E0] leading-relaxed whitespace-pre-wrap">
           {variante.texto}
         </p>
       </div>
 
       {/* Contador de caracteres */}
-      <div className="flex items-center justify-between mb-3 pb-3 border-t border-gray-eske-20 pt-3">
+      <div className="flex items-center justify-between mb-3 pb-3 border-t border-gray-eske-20 dark:border-white/10 pt-3">
         <div className="flex items-center gap-2">
           <svg
             className={`w-4 h-4 ${isValid ? "text-green-600" : "text-red-600"}`}
@@ -122,7 +122,7 @@ export default function PostPreview({
           ${
             canExport
               ? "bg-bluegreen-eske text-white-eske hover:bg-bluegreen-eske/90"
-              : "bg-gray-eske-20 text-gray-eske-60 cursor-not-allowed"
+              : "bg-gray-eske-20 dark:bg-[#21425E] text-gray-eske-60 dark:text-[#6D8294] cursor-not-allowed"
           }
         `}
         aria-label={canExport ? "Copiar al portapapeles" : "Copia disponible solo en planes de pago"}

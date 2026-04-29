@@ -93,7 +93,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black-eske/50">
-      <div className="bg-white-eske rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="bg-bluegreen-eske text-white-eske p-6 rounded-t-lg">
           <h2 className="text-2xl font-bold">Configuración Inicial</h2>
@@ -115,7 +115,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                   {/* Electoral */}
                   <button
                     onClick={() => handleContextSelect("electoral")}
-                    className="group relative bg-blue-50 hover:bg-blue-100 border-2 border-blue-300 hover:border-blue-500 rounded-lg p-6 text-left transition-all"
+                    className="group relative bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-700/40 hover:border-blue-500 rounded-lg p-6 text-left transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center shrink-0">
@@ -134,10 +134,10 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                         </svg>
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-lg font-bold text-blue-900 mb-1">
+                        <h4 className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-1">
                           🗳️ Campaña Electoral
                         </h4>
-                        <p className="text-sm text-blue-700">
+                        <p className="text-sm text-blue-700 dark:text-blue-400">
                           Comunicación para candidato o partido en proceso electoral
                         </p>
                       </div>
@@ -147,7 +147,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                   {/* Gubernamental */}
                   <button
                     onClick={() => handleContextSelect("governmental")}
-                    className="group relative bg-green-50 hover:bg-green-100 border-2 border-green-300 hover:border-green-500 rounded-lg p-6 text-left transition-all"
+                    className="group relative bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 border-2 border-green-300 dark:border-green-700/40 hover:border-green-500 rounded-lg p-6 text-left transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center shrink-0">
@@ -166,10 +166,10 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                         </svg>
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-lg font-bold text-green-900 mb-1">
+                        <h4 className="text-lg font-bold text-green-900 dark:text-green-300 mb-1">
                           🏛️ Comunicación Gubernamental
                         </h4>
-                        <p className="text-sm text-green-700">
+                        <p className="text-sm text-green-700 dark:text-green-400">
                           Comunicación institucional de gobierno fuera de proceso electoral
                         </p>
                       </div>
@@ -203,10 +203,10 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                     <button
                       key={countryOption.code}
                       onClick={() => handleCountrySelect(countryOption.code)}
-                      className="flex items-center gap-3 p-4 bg-gray-50 hover:bg-blue-50 border-2 border-gray-300 hover:border-blue-500 rounded-lg transition-all text-left"
+                      className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-[#21425E] hover:bg-blue-50 dark:hover:bg-blue-900/20 border-2 border-gray-300 dark:border-white/10 hover:border-blue-500 rounded-lg transition-all text-left"
                     >
                       <span className="text-3xl">{countryOption.flag}</span>
-                      <span className="font-semibold text-gray-900">{countryOption.name}</span>
+                      <span className="font-semibold text-gray-900 dark:text-[#EAF2F8]">{countryOption.name}</span>
                     </button>
                   ))}
                 </div>
@@ -229,7 +229,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
 
               {/* Tipo de elección */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Tipo de elección
                 </label>
                 <div className="flex gap-2">
@@ -245,7 +245,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                       className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                         electoralConfig.electionType === type
                           ? "bg-blue-500 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          : "bg-gray-100 dark:bg-[#21425E] text-gray-700 dark:text-[#C7D6E0] hover:bg-gray-200 dark:hover:bg-[#2C5273]"
                       }`}
                     >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -256,7 +256,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
 
               {/* Cargo */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Cargo en disputa *
                 </label>
                 <input
@@ -266,13 +266,13 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                     setElectoralConfig({ ...electoralConfig, position: e.target.value })
                   }
                   placeholder="Ej: Presidencia, Gubernatura, Alcaldía"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-white/10 rounded-lg focus:border-blue-500 focus:outline-none bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder:text-[#6D8294]"
                 />
               </div>
 
               {/* Candidato */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Nombre del candidato/a *
                 </label>
                 <input
@@ -285,13 +285,13 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                     })
                   }
                   placeholder="Ej: María López García"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-white/10 rounded-lg focus:border-blue-500 focus:outline-none bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder:text-[#6D8294]"
                 />
               </div>
 
               {/* Partido */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Partido político
                 </label>
                 <input
@@ -304,13 +304,13 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                     })
                   }
                   placeholder="Ej: Movimiento Ciudadano"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-white/10 rounded-lg focus:border-blue-500 focus:outline-none bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder:text-[#6D8294]"
                 />
               </div>
 
               {/* Eslogan */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Eslogan de campaña
                 </label>
                 <input
@@ -323,7 +323,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                     })
                   }
                   placeholder="Ej: Educación y transparencia para México"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-white/10 rounded-lg focus:border-blue-500 focus:outline-none bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder:text-[#6D8294]"
                 />
               </div>
             </div>
@@ -344,7 +344,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
 
               {/* Nivel de gobierno */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Nivel de gobierno
                 </label>
                 <div className="flex gap-2">
@@ -360,7 +360,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                       className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                         governmentalConfig.governmentLevel === level
                           ? "bg-green-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          : "bg-gray-100 dark:bg-[#21425E] text-gray-700 dark:text-[#C7D6E0] hover:bg-gray-200 dark:hover:bg-[#2C5273]"
                       }`}
                     >
                       {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -371,7 +371,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
 
               {/* Administración */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Nombre de la administración *
                 </label>
                 <input
@@ -387,13 +387,13 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                     })
                   }
                   placeholder="Ej: Gobierno de México, Gobierno de Jalisco"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
+                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-white/10 rounded-lg focus:border-green-600 focus:outline-none bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder:text-[#6D8294]"
                 />
               </div>
 
               {/* Cargo del titular */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Cargo del titular
                 </label>
                 <input
@@ -409,13 +409,13 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                     })
                   }
                   placeholder="Ej: Presidenta, Gobernador, Alcalde"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
+                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-white/10 rounded-lg focus:border-green-600 focus:outline-none bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder:text-[#6D8294]"
                 />
               </div>
 
               {/* Tipo de comunicación */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-[#C7D6E0] mb-2">
                   Tipo de comunicación
                 </label>
                 <select
@@ -426,7 +426,7 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
                       communicationType: e.target.value as any,
                     })
                   }
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
+                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-white/10 rounded-lg focus:border-green-600 focus:outline-none bg-white dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] placeholder:text-gray-400 dark:placeholder:text-[#6D8294]"
                 >
                   <option value="institucional">Institucional (general)</option>
                   <option value="rendicion-cuentas">Rendición de cuentas</option>
@@ -441,10 +441,10 @@ export default function ConfigWizard({ onComplete, onClose }: ConfigWizardProps)
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-between items-center">
+        <div className="bg-gray-50 dark:bg-[#112230] px-6 py-4 rounded-b-lg flex justify-between items-center">
           <button
             onClick={onClose}
-            className="text-gray-600 hover:text-gray-800 font-medium text-sm"
+            className="text-gray-600 dark:text-[#9AAEBE] hover:text-gray-800 dark:hover:text-[#EAF2F8] font-medium text-sm"
           >
             Cancelar
           </button>

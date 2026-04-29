@@ -27,7 +27,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="h-[calc(100vh-80px)] bg-gray-eske-10 flex flex-col overflow-hidden">
+    <div className="h-[calc(100vh-80px)] bg-gray-eske-10 dark:bg-[#0B1620] flex flex-col overflow-hidden">
       {/* Top Header */}
       <header className="bg-bluegreen-eske text-white-eske py-3 px-4 shrink-0">
         <div className="flex items-center justify-between">
@@ -104,7 +104,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
 
           {/* Drawer */}
           <div
-            className={`relative w-72 max-w-[85vw] bg-white-eske shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
+            className={`relative w-72 max-w-[85vw] bg-white-eske dark:bg-[#18324A] shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
               mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >

@@ -119,7 +119,7 @@ export default function MonitoreoPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] flex items-center justify-center">
         <div
           className="w-8 h-8 border-4 border-bluegreen-eske border-t-transparent
             rounded-full animate-spin"
@@ -131,8 +131,8 @@ export default function MonitoreoPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-eske-10 flex items-center justify-center px-6">
-        <div className="bg-white-eske rounded-xl p-8 max-w-md text-center shadow-sm border border-gray-eske-20">
+      <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] flex items-center justify-center px-6">
+        <div className="bg-white-eske dark:bg-[#18324A] rounded-xl p-8 max-w-md text-center shadow-sm border border-gray-eske-20 dark:border-white/10">
           <p className="font-semibold text-red-eske">{error}</p>
           <button
             onClick={() => router.push("/monitor/centinela")}
@@ -146,7 +146,7 @@ export default function MonitoreoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-eske-10">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* ── Header ── */}
       <div className="bg-bluegreen-eske text-white px-6 py-5">
         <div className="max-w-4xl mx-auto">
@@ -198,17 +198,17 @@ export default function MonitoreoPage() {
 
         {/* ── Dimension status ── */}
         {analysis && (
-          <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
+          <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-semibold text-black-eske flex items-center gap-1.5">
+                <h2 className="font-semibold text-black-eske dark:text-[#EAF2F8] flex items-center gap-1.5">
                   Estado actual — PEST-L
                   <InfoTooltip
                     content="Resumen de la clasificación más reciente para cada dimensión. La confianza global es el promedio ponderado de certeza de todos los análisis dimensionales. Para mejorar estos porcentajes: agrega fuentes de mayor confiabilidad en 'Datos' y asegura cobertura verde en el semáforo."
                     placement="right"
                   />
                 </h2>
-                <p className="text-xs text-black-eske mt-0.5">
+                <p className="text-xs text-black-eske dark:text-[#9AAEBE] mt-0.5">
                   Análisis v{analysis.version} ·{" "}
                   {formatDate(analysis.analyzedAt)} ·{" "}
                   {analysis.globalConfidence}% confianza global
@@ -233,29 +233,29 @@ export default function MonitoreoPage() {
         {/* ── 2-col grid: History + Alerts ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* History chart */}
-          <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
-            <h2 className="font-semibold text-black-eske mb-1 flex items-center gap-1.5">
+          <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5">
+            <h2 className="font-semibold text-black-eske dark:text-[#EAF2F8] mb-1 flex items-center gap-1.5">
               Tendencia de confianza
               <InfoTooltip
                 content="Evolución de la confianza global a través de los análisis realizados (automáticos cada 6 horas + manuales). Una tendencia ascendente indica mejora en calidad de datos y fuentes. Para mejorar la tendencia: diversifica tipos de fuentes en 'Datos', agrega fuentes manuales del equipo, y reduce dimensiones en rojo en el semáforo de cobertura."
                 placement="right"
               />
             </h2>
-            <p className="text-xs text-black-eske mb-3">
+            <p className="text-xs text-black-eske dark:text-[#9AAEBE] mb-3">
               Confianza global a través de los análisis realizados
             </p>
             <HistoryChart history={history} />
             {history.length > 0 && (
-              <p className="text-xs text-black-eske mt-2 text-right">
+              <p className="text-xs text-black-eske dark:text-[#9AAEBE] mt-2 text-right">
                 {history.length} análisis · v1 – v{history[history.length - 1]?.version}
               </p>
             )}
           </section>
 
           {/* Alerts feed */}
-          <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
+          <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="font-semibold text-black-eske flex items-center gap-1.5">
+              <h2 className="font-semibold text-black-eske dark:text-[#EAF2F8] flex items-center gap-1.5">
                 Alertas
                 <InfoTooltip
                   content="Las alertas se generan cuando una dimensión supera umbrales de riesgo configurados: picos de menciones, caídas de sentimiento positivo, o cambios económicos bruscos. Las alertas de crisis activan el banner rojo en la parte superior. Las alertas no leídas se cuentan en el indicador rojo junto al título."
@@ -269,7 +269,7 @@ export default function MonitoreoPage() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-black-eske mb-3">
+            <p className="text-xs text-black-eske dark:text-[#9AAEBE] mb-3">
               Actualizadas cada 30 segundos
             </p>
             <AlertsFeed
@@ -280,13 +280,13 @@ export default function MonitoreoPage() {
         </div>
 
         {/* ── Next analysis ── */}
-        <section className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 p-5">
+        <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h2 className="font-semibold text-black-eske">
+              <h2 className="font-semibold text-black-eske dark:text-[#EAF2F8]">
                 Ejecutar nuevo análisis
               </h2>
-              <p className="text-xs text-black-eske mt-0.5">
+              <p className="text-xs text-black-eske dark:text-[#9AAEBE] mt-0.5">
                 El sistema ejecuta análisis automáticos cada 6 horas.
                 También puedes ejecutar uno manualmente en cualquier momento.
               </p>
@@ -309,8 +309,8 @@ export default function MonitoreoPage() {
           <button
             type="button"
             onClick={() => router.push("/monitor/centinela")}
-            className="px-6 py-2.5 border border-gray-eske-20 text-black-eske
-              rounded-lg text-sm hover:bg-gray-eske-10 transition-colors"
+            className="px-6 py-2.5 border border-gray-eske-20 dark:border-white/10 text-black-eske dark:text-[#C7D6E0]
+              rounded-lg text-sm hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors"
           >
             ← Ir a Centinela
           </button>

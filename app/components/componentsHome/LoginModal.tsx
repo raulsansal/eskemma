@@ -105,7 +105,7 @@ export default function LoginModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="login-modal-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[80vh] max-sm:max-h-[85vh]"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[80vh] max-sm:max-h-[85vh]"
       >
         {/* Botón de Cierre */}
         <button
@@ -135,14 +135,14 @@ export default function LoginModal({
         </button>
 
         {/* Título */}
-        <h2 id="login-modal-title" className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske text-center mb-6 max-sm:mb-4">
+        <h2 id="login-modal-title" className="text-2xl max-sm:text-xl font-bold text-bluegreen-eske dark:text-[#6BA4C6] text-center mb-6 max-sm:mb-4">
           Iniciar sesión
         </h2>
 
         {/* Formulario de inicio de sesión */}
         <form onSubmit={handleSubmit} className="space-y-4 max-sm:space-y-3">
           <div>
-            <label htmlFor="login-username" className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1">
+            <label htmlFor="login-username" className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-1">
               Usuario
             </label>
             <input
@@ -154,12 +154,12 @@ export default function LoginModal({
               required
               disabled={loading}
               placeholder="Correo o nombre de usuario"
-              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary text-base max-sm:text-sm"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 dark:border-white/10 rounded focus:outline-none focus:border-blue-eske focus-ring-primary text-base max-sm:text-sm dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294]"
             />
           </div>
 
           <div>
-            <label htmlFor="login-password" className="block text-[16px] max-sm:text-sm font-medium text-black-eske mb-1">
+            <label htmlFor="login-password" className="block text-[16px] max-sm:text-sm font-medium text-black-eske dark:text-[#C7D6E0] mb-1">
               Contraseña
             </label>
             <input
@@ -171,7 +171,7 @@ export default function LoginModal({
               required
               disabled={loading}
               placeholder="Contraseña"
-              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 rounded focus:outline-none focus:border-blue-eske focus-ring-primary text-base max-sm:text-sm"
+              className="w-full px-3 py-2 max-sm:py-1.5 border border-gray-300 dark:border-white/10 rounded focus:outline-none focus:border-blue-eske focus-ring-primary text-base max-sm:text-sm dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294]"
             />
           </div>
 
@@ -197,14 +197,14 @@ export default function LoginModal({
 
         {/* Separador */}
         <div className="flex items-center my-4 max-sm:my-3">
-          <hr className="flex-grow border-gray-300" />
-          <span className="mx-4 max-sm:mx-3 text-gray-500 text-sm max-sm:text-xs">O</span>
-          <hr className="flex-grow border-gray-300" />
+          <hr className="flex-grow border-gray-300 dark:border-white/10" />
+          <span className="mx-4 max-sm:mx-3 text-gray-500 dark:text-[#9AAEBE] text-sm max-sm:text-xs">O</span>
+          <hr className="flex-grow border-gray-300 dark:border-white/10" />
         </div>
 
         {/* Mensaje informativo */}
-        <p className="text-[14px] max-sm:text-xs text-black-eske text-center mb-3 max-sm:mb-2 px-2 max-sm:px-1">
-          <span className="font-medium text-bluegreen-eske">
+        <p className="text-[14px] max-sm:text-xs text-black-eske dark:text-[#C7D6E0] text-center mb-3 max-sm:mb-2 px-2 max-sm:px-1">
+          <span className="font-medium text-bluegreen-eske dark:text-[#6BA4C6]">
             ¿Te registraste con tu cuenta de Google?
           </span>
           <br />
@@ -221,7 +221,7 @@ export default function LoginModal({
         </button>
 
         {/* Enlaces adicionales */}
-        <p className="text-[14px] max-sm:text-xs mt-4 max-sm:mt-3 text-black-eske text-center">
+        <p className="text-[14px] max-sm:text-xs mt-4 max-sm:mt-3 text-black-eske dark:text-[#C7D6E0] text-center">
           Al iniciar sesión acepto las{" "}
           <Link
             href="/condiciones-de-uso"
@@ -246,9 +246,9 @@ export default function LoginModal({
         </p>
 
         {/* Enlace para registrarse */}
-        <hr className="border-gray-300 my-4 max-sm:my-3" />
+        <hr className="border-gray-300 dark:border-white/10 my-4 max-sm:my-3" />
 
-        <p className="text-[14px] max-sm:text-xs text-black-eske text-center">
+        <p className="text-[14px] max-sm:text-xs text-black-eske dark:text-[#C7D6E0] text-center">
           ¿Aún no te has registrado?{" "}
           <button
             type="button"
@@ -265,7 +265,7 @@ export default function LoginModal({
         </p>
 
         {/* Enlace para recuperar contraseña */}
-        <p className="text-[14px] max-sm:text-xs text-black-eske text-center mt-2 max-sm:mt-1.5">
+        <p className="text-[14px] max-sm:text-xs text-black-eske dark:text-[#C7D6E0] text-center mt-2 max-sm:mt-1.5">
           ¿No recuerdas tu contraseña?{" "}
           <button
             onClick={() => {

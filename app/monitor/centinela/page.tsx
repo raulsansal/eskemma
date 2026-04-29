@@ -84,8 +84,8 @@ function ProjectCard({ project }: { project: CentinelaProject & { id: string } }
 
   return (
     <div
-      className="group bg-white-eske rounded-xl shadow-sm border
-        border-gray-eske-20 p-5 flex flex-col gap-4
+      className="group bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border
+        border-gray-eske-20 dark:border-white/10 p-5 flex flex-col gap-4
         hover:shadow-md hover:-translate-y-0.5 transition-all duration-200
         w-full"
     >
@@ -103,12 +103,12 @@ function ProjectCard({ project }: { project: CentinelaProject & { id: string } }
             </span>
             <div className="min-w-0">
               <h3
-                className="font-semibold text-bluegreen-eske-60
-                  group-hover:text-bluegreen-eske transition-colors truncate"
+                className="font-semibold text-bluegreen-eske-60 dark:text-[#6BA4C6]
+                  group-hover:text-bluegreen-eske dark:group-hover:text-[#EAF2F8] transition-colors truncate"
               >
                 {project.nombre}
               </h3>
-              <p className="text-xs text-gray-eske-60 mt-0.5">
+              <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] mt-0.5">
                 {TYPE_LABELS[project.tipo] ?? project.tipo} ·{" "}
                 {project.territorio?.nombre ?? ""}
               </p>
@@ -145,14 +145,14 @@ function ProjectCard({ project }: { project: CentinelaProject & { id: string } }
         </div>
 
         {/* Horizon */}
-        <p className="text-xs text-gray-eske-60">
+        <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE]">
           Horizonte: {project.horizonte}{" "}
           {project.horizonte === 1 ? "mes" : "meses"}
         </p>
       </button>
 
       {/* Iniciar en Moddulo */}
-      <div className="border-t border-gray-eske-20 pt-3">
+      <div className="border-t border-gray-eske-20 dark:border-white/10 pt-3">
         <button
           type="button"
           onClick={handleCreateModduloProject}
@@ -216,7 +216,7 @@ export default function CentinelaHubPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-eske-10">
+    <main className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620]">
       {/* Header */}
       <div className="bg-bluegreen-eske">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
@@ -240,11 +240,11 @@ export default function CentinelaHubPage() {
         {/* CTA */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-black-eske">
+            <h2 className="text-lg font-semibold text-black-eske dark:text-[#EAF2F8]">
               Mis proyectos
             </h2>
             {projects.length > 0 && (
-              <p className="text-sm text-gray-eske-60 mt-0.5">
+              <p className="text-sm text-gray-eske-60 dark:text-[#9AAEBE] mt-0.5">
                 {projects.length}{" "}
                 {projects.length === 1 ? "proyecto activo" : "proyectos activos"}
               </p>
@@ -263,16 +263,16 @@ export default function CentinelaHubPage() {
 
         {/* Project grid */}
         {projects.length === 0 ? (
-          <div className="flex flex-col items-center gap-6 py-16 bg-white-eske
-            rounded-xl border border-dashed border-gray-eske-30 text-center">
+          <div className="flex flex-col items-center gap-6 py-16 bg-white-eske dark:bg-[#18324A]
+            rounded-xl border border-dashed border-gray-eske-30 dark:border-white/10 text-center">
             <span className="text-5xl" aria-hidden="true">
               🛡️
             </span>
             <div>
-              <p className="font-semibold text-black-eske">
+              <p className="font-semibold text-black-eske dark:text-[#EAF2F8]">
                 No tienes proyectos todavía
               </p>
-              <p className="text-sm text-gray-eske-60 mt-1 max-w-sm">
+              <p className="text-sm text-gray-eske-60 dark:text-[#9AAEBE] mt-1 max-w-sm">
                 Crea tu primer proyecto para comenzar un análisis PEST-L con IA.
               </p>
             </div>

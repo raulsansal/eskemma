@@ -62,10 +62,10 @@ export default function RedactorForm({ onSubmit, isGenerating, disabled = false 
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white-eske rounded-lg shadow-md p-6 max-sm:p-4 space-y-5"
+      className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md p-6 max-sm:p-4 space-y-5"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-eske-20 pb-4">
+      <div className="flex items-center justify-between border-b border-gray-eske-20 dark:border-white/10 pb-4">
         <h2 className="text-xl max-sm:text-lg font-bold text-bluegreen-eske flex items-center gap-2">
           <svg
             className="w-6 h-6"
@@ -107,8 +107,9 @@ export default function RedactorForm({ onSubmit, isGenerating, disabled = false 
             text-sm
             transition-colors
             focus:outline-none focus:ring-2 focus:ring-bluegreen-eske focus:border-transparent
-            disabled:bg-gray-eske-10 disabled:cursor-not-allowed
-            ${errors.tema ? "border-red-500" : "border-gray-eske-30"}
+            disabled:bg-gray-eske-10 dark:disabled:bg-[#21425E] disabled:cursor-not-allowed
+            bg-white dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294]
+            ${errors.tema ? "border-red-500" : "border-gray-eske-30 dark:border-white/10"}
           `}
           aria-describedby="tema-error tema-counter"
           aria-invalid={!!errors.tema}
@@ -293,9 +294,9 @@ export default function RedactorForm({ onSubmit, isGenerating, disabled = false 
             rounded-lg
             font-semibold
             text-sm
-            bg-gray-eske-10
-            text-gray-eske-80
-            hover:bg-gray-eske-20
+            bg-gray-eske-10 dark:bg-[#21425E]
+            text-gray-eske-80 dark:text-[#C7D6E0]
+            hover:bg-gray-eske-20 dark:hover:bg-[#2C5273]
             disabled:opacity-50
             disabled:cursor-not-allowed
             transition-colors

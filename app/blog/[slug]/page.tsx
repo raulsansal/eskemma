@@ -93,14 +93,14 @@ export default async function PostPage({
   if (!postData) {
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center bg-gray-eske-10"
+        className="min-h-screen flex flex-col items-center justify-center bg-gray-eske-10 dark:bg-[#0B1620]"
         role="alert"
         aria-live="assertive"
       >
         <h1 className="text-3xl font-bold text-red-500 mb-4">
           Post no encontrado
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-gray-600 dark:text-[#9AAEBE]">
           No se pudo encontrar el post con slug: {slug}
         </p>
         <Link
@@ -191,7 +191,7 @@ export default async function PostPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <main className="min-h-screen bg-gray-eske-10 py-8 px-4 sm:px-6 lg:px-8">
+      <main className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] py-8 px-4 sm:px-6 lg:px-8">
         <ViewCounter
           postId={validatedPostData.id}
           slug={validatedPostData.slug}
@@ -204,7 +204,7 @@ export default async function PostPage({
               <BackToButton />
 
               <article
-                className="bg-white-eske rounded-lg shadow-md p-6 sm:p-8"
+                className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md p-6 sm:p-8"
                 aria-labelledby="post-title"
               >
                 {/* Categoría */}
@@ -229,7 +229,7 @@ export default async function PostPage({
 
                 {/* Fecha, Autor y Metadata */}
                 <div
-                  className="mb-6 flex flex-wrap items-center gap-4 text-sm text-gray-600 pb-6 border-b border-gray-eske-20"
+                  className="mb-6 flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-[#9AAEBE] pb-6 border-b border-gray-eske-20 dark:border-white/10"
                   role="list"
                   aria-label="Información del artículo"
                 >
@@ -332,12 +332,12 @@ export default async function PostPage({
                     >
                       <h3
                         id="tags-heading"
-                        className="text-sm font-semibold text-gray-700 mb-4"
+                        className="text-sm font-semibold text-gray-700 dark:text-[#9AAEBE] mb-4"
                       >
                         Etiquetas:
                       </h3>
                       <div
-                        className="flex flex-wrap items-center gap-2 text-sm text-gray-eske-90"
+                        className="flex flex-wrap items-center gap-2 text-sm text-gray-eske-90 dark:text-[#C7D6E0]"
                         role="list"
                       >
                         {validatedPostData.tags.map((tag, index) => (
@@ -412,7 +412,7 @@ export default async function PostPage({
                 aria-label="Navegación entre artículos"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-semibold text-gray-800">
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-[#EAF2F8]">
                     Continuar leyendo
                   </h2>
 

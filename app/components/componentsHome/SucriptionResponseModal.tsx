@@ -37,12 +37,12 @@ export default function SuscriptionResponseModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="subscription-response-title"
-        className="bg-white-eske rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[80vh] max-sm:max-h-[85vh]"
+        className="bg-white-eske dark:bg-[#18324A] rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 w-full max-w-md p-6 max-sm:p-4 relative overflow-y-auto max-h-[80vh] max-sm:max-h-[85vh]"
         style={{ marginTop: "20px" }}
       >
         {/* Botón de Cierre */}
         <button
-          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
+          className="absolute top-4 max-sm:top-3 right-4 max-sm:right-3 text-gray-700 dark:text-[#9AAEBE] hover:text-red-eske transition-colors duration-300 focus-ring-primary rounded"
           onClick={onClose}
           aria-label="Cerrar confirmación de suscripción"
         >
@@ -80,22 +80,22 @@ export default function SuscriptionResponseModal({
           </p>
 
           {/* Mensaje de felicitaciones */}
-          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske dark:text-[#C7D6E0]">
             ¡Felicidades por suscribirte a Eskemma!
           </p>
 
           {/* Mensaje destacado */}
-          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske dark:text-[#EAF2F8]">
             Ahora cuentas con el respaldo de profesionales para tu proyecto político.
           </p>
 
           {/* Información sobre el correo */}
-          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske dark:text-[#C7D6E0]">
             Hemos enviado un email a tu cuenta de correo con la información de tu compra y las indicaciones para la facturación.
           </p>
 
           {/* Contacto */}
-          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske dark:text-[#C7D6E0]">
             Para cualquier información sobre tu compra contacta con nosotros al correo:{" "}
             <a 
               href="mailto:clientes@eskemma.com"
@@ -106,7 +106,7 @@ export default function SuscriptionResponseModal({
           </p>
 
           {/* Invitación a explorar recursos */}
-          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-normal text-black-eske dark:text-[#C7D6E0]">
             Te invitamos a iniciar explorando los materiales disponibles para tu proyecto en la{" "}
             <Link
               href="/recursos"
@@ -121,7 +121,7 @@ export default function SuscriptionResponseModal({
           </p>
 
           {/* Agradecimiento final */}
-          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske">
+          <p className="text-[16px] max-sm:text-sm font-bold text-black-eske dark:text-[#EAF2F8]">
             Agradecemos tu confianza.
           </p>
 
@@ -136,7 +136,7 @@ export default function SuscriptionResponseModal({
           <hr className="border-gray-300 my-4 max-sm:my-3" />
 
           {/* Links adicionales */}
-          <p className="text-[14px] max-sm:text-xs text-black-eske">
+          <p className="text-[14px] max-sm:text-xs text-black-eske dark:text-[#C7D6E0]">
             Consultar{" "}
             <Link
               href="/terminos-y-condiciones-uso"

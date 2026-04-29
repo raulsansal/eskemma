@@ -70,7 +70,7 @@ export default function LnePanel() {
       className="w-full"
     >
       {/* Sub-tabs Histórico / Semanal */}
-      <div className="border-b border-gray-eske-20 bg-gray-eske-10 px-4 sm:px-6 md:px-8">
+      <div className="border-b border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#112230] px-4 sm:px-6 md:px-8">
         <div className="flex items-center gap-0 max-w-7xl mx-auto">
           {(["historico", "semanal"] as LneSubView[]).map((sv) => {
             const label = sv === "historico" ? "Vista Histórica" : "Vista Semanal";
@@ -85,8 +85,8 @@ export default function LnePanel() {
                   "px-5 py-2.5 text-sm font-medium transition-colors border-b-2",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske",
                   isActive
-                    ? "border-orange-eske text-orange-eske bg-white-eske"
-                    : "border-transparent text-black-eske-60 hover:text-black-eske hover:bg-gray-eske-20",
+                    ? "border-orange-eske text-orange-eske bg-white-eske dark:bg-[#18324A]"
+                    : "border-transparent text-black-eske-60 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#C7D6E0] hover:bg-gray-eske-20 dark:hover:bg-[#112230]",
                 ].join(" ")}
                 aria-selected={isActive}
                 role="tab"
@@ -99,7 +99,7 @@ export default function LnePanel() {
           {hoveredView && (
             <div
               role="tooltip"
-              className="hidden sm:flex items-center ml-4 whitespace-nowrap rounded px-2.5 py-1 text-xs text-black-eske shadow-sm border border-gray-eske-20 pointer-events-none"
+              className="hidden sm:flex items-center ml-4 whitespace-nowrap rounded px-2.5 py-1 text-xs text-black-eske dark:text-[#C7D6E0] shadow-sm border border-gray-eske-20 dark:border-white/10 pointer-events-none"
               style={{ backgroundColor: TOOLTIP_CONFIG[hoveredView].bg }}
             >
               {TOOLTIP_CONFIG[hoveredView].text}
@@ -112,7 +112,7 @@ export default function LnePanel() {
       {tabHintVisible && (
         <div
           className={[
-            "sm:hidden px-4 py-2 text-xs text-black-eske flex items-center justify-between gap-2",
+            "sm:hidden px-4 py-2 text-xs text-black-eske dark:text-[#C7D6E0] flex items-center justify-between gap-2",
             "transition-opacity duration-500",
             tabHintFading ? "opacity-0" : "opacity-100",
           ].join(" ")}
@@ -125,7 +125,7 @@ export default function LnePanel() {
             type="button"
             onClick={dismissTabHint}
             aria-label="Cerrar descripción"
-            className="shrink-0 text-black-eske-40 hover:text-black-eske focus-visible:outline-none rounded"
+            className="shrink-0 text-black-eske-40 dark:text-[#6D8294] hover:text-black-eske dark:hover:text-[#C7D6E0] focus-visible:outline-none rounded"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

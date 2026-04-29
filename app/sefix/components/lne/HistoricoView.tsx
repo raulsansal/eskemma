@@ -19,7 +19,7 @@ import { useFocusTrap } from "@/app/hooks/useFocusTrap";
 function ChartSkeleton({ height = 300 }: { height?: number }) {
   return (
     <div
-      className="w-full rounded-lg bg-gray-eske-10 animate-pulse"
+      className="w-full rounded-lg bg-gray-eske-10 dark:bg-[#21425E] animate-pulse"
       style={{ height }}
       aria-hidden="true"
     />
@@ -29,9 +29,9 @@ function ChartSkeleton({ height = 300 }: { height?: number }) {
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-3 text-center">
-      <h3 className="text-base font-semibold text-black-eske">{title}</h3>
+      <h3 className="text-base font-semibold text-black-eske dark:text-[#EAF2F8]">{title}</h3>
       {subtitle && (
-        <p className="text-xs text-black-eske-60 mt-0.5">{subtitle}</p>
+        <p className="text-xs text-black-eske-60 dark:text-[#6D8294] mt-0.5">{subtitle}</p>
       )}
     </div>
   );
@@ -40,9 +40,9 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }
 function LoadingState() {
   return (
     <div className="flex flex-col items-center py-24" role="status" aria-live="polite">
-      <div className="w-10 h-10 border-4 border-gray-eske-20 border-t-blue-eske rounded-full animate-spin mb-4" />
-      <p className="text-sm font-medium text-black-eske-10 mb-1">Cargando datos de la consulta</p>
-      <p className="text-xs text-black-eske-60 text-center max-w-xs">Por favor, espera.</p>
+      <div className="w-10 h-10 border-4 border-gray-eske-20 dark:border-white/20 border-t-blue-eske rounded-full animate-spin mb-4" />
+      <p className="text-sm font-medium text-black-eske-10 dark:text-[#C7D6E0] mb-1">Cargando datos de la consulta</p>
+      <p className="text-xs text-black-eske-60 dark:text-[#6D8294] text-center max-w-xs">Por favor, espera.</p>
     </div>
   );
 }
@@ -71,10 +71,10 @@ function ModalMetodologia({ onClose }: { onClose: () => void }) {
       {/* Panel */}
       <div
         ref={modalRef as React.RefObject<HTMLDivElement>}
-        className="relative w-full max-w-md bg-white-eske rounded-xl shadow-xl overflow-hidden"
+        className="relative w-full max-w-md bg-white-eske dark:bg-[#18324A] rounded-xl shadow-xl overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-eske-20">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-eske-20 dark:border-white/10">
           <h2
             id="modal-metodologia-title"
             className="text-base font-semibold text-bluegreen-eske flex items-center gap-2"
@@ -88,7 +88,7 @@ function ModalMetodologia({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={onClose}
             aria-label="Cerrar modal de metodología"
-            className="text-black-eske-60 hover:text-black-eske transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+            className="text-black-eske-60 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8] transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -97,7 +97,7 @@ function ModalMetodologia({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Body */}
-        <div className="px-5 py-4 space-y-4 text-sm text-black-eske leading-relaxed max-h-[70vh] overflow-y-auto">
+        <div className="px-5 py-4 space-y-4 text-sm text-black-eske dark:text-[#C7D6E0] leading-relaxed max-h-[70vh] overflow-y-auto">
           <p>
             La proyección utiliza un{" "}
             <strong>modelo de tasa de crecimiento mensual compuesto</strong>{" "}
@@ -116,7 +116,7 @@ function ModalMetodologia({ onClose }: { onClose: () => void }) {
 
           <div>
             <p className="font-semibold text-bluegreen-eske mb-2">Fórmula:</p>
-            <div className="bg-gray-eske-10 rounded-lg p-3 border-l-4 border-bluegreen-eske font-mono text-xs space-y-1">
+            <div className="bg-gray-eske-10 dark:bg-[#112230] rounded-lg p-3 border-l-4 border-bluegreen-eske font-mono text-xs space-y-1">
               <p>Tasa = (Valor_final / Valor_inicial)^(1/(n−1)) − 1</p>
               <p>Proyección(i) = Último_valor × (1 + Tasa)^i</p>
             </div>
@@ -137,13 +137,13 @@ function ModalMetodologia({ onClose }: { onClose: () => void }) {
             </ul>
           </div>
 
-          <p className="text-xs text-black-eske-60 text-center border-t border-gray-eske-20 pt-3">
+          <p className="text-xs text-black-eske-60 dark:text-[#6D8294] text-center border-t border-gray-eske-20 dark:border-white/10 pt-3">
             Esta es una herramienta de referencia. Los datos oficiales son los publicados por el INE.
           </p>
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-eske-20 flex justify-center">
+        <div className="px-5 py-3 border-t border-gray-eske-20 dark:border-white/10 flex justify-center">
           <button
             type="button"
             onClick={onClose}
@@ -280,7 +280,7 @@ export default function HistoricoView() {
         )}
         <div className={[
           "fixed left-0 top-0 bottom-14 w-[min(85vw,320px)]",
-          "bg-white-eske overflow-y-auto z-40 shadow-xl",
+          "bg-white-eske dark:bg-[#18324A] overflow-y-auto z-40 shadow-xl",
           "transition-transform duration-300 ease-in-out",
           leftOpen ? "translate-x-0" : "-translate-x-full",
           "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
@@ -307,8 +307,8 @@ export default function HistoricoView() {
           </div>
         </div>
         <div className="flex flex-col items-center py-20 text-center" role="status">
-          <p className="text-sm font-medium text-black-eske-10 mb-1">Sin datos para este filtro</p>
-          <p className="text-xs text-black-eske-60 max-w-sm">
+          <p className="text-sm font-medium text-black-eske-10 dark:text-[#C7D6E0] mb-1">Sin datos para este filtro</p>
+          <p className="text-xs text-black-eske-60 dark:text-[#6D8294] max-w-sm">
             No se encontraron registros históricos para{" "}
             <strong>{geoInfo.municipio !== "Todos" ? geoInfo.municipio : geoInfo.entidad}</strong>.
             Intenta con un filtro menos restrictivo.
@@ -327,14 +327,14 @@ export default function HistoricoView() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center" role="alert">
-        <div className="w-12 h-12 mb-3 rounded-full bg-red-eske-10 flex items-center justify-center" aria-hidden="true">
+        <div className="w-12 h-12 mb-3 rounded-full bg-red-eske-10 dark:bg-red-900/20 flex items-center justify-center" aria-hidden="true">
           <svg className="w-6 h-6 text-red-eske" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
-        <p className="text-sm text-black-eske-10 font-medium">Error al cargar los datos históricos</p>
-        <p className="text-xs text-black-eske-60 mt-1">{error}</p>
+        <p className="text-sm text-black-eske-10 dark:text-[#C7D6E0] font-medium">Error al cargar los datos históricos</p>
+        <p className="text-xs text-black-eske-60 dark:text-[#6D8294] mt-1">{error}</p>
       </div>
     );
   }
@@ -354,7 +354,7 @@ export default function HistoricoView() {
       {/* ── Drawer izquierdo (filtros) ── */}
       <div className={[
         "fixed left-0 top-0 bottom-14 w-[min(85vw,320px)]",
-        "bg-white-eske overflow-y-auto z-40 shadow-xl",
+        "bg-white-eske dark:bg-[#18324A] overflow-y-auto z-40 shadow-xl",
         "transition-transform duration-300 ease-in-out",
         leftOpen ? "translate-x-0" : "-translate-x-full",
         "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
@@ -489,7 +489,7 @@ export default function HistoricoView() {
             {/* Drawer derecho / col2 desktop */}
             <div className={[
               "fixed right-0 top-0 bottom-14 w-[min(85vw,320px)]",
-              "bg-white-eske overflow-y-auto z-40 shadow-xl",
+              "bg-white-eske dark:bg-[#18324A] overflow-y-auto z-40 shadow-xl",
               "transition-transform duration-300 ease-in-out",
               rightOpen ? "translate-x-0" : "translate-x-full",
               "sm:static sm:z-auto sm:w-auto sm:overflow-visible",

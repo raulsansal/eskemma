@@ -497,11 +497,11 @@ export default function ExploracionPage() {
     <div className="h-full flex flex-col overflow-hidden">
 
       {/* ===== HEADER ===== */}
-      <div className="shrink-0 px-3 sm:px-6 py-2 sm:py-3 border-b border-gray-eske-20 bg-white-eske">
+      <div className="shrink-0 px-3 sm:px-6 py-2 sm:py-3 border-b border-gray-eske-20 dark:border-white/10 bg-white-eske dark:bg-[#18324A]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-xs font-bold uppercase tracking-widest text-bluegreen-eske shrink-0">F2</span>
-            <h1 className="text-sm sm:text-base font-bold text-black-eske truncate">Exploración</h1>
+            <h1 className="text-sm sm:text-base font-bold text-black-eske dark:text-[#EAF2F8] truncate">Exploración</h1>
             {mode === "completed" && (
               <span className="shrink-0 text-xs font-medium px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full">✓ Lista</span>
             )}
@@ -510,7 +510,7 @@ export default function ExploracionPage() {
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0 ml-2">
-            <span className="text-xs text-gray-eske-40 hidden sm:block">
+            <span className="text-xs text-gray-eske-40 dark:text-[#6D8294] hidden sm:block">
               {isSaving ? "Guardando..." : lastSaved ? `✓ ${lastSaved.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}` : ""}
             </span>
             <DownloadButton form={form} reportText={reportText} chatMessages={chatMessages} />
@@ -547,7 +547,7 @@ export default function ExploracionPage() {
                 : "⚡ Importar Centinela"}
             </button>
             <button onClick={handleStartEdit} disabled={!formComplete}
-              className="px-2.5 py-1.5 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-xs font-semibold hover:bg-gray-eske-10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+              className="px-2.5 py-1.5 border border-gray-eske-20 dark:border-white/10 text-gray-eske-60 dark:text-[#C7D6E0] rounded-lg text-xs font-semibold hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
               Editar análisis
             </button>
             <button onClick={() => setShowReview(true)} disabled={!formComplete}
@@ -558,7 +558,7 @@ export default function ExploracionPage() {
 
           {mode === "completed" && (<>
             <button onClick={handleStartEdit}
-              className="px-2.5 py-1.5 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-xs font-semibold hover:bg-gray-eske-10 transition-colors">
+              className="px-2.5 py-1.5 border border-gray-eske-20 dark:border-white/10 text-gray-eske-60 dark:text-[#C7D6E0] rounded-lg text-xs font-semibold hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors">
               Editar análisis
             </button>
             <button onClick={() => setShowReview(true)}
@@ -569,7 +569,7 @@ export default function ExploracionPage() {
 
           {mode === "editing" && (<>
             <button onClick={handleCancelEdit}
-              className="px-2.5 py-1.5 border border-gray-eske-20 text-gray-eske-60 rounded-lg text-xs font-semibold hover:bg-gray-eske-10 transition-colors">
+              className="px-2.5 py-1.5 border border-gray-eske-20 dark:border-white/10 text-gray-eske-60 dark:text-[#C7D6E0] rounded-lg text-xs font-semibold hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors">
               Cancelar
             </button>
             <button onClick={handleSaveEdit} disabled={isSaving}
@@ -585,14 +585,14 @@ export default function ExploracionPage() {
       </div>
 
       {/* ===== TABS MOBILE ===== */}
-      <div className="lg:hidden shrink-0 flex border-b border-gray-eske-20 bg-white-eske">
+      <div className="lg:hidden shrink-0 flex border-b border-gray-eske-20 dark:border-white/10 bg-white-eske dark:bg-[#18324A]">
         {[
           { id: "chat" as const, label: showReport || mode === "completed" ? "📋 Resultado" : "💬 Chat" },
           { id: "form" as const, label: "📊 Análisis PEST-L" },
         ].map(({ id, label }) => (
           <button key={id} onClick={() => setMobileTab(id)}
             className={`flex-1 py-2 text-xs font-semibold transition-colors border-b-2 ${
-              mobileTab === id ? "border-bluegreen-eske text-bluegreen-eske" : "border-transparent text-gray-eske-50"
+              mobileTab === id ? "border-bluegreen-eske text-bluegreen-eske" : "border-transparent text-gray-eske-50 dark:text-[#9AAEBE]"
             }`}>
             {label}
           </button>
@@ -638,7 +638,7 @@ export default function ExploracionPage() {
         </div>
 
         {/* Columna derecha: formulario PEST-L */}
-        <div className={`flex-col w-full lg:w-80 xl:w-96 shrink-0 border-t lg:border-t-0 lg:border-l border-gray-eske-20 overflow-hidden bg-gray-eske-10/50 ${mobileTab === "form" ? "flex" : "hidden lg:flex"}`}>
+        <div className={`flex-col w-full lg:w-80 xl:w-96 shrink-0 border-t lg:border-t-0 lg:border-l border-gray-eske-20 dark:border-white/10 overflow-hidden bg-gray-eske-10/50 dark:bg-[#112230] ${mobileTab === "form" ? "flex" : "hidden lg:flex"}`}>
           <ExplorationFormPanel
             form={activeForm}
             onChange={setActiveForm}
@@ -676,12 +676,12 @@ export default function ExploracionPage() {
       {centinelaProjects && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center
           justify-center p-4">
-          <div className="bg-white-eske rounded-xl shadow-xl p-6 max-w-md w-full
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-xl p-6 max-w-md w-full
             flex flex-col gap-4">
             <h3 className="font-semibold text-bluegreen-eske-60">
               Selecciona el proyecto de Centinela
             </h3>
-            <p className="text-sm text-gray-eske-60">
+            <p className="text-sm text-gray-eske-60 dark:text-[#C7D6E0]">
               Elige el análisis PEST-L que deseas importar:
             </p>
             <ul className="flex flex-col gap-2 max-h-60 overflow-y-auto">
@@ -699,13 +699,13 @@ export default function ExploracionPage() {
                       }
                     }}
                     className="w-full text-left px-4 py-3 rounded-lg border
-                      border-gray-eske-20 hover:border-bluegreen-eske
-                      hover:bg-bluegreen-eske/5 transition-colors"
+                      border-gray-eske-20 dark:border-white/10 hover:border-bluegreen-eske
+                      hover:bg-bluegreen-eske/5 dark:hover:bg-white/5 transition-colors"
                   >
-                    <p className="font-semibold text-black-eske text-sm">
+                    <p className="font-semibold text-black-eske dark:text-[#EAF2F8] text-sm">
                       {p.nombre}
                     </p>
-                    <p className="text-xs text-gray-eske-60 mt-0.5">
+                    <p className="text-xs text-gray-eske-60 dark:text-[#9AAEBE] mt-0.5">
                       {p.territorio?.nombre ?? ""} · {p.tipo}
                     </p>
                   </button>
@@ -716,8 +716,8 @@ export default function ExploracionPage() {
               <button
                 type="button"
                 onClick={() => setCentinelaProjects(null)}
-                className="px-4 py-2 text-sm border border-gray-eske-20 rounded-lg
-                  hover:bg-gray-eske-10 transition-colors text-gray-eske-60"
+                className="px-4 py-2 text-sm border border-gray-eske-20 dark:border-white/10 rounded-lg
+                  hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors text-gray-eske-60 dark:text-[#C7D6E0]"
               >
                 Cancelar
               </button>
@@ -730,12 +730,12 @@ export default function ExploracionPage() {
       {centinelaAnalysisPending && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center
           justify-center p-4">
-          <div className="bg-white-eske rounded-xl shadow-xl p-6 max-w-md w-full
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-xl p-6 max-w-md w-full
             flex flex-col gap-4">
             <h3 className="font-semibold text-bluegreen-eske-60">
               Importar análisis de Centinela
             </h3>
-            <p className="text-sm text-gray-eske-60">
+            <p className="text-sm text-gray-eske-60 dark:text-[#C7D6E0]">
               Se importará el análisis PEST-L de{" "}
               <strong>{centinelaAnalysisPending.projectName}</strong> (v
               {centinelaAnalysisPending.version},{" "}
@@ -748,8 +748,8 @@ export default function ExploracionPage() {
               <button
                 type="button"
                 onClick={() => setCentinelaAnalysisPending(null)}
-                className="px-4 py-2 text-sm border border-gray-eske-20 rounded-lg
-                  hover:bg-gray-eske-10 transition-colors text-gray-eske-60"
+                className="px-4 py-2 text-sm border border-gray-eske-20 dark:border-white/10 rounded-lg
+                  hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors text-gray-eske-60 dark:text-[#C7D6E0]"
               >
                 Cancelar
               </button>
@@ -786,21 +786,22 @@ function ExplorationFormPanel({
   sefixData: SefixData | null;
 }) {
   const fieldClass =
-    "w-full px-3 py-2 text-sm font-normal rounded-lg border border-gray-eske-20 " +
+    "w-full px-3 py-2 text-sm font-normal rounded-lg border border-gray-eske-20 dark:border-white/10 " +
     "focus:outline-none focus:ring-2 focus:ring-bluegreen-eske/30 focus:border-bluegreen-eske " +
-    "text-black-eske bg-white-eske disabled:bg-gray-eske-10 disabled:text-black-eske-10 " +
-    "placeholder:text-gray-eske-40 resize-none";
+    "text-black-eske dark:text-[#EAF2F8] bg-white-eske dark:bg-[#112230] " +
+    "disabled:bg-gray-eske-10 dark:disabled:bg-[#21425E] disabled:text-black-eske-10 dark:disabled:text-[#9AAEBE] " +
+    "placeholder:text-gray-eske-40 dark:placeholder:text-[#6D8294] resize-none";
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 px-3 py-2 border-b border-gray-eske-20 bg-white-eske flex items-center justify-between">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-gray-eske-50">Análisis PEST-L</h2>
-        <span className="text-xs text-gray-eske-40">{readOnly ? "Solo lectura" : "Auto-rellena via chat"}</span>
+      <div className="shrink-0 px-3 py-2 border-b border-gray-eske-20 dark:border-white/10 bg-white-eske dark:bg-[#18324A] flex items-center justify-between">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-gray-eske-50 dark:text-[#9AAEBE]">Análisis PEST-L</h2>
+        <span className="text-xs text-gray-eske-40 dark:text-[#6D8294]">{readOnly ? "Solo lectura" : "Auto-rellena via chat"}</span>
       </div>
 
       {/* Tabs de secciones */}
-      <div className="shrink-0 flex overflow-x-auto border-b border-gray-eske-20 bg-white-eske">
+      <div className="shrink-0 flex overflow-x-auto border-b border-gray-eske-20 dark:border-white/10 bg-white-eske dark:bg-[#18324A]">
         {PESTL_SECTIONS.map((sec) => {
           const filled = isSectionFilled(form, sec.id);
           return (
@@ -808,7 +809,7 @@ function ExplorationFormPanel({
               className={`shrink-0 px-3 py-2 text-xs font-semibold transition-colors border-b-2 flex items-center gap-1 ${
                 activeSection === sec.id
                   ? "border-bluegreen-eske text-bluegreen-eske"
-                  : "border-transparent text-gray-eske-50 hover:text-black-eske"
+                  : "border-transparent text-gray-eske-50 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8]"
               }`}>
               <span className="hidden sm:inline">{sec.label}</span>
               <span className="sm:hidden">{sec.short}</span>
@@ -969,9 +970,9 @@ function SemaforoSection({ form, onChange, readOnly, fieldClass }: {
   readOnly: boolean; fieldClass: string;
 }) {
   const NIVEL_COLORS: Record<VetoActor["nivel"], string> = {
-    alto:  "bg-red-50 text-red-700 border-red-200",
-    medio: "bg-amber-50 text-amber-700 border-amber-200",
-    bajo:  "bg-gray-eske-10 text-gray-eske-60 border-gray-eske-20",
+    alto:  "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+    medio: "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+    bajo:  "bg-gray-eske-10 dark:bg-[#21425E] text-gray-eske-60 dark:text-[#9AAEBE] border-gray-eske-20 dark:border-white/10",
   };
 
   const addActor = () => {
@@ -996,11 +997,11 @@ function SemaforoSection({ form, onChange, readOnly, fieldClass }: {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-semibold text-gray-eske-60">Actores con poder de veto</p>
-      <p className="text-xs text-gray-eske-40">Lista los actores que pueden bloquear el proyecto con su nivel de riesgo.</p>
+      <p className="text-xs font-semibold text-gray-eske-60 dark:text-[#9AAEBE]">Actores con poder de veto</p>
+      <p className="text-xs text-gray-eske-40 dark:text-[#6D8294]">Lista los actores que pueden bloquear el proyecto con su nivel de riesgo.</p>
 
       {form.semaforo.actores.length === 0 && (
-        <p className="text-xs text-gray-eske-40 italic">Sin actores registrados. Usa el chat o añade manualmente.</p>
+        <p className="text-xs text-gray-eske-40 dark:text-[#6D8294] italic">Sin actores registrados. Usa el chat o añade manualmente.</p>
       )}
 
       <div className="space-y-2">
@@ -1103,10 +1104,10 @@ function SectionField({ label, hint, required, children }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-gray-eske-60 block mb-1">
+      <label className="text-xs font-semibold text-gray-eske-60 dark:text-[#9AAEBE] block mb-1">
         {label}{required && <span className="ml-1 text-red-500">*</span>}
       </label>
-      {hint && <p className="text-xs text-gray-eske-40 mb-1">{hint}</p>}
+      {hint && <p className="text-xs text-gray-eske-40 dark:text-[#6D8294] mb-1">{hint}</p>}
       {children}
     </div>
   );
@@ -1146,29 +1147,29 @@ function BackPropagationModal({ affectedPhases, onDismiss }: {
   };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black-eske/50">
-      <div className="bg-white-eske rounded-2xl shadow-2xl w-full max-w-md p-6">
+      <div className="bg-white-eske dark:bg-[#18324A] rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div className="flex items-start gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-            <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
             </svg>
           </div>
           <div>
-            <h2 className="font-bold text-black-eske">Cambios con impacto en fases posteriores</h2>
-            <p className="text-sm text-black-eske-10 mt-1">Los cambios en la Exploración pueden afectar las decisiones tomadas en las siguientes fases:</p>
+            <h2 className="font-bold text-black-eske dark:text-[#EAF2F8]">Cambios con impacto en fases posteriores</h2>
+            <p className="text-sm text-black-eske-10 dark:text-[#C7D6E0] mt-1">Los cambios en la Exploración pueden afectar las decisiones tomadas en las siguientes fases:</p>
           </div>
         </div>
         <ul className="space-y-2 mb-5">
           {affectedPhases.map((id) => (
-            <li key={id} className="flex items-center gap-2 text-sm text-black-eske-10 bg-orange-50 px-3 py-2 rounded-lg">
-              <svg className="w-4 h-4 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li key={id} className="flex items-center gap-2 text-sm text-black-eske-10 dark:text-[#C7D6E0] bg-orange-50 dark:bg-orange-900/20 px-3 py-2 rounded-lg">
+              <svg className="w-4 h-4 text-orange-500 dark:text-orange-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
               {NAMES[id]}
             </li>
           ))}
         </ul>
-        <p className="text-xs text-gray-eske-50 mb-5 leading-relaxed">
+        <p className="text-xs text-gray-eske-50 dark:text-[#9AAEBE] mb-5 leading-relaxed">
           Moddulo ha guardado los cambios. Revisa el trabajo de cada fase afectada para asegurarte de que las decisiones sigan siendo consistentes con el nuevo análisis.
         </p>
         <button onClick={onDismiss}
@@ -1245,26 +1246,26 @@ function DownloadButton({ form, reportText, chatMessages }: {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen((v) => !v)} title="Descargar archivos de esta fase"
-        className="p-1.5 rounded-lg border border-gray-eske-20 text-black-eske-10 hover:border-bluegreen-eske hover:text-bluegreen-eske transition-colors">
+        className="p-1.5 rounded-lg border border-gray-eske-20 dark:border-white/10 text-black-eske-10 dark:text-[#C7D6E0] hover:border-bluegreen-eske hover:text-bluegreen-eske dark:hover:border-bluegreen-eske-40 dark:hover:text-[#6BA4C6] transition-colors">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-60 bg-white-eske border border-gray-eske-20 rounded-xl shadow-lg z-20 overflow-hidden">
-          <div className="px-3 py-2 border-b border-gray-eske-20 bg-gray-eske-10/50">
-            <p className="text-xs font-bold text-black-eske uppercase tracking-widest">Descargar</p>
+        <div className="absolute right-0 top-full mt-1.5 w-60 bg-white-eske dark:bg-[#18324A] border border-gray-eske-20 dark:border-white/10 rounded-xl shadow-lg z-20 overflow-hidden">
+          <div className="px-3 py-2 border-b border-gray-eske-20 dark:border-white/10 bg-gray-eske-10/50 dark:bg-[#112230]">
+            <p className="text-xs font-bold text-black-eske dark:text-[#9AAEBE] uppercase tracking-widest">Descargar</p>
           </div>
           {options.map(({ label, available, action }) => (
             <button key={label} onClick={() => available && action()} disabled={!available}
               className={`w-full text-left px-3 py-2.5 text-xs font-medium flex items-center gap-2 transition-colors ${
-                available ? "text-black-eske hover:bg-bluegreen-eske/5 hover:text-bluegreen-eske" : "text-gray-eske-40 cursor-not-allowed"
+                available ? "text-black-eske dark:text-[#C7D6E0] hover:bg-bluegreen-eske/5 dark:hover:bg-white/5 hover:text-bluegreen-eske dark:hover:text-[#6BA4C6]" : "text-gray-eske-40 dark:text-[#6D8294] cursor-not-allowed"
               }`}>
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               {label}
-              {!available && <span className="ml-auto text-gray-eske-40">(sin datos)</span>}
+              {!available && <span className="ml-auto text-gray-eske-40 dark:text-[#6D8294]">(sin datos)</span>}
             </button>
           ))}
         </div>
@@ -1296,40 +1297,40 @@ function SefixWidget({ data }: { data: SefixData }) {
         <p className="text-xs font-bold uppercase tracking-widest text-bluegreen-eske">
           Datos Sefix — {data.estado}
         </p>
-        <span className="text-xs text-gray-eske-40">INE / DERFE</span>
+        <span className="text-xs text-gray-eske-40 dark:text-[#6D8294]">INE / DERFE</span>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         {padron && (
           <>
-            <div className="bg-white-eske rounded-lg px-2.5 py-2">
-              <p className="text-xs text-gray-eske-50 mb-0.5">Lista Nominal</p>
-              <p className="text-sm font-bold text-black-eske">{fmtN(padron.listaNominal)}</p>
-              <p className="text-xs text-gray-eske-40">al {padron.corte}</p>
+            <div className="bg-white-eske dark:bg-[#21425E] rounded-lg px-2.5 py-2">
+              <p className="text-xs text-gray-eske-50 dark:text-[#9AAEBE] mb-0.5">Lista Nominal</p>
+              <p className="text-sm font-bold text-black-eske dark:text-[#EAF2F8]">{fmtN(padron.listaNominal)}</p>
+              <p className="text-xs text-gray-eske-40 dark:text-[#6D8294]">al {padron.corte}</p>
             </div>
-            <div className="bg-white-eske rounded-lg px-2.5 py-2">
-              <p className="text-xs text-gray-eske-50 mb-0.5">Padrón Electoral</p>
-              <p className="text-sm font-bold text-black-eske">{fmtN(padron.padronElectoral)}</p>
-              <p className="text-xs text-gray-eske-40">
+            <div className="bg-white-eske dark:bg-[#21425E] rounded-lg px-2.5 py-2">
+              <p className="text-xs text-gray-eske-50 dark:text-[#9AAEBE] mb-0.5">Padrón Electoral</p>
+              <p className="text-sm font-bold text-black-eske dark:text-[#EAF2F8]">{fmtN(padron.padronElectoral)}</p>
+              <p className="text-xs text-gray-eske-40 dark:text-[#6D8294]">
                 H: {fmtN(padron.padronHombres)} · M: {fmtN(padron.padronMujeres)}
               </p>
             </div>
           </>
         )}
         {resultados && (
-          <div className="col-span-2 bg-white-eske rounded-lg px-2.5 py-2">
-            <p className="text-xs text-gray-eske-50 mb-1">
+          <div className="col-span-2 bg-white-eske dark:bg-[#21425E] rounded-lg px-2.5 py-2">
+            <p className="text-xs text-gray-eske-50 dark:text-[#9AAEBE] mb-1">
               Última elección — {resultados.cargo} {resultados.anio}
             </p>
             <div className="flex gap-3 flex-wrap">
               {top3.map((p) => (
                 <div key={p.partido} className="text-xs">
-                  <span className="font-bold text-black-eske">{p.partido}</span>
-                  <span className="ml-1 text-gray-eske-50">{p.porcentaje}%</span>
+                  <span className="font-bold text-black-eske dark:text-[#EAF2F8]">{p.partido}</span>
+                  <span className="ml-1 text-gray-eske-50 dark:text-[#9AAEBE]">{p.porcentaje}%</span>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-gray-eske-40 mt-1">
+            <p className="text-xs text-gray-eske-40 dark:text-[#6D8294] mt-1">
               Participación: {resultados.participacion}% · {fmtN(resultados.totalVotos)} votos
             </p>
           </div>

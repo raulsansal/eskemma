@@ -193,11 +193,11 @@ interface ChartCardProps {
 
 function ChartCard({ titulo, scopeLabel, children }: ChartCardProps) {
   return (
-    <div className="bg-white-eske rounded-lg border border-gray-eske-20 px-2 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3">
-      <h3 className="text-sm font-bold text-black-eske text-center leading-snug">{titulo}</h3>
-      {scopeLabel && <p className="text-[11px] text-black-eske-60 text-center mt-0.5">{scopeLabel}</p>}
+    <div className="bg-white-eske dark:bg-[#18324A] rounded-lg border border-gray-eske-20 dark:border-white/10 px-2 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3">
+      <h3 className="text-sm font-bold text-black-eske dark:text-[#C7D6E0] text-center leading-snug">{titulo}</h3>
+      {scopeLabel && <p className="text-[11px] text-black-eske-60 dark:text-[#9AAEBE] text-center mt-0.5">{scopeLabel}</p>}
       <div className="mt-3">{children}</div>
-      <p className="text-[10px] text-black-eske-60 text-center mt-3 pt-2 border-t border-gray-eske-10">
+      <p className="text-[10px] text-black-eske-60 dark:text-[#9AAEBE] text-center mt-3 pt-2 border-t border-gray-eske-10 dark:border-white/10">
         {FUENTE}
       </p>
     </div>
@@ -292,12 +292,12 @@ function EdadPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
         {/* Drawer derecho / col2 desktop */}
         <div className={[
           "fixed right-0 top-0 bottom-14 w-[min(85vw,320px)]",
-          "bg-white-eske overflow-y-auto z-40 shadow-xl",
+          "bg-white-eske dark:bg-[#112230] overflow-y-auto z-40 shadow-xl",
           "transition-transform duration-300 ease-in-out",
           rightOpen ? "translate-x-0" : "translate-x-full",
           "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
           "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
-          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20",
+          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20 dark:sm:border-white/10",
         ].join(" ")}>
           <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
             <span className="text-sm font-semibold">Análisis Textual</span>
@@ -424,12 +424,12 @@ function SexoPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, scop
         {/* Drawer derecho / col2 desktop */}
         <div className={[
           "fixed right-0 top-0 bottom-14 w-[min(85vw,320px)]",
-          "bg-white-eske overflow-y-auto z-40 shadow-xl",
+          "bg-white-eske dark:bg-[#112230] overflow-y-auto z-40 shadow-xl",
           "transition-transform duration-300 ease-in-out",
           rightOpen ? "translate-x-0" : "translate-x-full",
           "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
           "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
-          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20",
+          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20 dark:sm:border-white/10",
         ].join(" ")}>
           <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
             <span className="text-sm font-semibold">Análisis Textual</span>
@@ -518,12 +518,12 @@ function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, sc
 
           {/* Top-N selector */}
           <div className="flex items-center gap-2">
-            <label htmlFor="topn-select" className="text-xs text-black-eske-60">Mostrar:</label>
+            <label htmlFor="topn-select" className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">Mostrar:</label>
             <select
               id="topn-select"
               value={topN}
               onChange={(e) => setTopN(parseInt(e.target.value))}
-              className="text-xs border border-gray-eske-30 rounded px-2 py-1 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-eske"
+              className="text-xs border border-gray-eske-30 dark:border-white/10 rounded px-2 py-1 bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-eske"
             >
               <option value={5}>Top 5</option>
               <option value={10}>Top 10</option>
@@ -565,12 +565,12 @@ function OrigenPanel({ ambito, entidad, cveDistrito, cveMunicipio, secciones, sc
         {/* Drawer derecho / col2 desktop */}
         <div className={[
           "fixed right-0 top-0 bottom-14 w-[min(85vw,320px)]",
-          "bg-white-eske overflow-y-auto z-40 shadow-xl",
+          "bg-white-eske dark:bg-[#112230] overflow-y-auto z-40 shadow-xl",
           "transition-transform duration-300 ease-in-out",
           rightOpen ? "translate-x-0" : "translate-x-full",
           "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
           "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
-          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20",
+          "sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20 dark:sm:border-white/10",
         ].join(" ")}>
           <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
             <span className="text-sm font-semibold">Análisis Textual</span>
@@ -751,7 +751,7 @@ function SemanalFilterPanel({
             : `${geoState.entidad} / ${secLabel}`;
 
   return (
-    <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20 space-y-3">
+    <div className="p-4 bg-gray-eske-10 dark:bg-[#112230] rounded-lg border border-gray-eske-20 dark:border-white/10 space-y-3">
 
       {/* Fila 1: Ámbito + Indicador geo */}
       <div className="flex flex-wrap items-start sm:items-center gap-3 sm:gap-4">
@@ -770,7 +770,7 @@ function SemanalFilterPanel({
                   onChange={() => setPendingAmbito(a)}
                   className="accent-blue-eske"
                 />
-                <span className="text-sm text-black-eske capitalize">{a}</span>
+                <span className="text-sm text-black-eske dark:text-[#C7D6E0] capitalize">{a}</span>
               </label>
             ))}
           </div>
@@ -782,7 +782,7 @@ function SemanalFilterPanel({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span className="text-xs text-black-eske-80 font-medium">{geoLabel}</span>
+          <span className="text-xs text-black-eske-80 dark:text-[#9AAEBE] font-medium">{geoLabel}</span>
           {geoState.status !== "idle" && (
             <button
               onClick={() => dispatch({ type: "RESET" })}
@@ -800,12 +800,12 @@ function SemanalFilterPanel({
 
         {/* Estado */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="semanal-entidad" className="text-xs text-black-eske-60">Estado</label>
+          <label htmlFor="semanal-entidad" className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">Estado</label>
           <select
             id="semanal-entidad"
             value={entidadNombre ?? ""}
             onChange={(e) => handleEntidadChange(e.target.value)}
-            className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[160px]"
+            className="text-sm border border-gray-eske-30 dark:border-white/10 rounded-md px-2 py-1.5 bg-white-eske dark:bg-[#112230] dark:text-[#EAF2F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[160px]"
           >
             <option value="">Nacional</option>
             {ESTADOS_LIST.map((e) => (
@@ -817,7 +817,7 @@ function SemanalFilterPanel({
         {/* Distrito (solo nacional con entidad) */}
         {pendingAmbito === "nacional" && geoState.status !== "idle" && (
           <div className="flex flex-col gap-1">
-            <label htmlFor="semanal-distrito" className="text-xs text-black-eske-60">
+            <label htmlFor="semanal-distrito" className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">
               Distrito{" "}
               {loadingDistritos && <span className="text-red-eske">(cargando…)</span>}
             </label>
@@ -826,7 +826,7 @@ function SemanalFilterPanel({
               value={cveDistrito ?? ""}
               onChange={(e) => dispatch({ type: "SELECT_DISTRITO", distrito: e.target.value })}
               disabled={loadingDistritos || distritos.length === 0}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[200px]"
+              className="text-sm border border-gray-eske-30 dark:border-white/10 rounded-md px-2 py-1.5 bg-white-eske dark:bg-[#112230] dark:text-[#EAF2F8] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[200px]"
             >
               <option value="">Todos</option>
               {distritos
@@ -841,8 +841,8 @@ function SemanalFilterPanel({
         {/* Badge "Residentes Extranjero" en modo extranjero + entidad */}
         {pendingAmbito === "extranjero" && geoState.status !== "idle" && (
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-black-eske-60">Distrito</span>
-            <div className="text-sm border border-gray-eske-20 rounded-md px-2 py-1.5 bg-gray-eske-10 text-black-eske-60 w-full sm:w-auto sm:min-w-[220px] select-none">
+            <span className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">Distrito</span>
+            <div className="text-sm border border-gray-eske-20 dark:border-white/10 rounded-md px-2 py-1.5 bg-gray-eske-10 dark:bg-[#112230] text-black-eske-60 dark:text-[#9AAEBE] w-full sm:w-auto sm:min-w-[220px] select-none">
               RESIDENTES EXTRANJERO
             </div>
           </div>
@@ -851,7 +851,7 @@ function SemanalFilterPanel({
         {/* Municipio (solo nacional con distrito) */}
         {pendingAmbito === "nacional" && cveDistrito && (
           <div className="flex flex-col gap-1">
-            <label htmlFor="semanal-municipio" className="text-xs text-black-eske-60">
+            <label htmlFor="semanal-municipio" className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">
               Municipio{" "}
               {loadingMunicipios && <span className="text-red-eske">(cargando…)</span>}
             </label>
@@ -860,7 +860,7 @@ function SemanalFilterPanel({
               value={cveMunicipio ?? ""}
               onChange={(e) => dispatch({ type: "SELECT_MUNICIPIO", municipio: e.target.value })}
               disabled={loadingMunicipios || municipios.length === 0}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[180px]"
+              className="text-sm border border-gray-eske-30 dark:border-white/10 rounded-md px-2 py-1.5 bg-white-eske dark:bg-[#112230] dark:text-[#EAF2F8] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske w-full sm:w-auto sm:min-w-[180px]"
             >
               <option value="">Todos</option>
               {municipios.map((m) => (
@@ -873,7 +873,7 @@ function SemanalFilterPanel({
         {/* Sección — tags + popover (solo nacional con municipio) */}
         {pendingAmbito === "nacional" && cveMunicipio && (
           <div ref={seccionContainerRef} className="relative flex flex-col gap-1">
-            <p className="text-xs text-black-eske-60">
+            <p className="text-xs text-black-eske-60 dark:text-[#9AAEBE]">
               Sección{" "}
               {loadingSecciones && <span className="text-red-eske">(cargando…)</span>}
               {seccionesSeleccionadas.length > 0 && (
@@ -886,7 +886,7 @@ function SemanalFilterPanel({
               role="group"
               aria-label="Secciones seleccionadas"
               onClick={() => { setSeccionOpen(true); seccionInputRef.current?.focus(); }}
-              className="border border-gray-eske-30 rounded-md bg-white-eske min-h-[34px] px-2 py-1 flex flex-wrap gap-1 items-center cursor-text w-full sm:w-auto sm:min-w-[180px]"
+              className="border border-gray-eske-30 dark:border-white/10 rounded-md bg-white-eske dark:bg-[#112230] min-h-[34px] px-2 py-1 flex flex-wrap gap-1 items-center cursor-text w-full sm:w-auto sm:min-w-[180px]"
             >
               {seccionesSeleccionadas.map((cve) => (
                 <span key={cve} className="flex items-center gap-0.5 bg-blue-eske text-white-eske text-xs px-1.5 py-0.5 rounded">
@@ -924,7 +924,7 @@ function SemanalFilterPanel({
               <div
                 role="listbox"
                 aria-label="Secciones disponibles"
-                className="absolute top-full left-0 z-50 mt-1 w-full max-w-[calc(100vw-2rem)] sm:max-w-none border border-gray-eske-30 rounded-md bg-white-eske shadow-lg overflow-y-auto max-h-[140px]"
+                className="absolute top-full left-0 z-50 mt-1 w-full max-w-[calc(100vw-2rem)] sm:max-w-none border border-gray-eske-30 dark:border-white/10 rounded-md bg-white-eske dark:bg-[#112230] shadow-lg overflow-y-auto max-h-[140px]"
               >
                 {seccionesSeleccionadas.length > 0 && (
                   <button
@@ -932,13 +932,13 @@ function SemanalFilterPanel({
                     role="option"
                     aria-selected={false}
                     onClick={() => { dispatch({ type: "SELECT_SECCION", seccion: [] }); setSeccionSearch(""); setSeccionOpen(false); }}
-                    className="w-full text-left px-2 py-1 text-xs text-black-eske-60 italic hover:bg-gray-eske-10 border-b border-gray-eske-10"
+                    className="w-full text-left px-2 py-1 text-xs text-black-eske-60 dark:text-[#9AAEBE] italic hover:bg-gray-eske-10 dark:hover:bg-[#21425E] border-b border-gray-eske-10 dark:border-white/10"
                   >
                     Todas (limpiar selección)
                   </button>
                 )}
                 {availableSecciones.length === 0 ? (
-                  <p className="text-xs text-black-eske-40 px-2 py-1 italic">
+                  <p className="text-xs text-black-eske-40 dark:text-[#6D8294] px-2 py-1 italic">
                     {seccionesSeleccionadas.length === 0 ? "Sin secciones" : "Todas seleccionadas"}
                   </p>
                 ) : (
@@ -949,7 +949,7 @@ function SemanalFilterPanel({
                       role="option"
                       aria-selected={false}
                       onClick={() => addSeccion(s.cve)}
-                      className="w-full text-left px-2 py-0.5 text-xs text-black-eske hover:bg-blue-eske/10 hover:text-blue-eske"
+                      className="w-full text-left px-2 py-0.5 text-xs text-black-eske dark:text-[#C7D6E0] hover:bg-blue-eske/10 dark:hover:bg-[#21425E] hover:text-blue-eske"
                     >
                       {s.nombre}
                     </button>
@@ -968,7 +968,7 @@ function SemanalFilterPanel({
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske",
             hasPending
               ? "bg-blue-eske text-white-eske hover:bg-blue-eske-60"
-              : "border border-blue-eske text-blue-eske bg-white-eske hover:bg-blue-eske-10",
+              : "border border-blue-eske text-blue-eske bg-white-eske dark:bg-[#112230] hover:bg-blue-eske-10",
           ].join(" ")}
         >
           Consultar
@@ -977,7 +977,7 @@ function SemanalFilterPanel({
         {/* Aviso Extranjero */}
         {pendingAmbito === "extranjero" && (
           <div
-            className="sm:ml-auto rounded-md px-3 py-2 text-xs text-black-eske sm:self-end"
+            className="sm:ml-auto rounded-md px-3 py-2 text-xs text-black-eske dark:text-[#C7D6E0] sm:self-end dark:bg-[#1C3A52]"
             style={{ backgroundColor: "#bcd1e3" }}
           >
             Los datos de Residentes en el Extranjero sólo están disponibles a nivel nacional y estatal.
@@ -1053,7 +1053,7 @@ export default function SemanalView() {
       {/* ── Drawer izquierdo (filtros) ── */}
       <div className={[
         "fixed left-0 top-0 bottom-14 w-[min(85vw,320px)]",
-        "bg-white-eske overflow-y-auto z-40 shadow-xl",
+        "bg-white-eske dark:bg-[#112230] overflow-y-auto z-40 shadow-xl",
         "transition-transform duration-300 ease-in-out",
         leftOpen ? "translate-x-0" : "-translate-x-full",
         "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
@@ -1090,7 +1090,7 @@ export default function SemanalView() {
               "px-2.5 py-0.5 text-[11px] font-medium rounded-full transition-colors border whitespace-nowrap shrink-0",
               desglose === d.id
                 ? "bg-blue-eske text-white-eske border-blue-eske"
-                : "bg-white-eske text-black-eske-60 border-gray-eske-30 hover:border-blue-eske hover:text-blue-eske",
+                : "bg-white-eske dark:bg-[#18324A] text-black-eske-60 dark:text-[#9AAEBE] border-gray-eske-30 dark:border-white/10 hover:border-blue-eske hover:text-blue-eske",
             ].join(" ")}
           >
             {d.label}

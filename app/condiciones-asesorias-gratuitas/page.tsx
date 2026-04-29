@@ -56,7 +56,7 @@ export default function CondicionesAsesoriasGratuitas() {
   ];
 
   return (
-    <div className="min-h-screen bg-white-eske">
+    <div className="min-h-screen bg-white-eske dark:bg-[#0B1620]">
       {/* Hero Section */}
       <LegalHero
         title="Condiciones de Uso para Asesorías Gratuitas"
@@ -74,7 +74,7 @@ export default function CondicionesAsesoriasGratuitas() {
           {/* Contenido Principal */}
           <div className="lg:col-start-2">
             {/* Introducción */}
-            <div className="mb-8 text-[16px] max-sm:text-[14px] text-black-eske-10 leading-relaxed">
+            <div className="mb-8 text-[16px] max-sm:text-[14px] text-black-eske-10 dark:text-[#C7D6E0] leading-relaxed">
               <p className="mb-4">
                 Bienvenido al servicio de asesorías gratuitas de{" "}
                 <strong>Eskemma</strong>. Estas Condiciones complementan
@@ -88,7 +88,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 y regulan específicamente el acceso y uso de nuestras sesiones
                 de asesoría gratuita.
               </p>
-              <div className="bg-bluegreen-eske-10 p-4 rounded-lg">
+              <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg">
                 <p className="font-semibold mb-2">Importante:</p>
                 <p>
                   Al solicitar o participar en una asesoría gratuita, aceptas
@@ -125,7 +125,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </li>
               </ul>
 
-              <div className="bg-yellow-eske-10 p-4 rounded-lg mt-4">
+              <div className="bg-yellow-eske-10 dark:bg-yellow-900/20 p-4 rounded-lg mt-4">
                 <p className="font-semibold mb-2">Nota importante:</p>
                 <p className="mb-2">Este servicio NO sustituye:</p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
@@ -147,7 +147,7 @@ export default function CondicionesAsesoriasGratuitas() {
               title="2. Elegibilidad y Requisitos"
             >
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.1. Quién Puede Solicitar una Asesoría
                 </h4>
                 <p className="mb-2">Pueden solicitar asesorías gratuitas:</p>
@@ -167,11 +167,11 @@ export default function CondicionesAsesoriasGratuitas() {
                   </li>
                 </ul>
 
-                <div className="bg-red-eske-10 p-4 rounded-lg mt-4">
-                  <p className="font-semibold mb-2 text-black-eske">
+                <div className="bg-red-eske-10 dark:bg-red-900/20 p-4 rounded-lg mt-4">
+                  <p className="font-semibold mb-2 text-black-eske dark:text-[#EAF2F8]">
                     Restricción de edad - Menores de 18 años:
                   </p>
-                  <p className="text-black-eske">
+                  <p className="text-black-eske dark:text-[#C7D6E0]">
                     Si eres menor de 18 años, necesitas el{" "}
                     <strong>
                       consentimiento de un padre, madre o tutor legal
@@ -189,7 +189,7 @@ export default function CondicionesAsesoriasGratuitas() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.2. Límites por Usuario
                 </h4>
                 <p className="mb-2">
@@ -217,7 +217,7 @@ export default function CondicionesAsesoriasGratuitas() {
               </div>
 
               <div className="mt-6 mb-6">
-                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   2.3. Información Requerida
                 </h4>
                 <p className="mb-2">
@@ -256,7 +256,7 @@ export default function CondicionesAsesoriasGratuitas() {
             >
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     Paso 1: Solicitud mediante Formulario
                   </h4>
                   <p className="mb-2">
@@ -273,7 +273,7 @@ export default function CondicionesAsesoriasGratuitas() {
                       Esta página de Condiciones (botón al final del documento)
                     </li>
                   </ul>
-                  <p className="text-[14px] text-black-eske-20">
+                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                     El formulario te solicitará: nombre completo, email,
                     teléfono, tema de interés, fecha/hora deseada y
                     opcionalmente un documento adjunto.
@@ -281,7 +281,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     Paso 2: Confirmación Inmediata
                   </h4>
                   <p className="mb-2">
@@ -304,7 +304,7 @@ export default function CondicionesAsesoriasGratuitas() {
                     <li>Instrucciones detalladas para la videollamada</li>
                   </ul>
 
-                  <div className="bg-bluegreen-eske-10 p-4 rounded-lg">
+                  <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg">
                     <p className="font-semibold mb-2">Asesor asignado:</p>
                     <p className="mb-1">
                       <strong>Nombre:</strong> Raúl Sánchez Salgado
@@ -326,7 +326,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     Paso 3: Preparación para la Sesión
                   </h4>
                   <p className="mb-2">Antes de tu asesoría:</p>
@@ -348,7 +348,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div className="bg-blue-eske-10 p-4 rounded-lg">
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     Disponibilidad y Tiempos
                   </h4>
                   <p className="mb-2">
@@ -359,7 +359,7 @@ export default function CondicionesAsesoriasGratuitas() {
                     <strong>Fecha de la sesión:</strong> Según tu selección en
                     el formulario (sujeto a disponibilidad del asesor)
                   </p>
-                  <p className="text-[14px] text-black-eske-20">
+                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                     Si la fecha solicitada no está disponible, nos comunicaremos
                     contigo para reprogramar en el horario más cercano posible.
                   </p>
@@ -374,7 +374,7 @@ export default function CondicionesAsesoriasGratuitas() {
             >
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     4.1. Duración
                   </h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -392,7 +392,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     4.2. Modalidad
                   </h4>
                   <p className="mb-2">Todas las sesiones son:</p>
@@ -428,8 +428,8 @@ export default function CondicionesAsesoriasGratuitas() {
                   </ul>
                 </div>
 
-                <div className="bg-yellow-eske-10 p-4 rounded-lg">
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <div className="bg-yellow-eske-10 dark:bg-yellow-900/20 p-4 rounded-lg">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     Puntualidad
                   </h4>
                   <p className="mb-2">
@@ -458,7 +458,7 @@ export default function CondicionesAsesoriasGratuitas() {
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     5.1. Propósito de la Grabación
                   </h4>
                   <p className="mb-2">
@@ -485,7 +485,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     5.2. Almacenamiento y Retención
                   </h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -509,7 +509,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     5.3. Derechos del Usuario sobre la Grabación
                   </h4>
                   <p className="mb-2">Tienes derecho a:</p>
@@ -545,7 +545,7 @@ export default function CondicionesAsesoriasGratuitas() {
               title="6. Consentimiento Informado para Grabación"
               level={2}
             >
-              <div className="bg-bluegreen-eske-10 p-6 rounded-lg mb-6">
+              <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-6 rounded-lg mb-6">
                 <h4 className="text-[18px] font-bold text-bluegreen-eske mb-3">
                   Consentimiento Explícito Requerido
                 </h4>
@@ -571,7 +571,7 @@ export default function CondicionesAsesoriasGratuitas() {
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     6.1. Cumplimiento con GDPR (Usuarios en la Unión Europea)
                   </h4>
                   <p className="mb-2">
@@ -599,7 +599,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     6.2. Cumplimiento con CCPA (Usuarios en California, USA)
                   </h4>
                   <p className="mb-2">
@@ -641,11 +641,11 @@ export default function CondicionesAsesoriasGratuitas() {
               title="7. Protección de Menores de Edad (COPPA Compliance)"
               level={2}
             >
-              <div className="bg-red-eske-10 p-6 rounded-lg mb-6">
-                <h4 className="text-[18px] font-bold text-black-eske mb-3">
+              <div className="bg-red-eske-10 dark:bg-red-900/20 p-6 rounded-lg mb-6">
+                <h4 className="text-[18px] font-bold text-black-eske dark:text-[#EAF2F8] mb-3">
                   Restricción de Edad: Menores de 18 Años
                 </h4>
-                <p className="mb-4 text-black-eske">
+                <p className="mb-4 text-black-eske dark:text-[#C7D6E0]">
                   Nuestro servicio de asesorías está diseñado para adultos.{" "}
                   <strong>Si eres menor de 18 años,</strong>
                   necesitas el consentimiento de un padre, madre o tutor legal
@@ -655,7 +655,7 @@ export default function CondicionesAsesoriasGratuitas() {
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     7.1. Cumplimiento con COPPA (Children's Online Privacy
                     Protection Act - USA)
                   </h4>
@@ -691,7 +691,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     7.2. Para Menores entre 13 y 17 Años
                   </h4>
                   <p className="mb-2">Si tienes entre 13 y 17 años:</p>
@@ -712,7 +712,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     7.3. Derechos de los Padres o Tutores
                   </h4>
                   <p className="mb-2">
@@ -748,8 +748,8 @@ export default function CondicionesAsesoriasGratuitas() {
               id="naturaleza"
               title="8. Naturaleza del Servicio y Descargos de Responsabilidad"
             >
-              <div className="bg-yellow-eske-10 p-6 rounded-lg mb-6">
-                <h4 className="text-[18px] font-bold text-black-eske mb-3">
+              <div className="bg-yellow-eske-10 dark:bg-yellow-900/20 p-6 rounded-lg mb-6">
+                <h4 className="text-[18px] font-bold text-black-eske dark:text-[#EAF2F8] mb-3">
                   Servicio Informativo, NO Vinculante
                 </h4>
                 <p className="mb-4">
@@ -775,7 +775,7 @@ export default function CondicionesAsesoriasGratuitas() {
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     8.1. No Somos Consultores Políticos Certificados
                   </h4>
                   <p className="mb-4">
@@ -793,7 +793,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     8.2. Uso Bajo tu Propio Riesgo
                   </h4>
                   <p className="mb-2">
@@ -813,7 +813,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     8.3. Sin Garantía de Resultados
                   </h4>
                   <p className="mb-4">
@@ -842,7 +842,7 @@ export default function CondicionesAsesoriasGratuitas() {
             >
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     9.1. Temas NO Cubiertos
                   </h4>
                   <p className="mb-2 font-semibold text-red-eske">
@@ -871,15 +871,15 @@ export default function CondicionesAsesoriasGratuitas() {
                   </ul>
                 </div>
 
-                <div className="bg-red-eske-10 p-4 rounded-lg">
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <div className="bg-red-eske-10 dark:bg-red-900/20 p-4 rounded-lg">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     9.2. Rechazo de Sesiones
                   </h4>
-                  <p className="mb-2 text-black-eske">
+                  <p className="mb-2 text-black-eske dark:text-[#C7D6E0]">
                     Eskemma se reserva el derecho de rechazar, cancelar o
                     terminar una asesoría si:
                   </p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-black-eske">
+                  <ul className="list-disc list-inside space-y-1 ml-4 text-black-eske dark:text-[#C7D6E0]">
                     <li>
                       El solicitante tiene antecedentes de conductas abusivas o
                       fraudulentas
@@ -903,7 +903,7 @@ export default function CondicionesAsesoriasGratuitas() {
             >
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     10.1. Cancelación por el Usuario
                   </h4>
                   <p className="mb-2">Si necesitas cancelar tu sesión:</p>
@@ -934,7 +934,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     10.2. Cancelación por Eskemma
                   </h4>
                   <p className="mb-2">
@@ -953,7 +953,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div className="bg-blue-eske-10 p-4 rounded-lg">
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     10.3. Emergencias o Circunstancias Especiales
                   </h4>
                   <p className="mb-2">
@@ -985,7 +985,7 @@ export default function CondicionesAsesoriasGratuitas() {
             >
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     11.1. Código de Conducta
                   </h4>
                   <p className="mb-2 font-semibold text-green-eske">
@@ -1021,14 +1021,14 @@ export default function CondicionesAsesoriasGratuitas() {
                   </ul>
                 </div>
 
-                <div className="bg-red-eske-10 p-4 rounded-lg">
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                <div className="bg-red-eske-10 dark:bg-red-900/20 p-4 rounded-lg">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     11.2. Consecuencias por Mala Conducta
                   </h4>
-                  <p className="mb-2 text-black-eske">
+                  <p className="mb-2 text-black-eske dark:text-[#C7D6E0]">
                     Si violas el código de conducta, Eskemma puede:
                   </p>
-                  <ul className="list-disc list-inside space-y-1 ml-4 text-black-eske">
+                  <ul className="list-disc list-inside space-y-1 ml-4 text-black-eske dark:text-[#C7D6E0]">
                     <li>
                       Terminar la sesión inmediatamente sin derecho a
                       reprogramación
@@ -1053,7 +1053,7 @@ export default function CondicionesAsesoriasGratuitas() {
             >
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     12.1. Confidencialidad de tu Información
                   </h4>
                   <p className="mb-4">
@@ -1077,7 +1077,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     12.2. Política de Privacidad Aplicable
                   </h4>
                   <p className="mb-2">
@@ -1103,7 +1103,7 @@ export default function CondicionesAsesoriasGratuitas() {
                   </ul>
                 </div>
 
-                <div className="bg-bluegreen-eske-10 p-4 rounded-lg">
+                <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg">
                   <h4 className="text-[16px] font-semibold text-bluegreen-eske mb-2">
                     12.3. Uso de Testimonios
                   </h4>
@@ -1129,7 +1129,7 @@ export default function CondicionesAsesoriasGratuitas() {
               id="responsabilidad"
               title="13. Limitación de Responsabilidad"
             >
-              <div className="bg-yellow-eske-10 p-6 rounded-lg mb-6">
+              <div className="bg-yellow-eske-10 dark:bg-yellow-900/20 p-6 rounded-lg mb-6">
                 <p className="font-semibold mb-2">
                   Servicio "TAL CUAL" (As-Is):
                 </p>
@@ -1143,7 +1143,7 @@ export default function CondicionesAsesoriasGratuitas() {
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     13.1. Exclusión de Garantías
                   </h4>
                   <p className="mb-2">Eskemma NO garantiza que:</p>
@@ -1164,7 +1164,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     13.2. Daños NO Cubiertos
                   </h4>
                   <p className="mb-2 font-semibold">
@@ -1185,7 +1185,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div>
-                  <h4 className="text-[16px] font-semibold text-black-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     13.3. Límite Monetario de Responsabilidad
                   </h4>
                   <p className="mb-4">
@@ -1289,7 +1289,7 @@ export default function CondicionesAsesoriasGratuitas() {
                       privacidad@eskemma.com
                     </a>
                   </p>
-                  <p className="text-[14px] text-black-eske-20">
+                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                     (Para ejercer derechos GDPR, CCPA, COPPA o LFPDPPP)
                   </p>
                 </div>
@@ -1326,7 +1326,7 @@ export default function CondicionesAsesoriasGratuitas() {
               </div>
 
               <div className="mt-6 p-4 bg-gray-eske-10 rounded-lg">
-                <p className="text-[14px] text-black-eske-20">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                   <strong>Tiempo de respuesta:</strong> Nos comprometemos a
                   responder todas las consultas en un plazo máximo de 3 días
                   hábiles.
@@ -1335,11 +1335,11 @@ export default function CondicionesAsesoriasGratuitas() {
             </LegalSection>
 
             {/* CTA Final */}
-            <div className="mt-12 p-6 bg-gray-eske-30 rounded-lg text-white-eske text-center">
-              <h3 className="text-2xl text-black-eske font-bold mb-4">
+            <div className="mt-12 p-6 bg-gray-eske-30 dark:bg-[#21425E] rounded-lg text-white-eske text-center">
+              <h3 className="text-2xl text-black-eske dark:text-[#EAF2F8] font-bold mb-4">
                 ¿Listo para solicitar tu asesoría gratuita?
               </h3>
-              <p className="text-[16px] text-black-eske mb-6 opacity-90">
+              <p className="text-[16px] text-black-eske dark:text-[#C7D6E0] mb-6 opacity-90">
                 Al solicitar una sesión, confirmas que has leído y aceptado
                 estas Condiciones Específicas para Asesorías Gratuitas.
               </p>
@@ -1361,7 +1361,7 @@ export default function CondicionesAsesoriasGratuitas() {
             </div>
 
             {/* Nota final */}
-            <div className="mt-8 text-center text-[12px] text-black-eske-30">
+            <div className="mt-8 text-center text-[12px] text-black-eske-30 dark:text-[#6D8294]">
               <p className="mb-2">
                 Estas Condiciones son complementarias a nuestras{" "}
                 <Link
