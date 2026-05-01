@@ -402,7 +402,7 @@ export default function HistoricoView() {
                       <button
                         type="button"
                         onClick={() => setShowMetodologia(true)}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske dark:text-bluegreen-eske-30 border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

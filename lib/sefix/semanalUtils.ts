@@ -76,6 +76,28 @@ export interface ProyeccionPoint {
   proyectado: boolean;
 }
 
+// Dark mode — paletas revertidas (colores claros primero) y colores únicos
+export function getDarkPalette(palette: string[]): string[] {
+  return [...palette].reverse();
+}
+export const COLOR_PAD_NAC_DARK = "#6BA4C6";
+export const COLOR_LNE_NAC_DARK = "#E05F7F";
+export const COLOR_PAD_EXT_DARK = "#C585F5";
+export const COLOR_LNE_EXT_DARK = "#4D9DE8";
+
+export const COLOR_E3_PAD_NAC_DARK: Record<string, string> = {
+  "Jóvenes (18–29)": "#90B8D6", "Adultos (30–59)": "#6BA4C6", "Mayores (60+)": "#E05F7F",
+};
+export const COLOR_E3_LNE_NAC_DARK: Record<string, string> = {
+  "Jóvenes (18–29)": "#6BA4C6", "Adultos (30–59)": "#4891B3", "Mayores (60+)": "#D3103F",
+};
+export const COLOR_E3_PAD_EXT_DARK: Record<string, string> = {
+  "Jóvenes (18–29)": "#dbb4f9", "Adultos (30–59)": "#c585f5", "Mayores (60+)": "#87baf0",
+};
+export const COLOR_E3_LNE_EXT_DARK: Record<string, string> = {
+  "Jóvenes (18–29)": "#c585f5", "Adultos (30–59)": "#87baf0", "Mayores (60+)": "#4D9DE8",
+};
+
 // ────────────────────────────────────────────────────────────────
 // COLOR HELPERS
 // ────────────────────────────────────────────────────────────────

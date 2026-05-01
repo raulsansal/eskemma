@@ -26,6 +26,7 @@ import {
 import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 import { useFocusTrap } from "@/app/hooks/useFocusTrap";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
+import { useDarkMode } from "@/app/hooks/useDarkMode";
 
 import type { SemanalSerieRow } from "@/app/sefix/hooks/useLneSemanalesSerie";
 import type { Ambito } from "@/lib/sefix/seriesUtils";
@@ -33,16 +34,26 @@ import {
   RANGOS_EDAD,
   ETIQ_RANGOS,
   GRUPOS_ETARIOS,
+  AZULES,
+  ROJOS,
+  MORADOS,
+  AZULES_EXT,
   type RangoEdad,
   type GrupoKey,
-  colorRangoPad,
-  colorRangoLne,
   colorTotalPad,
   colorTotalLne,
+  COLOR_PAD_NAC_DARK,
+  COLOR_LNE_NAC_DARK,
+  COLOR_PAD_EXT_DARK,
+  COLOR_LNE_EXT_DARK,
   COLOR_E3_PAD_NAC,
   COLOR_E3_LNE_NAC,
   COLOR_E3_PAD_EXT,
   COLOR_E3_LNE_EXT,
+  COLOR_E3_PAD_NAC_DARK,
+  COLOR_E3_LNE_NAC_DARK,
+  COLOR_E3_PAD_EXT_DARK,
+  COLOR_E3_LNE_EXT_DARK,
   computeSemanalesProyeccion,
   computeProyeccionGrupo,
 } from "@/lib/sefix/semanalUtils";
@@ -64,6 +75,18 @@ const GRUPOS: { key: GrupoKey; rangos: string[] }[] = [
   { key: "Adultos (30–59)", rangos: ["30_34", "35_39", "40_44", "45_49", "50_54", "55_59"] },
   { key: "Mayores (60+)", rangos: ["60_64", "65_y_mas"] },
 ];
+
+// Dark mode color helpers for range palettes — reverses palette so light colors come first
+function colorRangePad(i: number, ambito: Ambito, isDark: boolean): string {
+  const pal = ambito === "extranjero" ? MORADOS : AZULES;
+  const active = isDark ? [...pal].reverse() : pal;
+  return active[i % active.length];
+}
+function colorRangeLne(i: number, ambito: Ambito, isDark: boolean): string {
+  const pal = ambito === "extranjero" ? AZULES_EXT : ROJOS;
+  const active = isDark ? [...pal].reverse() : pal;
+  return active[i % active.length];
+}
 
 // ──────────────────────────────────────────────
 // Helper: obtiene el valor de un rango manejando ambos formatos de datos:
@@ -101,13 +124,21 @@ interface E2Props {
 }
 
 export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
+  const isDark = useDarkMode();
   const { isMobile } = useWindowSize();
-  const palPad = ambito === "extranjero" ? COLOR_E3_PAD_EXT : COLOR_E3_PAD_NAC;
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const labelFill  = isDark ? "#C7D6E0" : "var(--color-black-eske)";
+
+  const palPad = ambito === "extranjero"
+    ? (isDark ? COLOR_E3_PAD_EXT_DARK : COLOR_E3_PAD_EXT)
+    : (isDark ? COLOR_E3_PAD_NAC_DARK : COLOR_E3_PAD_NAC);
+
   const chartData = GRUPOS.map((g) => ({
     name: g.key,
     lista: sumGroup(data, g.rangos, "lista"),
     padron: sumGroup(data, g.rangos, "padron"),
-    color: palPad[g.key] ?? "#277592",
+    color: palPad[g.key] ?? (isDark ? "#6BA4C6" : "#277592"),
   }));
   const total = chartData.reduce((s, d) => s + d.lista, 0);
 
@@ -119,11 +150,11 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
         margin={{ top: 8, right: isMobile ? 90 : 160, left: 8, bottom: 0 }}
         barSize={28}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" horizontal={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
         <XAxis
           type="number"
           tickFormatter={fmtM}
-          tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 10, fill: tickFill }}
         />
         <YAxis
           type="category"
@@ -138,7 +169,7 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
               textAnchor="end"
               dominantBaseline="central"
               fontSize={11}
-              fill="var(--color-black-eske-10)"
+              fill={tickFill}
             >
               {props.payload?.value}
             </text>
@@ -152,9 +183,9 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
             const lista = payload.find((p) => p.dataKey === "lista");
             return (
               <div style={{ fontSize: 12, background: "white", border: "1px solid var(--color-gray-eske-20)", borderRadius: 6, padding: "8px 12px" }}>
-                <p style={{ fontWeight: 600, marginBottom: 4 }}>{label}</p>
-                {row && <p>Padrón Electoral: {FMT.format(row.padron)}</p>}
-                {lista && <p>Lista Nominal: {FMT.format(Number(lista.value))}</p>}
+                <p style={{ fontWeight: 600, marginBottom: 4, color: "#2b2b2b" }}>{label}</p>
+                {row && <p style={{ color: "#2b2b2b" }}>Padrón Electoral: {FMT.format(row.padron)}</p>}
+                {lista && <p style={{ color: "#2b2b2b" }}>Lista Nominal: {FMT.format(Number(lista.value))}</p>}
               </div>
             );
           }}
@@ -167,7 +198,7 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
             <rect
               x={x ?? 0} y={y ?? 0}
               width={Math.max(0, width ?? 0)} height={Math.max(0, height ?? 0)}
-              fill={color ?? "#277592"} rx={3} ry={3}
+              fill={color ?? (isDark ? "#6BA4C6" : "#277592")} rx={3} ry={3}
             />
           )}
         >
@@ -183,7 +214,7 @@ export function E2GroupBarsChart({ data, ambito = "nacional" }: E2Props) {
                   x={Number(x) + Number(width) + 8}
                   y={Number(y) + Number(height) / 2 + 4}
                   fontSize={11}
-                  fill="var(--color-black-eske)"
+                  fill={labelFill}
                 >
                   {FMT.format(Number(value))}  ({pct}%)
                 </text>
@@ -322,7 +353,12 @@ interface E1Props {
 }
 
 export function E1SerieChart({ serie, ambito }: E1Props) {
+  const isDark = useDarkMode();
   const { isMobile } = useWindowSize();
+  const gridStroke  = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill    = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const legendStyle = { fontSize: 11, color: isDark ? "#C7D6E0" : undefined };
+
   const [rangosActivos, setRangosActivos] = useState<Set<RangoEdad>>(new Set(RANGOS_EDAD));
   const [showModal, setShowModal] = useState(false);
 
@@ -344,30 +380,31 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
     );
   }
 
-  const colPad = colorTotalPad(ambito);
-  const colLne = colorTotalLne(ambito);
+  // Total line colors (dark mode aware)
+  const colPad = isDark
+    ? (ambito === "extranjero" ? COLOR_PAD_EXT_DARK : COLOR_PAD_NAC_DARK)
+    : colorTotalPad(ambito);
+  const colLne = isDark
+    ? (ambito === "extranjero" ? COLOR_LNE_EXT_DARK : COLOR_LNE_NAC_DARK)
+    : colorTotalLne(ambito);
 
-  // Colores proyección
-  const colPadProy = ambito === "extranjero" ? "#a854e8" : "#6BA4C6";
-  const colLneProy = ambito === "extranjero" ? "#4d9de8" : "#E05F7F";
+  // Projection colors (already light enough — slightly lighter in dark)
+  const colPadProy = ambito === "extranjero" ? (isDark ? "#dbb4f9" : "#a854e8") : "#6BA4C6";
+  const colLneProy = ambito === "extranjero" ? (isDark ? "#87baf0" : "#4d9de8") : "#E05F7F";
 
   type ChartPoint = Record<string, number | string | undefined>;
   let chartData: ChartPoint[];
 
   if (todosActivos) {
-    // Modo total: 4 líneas (real + proyectadas), separadas visualmente
     const proy = computeSemanalesProyeccion(serie, "padron_total", "lista_total");
     chartData = proy.map((p) => ({
       label: fmtFecha(p.fecha),
-      // Datos reales: solo en puntos no proyectados
       padron: p.proyectado ? undefined : p.padron,
       lista: p.proyectado ? undefined : p.lista,
-      // Proyección: solo en puntos proyectados
       padronProy: p.proyectado ? p.padron : undefined,
       listaProy: p.proyectado ? p.lista : undefined,
     }));
   } else {
-    // Modo rango: 4 líneas por rango (real sólidas + proyección punteada)
     const rangosArr = RANGOS_EDAD.filter((r) => rangosActivos.has(r));
     const proyMap = new Map<RangoEdad, ReturnType<typeof computeSemanalesProyeccion>>();
     for (const r of rangosArr) {
@@ -392,7 +429,6 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
     });
   }
 
-  // Y-axis: domain desde el mínimo real observado
   const allNumericE1 = chartData.flatMap((p) =>
     Object.values(p).filter((v): v is number => typeof v === "number" && v > 0)
   );
@@ -433,7 +469,7 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
             <button
               type="button"
               onClick={() => setShowModal(true)}
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske whitespace-nowrap"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske dark:text-bluegreen-eske-30 border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske whitespace-nowrap"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -446,41 +482,40 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
 
       <ResponsiveContainer width="100%" height={340}>
         <LineChart data={chartData} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+            tick={{ fontSize: 10, fill: tickFill }}
             interval={6}
           />
           <YAxis
             tickFormatter={fmtM}
-            tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+            tick={{ fontSize: 11, fill: tickFill }}
             width={64}
             domain={[yMinE1, "auto"]}
           />
           <Tooltip
             formatter={(v, name) => [FMT.format(Number(v)), String(name)]}
             itemSorter={(item) => -(item.value as number)}
+            labelStyle={{ color: "#2b2b2b" }}
             contentStyle={{ fontSize: 11, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
           />
-          <Legend wrapperStyle={{ fontSize: 11, ...(isMobile ? { display: "none" } : {}) }} />
+          <Legend wrapperStyle={{ ...legendStyle, ...(isMobile ? { display: "none" } : {}) }} />
 
           {todosActivos ? (
             <>
-              {/* Datos reales — líneas sólidas */}
               <Line dataKey="padron" name="Padrón Total" stroke={colPad} strokeWidth={2.5} dot={false} connectNulls={false} />
               <Line dataKey="lista" name="LNE Total" stroke={colLne} strokeWidth={2.5} dot={false} connectNulls={false} />
-              {/* Proyección — líneas punteadas, separadas visualmente */}
               <Line dataKey="padronProy" name="Proyección Padrón" stroke={colPadProy} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls={false} />
               <Line dataKey="listaProy" name="Proyección LNE" stroke={colLneProy} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls={false} />
             </>
           ) : (
             RANGOS_EDAD.filter((r) => rangosActivos.has(r)).map((r, i) => (
               <Fragment key={r}>
-                <Line dataKey={`padron_${r}`} name={`Padrón ${ETIQ_RANGOS[r]}`} stroke={colorRangoPad(i, ambito)} strokeWidth={2} dot={false} connectNulls={false} />
-                <Line dataKey={`lista_${r}`} name={`LNE ${ETIQ_RANGOS[r]}`} stroke={colorRangoLne(i, ambito)} strokeWidth={2} dot={false} connectNulls={false} />
-                <Line dataKey={`padronProy_${r}`} name={`Proy. Padrón ${ETIQ_RANGOS[r]}`} stroke={colorRangoPad(i, ambito)} strokeWidth={1.5} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
-                <Line dataKey={`listaProy_${r}`} name={`Proy. LNE ${ETIQ_RANGOS[r]}`} stroke={colorRangoLne(i, ambito)} strokeWidth={1.5} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
+                <Line dataKey={`padron_${r}`} name={`Padrón ${ETIQ_RANGOS[r]}`} stroke={colorRangePad(i, ambito, isDark)} strokeWidth={2} dot={false} connectNulls={false} />
+                <Line dataKey={`lista_${r}`} name={`LNE ${ETIQ_RANGOS[r]}`} stroke={colorRangeLne(i, ambito, isDark)} strokeWidth={2} dot={false} connectNulls={false} />
+                <Line dataKey={`padronProy_${r}`} name={`Proy. Padrón ${ETIQ_RANGOS[r]}`} stroke={colorRangePad(i, ambito, isDark)} strokeWidth={1.5} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
+                <Line dataKey={`listaProy_${r}`} name={`Proy. LNE ${ETIQ_RANGOS[r]}`} stroke={colorRangeLne(i, ambito, isDark)} strokeWidth={1.5} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
               </Fragment>
             ))
           )}
@@ -510,8 +545,8 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
           ) : (
             RANGOS_EDAD.filter((r) => rangosActivos.has(r)).map((r, i) => (
               <Fragment key={r}>
-                <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colorRangoPad(i, ambito) }} /><span>Padrón {ETIQ_RANGOS[r]}</span></div>
-                <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colorRangoLne(i, ambito) }} /><span>LNE {ETIQ_RANGOS[r]}</span></div>
+                <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colorRangePad(i, ambito, isDark) }} /><span>Padrón {ETIQ_RANGOS[r]}</span></div>
+                <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: colorRangeLne(i, ambito, isDark) }} /><span>LNE {ETIQ_RANGOS[r]}</span></div>
               </Fragment>
             ))
           )}
@@ -530,7 +565,12 @@ interface E3Props {
 }
 
 export function E3GruposSerieChart({ serie, ambito }: E3Props) {
+  const isDark = useDarkMode();
   const { isMobile } = useWindowSize();
+  const gridStroke  = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill    = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const legendStyle = { fontSize: 11, color: isDark ? "#C7D6E0" : undefined };
+
   const grupoKeys = Object.keys(GRUPOS_ETARIOS) as GrupoKey[];
   const [gruposActivos, setGruposActivos] = useState<Set<GrupoKey>>(new Set(grupoKeys));
   const [showModal, setShowModal] = useState(false);
@@ -551,8 +591,15 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
     );
   }
 
-  const palPad = ambito === "extranjero" ? COLOR_E3_PAD_EXT : COLOR_E3_PAD_NAC;
-  const palLne = ambito === "extranjero" ? COLOR_E3_LNE_EXT : COLOR_E3_LNE_NAC;
+  const palPad = ambito === "extranjero"
+    ? (isDark ? COLOR_E3_PAD_EXT_DARK : COLOR_E3_PAD_EXT)
+    : (isDark ? COLOR_E3_PAD_NAC_DARK : COLOR_E3_PAD_NAC);
+  const palLne = ambito === "extranjero"
+    ? (isDark ? COLOR_E3_LNE_EXT_DARK : COLOR_E3_LNE_EXT)
+    : (isDark ? COLOR_E3_LNE_NAC_DARK : COLOR_E3_LNE_NAC);
+
+  const padFallback = isDark ? "#6BA4C6" : "#277592";
+  const lneFallback = isDark ? "#4891B3" : "#003E66";
 
   const gruposAct = grupoKeys.filter((g) => gruposActivos.has(g));
   const proyMap = new Map<GrupoKey, ReturnType<typeof computeProyeccionGrupo>>();
@@ -580,7 +627,6 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
     return point;
   });
 
-  // Y-axis: domain desde el mínimo real observado
   const allNumericE3 = chartData.flatMap((p) =>
     Object.values(p).filter((v): v is number => typeof v === "number" && v > 0)
   );
@@ -621,7 +667,7 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
             <button
               type="button"
               onClick={() => setShowModal(true)}
-              className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske whitespace-nowrap"
+              className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske dark:text-bluegreen-eske-30 border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske whitespace-nowrap"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -634,31 +680,32 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
 
       <ResponsiveContainer width="100%" height={320}>
         <LineChart data={chartData} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+            tick={{ fontSize: 10, fill: tickFill }}
             interval={6}
           />
           <YAxis
             tickFormatter={fmtM}
-            tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+            tick={{ fontSize: 11, fill: tickFill }}
             width={64}
             domain={[yMinE3, "auto"]}
           />
           <Tooltip
             formatter={(v, name) => [FMT.format(Number(v)), String(name)]}
             itemSorter={(item) => -(item.value as number)}
+            labelStyle={{ color: "#2b2b2b" }}
             contentStyle={{ fontSize: 11, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
           />
-          <Legend wrapperStyle={{ fontSize: 11, ...(isMobile ? { display: "none" } : {}) }} />
+          <Legend wrapperStyle={{ ...legendStyle, ...(isMobile ? { display: "none" } : {}) }} />
 
           {gruposAct.map((g) => (
             <Fragment key={g}>
-              <Line dataKey={`pad_${g}`} name={`Padrón ${g}`} stroke={palPad[g] ?? "#277592"} strokeWidth={2.5} dot={false} connectNulls={false} />
-              <Line dataKey={`lne_${g}`} name={`LNE ${g}`} stroke={palLne[g] ?? "#003E66"} strokeWidth={2.5} dot={false} connectNulls={false} />
-              <Line dataKey={`padProy_${g}`} name={`Proy. Padrón ${g}`} stroke={palPad[g] ?? "#277592"} strokeWidth={2} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
-              <Line dataKey={`lneProy_${g}`} name={`Proy. LNE ${g}`} stroke={palLne[g] ?? "#003E66"} strokeWidth={2} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
+              <Line dataKey={`pad_${g}`} name={`Padrón ${g}`} stroke={palPad[g] ?? padFallback} strokeWidth={2.5} dot={false} connectNulls={false} />
+              <Line dataKey={`lne_${g}`} name={`LNE ${g}`} stroke={palLne[g] ?? lneFallback} strokeWidth={2.5} dot={false} connectNulls={false} />
+              <Line dataKey={`padProy_${g}`} name={`Proy. Padrón ${g}`} stroke={palPad[g] ?? padFallback} strokeWidth={2} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
+              <Line dataKey={`lneProy_${g}`} name={`Proy. LNE ${g}`} stroke={palLne[g] ?? lneFallback} strokeWidth={2} strokeDasharray="6 3" strokeOpacity={0.7} dot={false} connectNulls={false} />
             </Fragment>
           ))}
         </LineChart>
@@ -679,8 +726,8 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
         <div className="px-3 pb-3 pt-1 space-y-1.5">
           {gruposAct.map((g) => (
             <Fragment key={g}>
-              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: palPad[g] ?? "#277592" }} /><span>Padrón {g}</span></div>
-              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: palLne[g] ?? "#003E66" }} /><span>LNE {g}</span></div>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: palPad[g] ?? padFallback }} /><span>Padrón {g}</span></div>
+              <div className="flex items-center gap-2"><span style={{ display: "inline-block", width: 16, height: 3, background: palLne[g] ?? lneFallback }} /><span>LNE {g}</span></div>
             </Fragment>
           ))}
         </div>
@@ -698,8 +745,17 @@ interface E4Props {
 }
 
 export function E4RangeChart({ data, ambito = "nacional" }: E4Props) {
-  const colPad = ambito === "extranjero" ? "#7206b4" : "var(--color-blue-eske-60)";
-  const colLne = ambito === "extranjero" ? "#0163a4" : "var(--color-red-eske-30)";
+  const isDark = useDarkMode();
+  const gridStroke  = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill    = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const legendStyle = { fontSize: 12, color: isDark ? "#C7D6E0" : undefined };
+
+  const colPad = isDark
+    ? (ambito === "extranjero" ? "#C585F5" : "#4791B3")
+    : (ambito === "extranjero" ? "#7206b4" : "var(--color-blue-eske-60)");
+  const colLne = isDark
+    ? (ambito === "extranjero" ? "#4D9DE8" : "#E05F7F")
+    : (ambito === "extranjero" ? "#0163a4" : "var(--color-red-eske-30)");
 
   const chartData = RANGOS_EDAD.map((r) => ({
     name: RANGOS_LABELS[r],
@@ -710,24 +766,25 @@ export function E4RangeChart({ data, ambito = "nacional" }: E4Props) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" />
+        <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
         <XAxis
           dataKey="name"
-          tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 10, fill: tickFill }}
         />
         <YAxis
           tickFormatter={fmtM}
-          tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 11, fill: tickFill }}
           width={60}
         />
         <Tooltip
           formatter={(v, n) => [FMT.format(Number(v)), n === "padron" ? "Padrón Electoral" : "Lista Nominal"]}
+          labelStyle={{ color: "#2b2b2b" }}
           contentStyle={{ fontSize: 12, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
           cursor={false}
         />
         <Legend
           formatter={(v) => v === "padron" ? "Padrón Electoral" : "Lista Nominal"}
-          wrapperStyle={{ fontSize: 12 }}
+          wrapperStyle={legendStyle}
         />
         <Bar dataKey="padron" name="padron" fill={colPad} radius={[3, 3, 0, 0]} />
         <Bar dataKey="lista" name="lista" fill={colLne} radius={[3, 3, 0, 0]} />

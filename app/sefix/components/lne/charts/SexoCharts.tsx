@@ -26,6 +26,7 @@ import {
 import { useEscapeKey } from "@/app/hooks/useEscapeKey";
 import { useFocusTrap } from "@/app/hooks/useFocusTrap";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
+import { useDarkMode } from "@/app/hooks/useDarkMode";
 
 import type { SemanalSerieRow } from "@/app/sefix/hooks/useLneSemanalesSerie";
 import type { Ambito } from "@/lib/sefix/seriesUtils";
@@ -53,13 +54,16 @@ const GRUPOS = [
   { id: "mayores", label: "Mayores\n(60+)", rangos: ["60_64", "65_y_mas"] },
 ];
 
-function coloresH(ambito: Ambito) {
+function coloresH(ambito: Ambito, isDark: boolean) {
+  if (isDark) return ambito === "extranjero" ? "#4D9DE8" : "#4791B3";
   return ambito === "extranjero" ? "#0163a4" : "var(--color-blue-eske-60)";
 }
-function coloresM(ambito: Ambito) {
+function coloresM(ambito: Ambito, isDark: boolean) {
+  if (isDark) return ambito === "extranjero" ? "#C585F5" : "#E05F7F";
   return ambito === "extranjero" ? "#7206b4" : "var(--color-red-eske-30)";
 }
 const COL_NB = "#9B59B6";
+const COL_NB_DARK = "#C585F5";
 
 // ──────────────────────────────────────────────
 // Modal de metodología de proyección (idéntico al de EdadCharts)
@@ -164,8 +168,13 @@ interface DataAmbitoProps {
 }
 
 export function S1PyramidChart({ data, ambito = "nacional" }: DataAmbitoProps) {
-  const colH = coloresH(ambito);
-  const colM = coloresM(ambito);
+  const isDark = useDarkMode();
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const legendStyle = { fontSize: 12, ...(isDark ? { color: "#C7D6E0" } : {}) };
+
+  const colH = coloresH(ambito, isDark);
+  const colM = coloresM(ambito, isDark);
 
   const chartData = RANGOS.map((r) => ({
     age: RANGOS_LABELS[r],
@@ -181,11 +190,11 @@ export function S1PyramidChart({ data, ambito = "nacional" }: DataAmbitoProps) {
         stackOffset="sign"
         margin={{ top: 8, right: 20, left: 8, bottom: 0 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" horizontal={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
         <XAxis
           type="number"
           tickFormatter={fmtK}
-          tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 10, fill: tickFill }}
         />
         <YAxis
           type="category"
@@ -199,7 +208,7 @@ export function S1PyramidChart({ data, ambito = "nacional" }: DataAmbitoProps) {
               textAnchor="end"
               dominantBaseline="central"
               fontSize={10}
-              fill="var(--color-black-eske-10)"
+              fill={tickFill}
             >
               {props.payload?.value}
             </text>
@@ -234,7 +243,7 @@ export function S1PyramidChart({ data, ambito = "nacional" }: DataAmbitoProps) {
         />
         <Legend
           formatter={(v) => (v === "hombres" ? "LNE Hombres" : "LNE Mujeres")}
-          wrapperStyle={{ fontSize: 12 }}
+          wrapperStyle={legendStyle}
         />
         <Bar dataKey="hombres" fill={colH} radius={[3, 0, 0, 3]} stackId="a" />
         <Bar dataKey="mujeres" fill={colM} radius={[0, 3, 3, 0]} stackId="a" />
@@ -247,13 +256,19 @@ export function S1PyramidChart({ data, ambito = "nacional" }: DataAmbitoProps) {
 // S2 — LNE por grupos etarios × sexo (con checkboxes)
 // ──────────────────────────────────────────────
 export function S2AgeSexChart({ data, ambito = "nacional" }: DataAmbitoProps) {
-  const colH = coloresH(ambito);
-  const colM = coloresM(ambito);
+  const isDark = useDarkMode();
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const legendStyle = { fontSize: 12, ...(isDark ? { color: "#C7D6E0" } : {}) };
+
+  const colH  = coloresH(ambito, isDark);
+  const colM  = coloresM(ambito, isDark);
+  const colNB = isDark ? COL_NB_DARK : COL_NB;
 
   const SEXOS_S2 = [
-    { key: "hombres", label: "Hombres", color: colH },
-    { key: "mujeres", label: "Mujeres", color: colM },
-    { key: "no_binario", label: "No Binario", color: COL_NB },
+    { key: "hombres",    label: "Hombres",    color: colH  },
+    { key: "mujeres",    label: "Mujeres",    color: colM  },
+    { key: "no_binario", label: "No Binario", color: colNB },
   ];
 
   const [activos, setActivos] = useState(new Set(["hombres", "mujeres", "no_binario"]));
@@ -304,19 +319,20 @@ export function S2AgeSexChart({ data, ambito = "nacional" }: DataAmbitoProps) {
       </div>
       <ResponsiveContainer width="100%" height={280}>
         <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" />
-          <XAxis dataKey="grupo" tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+          <XAxis dataKey="grupo" tick={{ fontSize: 11, fill: tickFill }} />
           <YAxis
             tickFormatter={(v) => `${(v / 1_000_000).toFixed(1)}M`}
-            tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+            tick={{ fontSize: 11, fill: tickFill }}
             width={60}
           />
           <Tooltip
             formatter={(v, n) => [FMT.format(Number(v)), labelMap[String(n)] ?? String(n)]}
+            labelStyle={{ color: "#2b2b2b" }}
             contentStyle={{ fontSize: 12, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
             cursor={{ fill: "transparent" }}
           />
-          <Legend formatter={(v) => labelMap[v] ?? v} wrapperStyle={{ fontSize: 12 }} />
+          <Legend formatter={(v) => labelMap[v] ?? v} wrapperStyle={legendStyle} />
           {sexosActivos.map(({ key, color }) => (
             <Bar key={key} dataKey={key} fill={color} radius={[3, 3, 0, 0]} />
           ))}
@@ -335,22 +351,25 @@ interface S3Props {
   dataSexo: Record<string, number>;
 }
 
-function getSexosS3(ambito: Ambito) {
+type SexoConfig = {
+  key: "hombres" | "mujeres";
+  label: string;
+  colorPad: string;
+  colorLne: string;
+};
+
+function getSexosS3(ambito: Ambito, isDark: boolean): SexoConfig[] {
   const isExt = ambito === "extranjero";
+  if (isDark) {
+    return [
+      { key: "hombres", label: "Hombres", colorPad: isExt ? "#4D9DE8" : "#4791B3", colorLne: isExt ? "#87baf0" : "#6BA4C6" },
+      { key: "mujeres", label: "Mujeres", colorPad: isExt ? "#C585F5" : "#E05F7F", colorLne: isExt ? "#dbb4f9" : "#F4839D" },
+    ];
+  }
   return [
-    {
-      key: "hombres",
-      label: "Hombres",
-      colorPad: isExt ? "#0163a4" : "#003F8A",
-      colorLne: isExt ? "#2480d4" : "#001A5E",
-    },
-    {
-      key: "mujeres",
-      label: "Mujeres",
-      colorPad: isExt ? "#7206b4" : "#C0306A",
-      colorLne: isExt ? "#8b2bd6" : "#8B1A3D",
-    },
-  ] as const;
+    { key: "hombres", label: "Hombres", colorPad: isExt ? "#0163a4" : "#003F8A", colorLne: isExt ? "#2480d4" : "#001A5E" },
+    { key: "mujeres", label: "Mujeres", colorPad: isExt ? "#7206b4" : "#C0306A", colorLne: isExt ? "#8b2bd6" : "#8B1A3D" },
+  ];
 }
 
 function fmtFechaSexo(iso: string): string {
@@ -360,8 +379,13 @@ function fmtFechaSexo(iso: string): string {
 }
 
 export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
+  const isDark = useDarkMode();
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const legendStyle = { fontSize: 11, ...(isDark ? { color: "#C7D6E0" } : {}) };
+
   const { isMobile } = useWindowSize();
-  const SEXOS_S3 = getSexosS3(ambito);
+  const SEXOS_S3 = getSexosS3(ambito, isDark);
   const [activos, setActivos] = useState<Set<string>>(new Set(["hombres", "mujeres"]));
   const [showModal, setShowModal] = useState(false);
 
@@ -446,7 +470,7 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske whitespace-nowrap"
+            className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-bluegreen-eske dark:text-bluegreen-eske-30 border border-bluegreen-eske-30 rounded hover:bg-bluegreen-eske-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bluegreen-eske whitespace-nowrap"
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -454,7 +478,7 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
             Metodología
           </button>
           <span className="ml-auto text-xs text-black-eske-60 dark:text-[#9AAEBE] border-l border-gray-eske-30 dark:border-white/10 pl-3">
-            <span className="font-semibold" style={{ color: COL_NB }}>No Binario:</span>{" "}
+            <span className="font-semibold" style={{ color: isDark ? COL_NB_DARK : COL_NB }}>No Binario:</span>{" "}
             Padrón <strong>{FMT_NB.format(nbPadron)}</strong> · LNE <strong>{FMT_NB.format(nbLista)}</strong>
           </span>
         </div>
@@ -462,24 +486,25 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
 
       <ResponsiveContainer width="100%" height={320}>
         <LineChart data={chartData} margin={{ top: 8, right: 24, left: 8, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+            tick={{ fontSize: 10, fill: tickFill }}
             interval={6}
           />
           <YAxis
             tickFormatter={fmtM}
-            tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+            tick={{ fontSize: 11, fill: tickFill }}
             width={64}
             domain={[yMin, "auto"]}
           />
           <Tooltip
             formatter={(v, name) => [FMT.format(Number(v)), String(name)]}
             itemSorter={(item) => -(item.value as number)}
+            labelStyle={{ color: "#2b2b2b" }}
             contentStyle={{ fontSize: 11, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
           />
-          <Legend wrapperStyle={{ fontSize: 11, ...(isMobile ? { display: "none" } : {}) }} />
+          <Legend wrapperStyle={{ ...legendStyle, ...(isMobile ? { display: "none" } : {}) }} />
           {sexosAct.map(({ key, label, colorPad, colorLne }) => (
             <Fragment key={key}>
               <Line dataKey={`pad_${key}`} name={`Padrón ${label}`} stroke={colorPad} strokeWidth={2.5} dot={false} connectNulls={false} />
@@ -519,8 +544,13 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
 // S4 — Padrón y LNE por Sexo (H/M agrupados; NB en card)
 // ──────────────────────────────────────────────
 export function S4ParticipacionChart({ data, ambito = "nacional" }: DataAmbitoProps) {
-  const colH = coloresH(ambito);
-  const colM = coloresM(ambito);
+  const isDark = useDarkMode();
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const legendStyle = { fontSize: 12, ...(isDark ? { color: "#C7D6E0" } : {}) };
+
+  const colH = coloresH(ambito, isDark);
+  const colM = coloresM(ambito, isDark);
   const [nbHovered, setNbHovered] = useState(false);
 
   const nbPadron = (data.padron_no_binario as number) ?? 0;
@@ -546,7 +576,7 @@ export function S4ParticipacionChart({ data, ambito = "nacional" }: DataAmbitoPr
             className="bg-white-eske dark:bg-[#18324A] border border-purple-300 dark:border-purple-800/50 rounded-md px-3 py-2 text-xs shadow-sm cursor-default"
             aria-label="Datos No Binario"
           >
-            <p className="font-semibold text-purple-700 mb-0.5">⚧ No Binario</p>
+            <p className="font-semibold text-purple-700 dark:text-purple-400 mb-0.5">⚧ No Binario</p>
             <p className="text-black-eske-60 dark:text-[#9AAEBE]">
               Padrón: <span className="font-medium text-black-eske dark:text-[#EAF2F8]">{FMT.format(nbPadron)}</span>
             </p>
@@ -577,21 +607,22 @@ export function S4ParticipacionChart({ data, ambito = "nacional" }: DataAmbitoPr
           data={chartData}
           margin={{ top: hasNb ? 56 : 8, right: 16, left: 0, bottom: 0 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" />
-          <XAxis dataKey="metrica" tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+          <XAxis dataKey="metrica" tick={{ fontSize: 11, fill: tickFill }} />
           <YAxis
             tickFormatter={(v) => `${(v / 1_000_000).toFixed(1)}M`}
-            tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+            tick={{ fontSize: 11, fill: tickFill }}
             width={60}
           />
           <Tooltip
             formatter={(v, n) => [FMT.format(Number(v)), n === "hombres" ? "Hombres" : "Mujeres"]}
+            labelStyle={{ color: "#2b2b2b" }}
             contentStyle={{ fontSize: 12, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
             cursor={{ fill: "transparent" }}
           />
           <Legend
             formatter={(v) => (v === "hombres" ? "Hombres" : "Mujeres")}
-            wrapperStyle={{ fontSize: 12 }}
+            wrapperStyle={legendStyle}
           />
           <Bar dataKey="hombres" fill={colH} radius={[3, 3, 0, 0]} />
           <Bar dataKey="mujeres" fill={colM} radius={[3, 3, 0, 0]} />

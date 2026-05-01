@@ -34,7 +34,13 @@ import {
   COLOR_LNE_NAC,
   COLOR_PAD_EXT,
   COLOR_LNE_EXT,
+  getDarkPalette,
+  COLOR_PAD_NAC_DARK,
+  COLOR_LNE_NAC_DARK,
+  COLOR_PAD_EXT_DARK,
+  COLOR_LNE_EXT_DARK,
 } from "@/lib/sefix/semanalUtils";
+import { useDarkMode } from "@/app/hooks/useDarkMode";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const fmtM = (v: number) =>
@@ -181,6 +187,7 @@ interface GridProps {
   palette: string[];
   dataKey: "lne" | "pad" | "dif";
   label?: string;
+  isDark: boolean;
 }
 
 function rowLabel(key: string, dk: "lne" | "pad" | "dif"): string {
@@ -189,15 +196,28 @@ function rowLabel(key: string, dk: "lne" | "pad" | "dif"): string {
   return ABREV[key] ?? key.toUpperCase().slice(0, 5);
 }
 
-function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
+function HeatmapGrid({ matrix, palette, dataKey, label, isDark }: GridProps) {
   const { origins, receptors, lneMatrix, padMatrix, maxLne, maxPad, maxDif } = matrix;
+  const [tooltip, setTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
 
+  const axisColor = isDark ? "#C7D6E0" : "var(--color-black-eske-60)";
+  const borderColor = isDark ? "rgba(255,255,255,0.08)" : "var(--color-gray-eske-20)";
   const singleCol = receptors.length <= 1;
 
   return (
     <div>
       {label && (
         <p className="text-xs font-semibold text-black-eske-60 dark:text-[#9AAEBE] mb-1 text-center">{label}</p>
+      )}
+
+      {/* React hover tooltip — fixed position */}
+      {tooltip && (
+        <div
+          className="pointer-events-none whitespace-nowrap rounded px-2 py-1 text-xs shadow-md bg-white dark:bg-[#18324A] border border-gray-eske-20 dark:border-white/10 text-black-eske dark:text-[#C7D6E0]"
+          style={{ position: "fixed", left: tooltip.x, top: tooltip.y - 8, transform: "translate(-50%, -100%)", zIndex: 50 }}
+        >
+          {tooltip.text}
+        </div>
       )}
 
       <div className="flex items-start gap-3">
@@ -207,7 +227,7 @@ function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
             writingMode: "vertical-rl",
             transform: "rotate(180deg)",
             fontSize: 9,
-            color: "var(--color-black-eske-60)",
+            color: axisColor,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -249,7 +269,7 @@ function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
                       writingMode: "vertical-lr",
                       transform: "rotate(180deg)",
                       fontSize: 9,
-                      color: "var(--color-black-eske-60)",
+                      color: axisColor,
                       lineHeight: 1,
                     }}
                   >
@@ -269,9 +289,9 @@ function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
                       justifyContent: "flex-end",
                       paddingRight: 5,
                       fontSize: 9,
-                      color: "var(--color-black-eske-60)",
-                      borderBottom: "1px solid var(--color-gray-eske-20)",
-                      borderRight: "1px solid var(--color-gray-eske-20)",
+                      color: axisColor,
+                      borderBottom: `1px solid ${borderColor}`,
+                      borderRight: `1px solid ${borderColor}`,
                       whiteSpace: "nowrap",
                     }}
                   >
@@ -284,6 +304,7 @@ function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
                     else if (dataKey === "pad") { rawVal = padMatrix[i][j]; maxVal = maxPad; }
                     else { rawVal = padMatrix[i][j] - lneMatrix[i][j]; maxVal = maxDif; }
                     const ratio = maxVal > 0 ? rawVal / maxVal : 0;
+                    const tooltipText = `${origLabel(orig)} → ${NOMBRES[rec] ?? rec}: ${FMT.format(rawVal)}`;
                     return (
                       <div
                         key={rec}
@@ -294,7 +315,11 @@ function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
                           borderRight: "1px solid rgba(255,255,255,0.3)",
                           cursor: "default",
                         }}
-                        title={`${origLabel(orig)} → ${NOMBRES[rec] ?? rec}: ${FMT.format(rawVal)}`}
+                        onMouseEnter={(e) => {
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                          setTooltip({ text: tooltipText, x: rect.left + rect.width / 2, y: rect.top });
+                        }}
+                        onMouseLeave={() => setTooltip(null)}
                       />
                     );
                   })}
@@ -307,7 +332,7 @@ function HeatmapGrid({ matrix, palette, dataKey, label }: GridProps) {
           <p
             style={{
               fontSize: 9,
-              color: "var(--color-black-eske-60)",
+              color: axisColor,
               textAlign: "center",
               marginTop: 4,
               userSelect: "none",
@@ -346,9 +371,11 @@ interface HeatmapProps {
 }
 
 export function O1HeatmapChart({ porEntidad, topN = 5, ambito = "nacional" }: HeatmapProps) {
+  const isDark = useDarkMode();
   const [showNota, setShowNota] = useState(false);
   const matrix = useMemo(() => buildMatrix(porEntidad, ambito, topN), [porEntidad, ambito, topN]);
-  const palette = ambito === "extranjero" ? AZULES_EXT : ROJOS;
+  const basePalette = ambito === "extranjero" ? AZULES_EXT : ROJOS;
+  const palette = isDark ? getDarkPalette(basePalette) : basePalette;
 
   if (!matrix.origins.length) {
     return (
@@ -360,7 +387,7 @@ export function O1HeatmapChart({ porEntidad, topN = 5, ambito = "nacional" }: He
 
   return (
     <div className="space-y-2">
-      <HeatmapGrid matrix={matrix} palette={palette} dataKey="lne" />
+      <HeatmapGrid matrix={matrix} palette={palette} dataKey="lne" isDark={isDark} />
       {matrix.receptors.length > 1 && (
         <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] text-center sm:hidden">
           ← Desliza horizontalmente para ver todas las entidades →
@@ -403,6 +430,7 @@ const O2_VISTAS: { id: O2Vista; label: string }[] = [
 ];
 
 export function O2PadronLneChart({ porEntidad, topN = 5, ambito = "nacional" }: HeatmapProps) {
+  const isDark = useDarkMode();
   const [vista, setVista] = useState<O2Vista>("dif");
   const [showNota, setShowNota] = useState(false);
   const matrix = useMemo(() => buildMatrix(porEntidad, ambito, topN), [porEntidad, ambito, topN]);
@@ -418,10 +446,12 @@ export function O2PadronLneChart({ porEntidad, topN = 5, ambito = "nacional" }: 
   const lnePalette = ambito === "extranjero" ? AZULES_EXT : ROJOS;
   const padPalette = ambito === "extranjero" ? MORADOS : AZULES;
 
-  const activePalette =
+  const baseActivePalette =
     vista === "lne" ? lnePalette :
       vista === "pad" ? padPalette :
         VERDES;
+
+  const activePalette = isDark ? getDarkPalette(baseActivePalette) : baseActivePalette;
 
   const vistaLabel =
     vista === "lne" ? "Lista Nominal Electoral" :
@@ -452,6 +482,7 @@ export function O2PadronLneChart({ porEntidad, topN = 5, ambito = "nacional" }: 
         palette={activePalette}
         dataKey={vista}
         label={vistaLabel}
+        isDark={isDark}
       />
       {matrix.receptors.length > 1 && (
         <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] text-center sm:hidden">
@@ -686,6 +717,11 @@ interface O3Props {
 }
 
 export function O3OrigenSerieChart({ ambito }: O3Props) {
+  const isDark = useDarkMode();
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+  const legendStyle = { fontSize: 11, ...(isDark ? { color: "#C7D6E0" } : {}) };
+
   // Draft state — updated immediately (drives cascading dropdowns)
   const [receptorEntidad, setReceptorEntidad] = useState("");
   const [receptorDistrito, setReceptorDistrito] = useState("");
@@ -776,11 +812,16 @@ export function O3OrigenSerieChart({ ambito }: O3Props) {
   const yMin = values.length > 0 ? Math.floor(Math.min(...values) * 0.97) : 0;
   const hasData = values.length > 0;
 
-  const colLine =
-    committed.vistaO3 === "lne"
+  const colLine = isDark
+    ? committed.vistaO3 === "lne"
+      ? (ambito === "extranjero" ? COLOR_LNE_EXT_DARK : COLOR_LNE_NAC_DARK)
+      : (ambito === "extranjero" ? COLOR_PAD_EXT_DARK : COLOR_PAD_NAC_DARK)
+    : committed.vistaO3 === "lne"
       ? (ambito === "extranjero" ? COLOR_LNE_EXT : COLOR_LNE_NAC)
       : (ambito === "extranjero" ? COLOR_PAD_EXT : COLOR_PAD_NAC);
+
   const yLabel = committed.vistaO3 === "lne" ? "Lista Nominal Electoral" : "Padrón Electoral";
+  const axisLabelColor = isDark ? "#C7D6E0" : "var(--color-black-eske-60)";
 
   // Scope label with full human-readable format
   const o3ScopeLabel = useMemo(() => {
@@ -937,15 +978,15 @@ export function O3OrigenSerieChart({ ambito }: O3Props) {
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData} margin={{ top: 8, right: 24, left: 16, bottom: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+              tick={{ fontSize: 10, fill: tickFill }}
               interval={6}
             />
             <YAxis
               tickFormatter={fmtM}
-              tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+              tick={{ fontSize: 11, fill: tickFill }}
               width={72}
               domain={[yMin, "auto"]}
               label={{
@@ -953,14 +994,15 @@ export function O3OrigenSerieChart({ ambito }: O3Props) {
                 angle: -90,
                 position: "insideLeft",
                 offset: 10,
-                style: { fontSize: 9, fill: "var(--color-black-eske-60)" },
+                style: { fontSize: 9, fill: axisLabelColor },
               }}
             />
             <Tooltip
               formatter={(v) => [FMT.format(Number(v)), yLabel]}
+              labelStyle={{ color: "#2b2b2b" }}
               contentStyle={{ fontSize: 11, borderRadius: 6, borderColor: "var(--color-gray-eske-20)" }}
             />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Legend wrapperStyle={legendStyle} />
             <Line
               dataKey="valor"
               name={yLabel}

@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { PARTY_COLORS } from "@/lib/sefix/constants";
 import type { ResultadosChartData } from "@/types/sefix.types";
+import { useDarkMode } from "@/app/hooks/useDarkMode";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
@@ -19,11 +20,28 @@ const FMT_PCT = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 1,
 });
 
+// Versiones más claras de partidos con colores muy oscuros
+const PARTY_COLORS_DARK: Record<string, string> = {
+  PAN:    "#4791B3",
+  MORENA: "#D16B6B",
+  NA:     "#8B5CF6",
+  FXM:    "#4ADE80",
+};
+
 interface PartidosBarChartProps {
   data: ResultadosChartData;
 }
 
 export default function PartidosBarChart({ data }: PartidosBarChartProps) {
+  const isDark = useDarkMode();
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+
+  const partyFill = (name: string) =>
+    isDark
+      ? (PARTY_COLORS_DARK[name] ?? PARTY_COLORS[name] ?? PARTY_COLORS.DEFAULT)
+      : (PARTY_COLORS[name] ?? PARTY_COLORS.DEFAULT);
+
   const chartData = data.partidos.map((p) => ({
     name: p.partido,
     votos: p.votos,
@@ -41,7 +59,7 @@ export default function PartidosBarChart({ data }: PartidosBarChartProps) {
       >
         <CartesianGrid
           strokeDasharray="3 3"
-          stroke="var(--color-gray-eske-20)"
+          stroke={gridStroke}
           horizontal={false}
         />
         <XAxis
@@ -53,13 +71,13 @@ export default function PartidosBarChart({ data }: PartidosBarChartProps) {
               ? `${(v / 1_000).toFixed(0)}k`
               : String(v)
           }
-          tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 10, fill: tickFill }}
         />
         <YAxis
           type="category"
           dataKey="name"
           width={50}
-          tick={{ fontSize: 11, fill: "var(--color-black-eske)" }}
+          tick={{ fontSize: 11, fill: tickFill }}
         />
         <Tooltip
           formatter={(value, name) => [
@@ -68,6 +86,7 @@ export default function PartidosBarChart({ data }: PartidosBarChartProps) {
             )}%)`,
             String(name),
           ]}
+          labelStyle={{ color: "#2b2b2b" }}
           contentStyle={{
             fontSize: 12,
             borderRadius: 6,
@@ -78,7 +97,7 @@ export default function PartidosBarChart({ data }: PartidosBarChartProps) {
           {chartData.map((entry) => (
             <Cell
               key={entry.name}
-              fill={PARTY_COLORS[entry.name] ?? PARTY_COLORS.DEFAULT}
+              fill={partyFill(entry.name)}
             />
           ))}
         </Bar>

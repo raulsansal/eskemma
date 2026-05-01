@@ -11,6 +11,7 @@ import {
   ReferenceLine,
 } from "recharts";
 import type { ResultadosChartData } from "@/types/sefix.types";
+import { useDarkMode } from "@/app/hooks/useDarkMode";
 
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
   minimumFractionDigits: 1,
@@ -22,6 +23,10 @@ interface HistoricoComparisonProps {
 }
 
 export default function HistoricoComparison({ data }: HistoricoComparisonProps) {
+  const isDark = useDarkMode();
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
+
   if (data.length === 0) return null;
 
   const chartData = data.map((d) => ({
@@ -41,15 +46,15 @@ export default function HistoricoComparison({ data }: HistoricoComparisonProps) 
       >
         <CartesianGrid
           strokeDasharray="3 3"
-          stroke="var(--color-gray-eske-20)"
+          stroke={gridStroke}
         />
         <XAxis
           dataKey="anio"
-          tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 11, fill: tickFill }}
         />
         <YAxis
           tickFormatter={(v) => `${FMT_PCT.format(v)}%`}
-          tick={{ fontSize: 10, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 10, fill: tickFill }}
           domain={["auto", "auto"]}
         />
         <Tooltip
@@ -57,6 +62,7 @@ export default function HistoricoComparison({ data }: HistoricoComparisonProps) 
             `${FMT_PCT.format(Number(value))}%`,
             "Participación",
           ]}
+          labelStyle={{ color: "#2b2b2b" }}
           contentStyle={{
             fontSize: 12,
             borderRadius: 6,
