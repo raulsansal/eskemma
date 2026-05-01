@@ -38,12 +38,12 @@ export default function SEOPreview({
 
   return (
     <section
-      className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+      className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-md border border-gray-eske-30 dark:border-white/10 p-6"
       aria-labelledby="seo-preview-title"
     >
       <h3
         id="seo-preview-title"
-        className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"
+        className="text-lg font-bold text-gray-800 dark:text-[#EAF2F8] mb-4 flex items-center gap-2"
       >
         <svg
           className="w-5 h-5 text-bluegreen-eske"
@@ -70,7 +70,7 @@ export default function SEOPreview({
 
       {/* Tabs */}
       <div
-        className="flex gap-2 mb-4 border-b border-gray-eske-30"
+        className="flex gap-2 mb-4 border-b border-gray-eske-30 dark:border-white/10"
         role="tablist"
         aria-label="Plataformas de vista previa SEO"
       >
@@ -83,7 +83,7 @@ export default function SEOPreview({
           className={`px-4 py-2 font-semibold transition-colors focus-ring-primary ${
             activeTab === "google"
               ? "border-b-2 border-bluegreen-eske text-bluegreen-eske"
-              : "text-gray-600 hover:text-gray-800"
+              : "text-gray-600 dark:text-[#9AAEBE] hover:text-gray-800 dark:hover:text-[#EAF2F8]"
           }`}
         >
           Google
@@ -124,13 +124,13 @@ export default function SEOPreview({
           id="google-preview"
           role="tabpanel"
           aria-labelledby="google-tab"
-          className="bg-white rounded-lg p-4 border border-gray-200"
+          className="bg-white dark:bg-[#112230] rounded-lg p-4 border border-gray-200 dark:border-white/10"
         >
-          <div className="text-sm text-gray-600 mb-1">{fullUrl}</div>
-          <div className="text-xl text-blue-800 hover:underline cursor-pointer mb-1">
+          <div className="text-sm text-gray-600 dark:text-[#9AAEBE] mb-1">{fullUrl}</div>
+          <div className="text-xl text-blue-800 dark:text-[#4791B3] hover:underline cursor-pointer mb-1">
             {truncateTitle(title || "Título del post", 60)}
           </div>
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-[#C7D6E0]">
             {truncateDescription(description || "Descripción del post", 160)}
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function SEOPreview({
           id="facebook-preview"
           role="tabpanel"
           aria-labelledby="facebook-tab"
-          className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+          className="bg-white dark:bg-[#112230] rounded-lg border border-gray-200 dark:border-white/10 overflow-hidden"
         >
           {imageUrl && (
             <div className="w-full h-64 bg-gray-200">
@@ -153,14 +153,14 @@ export default function SEOPreview({
               />
             </div>
           )}
-          <div className="p-3 bg-gray-50">
-            <div className="text-xs text-gray-500 uppercase mb-1">
+          <div className="p-3 bg-gray-50 dark:bg-[#0B1620]">
+            <div className="text-xs text-gray-500 dark:text-[#9AAEBE] uppercase mb-1">
               eskemma.com
             </div>
-            <div className="text-lg font-semibold text-gray-900 mb-1">
+            <div className="text-lg font-semibold text-gray-900 dark:text-[#EAF2F8] mb-1">
               {truncateTitle(title || "Título del post", 88)}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-[#C7D6E0]">
               {truncateDescription(description || "Descripción del post", 200)}
             </div>
           </div>
@@ -173,7 +173,7 @@ export default function SEOPreview({
           id="twitter-preview"
           role="tabpanel"
           aria-labelledby="twitter-tab"
-          className="bg-white rounded-2xl border border-gray-200 overflow-hidden"
+          className="bg-white dark:bg-[#112230] rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden"
         >
           {imageUrl && (
             <div className="w-full h-64 bg-gray-200">
@@ -185,13 +185,13 @@ export default function SEOPreview({
             </div>
           )}
           <div className="p-3">
-            <div className="text-base font-semibold text-gray-900 mb-1">
+            <div className="text-base font-semibold text-gray-900 dark:text-[#EAF2F8] mb-1">
               {truncateTitle(title || "Título del post", 70)}
             </div>
-            <div className="text-sm text-gray-600 mb-2">
+            <div className="text-sm text-gray-600 dark:text-[#C7D6E0] mb-2">
               {truncateDescription(description || "Descripción del post", 125)}
             </div>
-            <div className="text-xs text-gray-500">🔗 eskemma.com</div>
+            <div className="text-xs text-gray-500 dark:text-[#9AAEBE]">🔗 eskemma.com</div>
           </div>
         </div>
       )}
@@ -230,7 +230,7 @@ export default function SEOPreview({
               />
             </svg>
           )}
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-gray-700 dark:text-[#C7D6E0]">
             Título: {title?.length || 0}/60 caracteres
             {title && title.length > 60 && (
               <span className="text-orange-eske ml-2">
@@ -270,7 +270,7 @@ export default function SEOPreview({
               />
             </svg>
           )}
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-gray-700 dark:text-[#C7D6E0]">
             Descripción: {description?.length || 0}/160 caracteres
             {description && description.length > 160 && (
               <span className="text-orange-eske ml-2">(Se truncará)</span>
@@ -306,7 +306,7 @@ export default function SEOPreview({
               />
             </svg>
           )}
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-gray-700 dark:text-[#C7D6E0]">
             Imagen destacada: {imageUrl ? "Configurada ✓" : "No configurada"}
           </span>
         </div>

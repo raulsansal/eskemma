@@ -14,7 +14,7 @@ import HistoricoComparison from "./HistoricoComparison";
 function ChartSkeleton({ height = 280 }: { height?: number }) {
   return (
     <div
-      className="w-full rounded-lg bg-gray-eske-10 animate-pulse"
+      className="w-full rounded-lg bg-gray-eske-10 dark:bg-white/10 animate-pulse"
       style={{ height }}
       aria-hidden="true"
     />
@@ -24,9 +24,9 @@ function ChartSkeleton({ height = 280 }: { height?: number }) {
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-3">
-      <h3 className="text-base font-semibold text-black-eske">{title}</h3>
+      <h3 className="text-base font-semibold text-black-eske dark:text-[#EAF2F8]">{title}</h3>
       {subtitle && (
-        <p className="text-xs text-black-eske-60 mt-0.5">{subtitle}</p>
+        <p className="text-xs text-black-eske-60 dark:text-[#9AAEBE] mt-0.5">{subtitle}</p>
       )}
     </div>
   );
@@ -53,11 +53,11 @@ export default function EleccionesFedPanelContent() {
   return (
     <div className="space-y-6">
       {/* Filtros */}
-      <div className="p-4 bg-gray-eske-10 rounded-lg border border-gray-eske-20">
+      <div className="p-4 bg-gray-eske-10 dark:bg-[#112230] rounded-lg border border-gray-eske-20 dark:border-white/10">
         <div className="flex flex-wrap items-end gap-4">
           {/* Estado */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="ef-estado" className="text-xs font-medium text-black-eske-60">
+            <label htmlFor="ef-estado" className="text-xs font-medium text-black-eske-60 dark:text-[#9AAEBE]">
               Entidad federativa
             </label>
             <select
@@ -67,7 +67,7 @@ export default function EleccionesFedPanelContent() {
                 setEstado(e.target.value);
                 setAnio(undefined);
               }}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-45"
+              className="text-sm border border-gray-eske-30 dark:border-white/10 rounded-md px-2 py-1.5 bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske min-w-45"
             >
               <option value="">— Nacional —</option>
               {ESTADOS_LIST.map((e) => (
@@ -80,7 +80,7 @@ export default function EleccionesFedPanelContent() {
 
           {/* Cargo */}
           <div className="flex flex-col gap-1">
-            <label htmlFor="ef-cargo" className="text-xs font-medium text-black-eske-60">
+            <label htmlFor="ef-cargo" className="text-xs font-medium text-black-eske-60 dark:text-[#9AAEBE]">
               Cargo
             </label>
             <select
@@ -90,7 +90,7 @@ export default function EleccionesFedPanelContent() {
                 setCargo(e.target.value);
                 setAnio(undefined);
               }}
-              className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+              className="text-sm border border-gray-eske-30 dark:border-white/10 rounded-md px-2 py-1.5 bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
             >
               {CARGOS_LIST.map((c) => (
                 <option key={c.key} value={c.key}>
@@ -103,7 +103,7 @@ export default function EleccionesFedPanelContent() {
           {/* Año */}
           {availableYears.length > 0 && (
             <div className="flex flex-col gap-1">
-              <label htmlFor="ef-anio" className="text-xs font-medium text-black-eske-60">
+              <label htmlFor="ef-anio" className="text-xs font-medium text-black-eske-60 dark:text-[#9AAEBE]">
                 Año
               </label>
               <select
@@ -112,7 +112,7 @@ export default function EleccionesFedPanelContent() {
                 onChange={(e) =>
                   setAnio(e.target.value ? parseInt(e.target.value) : undefined)
                 }
-                className="text-sm border border-gray-eske-30 rounded-md px-2 py-1.5 bg-white-eske text-black-eske focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+                className="text-sm border border-gray-eske-30 dark:border-white/10 rounded-md px-2 py-1.5 bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
               >
                 <option value="">Más reciente</option>
                 {availableYears.map((y) => (
@@ -141,7 +141,7 @@ export default function EleccionesFedPanelContent() {
               {[...Array(4)].map((_, i) => (
                 <div
                   key={i}
-                  className="h-24 rounded-lg bg-gray-eske-10 animate-pulse"
+                  className="h-24 rounded-lg bg-gray-eske-10 dark:bg-white/10 animate-pulse"
                   aria-hidden="true"
                 />
               ))}
@@ -166,7 +166,7 @@ export default function EleccionesFedPanelContent() {
               <>
                 <PartidosBarChart data={data} />
                 {data.coaliconesIncluidas.length > 0 && (
-                  <p className="text-[11px] text-black-eske-60 mt-2">
+                  <p className="text-[11px] text-black-eske-60 dark:text-[#9AAEBE] mt-2">
                     Coaliciones en datos: {data.coaliconesIncluidas.join(", ")}. Los votos de
                     coalición pueden estar contabilizados en partidos individuales según la
                     distribución acordada.
@@ -193,7 +193,7 @@ export default function EleccionesFedPanelContent() {
 
           {/* Fuente */}
           {data && (
-            <p className="text-[11px] text-black-eske-60">
+            <p className="text-[11px] text-black-eske-60 dark:text-[#9AAEBE]">
               Fuente: {data.fuente}. Los datos corresponden a cómputos distritales
               definitivos publicados por el INE.
             </p>

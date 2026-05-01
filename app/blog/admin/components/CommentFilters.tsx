@@ -30,7 +30,7 @@ export default function CommentFilters({
 
   return (
     <section 
-      className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+      className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-md border border-gray-eske-30 dark:border-white/10 p-6"
       aria-labelledby="comment-filters-title"
     >
       <h2 id="comment-filters-title" className="sr-only">
@@ -62,7 +62,7 @@ export default function CommentFilters({
             placeholder="Buscar por contenido o autor..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-eske-30 rounded-lg focus-ring-primary"
+            className="w-full pl-10 pr-4 py-3 border border-gray-eske-30 dark:border-white/10 dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294] rounded-lg focus-ring-primary"
             aria-describedby="search-hint"
           />
           <p id="search-hint" className="sr-only">
@@ -88,15 +88,15 @@ export default function CommentFilters({
                 className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-200 focus-ring-primary ${
                   isActive
                     ? `${filter.color} text-white border-transparent shadow-md`
-                    : "bg-white border-gray-eske-30 text-gray-700 hover:border-gray-eske-60"
+                    : "bg-white dark:bg-[#112230] border-gray-eske-30 dark:border-white/10 text-gray-700 dark:text-[#C7D6E0] hover:border-gray-eske-60 dark:hover:border-white/20"
                 }`}
               >
                 <div className="text-left">
-                  <p className={`text-sm font-semibold ${isActive ? "text-white" : "text-gray-600"}`}>
+                  <p className={`text-sm font-semibold ${isActive ? "text-white" : "text-gray-600 dark:text-[#9AAEBE]"}`}>
                     {filter.label}
                   </p>
                   <p 
-                    className={`text-2xl font-bold ${isActive ? "text-white" : "text-gray-800"}`}
+                    className={`text-2xl font-bold ${isActive ? "text-white" : "text-gray-800 dark:text-[#EAF2F8]"}`}
                     aria-hidden="true"
                   >
                     {filter.count}

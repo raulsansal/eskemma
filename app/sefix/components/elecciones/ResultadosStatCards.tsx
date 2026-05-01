@@ -16,15 +16,15 @@ interface StatCardProps {
 
 function StatCard({ label, value, sub }: StatCardProps) {
   return (
-    <div className="bg-white-eske border border-gray-eske-20 rounded-lg p-4 flex flex-col gap-1">
-      <span className="text-xs font-medium text-black-eske-60 uppercase tracking-wide">
+    <div className="bg-white-eske dark:bg-[#18324A] border border-gray-eske-20 dark:border-white/10 rounded-lg p-4 flex flex-col gap-1">
+      <span className="text-xs font-medium text-black-eske-60 dark:text-[#9AAEBE] uppercase tracking-wide">
         {label}
       </span>
-      <span className="text-2xl font-semibold text-black-eske tabular-nums">
+      <span className="text-2xl font-semibold text-black-eske dark:text-[#EAF2F8] tabular-nums">
         {value}
       </span>
       {sub && (
-        <span className="text-xs text-black-eske-60">{sub}</span>
+        <span className="text-xs text-black-eske-60 dark:text-[#6D8294]">{sub}</span>
       )}
     </div>
   );

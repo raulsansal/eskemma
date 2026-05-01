@@ -36,13 +36,13 @@ export default function SecondaryImagesManager({
 
   return (
     <section
-      className="bg-gray-eske-10 rounded-xl p-4 border border-gray-eske-30"
+      className="bg-gray-eske-10 dark:bg-[#112230] rounded-xl p-4 border border-gray-eske-30 dark:border-white/10"
       aria-labelledby="secondary-images-title"
     >
       <div className="flex items-center justify-between mb-4">
         <h4
           id="secondary-images-title"
-          className="text-sm font-bold text-gray-800 flex items-center gap-2"
+          className="text-sm font-bold text-gray-800 dark:text-[#EAF2F8] flex items-center gap-2"
         >
           <svg
             className="w-4 h-4 text-bluegreen-eske"
@@ -61,7 +61,7 @@ export default function SecondaryImagesManager({
           Galería de Imágenes
         </h4>
         <span
-          className="text-xs text-gray-600 bg-white-eske px-2 py-1 rounded-full"
+          className="text-xs text-gray-600 dark:text-[#9AAEBE] bg-white-eske dark:bg-white/10 px-2 py-1 rounded-full"
           aria-label={`${images.length} ${images.length === 1 ? "imagen" : "imágenes"} en galería`}
         >
           {images.length} {images.length === 1 ? "imagen" : "imágenes"}
@@ -69,7 +69,7 @@ export default function SecondaryImagesManager({
       </div>
 
       {images.length === 0 ? (
-        <div className="text-center py-8 text-gray-500 text-sm" role="status">
+        <div className="text-center py-8 text-gray-500 dark:text-[#9AAEBE] text-sm" role="status">
           <svg
             className="w-12 h-12 mx-auto mb-2 text-gray-400"
             fill="none"
@@ -98,7 +98,7 @@ export default function SecondaryImagesManager({
             return (
               <article
                 key={image.id}
-                className="relative bg-white-eske rounded-lg overflow-hidden border border-gray-eske-30 hover:shadow-md transition-shadow"
+                className="relative bg-white-eske dark:bg-[#18324A] rounded-lg overflow-hidden border border-gray-eske-30 dark:border-white/10 hover:shadow-md transition-shadow"
                 role="listitem"
               >
                 {/* Imagen */}
@@ -165,7 +165,7 @@ export default function SecondaryImagesManager({
                 {/* Info y acciones */}
                 <div className="p-2">
                   <p
-                    className="text-xs text-gray-700 truncate mb-2"
+                    className="text-xs text-gray-700 dark:text-[#C7D6E0] truncate mb-2"
                     title={image.filename}
                   >
                     {image.filename}
@@ -182,7 +182,7 @@ export default function SecondaryImagesManager({
                       disabled={isInserted}
                       className={`flex-1 text-xs py-1.5 rounded transition-colors focus-ring-primary ${
                         isInserted
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          ? "bg-gray-300 dark:bg-white/10 text-gray-500 dark:text-[#6D8294] cursor-not-allowed"
                           : "bg-bluegreen-eske text-white hover:bg-bluegreen-eske-70"
                       }`}
                       aria-label={
@@ -272,7 +272,7 @@ export default function SecondaryImagesManager({
       {/* Información adicional */}
       {images.length > 0 && (
         <div
-          className="mt-3 pt-3 border-t border-gray-eske-30 text-xs text-gray-600"
+          className="mt-3 pt-3 border-t border-gray-eske-30 dark:border-white/10 text-xs text-gray-600 dark:text-[#9AAEBE]"
           role="status"
           aria-live="polite"
         >

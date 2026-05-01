@@ -246,7 +246,7 @@ export default function SaveForLater({
           className={`flex items-center gap-3 px-6 py-3 rounded-lg border-2 transition-all duration-300 focus-ring-primary ${
             isSaved
               ? "bg-bluegreen-eske text-white border-bluegreen-eske hover:bg-bluegreen-eske-70"
-              : "bg-white-eske dark:bg-[#18324A] border-gray-eske-30 dark:border-white/10 text-gray-700 dark:text-[#C7D6E0] hover:border-bluegreen-eske hover:text-bluegreen-eske"
+              : "bg-white-eske dark:bg-[#18324A] border-gray-eske-30 dark:border-white/10 text-gray-700 dark:text-[#C7D6E0] hover:border-bluegreen-eske-40 hover:text-bluegreen-eske-40"
           } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           aria-label={isSaved ? "Artículo guardado. Clic para quitar de guardados" : "Guardar artículo para leer después"}
           aria-pressed={isSaved}

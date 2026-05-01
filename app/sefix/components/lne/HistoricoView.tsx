@@ -29,9 +29,9 @@ function ChartSkeleton({ height = 300 }: { height?: number }) {
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-3 text-center">
-      <h3 className="text-base font-semibold text-black-eske dark:text-[#EAF2F8]">{title}</h3>
+      <h3 className="text-base font-semibold text-black-eske dark:text-blue-eske-40">{title}</h3>
       {subtitle && (
-        <p className="text-xs text-black-eske-60 dark:text-[#6D8294] mt-0.5">{subtitle}</p>
+        <p className="text-xs text-black-eske-60 dark:text-[#C7D6E0] mt-0.5">{subtitle}</p>
       )}
     </div>
   );
@@ -397,7 +397,7 @@ export default function HistoricoView() {
               <div>
                 <div className="mb-3 text-center">
                   <div className="flex items-center justify-center gap-2 flex-wrap">
-                    <h3 className="text-base font-semibold text-black-eske">{g1Title}</h3>
+                    <h3 className="text-base font-semibold text-black-eske dark:text-blue-eske-40">{g1Title}</h3>
                     {hasProjection && (
                       <button
                         type="button"
@@ -412,7 +412,7 @@ export default function HistoricoView() {
                     )}
                   </div>
                   {g1Subtitle && (
-                    <p className="text-xs text-black-eske-60 mt-0.5">{g1Subtitle}</p>
+                    <p className="text-xs text-black-eske-60 dark:text-[#C7D6E0] mt-0.5">{g1Subtitle}</p>
                   )}
                 </div>
                 {!g1Data ? (
@@ -420,12 +420,12 @@ export default function HistoricoView() {
                 ) : (
                   <G1TrendChart data={g1Data} ambito={ambito} />
                 )}
-                <p className="text-[11px] text-black-eske-60 mt-2 text-center">
+                <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] mt-2 text-center">
                   Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado
                 </p>
               </div>
 
-              <hr className="border-gray-eske-20 lg:hidden" />
+              <hr className="border-gray-eske-20 dark:border-white/10 lg:hidden" />
 
               {/* G2 — Evolución anual */}
               <div>
@@ -438,12 +438,12 @@ export default function HistoricoView() {
                 ) : (
                   <G2BarChart data={g2Data} ambito={ambito} />
                 )}
-                <p className="text-[11px] text-black-eske-60 mt-2 text-center">
+                <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] mt-2 text-center">
                   Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado
                 </p>
               </div>
 
-              <hr className="border-gray-eske-20 lg:hidden" />
+              <hr className="border-gray-eske-20 dark:border-white/10 lg:hidden" />
 
               {/* G3 — Evolución anual por sexo (solo ámbito nacional) */}
               <div>
@@ -470,7 +470,7 @@ export default function HistoricoView() {
                     }
                   />
                 )}
-                <p className="text-[11px] text-black-eske-60 mt-2 text-center">
+                <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] mt-2 text-center">
                   Fuente: INE. Estadística de Padrón Electoral y Lista Nominal del Electorado
                 </p>
               </div>
@@ -494,7 +494,7 @@ export default function HistoricoView() {
               rightOpen ? "translate-x-0" : "translate-x-full",
               "sm:static sm:z-auto sm:w-auto sm:overflow-visible",
               "sm:bg-transparent sm:shadow-none sm:translate-x-0 sm:bottom-auto",
-              "lg:sticky lg:top-24 sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20",
+              "lg:sticky lg:top-24 sm:mt-4 lg:mt-0 sm:pt-4 lg:pt-0 sm:border-t lg:border-t-0 sm:border-gray-eske-20 dark:sm:border-white/10",
             ].join(" ")}>
               <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-bluegreen-eske text-white-eske sm:hidden">
                 <span className="text-sm font-semibold">Análisis Textual</span>
@@ -511,7 +511,7 @@ export default function HistoricoView() {
                 {!texts ? (
                   <div className="space-y-3">
                     {[24, 80, 120, 100, 90, 80].map((h, i) => (
-                      <div key={i} className="rounded-md bg-gray-eske-10 animate-pulse" style={{ height: h }} />
+                      <div key={i} className="rounded-md bg-gray-eske-10 dark:bg-[#21425E] animate-pulse" style={{ height: h }} />
                     ))}
                   </div>
                 ) : (
@@ -521,7 +521,7 @@ export default function HistoricoView() {
             </div>
           </div>
 
-          <hr className="border-gray-eske-20" />
+          <hr className="border-gray-eske-20 dark:border-white/10" />
 
           {/* Tabla de Datos — debajo del grid de gráficas */}
           <HistoricoDataTable

@@ -68,14 +68,14 @@ export default function AdminLayout({
   if (loading || isChecking) {
     return (
       <div 
-        className="min-h-screen flex items-center justify-center bg-white-eske"
+        className="min-h-screen flex items-center justify-center bg-white-eske dark:bg-[#0B1620]"
         role="status"
         aria-live="polite"
         aria-label="Verificando permisos de administrador"
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bluegreen-eske mx-auto" aria-hidden="true"></div>
-          <p className="mt-4 text-gray-600">Verificando permisos...</p>
+          <p className="mt-4 text-gray-600 dark:text-[#9AAEBE]">Verificando permisos...</p>
         </div>
       </div>
     );
@@ -186,15 +186,15 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-eske-10 flex flex-col">
+    <div className="min-h-screen bg-gray-eske-10 dark:bg-[#0B1620] flex flex-col">
       {/* Top Bar - Mobile & Desktop */}
-      <header className="bg-white-eske border-b border-gray-eske-30 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-30 shadow-sm">
+      <header className="bg-white-eske dark:bg-[#112230] border-b border-gray-eske-30 dark:border-white/10 px-4 sm:px-6 lg:px-8 py-4 sticky top-0 z-30 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Botón Hamburguesa - Solo Mobile */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 text-gray-700 hover:bg-gray-eske-10 rounded-lg transition-colors focus-ring-primary"
+              className="lg:hidden p-2 text-gray-700 dark:text-[#9AAEBE] hover:bg-gray-eske-10 dark:hover:bg-white/5 rounded-lg transition-colors focus-ring-primary"
               aria-label="Abrir menú de navegación"
               aria-expanded={isMobileMenuOpen}
             >
@@ -225,10 +225,10 @@ export default function AdminLayout({
                 </span>
               </div>
               <div className="hidden sm:block">
-                <h1 className="font-bold text-gray-800 text-sm lg:text-base">
+                <h1 className="font-bold text-gray-800 dark:text-[#EAF2F8] text-sm lg:text-base">
                   Admin Panel
                 </h1>
-                <p className="text-xs text-gray-600">El Baúl de Fouché</p>
+                <p className="text-xs text-gray-600 dark:text-[#9AAEBE]">El Baúl de Fouché</p>
               </div>
             </div>
           </div>
@@ -288,7 +288,7 @@ export default function AdminLayout({
       <div className="flex flex-1">
         {/* Sidebar - Desktop */}
         <aside 
-          className="hidden lg:block w-64 bg-white-eske border-r border-gray-eske-30 shadow-sm"
+          className="hidden lg:block w-64 bg-white-eske dark:bg-[#112230] border-r border-gray-eske-30 dark:border-white/10 shadow-sm"
           aria-label="Navegación principal del panel de administración"
         >
           <nav className="p-4 space-y-2" aria-label="Menú principal">
@@ -301,7 +301,7 @@ export default function AdminLayout({
                   className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 focus-ring-primary ${
                     isActive
                       ? "bg-bluegreen-eske text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-eske-10"
+                      : "text-gray-700 dark:text-[#C7D6E0] hover:bg-gray-eske-10 dark:hover:bg-white/5"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                   aria-label={item.badge ? `${item.name} (${item.badge})` : item.name}
@@ -325,7 +325,7 @@ export default function AdminLayout({
 
           {/* User Info - Desktop */}
           <div 
-            className="absolute bottom-0 left-0 w-64 p-4 border-t border-gray-eske-30 bg-white-eske"
+            className="absolute bottom-0 left-0 w-64 p-4 border-t border-gray-eske-30 dark:border-white/10 bg-white-eske dark:bg-[#112230]"
             role="region"
             aria-label="Información del usuario administrador"
           >
@@ -348,10 +348,10 @@ export default function AdminLayout({
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-800 truncate">
+                <p className="text-sm font-semibold text-gray-800 dark:text-[#EAF2F8] truncate">
                   {user?.name || "Admin"}
                 </p>
-                <p className="text-xs text-gray-600 truncate">{user?.email}</p>
+                <p className="text-xs text-gray-600 dark:text-[#9AAEBE] truncate">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -370,13 +370,13 @@ export default function AdminLayout({
 
             {/* Sidebar Mobile */}
             <aside 
-              className="fixed top-0 left-0 h-full w-64 bg-white-eske shadow-2xl z-50 lg:hidden transform transition-transform duration-300"
+              className="fixed top-0 left-0 h-full w-64 bg-white-eske dark:bg-[#112230] shadow-2xl z-50 lg:hidden transform transition-transform duration-300"
               role="dialog"
               aria-modal="true"
               aria-labelledby="mobile-menu-title"
             >
               {/* Header */}
-              <div className="p-6 border-b border-gray-eske-30 flex items-center justify-between">
+              <div className="p-6 border-b border-gray-eske-30 dark:border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div 
                     className="w-10 h-10 bg-bluegreen-eske rounded-lg flex items-center justify-center"
@@ -387,16 +387,16 @@ export default function AdminLayout({
                   <div>
                     <h2 
                       id="mobile-menu-title"
-                      className="font-bold text-gray-800"
+                      className="font-bold text-gray-800 dark:text-[#EAF2F8]"
                     >
                       Admin Panel
                     </h2>
-                    <p className="text-xs text-gray-600">El Baúl de Fouché</p>
+                    <p className="text-xs text-gray-600 dark:text-[#9AAEBE]">El Baúl de Fouché</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 text-gray-600 hover:bg-gray-eske-10 rounded-lg transition-colors focus-ring-primary"
+                  className="p-2 text-gray-600 dark:text-[#9AAEBE] hover:bg-gray-eske-10 dark:hover:bg-white/5 rounded-lg transition-colors focus-ring-primary"
                   aria-label="Cerrar menú de navegación"
                 >
                   <svg
@@ -427,7 +427,7 @@ export default function AdminLayout({
                       className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 focus-ring-primary ${
                         isActive
                           ? "bg-bluegreen-eske text-white shadow-md"
-                          : "text-gray-700 hover:bg-gray-eske-10"
+                          : "text-gray-700 dark:text-[#C7D6E0] hover:bg-gray-eske-10 dark:hover:bg-white/5"
                       }`}
                       aria-current={isActive ? "page" : undefined}
                       aria-label={item.badge ? `${item.name} (${item.badge})` : item.name}
@@ -451,7 +451,7 @@ export default function AdminLayout({
 
               {/* User Info Mobile */}
               <div 
-                className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-eske-30 bg-white-eske"
+                className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-eske-30 dark:border-white/10 bg-white-eske dark:bg-[#112230]"
                 role="region"
                 aria-label="Información del usuario administrador"
               >
@@ -474,10 +474,10 @@ export default function AdminLayout({
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-800 truncate">
+                    <p className="text-sm font-semibold text-gray-800 dark:text-[#EAF2F8] truncate">
                       {user?.name || "Admin"}
                     </p>
-                    <p className="text-xs text-gray-600 truncate">
+                    <p className="text-xs text-gray-600 dark:text-[#9AAEBE] truncate">
                       {user?.email}
                     </p>
                   </div>

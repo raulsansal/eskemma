@@ -26,7 +26,7 @@ function Block({
 }) {
   return (
     <div className="p-3 bg-gray-eske-10 dark:bg-[#21425E] rounded-md border-l-2 border-bluegreen-eske-40">
-      <p className="text-xs font-semibold text-bluegreen-eske mb-1 uppercase tracking-wide">
+      <p className="text-xs font-semibold text-bluegreen-eske dark:text-blue-eske-40 mb-1 uppercase tracking-wide">
         {label}
       </p>
       {children}
@@ -38,7 +38,7 @@ export default function DynamicTextBlock({ texts }: Props) {
   return (
     <aside className="space-y-3 text-sm" aria-label="Análisis dinámico del período">
       {/* ── Encabezado ── */}
-      <p className="text-xs font-bold text-bluegreen-eske uppercase tracking-widest text-center">
+      <p className="text-xs font-bold text-bluegreen-eske dark:text-blue-eske-40 uppercase tracking-widest text-center">
         Análisis Dinámico
       </p>
 

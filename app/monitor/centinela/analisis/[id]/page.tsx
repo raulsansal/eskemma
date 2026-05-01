@@ -169,7 +169,7 @@ export default function CentinelaAnalisisPage() {
 
   if (pageLoading) {
     return (
-      <main className="min-h-screen bg-white-eske-40 flex items-center
+      <main className="min-h-screen bg-white-eske-40 dark:bg-[#0B1620] flex items-center
         justify-center">
         <div
           className="w-6 h-6 border-2 border-bluegreen-eske
@@ -183,7 +183,7 @@ export default function CentinelaAnalisisPage() {
     return (
       <main className="min-h-screen bg-white-eske-40 flex flex-col
         items-center justify-center gap-4 p-6">
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 dark:text-[#9AAEBE] text-sm">
           No se encontró esta configuración.
         </p>
         <Link
@@ -199,7 +199,7 @@ export default function CentinelaAnalisisPage() {
   // ── Vista principal ──────────────────────────────────────────
 
   return (
-    <main className="min-h-screen bg-white-eske-40">
+    <main className="min-h-screen bg-white-eske-40 dark:bg-[#0B1620]">
       {/* Header */}
       <div className="bg-bluegreen-eske">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5">
@@ -269,8 +269,8 @@ export default function CentinelaAnalisisPage() {
 
         {/* Barra de progreso */}
         {isAnalyzing && (
-          <div className="bg-white-eske rounded-xl shadow-sm p-4
-            border border-bluegreen-eske/20">
+          <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm p-4
+            border border-bluegreen-eske/20 dark:border-white/10">
             <div className="flex items-center gap-3 mb-2">
               <div
                 className="w-4 h-4 border-2 border-bluegreen-eske/30
@@ -289,7 +289,7 @@ export default function CentinelaAnalisisPage() {
                 style={{width: "55%"}}
               />
             </div>
-            <p className="text-xs text-gray-400 mt-2">
+            <p className="text-xs text-gray-400 dark:text-[#6D8294] mt-2">
               Este proceso tarda entre 1 y 2 minutos. Puedes esperar aquí
               o volver más tarde.
             </p>
@@ -298,8 +298,8 @@ export default function CentinelaAnalisisPage() {
 
         {/* Error del job */}
         {job.status === "failed" && job.error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-            <p className="text-sm text-red-700">{job.error}</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-xl p-4">
+            <p className="text-sm text-red-700 dark:text-red-400">{job.error}</p>
           </div>
         )}
 
@@ -325,9 +325,9 @@ export default function CentinelaAnalisisPage() {
         )}
 
         {!feed && !isAnalyzing && !loadingFeed && (
-          <div className="text-center py-16 bg-white-eske rounded-xl
-            border border-dashed border-gray-eske-30">
-            <p className="text-sm text-gray-400 mb-3">
+          <div className="text-center py-16 bg-white-eske dark:bg-[#18324A] rounded-xl
+            border border-dashed border-gray-eske-30 dark:border-white/10">
+            <p className="text-sm text-gray-400 dark:text-[#9AAEBE] mb-3">
               Sin análisis para este territorio.
             </p>
             <button

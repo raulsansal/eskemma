@@ -19,17 +19,17 @@ const DIMENSIONS: {key: DimensionKey; label: string; icon: string}[] = [
 
 function impactoStyles(impacto: Factor["impacto"]) {
   switch (impacto) {
-  case "alto":   return {dot: "bg-red-500",    badge: "bg-red-100 text-red-700"};
-  case "medio":  return {dot: "bg-yellow-400", badge: "bg-yellow-100 text-yellow-700"};
-  case "bajo":   return {dot: "bg-gray-300",   badge: "bg-gray-100 text-gray-500"};
+  case "alto":   return {dot: "bg-red-500",    badge: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"};
+  case "medio":  return {dot: "bg-yellow-400", badge: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"};
+  case "bajo":   return {dot: "bg-gray-300 dark:bg-[#9AAEBE]",   badge: "bg-gray-100 dark:bg-[#21425E] text-gray-500 dark:text-[#9AAEBE]"};
   }
 }
 
 function tendenciaStyles(t: DimensionPESTL["tendencia"]) {
   switch (t) {
-  case "creciente":   return {cls: "bg-orange-100 text-orange-700", label: "↑ Creciente"};
-  case "decreciente": return {cls: "bg-blue-100 text-blue-700",     label: "↓ Decreciente"};
-  case "estable":     return {cls: "bg-green-100 text-green-700",   label: "→ Estable"};
+  case "creciente":   return {cls: "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400", label: "↑ Creciente"};
+  case "decreciente": return {cls: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",     label: "↓ Decreciente"};
+  case "estable":     return {cls: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400",   label: "→ Estable"};
   }
 }
 
@@ -60,15 +60,15 @@ function SentimentDot({value}: {value: number}) {
       clamped > 0.25  ? "bg-green-500" : "bg-yellow-400";
   return (
     <div className="flex items-center gap-1.5 w-28 shrink-0">
-      <span className="text-[10px] text-gray-400">−</span>
-      <div className="relative flex-1 h-1 bg-gray-200 rounded-full">
+      <span className="text-[10px] text-gray-400 dark:text-[#6D8294]">−</span>
+      <div className="relative flex-1 h-1 bg-gray-200 dark:bg-white/10 rounded-full">
         <div
           className={`absolute top-1/2 -translate-y-1/2 w-2 h-2
             rounded-full ${color} shadow-sm`}
           style={{left: `calc(${pct}% - 4px)`}}
         />
       </div>
-      <span className="text-[10px] text-gray-400">+</span>
+      <span className="text-[10px] text-gray-400 dark:text-[#6D8294]">+</span>
     </div>
   );
 }
@@ -81,14 +81,14 @@ function FactorCard({factor}: {factor: Factor}) {
   const medium = factor.fuente ? extractMedium(factor.fuente) : null;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-100 px-4 py-3
-      hover:border-gray-200 hover:shadow-sm transition-all duration-150">
+    <div className="bg-white dark:bg-[#21425E] rounded-lg border border-gray-100 dark:border-white/10 px-4 py-3
+      hover:border-gray-200 dark:hover:border-white/20 hover:shadow-sm transition-all duration-150">
       {/* Título + badge impacto */}
       <div className="flex items-start gap-2 mb-2">
         <span
           className={`mt-0.5 shrink-0 w-2 h-2 rounded-full ${styles.dot}`}
         />
-        <p className="text-sm text-gray-800 leading-snug flex-1">
+        <p className="text-sm text-gray-800 dark:text-[#C7D6E0] leading-snug flex-1">
           {factor.descripcion}
         </p>
         <span
@@ -129,7 +129,7 @@ function FactorCard({factor}: {factor: Factor}) {
           </a>
         )}
         {medium && !url && (
-          <span className="text-[11px] text-gray-400 truncate">
+          <span className="text-[11px] text-gray-400 dark:text-[#6D8294] truncate">
             {medium}
           </span>
         )}
@@ -163,7 +163,7 @@ function DimensionContent({dimension}: {dimension: DimensionPESTL}) {
         >
           {tendLabel}
         </span>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-gray-400 dark:text-[#6D8294]">
           {factores.length} factor{factores.length !== 1 ? "es" : ""}
           {" "}analizados
         </span>
@@ -171,15 +171,15 @@ function DimensionContent({dimension}: {dimension: DimensionPESTL}) {
 
       {/* Resumen ejecutivo */}
       {bullets.length > 0 && (
-        <div className="bg-bluegreen-eske/5 border border-bluegreen-eske/15
+        <div className="bg-bluegreen-eske/5 dark:bg-[#112230] border border-bluegreen-eske/15 dark:border-white/10
           rounded-xl p-4">
           <p className="text-xs font-semibold uppercase tracking-wide
-            text-bluegreen-eske-60 mb-2">
+            text-bluegreen-eske-60 dark:text-[#6BA4C6] mb-2">
             Resumen
           </p>
           <ul className="flex flex-col gap-1.5">
             {bullets.map((b, i) => (
-              <li key={i} className="flex gap-2 text-sm text-gray-700">
+              <li key={i} className="flex gap-2 text-sm text-gray-700 dark:text-[#C7D6E0]">
                 <span className="text-bluegreen-eske shrink-0 mt-0.5">•</span>
                 <span>{b}.</span>
               </li>
@@ -196,7 +196,7 @@ function DimensionContent({dimension}: {dimension: DimensionPESTL}) {
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-400 italic">
+        <p className="text-sm text-gray-400 dark:text-[#6D8294] italic">
           Sin factores identificados en esta dimensión.
         </p>
       )}
@@ -214,9 +214,9 @@ export default function PESTLPanel({pestl}: PESTLPanelProps) {
   const [activeKey, setActiveKey] = useState<DimensionKey>("politico");
 
   return (
-    <div className="bg-white-eske rounded-xl shadow-md overflow-hidden">
+    <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-md overflow-hidden">
       {/* Tabs */}
-      <div className="flex border-b border-gray-100 overflow-x-auto">
+      <div className="flex border-b border-gray-100 dark:border-white/10 overflow-x-auto">
         {DIMENSIONS.map(({key, label, icon}) => {
           const count = pestl[key].factores?.length ?? 0;
           const isActive = activeKey === key;
@@ -229,8 +229,8 @@ export default function PESTLPanel({pestl}: PESTLPanelProps) {
                 gap-0.5 px-3 py-3 text-center transition-colors duration-150
                 border-b-2 whitespace-nowrap
                 ${isActive
-                  ? "border-bluegreen-eske bg-bluegreen-eske/5 text-bluegreen-eske"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  ? "border-bluegreen-eske bg-bluegreen-eske/5 dark:bg-bluegreen-eske/10 text-bluegreen-eske dark:text-[#6BA4C6]"
+                  : "border-transparent text-gray-500 dark:text-[#9AAEBE] hover:text-gray-700 dark:hover:text-[#C7D6E0] hover:bg-gray-50 dark:hover:bg-white/5"
                 }`}
             >
               <span className="text-base leading-none" aria-hidden="true">
@@ -238,7 +238,7 @@ export default function PESTLPanel({pestl}: PESTLPanelProps) {
               </span>
               <span className="text-xs font-semibold">{label}</span>
               <span
-                className={`text-[10px] ${isActive ? "text-bluegreen-eske/70" : "text-gray-400"}`}
+                className={`text-[10px] ${isActive ? "text-bluegreen-eske/70 dark:text-[#4791B3]" : "text-gray-400 dark:text-[#6D8294]"}`}
               >
                 {count}
               </span>

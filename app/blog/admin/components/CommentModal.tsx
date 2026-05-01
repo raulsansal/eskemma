@@ -87,7 +87,7 @@ export default function CommentModal({
       ></div>
 
       {/* Modal */}
-      <div className="relative bg-white-eske rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden animate-modal-appear">
+      <div className="relative bg-white-eske dark:bg-[#18324A] rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden animate-modal-appear">
         {/* Header */}
         <header className="bg-gradient-to-r from-bluegreen-eske to-blue-eske text-white p-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -178,8 +178,8 @@ export default function CommentModal({
             <h3 id="comment-content-label" className="sr-only">
               Contenido del comentario
             </h3>
-            <div className="bg-gray-eske-10 rounded-xl p-6 border border-gray-eske-30">
-              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-base">
+            <div className="bg-gray-eske-10 dark:bg-[#112230] rounded-xl p-6 border border-gray-eske-30 dark:border-white/10">
+              <p className="text-gray-800 dark:text-[#C7D6E0] leading-relaxed whitespace-pre-wrap text-base">
                 {comment.content}
               </p>
             </div>
@@ -187,7 +187,7 @@ export default function CommentModal({
         </div>
 
         {/* Actions Footer */}
-        <footer className="border-t border-gray-eske-30 p-6 bg-white-eske">
+        <footer className="border-t border-gray-eske-30 dark:border-white/10 p-6 bg-white-eske dark:bg-[#18324A]">
           <div 
             className="flex items-center gap-3"
             role="group"
@@ -246,7 +246,7 @@ export default function CommentModal({
                 onDelete(comment.id, comment.postId);
                 onClose();
               }}
-              className="px-6 py-3 bg-gray-eske-40 text-gray-800 rounded-lg hover:bg-red-eske-20 hover:text-red-eske transition-colors font-semibold shadow-md focus-ring-primary"
+              className="px-6 py-3 bg-gray-eske-40 dark:bg-white/10 text-gray-800 dark:text-[#C7D6E0] rounded-lg hover:bg-red-eske-20 dark:hover:bg-red-900/30 hover:text-red-eske dark:hover:text-red-400 transition-colors font-semibold shadow-md focus-ring-primary"
               aria-label="Eliminar comentario permanentemente"
             >
               <svg 

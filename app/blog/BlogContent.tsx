@@ -128,7 +128,7 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                           day: "numeric",
                         })}
                       </time>
-                      <small className="text-bluegreen-eske font-medium">
+                      <small className="text-gray-eske-60 dark:text-[#6D8294] font-medium">
                         {author}
                       </small>
                     </div>

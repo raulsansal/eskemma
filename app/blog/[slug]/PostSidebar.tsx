@@ -23,7 +23,7 @@ export default function PostSidebar({
       className="hidden lg:block lg:w-1/3"
       aria-label="Barra lateral con contenido complementario del artículo"
     >
-      <div className="sticky top-24 space-y-6">
+      <div className="space-y-6">
         {/* 1. Tabla de contenidos */}
         {headings.length > 0 && <TableOfContents headings={headings} />}
 

@@ -81,7 +81,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 nuestras{" "}
                 <Link
                   href="/condiciones-de-uso"
-                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline focus-ring-primary rounded"
+                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                 >
                   Condiciones de Uso Generales
                 </Link>{" "}
@@ -95,7 +95,7 @@ export default function CondicionesAsesoriasGratuitas() {
                   cumplir con estas Condiciones, así como con nuestra{" "}
                   <Link
                     href="/politica-de-privacidad"
-                    className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline focus-ring-primary rounded"
+                    className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                   >
                     Política de Privacidad
                   </Link>
@@ -179,7 +179,7 @@ export default function CondicionesAsesoriasGratuitas() {
                     para participar. Consulta la sección{" "}
                     <a
                       href="#proteccion-menores"
-                      className="text-bluegreen-eske underline focus-ring-primary rounded"
+                      className="text-bluegreen-eske underline dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                     >
                       Protección de Menores (COPPA)
                     </a>
@@ -206,7 +206,7 @@ export default function CondicionesAsesoriasGratuitas() {
                   </li>
                 </ul>
 
-                <p className="mt-4 font-semibold text-bluegreen-eske">
+                <p className="mt-4 font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                   Excepción:
                 </p>
                 <p className="mb-2">
@@ -307,15 +307,15 @@ export default function CondicionesAsesoriasGratuitas() {
                   <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg">
                     <p className="font-semibold mb-2">Asesor asignado:</p>
                     <p className="mb-1">
-                      <strong>Nombre:</strong> Raúl Sánchez Salgado
+                      <strong>Nombre:</strong> Enrique Rouaix B.
                     </p>
                     <p className="mb-1">
                       <strong>Email:</strong>{" "}
                       <a
-                        href="mailto:raul.sanchezs@eskemma.com"
-                        className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                        href="mailto:enrique.rouaix@eskemma.com"
+                        className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                       >
-                        raul.sanchezs@eskemma.com
+                        enrique.rouaix@eskemma.com
                       </a>
                     </p>
                     <p className="text-[14px] mt-2">
@@ -348,18 +348,18 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div className="bg-blue-eske-10 p-4 rounded-lg">
-                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-black-eske mb-2">
                     Disponibilidad y Tiempos
                   </h4>
-                  <p className="mb-2">
+                  <p className="mb-2 dark:text-black-eske">
                     <strong>Confirmación:</strong> Inmediata al enviar el
                     formulario
                   </p>
-                  <p className="mb-2">
+                  <p className="mb-2 dark:text-black-eske">
                     <strong>Fecha de la sesión:</strong> Según tu selección en
                     el formulario (sujeto a disponibilidad del asesor)
                   </p>
-                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
+                  <p className="text-[14px] text-black-eske-20 dark:text-black-eske">
                     Si la fecha solicitada no está disponible, nos comunicaremos
                     contigo para reprogramar en el horario más cercano posible.
                   </p>
@@ -440,7 +440,7 @@ export default function CondicionesAsesoriasGratuitas() {
                     <li>Reducir la duración de la sesión al tiempo restante</li>
                     <li>Cancelar la sesión sin derecho a reprogramación</li>
                   </ul>
-                  <p className="mt-2 font-semibold text-bluegreen-eske">
+                  <p className="mt-2 font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                     Recomendación: Conéctate 5 minutos antes para verificar tu
                     conexión.
                   </p>
@@ -518,7 +518,7 @@ export default function CondicionesAsesoriasGratuitas() {
                       <strong>Solicitar una copia:</strong> Envía un correo a{" "}
                       <a
                         href="mailto:privacidad@eskemma.com"
-                        className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                        className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                       >
                         privacidad@eskemma.com
                       </a>{" "}
@@ -546,7 +546,7 @@ export default function CondicionesAsesoriasGratuitas() {
               level={2}
             >
               <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-6 rounded-lg mb-6">
-                <h4 className="text-[18px] font-bold text-bluegreen-eske mb-3">
+                <h4 className="text-[18px] font-bold text-bluegreen-eske dark:text-blue-eske-40 mb-3">
                   Consentimiento Explícito Requerido
                 </h4>
                 <p className="mb-4">
@@ -625,7 +625,7 @@ export default function CondicionesAsesoriasGratuitas() {
                     un correo a{" "}
                     <a
                       href="mailto:privacidad@eskemma.com"
-                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                     >
                       privacidad@eskemma.com
                     </a>{" "}
@@ -647,7 +647,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </h4>
                 <p className="mb-4 text-black-eske dark:text-[#C7D6E0]">
                   Nuestro servicio de asesorías está diseñado para adultos.{" "}
-                  <strong>Si eres menor de 18 años,</strong>
+                  <strong>Si eres menor de 18 años, </strong>
                   necesitas el consentimiento de un padre, madre o tutor legal
                   para participar.
                 </p>
@@ -733,7 +733,7 @@ export default function CondicionesAsesoriasGratuitas() {
                     Para ejercer estos derechos: Envía un correo a{" "}
                     <a
                       href="mailto:privacidad@eskemma.com"
-                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                     >
                       privacidad@eskemma.com
                     </a>{" "}
@@ -915,7 +915,7 @@ export default function CondicionesAsesoriasGratuitas() {
                       confirmación, o envía un correo a{" "}
                       <a
                         href="mailto:asesorias@eskemma.com"
-                        className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                        className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                       >
                         asesorias@eskemma.com
                       </a>
@@ -953,14 +953,14 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div className="bg-blue-eske-10 p-4 rounded-lg">
-                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
+                  <h4 className="text-[16px] font-semibold text-black-eske dark:text-black-eske mb-2">
                     10.3. Emergencias o Circunstancias Especiales
                   </h4>
-                  <p className="mb-2">
+                  <p className="mb-2 dark:text-black-eske">
                     Si tienes una emergencia genuina (enfermedad grave,
                     accidente, fallecimiento familiar):
                   </p>
-                  <ul className="list-disc list-inside space-y-1 ml-4">
+                  <ul className="list-disc list-inside space-y-1 ml-4 dark:text-black-eske">
                     <li>
                       Contacta a{" "}
                       <a
@@ -988,7 +988,7 @@ export default function CondicionesAsesoriasGratuitas() {
                   <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                     11.1. Código de Conducta
                   </h4>
-                  <p className="mb-2 font-semibold text-green-eske">
+                  <p className="mb-2 font-semibold text-green-eske dark:text-green-eske-30">
                     Durante la sesión, se espera que:
                   </p>
                   <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
@@ -1084,7 +1084,7 @@ export default function CondicionesAsesoriasGratuitas() {
                     El tratamiento de tus datos personales se rige por nuestra{" "}
                     <Link
                       href="/politica-de-privacidad"
-                      className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline focus-ring-primary rounded"
+                      className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                     >
                       Política de Privacidad
                     </Link>
@@ -1104,7 +1104,7 @@ export default function CondicionesAsesoriasGratuitas() {
                 </div>
 
                 <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg">
-                  <h4 className="text-[16px] font-semibold text-bluegreen-eske mb-2">
+                  <h4 className="text-[16px] font-semibold text-bluegreen-eske dark:text-blue-eske-40 mb-2">
                     12.3. Uso de Testimonios
                   </h4>
                   <p className="mb-2">
@@ -1193,7 +1193,7 @@ export default function CondicionesAsesoriasGratuitas() {
                     caso la responsabilidad total de Eskemma excederá{" "}
                     <strong>$0 USD/MXN/EUR</strong>.
                   </p>
-                  <p className="font-semibold text-bluegreen-eske">
+                  <p className="font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                     Excepción para usuarios en la UE:
                   </p>
                   <p className="mb-2">
@@ -1232,17 +1232,17 @@ export default function CondicionesAsesoriasGratuitas() {
               </ul>
 
               <div className="bg-blue-eske-10 p-4 rounded-lg">
-                <p className="font-semibold mb-2">
+                <p className="font-semibold mb-2 dark:text-black-eske">
                   Tu derecho a rechazar cambios:
                 </p>
-                <p className="mb-2">
+                <p className="mb-2 dark:text-black-eske">
                   Si no estás de acuerdo con las nuevas Condiciones, puedes:
                 </p>
-                <ul className="list-disc list-inside space-y-1 ml-4">
+                <ul className="list-disc list-inside space-y-1 ml-4 dark:text-black-eske">
                   <li>Cancelar tu sesión agendada sin penalización</li>
                   <li>No solicitar futuras asesorías</li>
                 </ul>
-                <p className="mt-2 font-semibold">
+                <p className="mt-2 font-semibold dark:text-black-eske">
                   Si participas en una sesión después de la fecha de entrada en
                   vigor, se considerará que aceptas las nuevas Condiciones.
                 </p>
@@ -1261,7 +1261,7 @@ export default function CondicionesAsesoriasGratuitas() {
                   <p className="font-semibold text-bluegreen-eske mb-2">
                     Asesorías y Reservas:
                   </p>
-                  <p className="mb-1">
+                  <p className="mb-1 dark:text-black-eske">
                     <strong>Correo:</strong>{" "}
                     <a
                       href="mailto:asesorias@eskemma.com"
@@ -1270,7 +1270,7 @@ export default function CondicionesAsesoriasGratuitas() {
                       asesorias@eskemma.com
                     </a>
                   </p>
-                  <p>
+                  <p className="dark:text-black-eske">
                     <strong>Horario:</strong> Lunes a Viernes, 9:00 AM - 6:00 PM
                     (Hora del Centro de México)
                   </p>
@@ -1280,7 +1280,7 @@ export default function CondicionesAsesoriasGratuitas() {
                   <p className="font-semibold text-bluegreen-eske mb-2">
                     Privacidad y Protección de Datos:
                   </p>
-                  <p className="mb-1">
+                  <p className="mb-1 dark:text-black-eske">
                     <strong>Correo:</strong>{" "}
                     <a
                       href="mailto:privacidad@eskemma.com"
@@ -1289,7 +1289,7 @@ export default function CondicionesAsesoriasGratuitas() {
                       privacidad@eskemma.com
                     </a>
                   </p>
-                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
+                  <p className="text-[14px] text-black-eske-20 dark:text-black-eske">
                     (Para ejercer derechos GDPR, CCPA, COPPA o LFPDPPP)
                   </p>
                 </div>
@@ -1298,7 +1298,7 @@ export default function CondicionesAsesoriasGratuitas() {
                   <p className="font-semibold text-bluegreen-eske mb-2">
                     Asuntos Legales:
                   </p>
-                  <p className="mb-1">
+                  <p className="mb-1 dark:text-black-eske">
                     <strong>Correo:</strong>{" "}
                     <a
                       href="mailto:legal@eskemma.com"
@@ -1313,7 +1313,7 @@ export default function CondicionesAsesoriasGratuitas() {
                   <p className="font-semibold text-bluegreen-eske mb-2">
                     Soporte Técnico General:
                   </p>
-                  <p className="mb-1">
+                  <p className="mb-1 dark:text-black-eske">
                     <strong>Correo:</strong>{" "}
                     <a
                       href="mailto:soporte@eskemma.com"
@@ -1326,7 +1326,7 @@ export default function CondicionesAsesoriasGratuitas() {
               </div>
 
               <div className="mt-6 p-4 bg-gray-eske-10 rounded-lg">
-                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
+                <p className="text-[14px] text-black-eske dark:text-black-eske">
                   <strong>Tiempo de respuesta:</strong> Nos comprometemos a
                   responder todas las consultas en un plazo máximo de 3 días
                   hábiles.
@@ -1354,26 +1354,26 @@ export default function CondicionesAsesoriasGratuitas() {
                 <Link href="/condiciones-de-uso" className="flex-1">
                   <Button
                     label="Ver Condiciones Generales"
-                    variant="secondary"
+                    variant="primary"
                   />
                 </Link>
               </div>
             </div>
 
             {/* Nota final */}
-            <div className="mt-8 text-center text-[12px] text-black-eske-30 dark:text-[#6D8294]">
+            <div className="mt-8 text-center text-[12px] text-black-eske-30 dark:text-[#C7D6E0]">
               <p className="mb-2">
                 Estas Condiciones son complementarias a nuestras{" "}
                 <Link
                   href="/condiciones-de-uso"
-                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline focus-ring-primary rounded"
+                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline focus-ring-primary rounded"
                 >
                   Condiciones de Uso Generales
                 </Link>{" "}
                 y nuestra{" "}
                 <Link
                   href="/politica-de-privacidad"
-                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline focus-ring-primary rounded"
+                  className="text-bluegreen-eske hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline focus-ring-primary rounded"
                 >
                   Política de Privacidad
                 </Link>

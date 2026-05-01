@@ -222,7 +222,7 @@ export default async function PostPage({
                 {/* Título */}
                 <h1
                   id="post-title"
-                  className="text-3xl sm:text-4xl font-bold text-bluegreen-eske mb-6"
+                  className="text-3xl sm:text-4xl font-bold text-bluegreen-eske-40 mb-6"
                 >
                   {validatedPostData.title}
                 </h1>
@@ -418,7 +418,7 @@ export default async function PostPage({
 
                   <Link
                     href="/blog"
-                    className="inline-flex items-center gap-2 text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors duration-200 font-medium text-sm focus-ring-primary rounded"
+                    className="inline-flex items-center gap-2 text-bluegreen-eske-40 hover:text-bluegreen-eske transition-colors duration-200 font-medium text-sm focus-ring-primary rounded"
                     aria-label="Volver a la lista de artículos del blog"
                   >
                     <svg

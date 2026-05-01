@@ -205,7 +205,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               ) : (
                 <p className="text-gray-600 dark:text-[#9AAEBE] text-sm">
                   Mostrando{" "}
-                  <span className="font-semibold text-bluegreen-eske">
+                  <span className="font-semibold text-bluegreen-eske-40">
                     {totalPosts}
                   </span>{" "}
                   {totalPosts === 1 ? "artículo" : "artículos"}

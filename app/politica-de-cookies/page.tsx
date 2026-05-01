@@ -49,7 +49,7 @@ export default function PoliticaDeCookiesPage() {
         <div className="mb-12 p-6 bg-bluegreen-eske-10 dark:bg-[#112230] border-2 border-bluegreen-eske dark:border-[#4791B3] rounded-lg">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex-1">
-              <h3 className="text-[18px] font-bold text-bluegreen-eske mb-2">
+              <h3 className="text-[18px] font-bold text-bluegreen-eske dark:text-blue-eske-40 mb-2">
                 Configuración de Cookies
               </h3>
               <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
@@ -84,7 +84,7 @@ export default function PoliticaDeCookiesPage() {
               </p>
               <div className="bg-gray-eske-10 dark:bg-[#112230] p-4 rounded-lg border-l-4 border-bluegreen-eske">
                 <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
-                  <strong className="text-bluegreen-eske">
+                  <strong className="text-bluegreen-eske dark:text-blue-eske-40">
                     💡 Importante:
                   </strong>{" "}
                   Las cookies NO son virus ni programas maliciosos. Son
@@ -162,7 +162,7 @@ export default function PoliticaDeCookiesPage() {
 
               <div className="overflow-x-auto mb-6">
                 <table className="w-full border-2 border-gray-eske-40 rounded-lg overflow-hidden">
-                  <thead className="bg-green-eske-20">
+                  <thead className="bg-bluegreen-eske-20 dark:bg-[#112230]">
                     <tr>
                       <th className="text-left p-3 border-b-2 border-gray-eske-40 text-[14px] font-bold">
                         Cookie
@@ -219,7 +219,7 @@ export default function PoliticaDeCookiesPage() {
 
               <div className="bg-green-eske-10 dark:bg-green-900/20 p-4 rounded-lg border-l-4 border-green-eske dark:border-green-700">
                 <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
-                  <strong className="text-green-eske-70">
+                  <strong className="text-green-eske-20">
                     Siempre Activas:
                   </strong>{" "}
                   Estas cookies son necesarias para el funcionamiento del sitio
@@ -298,11 +298,11 @@ export default function PoliticaDeCookiesPage() {
 
               <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg border-l-4 border-bluegreen-eske mb-4">
                 <p className="text-[14px] text-black-eske-20 mb-2">
-                  <strong className="text-bluegreen-eske">
+                  <strong className="text-bluegreen-eske dark:text-blue-eske-40">
                     Información recopilada:
                   </strong>
                 </p>
-                <ul className="list-disc list-inside space-y-1 text-[14px] text-black-eske-20 ml-4">
+                <ul className="list-disc list-inside space-y-1 text-[14px] text-black-eske-20 dark:text-[#C7D6E0] ml-4">
                   <li>Páginas visitadas y tiempo de permanencia</li>
                   <li>Flujo de navegación entre páginas</li>
                   <li>Tipo de dispositivo y navegador (anonimizado)</li>
@@ -334,7 +334,7 @@ export default function PoliticaDeCookiesPage() {
 
               <div className="overflow-x-auto mb-6">
                 <table className="w-full border-2 border-gray-eske-40 rounded-lg overflow-hidden">
-                  <thead className="bg-orange-200">
+                  <thead className="bg-bluegreen-eske-20 dark:bg-[#112230]">
                     <tr>
                       <th className="text-left p-3 border-b-2 border-gray-eske-40 text-[14px] font-bold">
                         Cookie
@@ -385,9 +385,9 @@ export default function PoliticaDeCookiesPage() {
                 </table>
               </div>
 
-              <div className="bg-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
+              <div className="bg-orange-100 dark:bg-orange-900/20 p-4 rounded-lg border-l-4 border-orange-500">
                 <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
-                  <strong className="text-orange-600">
+                  <strong className="text-orange-600 dark:text-orange-eske-30">
                     Consentimiento Requerido:
                   </strong>{" "}
                   Estas cookies solo se activan si das tu consentimiento
@@ -407,10 +407,10 @@ export default function PoliticaDeCookiesPage() {
 
               <div className="space-y-4">
                 <div className="p-4 bg-bluegreen-eske-10 dark:bg-[#112230] border-2 border-bluegreen-eske dark:border-[#4791B3] rounded-lg">
-                  <h4 className="font-bold text-[16px] text-bluegreen-eske mb-2 flex items-center gap-2">
+                  <h4 className="font-bold text-[16px] text-bluegreen-eske dark:text-blue-eske-40 mb-2 flex items-center gap-2">
                     Panel de Configuración de Eskemma
                   </h4>
-                  <p className="text-[14px] text-black-eske-20 mb-3">
+                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0] mb-3">
                     La forma más sencilla de gestionar tus cookies es a través
                     de nuestro panel de configuración. Puedes activar o
                     desactivar cada categoría de cookies según tus preferencias.
@@ -446,10 +446,10 @@ export default function PoliticaDeCookiesPage() {
                   <div className="flex items-start gap-3 mb-2">
                     <span className="text-2xl">✅</span>
                     <div>
-                      <h5 className="font-bold text-[14px] text-bluegreen-eske mb-1">
+                      <h5 className="font-bold text-[14px] text-bluegreen-eske dark:text-blue-eske-40 mb-1">
                         Aceptar Todo
                       </h5>
-                      <p className="text-[13px] text-black-eske-20">
+                      <p className="text-[13px] text-black-eske-20 dark:text-[#C7D6E0]">
                         Activa todas las categorías de cookies para una
                         experiencia completa
                       </p>
@@ -461,10 +461,10 @@ export default function PoliticaDeCookiesPage() {
                   <div className="flex items-start gap-3 mb-2">
                     <span className="text-2xl">🔒</span>
                     <div>
-                      <h5 className="font-bold text-[14px] text-bluegreen-eske mb-1">
+                      <h5 className="font-bold text-[14px] text-bluegreen-eske dark:text-blue-eske-40 mb-1">
                         Solo Esenciales
                       </h5>
-                      <p className="text-[13px] text-black-eske-20">
+                      <p className="text-[13px] text-black-eske-20 dark:text-[#C7D6E0]">
                         Mantén solo las cookies necesarias para el
                         funcionamiento básico
                       </p>
@@ -476,10 +476,10 @@ export default function PoliticaDeCookiesPage() {
                   <div className="flex items-start gap-3 mb-2">
                     <span className="text-2xl">⚙️</span>
                     <div>
-                      <h5 className="font-bold text-[14px] text-bluegreen-eske mb-1">
+                      <h5 className="font-bold text-[14px] text-bluegreen-eske dark:text-blue-eske-40 mb-1">
                         Configuración Personalizada
                       </h5>
-                      <p className="text-[13px] text-black-eske-20">
+                      <p className="text-[13px] text-black-eske-20 dark:text-[#C7D6E0]">
                         Elige específicamente qué categorías deseas activar o
                         desactivar
                       </p>
@@ -491,10 +491,10 @@ export default function PoliticaDeCookiesPage() {
                   <div className="flex items-start gap-3 mb-2">
                     <span className="text-2xl">🔄</span>
                     <div>
-                      <h5 className="font-bold text-[14px] text-bluegreen-eske mb-1">
+                      <h5 className="font-bold text-[14px] text-bluegreen-eske dark:text-blue-eske-40 mb-1">
                         Cambiar en Cualquier Momento
                       </h5>
-                      <p className="text-[13px] text-black-eske-20">
+                      <p className="text-[13px] text-black-eske-20 dark:text-[#C7D6E0]">
                         Tus preferencias se pueden modificar cuando quieras
                       </p>
                     </div>
@@ -503,7 +503,7 @@ export default function PoliticaDeCookiesPage() {
               </div>
 
               <div className="p-4 bg-bluegreen-eske-10 dark:bg-[#112230] rounded-lg">
-                <p className="text-[14px] text-black-eske-20 mb-3">
+                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0] mb-3">
                   <strong>¿Listo para configurar tus cookies?</strong> Haz clic
                   en el botón de abajo para abrir el panel de configuración:
                 </p>
@@ -529,7 +529,7 @@ export default function PoliticaDeCookiesPage() {
                   <summary className="p-4 bg-gray-eske-10 dark:bg-[#21425E] cursor-pointer hover:bg-gray-eske-20 dark:hover:bg-[#2C5273] transition-colors font-bold text-[15px] flex items-center gap-2 dark:text-[#EAF2F8]">
                     <span>🟢</span> Google Chrome
                   </summary>
-                  <div className="p-4 text-[14px] text-black-eske-20">
+                  <div className="p-4 text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                     <ol className="list-decimal list-inside space-y-2">
                       <li>
                         Haz clic en el menú (⋮) en la esquina superior derecha
@@ -551,7 +551,7 @@ export default function PoliticaDeCookiesPage() {
                         href="https://support.google.com/chrome/answer/95647"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800 focus-ring-primary rounded"
+                        className="text-blue-600 underline hover:text-blue-800 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                       >
                         Ver guía completa de Google →
                         <span className="sr-only">
@@ -568,7 +568,7 @@ export default function PoliticaDeCookiesPage() {
                   <summary className="p-4 bg-gray-eske-10 dark:bg-[#21425E] cursor-pointer hover:bg-gray-eske-20 dark:hover:bg-[#2C5273] transition-colors font-bold text-[15px] flex items-center gap-2 dark:text-[#EAF2F8]">
                     <span>🟠</span> Mozilla Firefox
                   </summary>
-                  <div className="p-4 text-[14px] text-black-eske-20">
+                  <div className="p-4 text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                     <ol className="list-decimal list-inside space-y-2">
                       <li>
                         Haz clic en el menú (≡) en la esquina superior derecha
@@ -590,7 +590,7 @@ export default function PoliticaDeCookiesPage() {
                         href="https://support.mozilla.org/es/kb/cookies-informacion-que-los-sitios-web-guardan-en-"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800 focus-ring-primary rounded"
+                        className="text-blue-600 underline hover:text-blue-800 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                       >
                         Ver guía completa de Firefox →
                         <span className="sr-only">
@@ -607,7 +607,7 @@ export default function PoliticaDeCookiesPage() {
                   <summary className="p-4 bg-gray-eske-10 dark:bg-[#21425E] cursor-pointer hover:bg-gray-eske-20 dark:hover:bg-[#2C5273] transition-colors font-bold text-[15px] flex items-center gap-2 dark:text-[#EAF2F8]">
                     <span>🔵</span> Safari
                   </summary>
-                  <div className="p-4 text-[14px] text-black-eske-20">
+                  <div className="p-4 text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                     <ol className="list-decimal list-inside space-y-2">
                       <li>
                         Haz clic en <strong>Safari</strong> en la barra de menú
@@ -625,7 +625,7 @@ export default function PoliticaDeCookiesPage() {
                         href="https://support.apple.com/es-es/guide/safari/sfri11471/mac"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800 focus-ring-primary rounded"
+                        className="text-blue-600 underline hover:text-blue-800 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                       >
                         Ver guía completa de Apple →
                         <span className="sr-only">
@@ -642,7 +642,7 @@ export default function PoliticaDeCookiesPage() {
                   <summary className="p-4 bg-gray-eske-10 dark:bg-[#21425E] cursor-pointer hover:bg-gray-eske-20 dark:hover:bg-[#2C5273] transition-colors font-bold text-[15px] flex items-center gap-2 dark:text-[#EAF2F8]">
                     <span>🟣</span> Microsoft Edge
                   </summary>
-                  <div className="p-4 text-[14px] text-black-eske-20">
+                  <div className="p-4 text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
                     <ol className="list-decimal list-inside space-y-2">
                       <li>
                         Haz clic en el menú (…) en la esquina superior derecha
@@ -663,7 +663,7 @@ export default function PoliticaDeCookiesPage() {
                         href="https://support.microsoft.com/es-es/microsoft-edge/eliminar-las-cookies-en-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800 focus-ring-primary rounded"
+                        className="text-blue-600 underline hover:text-blue-800 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                       >
                         Ver guía completa de Microsoft →
                         <span className="sr-only">
@@ -677,8 +677,8 @@ export default function PoliticaDeCookiesPage() {
               </div>
 
               <div className="mt-6 bg-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
-                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
-                  <strong className="text-orange-600">⚠️ Advertencia:</strong>{" "}
+                <p className="text-[14px] text-black-eske-20">
+                  <strong className="text-orange-600 dark:text-orange-eske-30 ">⚠️ Advertencia:</strong>{" "}
                   Si desactivas todas las cookies, algunas funciones del sitio
                   web podrían no funcionar correctamente, como el inicio de
                   sesión o la personalización de tu experiencia.
@@ -698,32 +698,32 @@ export default function PoliticaDeCookiesPage() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
-                  <h4 className="font-bold text-[16px] text-bluegreen-eske mb-2 flex items-center gap-2">
+                  <h4 className="font-bold text-[16px] text-bluegreen-eske dark:text-blue-eske-40 mb-2 flex items-center gap-2">
                     Cookies de Sesión
                   </h4>
-                  <p className="text-[14px] text-black-eske-20 mb-2">
+                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0] mb-2">
                     Se eliminan automáticamente cuando cierras el navegador.
                   </p>
-                  <p className="text-[13px] text-black-eske-30">
+                  <p className="text-[13px] text-black-eske-30 dark:text-[#9AAEBE]">
                     <strong>Ejemplo:</strong> csrf_token
                   </p>
                 </div>
 
                 <div className="p-4 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
-                  <h4 className="font-bold text-[16px] text-bluegreen-eske mb-2 flex items-center gap-2">
+                  <h4 className="font-bold text-[16px] text-bluegreen-eske dark:text-blue-eske-40 mb-2 flex items-center gap-2">
                     Cookies Persistentes
                   </h4>
-                  <p className="text-[14px] text-black-eske-20 mb-2">
+                  <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0] mb-2">
                     Permanecen en tu dispositivo durante un tiempo determinado.
                   </p>
-                  <p className="text-[13px] text-black-eske-30">
+                  <p className="text-[13px] text-black-eske-30 dark:text-[#9AAEBE]">
                     <strong>Duración:</strong> Desde 24 horas hasta 2 años
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 p-4 bg-bluegreen-eske-10 rounded-lg">
-                <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
+                <p className="text-[14px] text-black-eske-20 dark:text-black-eske">
                   Todas nuestras cookies tienen una duración limitada y se
                   eliminan automáticamente al cumplir su plazo de expiración.
                   Puedes eliminar las cookies manualmente en cualquier momento
@@ -750,7 +750,7 @@ export default function PoliticaDeCookiesPage() {
               </p>
               <div className="bg-bluegreen-eske-10 dark:bg-[#112230] p-4 rounded-lg border-l-4 border-bluegreen-eske">
                 <p className="text-[14px] text-black-eske-20 dark:text-[#C7D6E0]">
-                  <strong className="text-bluegreen-eske">
+                  <strong className="text-bluegreen-eske dark:text-blue-eske-40">
                     Te notificaremos:
                   </strong>{" "}
                   Si realizamos cambios importantes en esta política, te
@@ -771,12 +771,12 @@ export default function PoliticaDeCookiesPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <div>
-                    <p className="text-[13px] text-black-eske-30 mb-1">
+                    <p className="text-[13px] text-black-eske-30 dark:text-[#9AAEBE] mb-1">
                       Correo electrónico
                     </p>
                     <a
                       href="mailto:privacidad@eskemma.com"
-                      className="text-[15px] font-semibold text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors focus-ring-primary rounded"
+                      className="text-[15px] font-semibold text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                     >
                       privacidad@eskemma.com
                     </a>
@@ -785,7 +785,7 @@ export default function PoliticaDeCookiesPage() {
 
                 <div className="flex items-center gap-3 p-3 bg-white-eske dark:bg-[#18324A] border-2 border-bluegreen-eske-20 dark:border-white/10 rounded-lg">
                   <div>
-                    <p className="text-[13px] text-black-eske-30 mb-1">
+                    <p className="text-[13px] text-black-eske-30 dark:text-[#9AAEBE] mb-1">
                       Dirección postal
                     </p>
                     <p className="text-[15px] font-semibold text-black-eske dark:text-[#EAF2F8]">
@@ -820,7 +820,7 @@ export default function PoliticaDeCookiesPage() {
                 <Link href="/" className="flex-1">
                   <Button label="Volver al Inicio" variant="primary" />
                 </Link>
-                <CookieConfigButton variant="light" />
+                <CookieConfigButton variant="compact" />
               </div>
             </div>
           </div>

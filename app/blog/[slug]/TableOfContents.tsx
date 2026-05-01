@@ -63,17 +63,17 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
   };
 
   return (
-    <nav 
-      className="sticky top-24 bg-white-eske dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg p-6 shadow-sm max-h-[calc(100vh-120px)] overflow-y-auto"
+    <nav
+      className="bg-white-eske dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg p-6 shadow-sm"
       aria-labelledby="toc-heading"
     >
-      <h3 
+      <h3
         id="toc-heading"
-        className="text-lg font-semibold text-bluegreen-eske mb-4"
+        className="text-lg font-semibold text-bluegreen-eske-40 mb-4"
       >
         Tabla de contenidos
       </h3>
-      <ul 
+      <ul
         className="space-y-2"
         role="list"
       >
@@ -88,7 +88,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
               onClick={(e) => handleClick(e, id)}
               className={`block text-sm transition-colors duration-200 hover:text-bluegreen-eske focus-ring-primary rounded ${
                 activeId === id
-                  ? "text-bluegreen-eske font-semibold"
+                  ? "text-bluegreen-eske dark:text-blue-eske-40 font-semibold"
                   : "text-gray-eske-70 dark:text-[#9AAEBE]"
               }`}
               aria-label={`Ir a la sección: ${text}`}

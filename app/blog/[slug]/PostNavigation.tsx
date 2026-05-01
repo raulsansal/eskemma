@@ -125,7 +125,7 @@ export default function PostNavigation({ previous, next }: PostNavigationProps) 
             </span>
           </div>
 
-          <h4 className="text-base font-semibold text-gray-800 group-hover:text-bluegreen-eske transition-colors line-clamp-2 text-right">
+          <h4 className="text-base font-semibold text-gray-800 dark:text-[#EAF2F8] group-hover:text-bluegreen-eske dark:group-hover:text-[#6BA4C6] transition-colors line-clamp-2 text-right">
             {next.title}
           </h4>
         </Link>

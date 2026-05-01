@@ -227,10 +227,10 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
       {/* Panel */}
       <div
         ref={modalRef as React.RefObject<HTMLDivElement>}
-        className="relative w-full max-w-md bg-white-eske rounded-xl shadow-xl overflow-hidden"
+        className="relative w-full max-w-md bg-white-eske dark:bg-[#18324A] rounded-xl shadow-xl overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-eske-20">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-eske-20 dark:border-white/10">
           <h2
             id="modal-semanal-metodologia-title"
             className="text-base font-semibold text-bluegreen-eske flex items-center gap-2"
@@ -244,7 +244,7 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={onClose}
             aria-label="Cerrar modal de metodología"
-            className="text-black-eske-60 hover:text-black-eske transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+            className="text-black-eske-60 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8] transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -253,7 +253,7 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Body */}
-        <div className="px-5 py-4 space-y-4 text-sm text-black-eske leading-relaxed max-h-[70vh] overflow-y-auto">
+        <div className="px-5 py-4 space-y-4 text-sm text-black-eske dark:text-[#C7D6E0] leading-relaxed max-h-[70vh] overflow-y-auto">
           <p>
             La proyección utiliza un{" "}
             <strong>modelo de tasa de crecimiento semanal compuesto</strong>{" "}
@@ -272,7 +272,7 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
 
           <div>
             <p className="font-semibold text-bluegreen-eske mb-2">Fórmula:</p>
-            <div className="bg-gray-eske-10 rounded-lg p-3 border-l-4 border-bluegreen-eske font-mono text-xs space-y-1">
+            <div className="bg-gray-eske-10 dark:bg-[#112230] rounded-lg p-3 border-l-4 border-bluegreen-eske font-mono text-xs space-y-1">
               <p>Tasa = (Valor_final / Valor_inicial)^(1/(n−1)) − 1</p>
               <p>Proyección(i) = Último_valor × (1 + Tasa)^i</p>
             </div>
@@ -293,13 +293,13 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
             </ul>
           </div>
 
-          <p className="text-xs text-black-eske-60 text-center border-t border-gray-eske-20 pt-3">
+          <p className="text-xs text-black-eske-60 dark:text-[#6D8294] text-center border-t border-gray-eske-20 dark:border-white/10 pt-3">
             Esta es una herramienta de referencia. Los datos oficiales son los publicados por el INE.
           </p>
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-eske-20 flex justify-center">
+        <div className="px-5 py-3 border-t border-gray-eske-20 dark:border-white/10 flex justify-center">
           <button
             type="button"
             onClick={onClose}
@@ -338,7 +338,7 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
 
   if (serie.length < 2) {
     return (
-      <p className="text-sm text-black-eske-60 text-center py-6">
+      <p className="text-sm text-black-eske-60 dark:text-[#6D8294] text-center py-6">
         Sin datos de serie temporal suficientes para proyección (se necesitan al menos 2 cortes).
       </p>
     );
@@ -405,13 +405,13 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
       {showModal && <MetodologiaModal onClose={() => setShowModal(false)} />}
 
       {/* Widget: selector de rangos */}
-      <div className="mb-4 rounded-lg border border-gray-eske-20 bg-gray-eske-10 p-3">
+      <div className="mb-4 rounded-lg border border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] p-3">
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-semibold text-black-eske-60 mb-2">Rangos de edad:</p>
+            <p className="text-[11px] font-semibold text-black-eske-60 dark:text-[#9AAEBE] mb-2">Rangos de edad:</p>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-x-4 gap-y-1.5">
               {RANGOS_EDAD.map((r) => (
-                <label key={r} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80">
+                <label key={r} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80 dark:text-[#C7D6E0]">
                   <input
                     type="checkbox"
                     checked={rangosActivos.has(r)}
@@ -426,7 +426,7 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
           <div className="flex flex-col gap-1.5 shrink-0 pt-4">
             <button
               onClick={() => setRangosActivos(new Set(RANGOS_EDAD))}
-              className="px-2 py-1 text-xs rounded border border-gray-eske-30 bg-white-eske text-black-eske-60 hover:border-blue-eske hover:text-blue-eske whitespace-nowrap"
+              className="px-2 py-1 text-xs rounded border border-gray-eske-30 dark:border-white/10 bg-white-eske dark:bg-[#112230] text-black-eske-60 dark:text-[#9AAEBE] hover:border-blue-eske hover:text-blue-eske whitespace-nowrap"
             >
               ↺ Restablecer
             </button>
@@ -487,12 +487,12 @@ export function E1SerieChart({ serie, ambito }: E1Props) {
         </LineChart>
       </ResponsiveContainer>
 
-      <p className="text-[11px] text-black-eske-60 text-center mt-1">
+      <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] text-center mt-1">
         Líneas punteadas = proyección estimada hasta diciembre.
       </p>
 
       {/* Leyenda colapsable — solo mobile */}
-      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 bg-gray-eske-10 text-[11px]">
+      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] text-[11px]">
         <summary className="px-3 py-2 cursor-pointer text-bluegreen-eske font-medium flex items-center gap-1.5 select-none list-none">
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -545,7 +545,7 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
 
   if (serie.length < 2) {
     return (
-      <p className="text-sm text-black-eske-60 text-center py-6">
+      <p className="text-sm text-black-eske-60 dark:text-[#6D8294] text-center py-6">
         Sin datos suficientes para proyección por grupo etario.
       </p>
     );
@@ -593,13 +593,13 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
       {showModal && <MetodologiaModal onClose={() => setShowModal(false)} />}
 
       {/* Widget: selector de grupos */}
-      <div className="mb-4 rounded-lg border border-gray-eske-20 bg-gray-eske-10 p-3">
+      <div className="mb-4 rounded-lg border border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] p-3">
         <div className="flex items-center gap-3">
           <div className="flex-1">
-            <p className="text-[11px] font-semibold text-black-eske-60 mb-2">Grupos etarios:</p>
+            <p className="text-[11px] font-semibold text-black-eske-60 dark:text-[#9AAEBE] mb-2">Grupos etarios:</p>
             <div className="flex flex-wrap gap-x-6 gap-y-1">
               {grupoKeys.map((g) => (
-                <label key={g} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80">
+                <label key={g} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80 dark:text-[#C7D6E0]">
                   <input
                     type="checkbox"
                     checked={gruposActivos.has(g)}
@@ -614,7 +614,7 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
           <div className="flex flex-col gap-1.5 shrink-0">
             <button
               onClick={() => setGruposActivos(new Set(grupoKeys))}
-              className="px-2 py-1 text-xs rounded border border-gray-eske-30 bg-white-eske text-black-eske-60 hover:border-blue-eske hover:text-blue-eske whitespace-nowrap"
+              className="px-2 py-1 text-xs rounded border border-gray-eske-30 dark:border-white/10 bg-white-eske dark:bg-[#112230] text-black-eske-60 dark:text-[#9AAEBE] hover:border-blue-eske hover:text-blue-eske whitespace-nowrap"
             >
               ↺ Restablecer
             </button>
@@ -664,12 +664,12 @@ export function E3GruposSerieChart({ serie, ambito }: E3Props) {
         </LineChart>
       </ResponsiveContainer>
 
-      <p className="text-[11px] text-black-eske-60 text-center mt-1">
+      <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] text-center mt-1">
         Líneas punteadas = proyección estimada hasta diciembre.
       </p>
 
       {/* Leyenda colapsable — solo mobile */}
-      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 bg-gray-eske-10 text-[11px]">
+      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] text-[11px]">
         <summary className="px-3 py-2 cursor-pointer text-bluegreen-eske font-medium flex items-center gap-1.5 select-none list-none">
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

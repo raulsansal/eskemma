@@ -977,7 +977,7 @@ function SemanalFilterPanel({
         {/* Aviso Extranjero */}
         {pendingAmbito === "extranjero" && (
           <div
-            className="sm:ml-auto rounded-md px-3 py-2 text-xs text-black-eske dark:text-[#C7D6E0] sm:self-end dark:bg-[#1C3A52]"
+            className="sm:ml-auto rounded-md px-3 py-2 text-xs text-black-eske sm:self-end"
             style={{ backgroundColor: "#bcd1e3" }}
           >
             Los datos de Residentes en el Extranjero sólo están disponibles a nivel nacional y estatal.
@@ -1090,7 +1090,7 @@ export default function SemanalView() {
               "px-2.5 py-0.5 text-[11px] font-medium rounded-full transition-colors border whitespace-nowrap shrink-0",
               desglose === d.id
                 ? "bg-blue-eske text-white-eske border-blue-eske"
-                : "bg-white-eske dark:bg-[#18324A] text-black-eske-60 dark:text-[#9AAEBE] border-gray-eske-30 dark:border-white/10 hover:border-blue-eske hover:text-blue-eske",
+                : "bg-white-eske dark:bg-[#18324A] text-black-eske-60 dark:text-[#C7D6E0] border-gray-eske-30 dark:border-white/10 hover:border-blue-eske hover:text-blue-eske",
             ].join(" ")}
           >
             {d.label}

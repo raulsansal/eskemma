@@ -157,7 +157,7 @@ export default function TagInput({ value, onChange }: TagInputProps) {
             setShowSuggestions(true);
           }}
           placeholder="Escribe un tag y presiona Enter o coma..."
-          className="w-full px-4 py-2 border border-gray-eske-30 rounded-lg focus-ring-primary"
+          className="w-full px-4 py-2 border border-gray-eske-30 dark:border-white/10 dark:bg-[#112230] dark:text-[#EAF2F8] dark:placeholder-[#6D8294] rounded-lg focus-ring-primary"
           aria-describedby="tag-input-hint"
           aria-autocomplete="list"
           aria-controls="tag-suggestions"
@@ -175,13 +175,13 @@ export default function TagInput({ value, onChange }: TagInputProps) {
           <div
             ref={suggestionsRef}
             id="tag-suggestions"
-            className="absolute z-10 w-full mt-1 bg-white-eske border border-gray-eske-30 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+            className="absolute z-10 w-full mt-1 bg-white-eske dark:bg-[#18324A] border border-gray-eske-30 dark:border-white/10 rounded-lg shadow-lg max-h-60 overflow-y-auto"
             role="listbox"
             aria-label="Sugerencias de tags"
           >
             <div className="p-2">
               <p
-                className="text-xs text-gray-600 px-2 py-1 font-semibold"
+                className="text-xs text-gray-600 dark:text-[#9AAEBE] px-2 py-1 font-semibold"
                 role="presentation"
               >
                 Tags sugeridos
@@ -194,17 +194,17 @@ export default function TagInput({ value, onChange }: TagInputProps) {
                   onClick={() => addTag(suggestion.tag)}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between group focus-ring-primary ${
                     index === activeSuggestionIndex
-                      ? "bg-bluegreen-eske-10"
-                      : "hover:bg-bluegreen-eske-10"
+                      ? "bg-bluegreen-eske-10 dark:bg-white/10"
+                      : "hover:bg-bluegreen-eske-10 dark:hover:bg-white/5"
                   }`}
                   role="option"
                   aria-selected={index === activeSuggestionIndex}
                 >
-                  <span className="text-gray-800 group-hover:text-bluegreen-eske font-medium">
+                  <span className="text-gray-800 dark:text-[#C7D6E0] group-hover:text-bluegreen-eske dark:group-hover:text-[#6BA4C6] font-medium">
                     {suggestion.tag}
                   </span>
                   <span
-                    className="text-xs text-gray-500 bg-gray-eske-20 px-2 py-0.5 rounded-full"
+                    className="text-xs text-gray-500 dark:text-[#9AAEBE] bg-gray-eske-20 dark:bg-white/10 px-2 py-0.5 rounded-full"
                     aria-label={`${suggestion.count} uso${suggestion.count !== 1 ? "s" : ""}`}
                   >
                     {suggestion.count}
@@ -216,7 +216,7 @@ export default function TagInput({ value, onChange }: TagInputProps) {
         )}
       </div>
 
-      <p id="tag-input-hint" className="text-xs text-gray-600">
+      <p id="tag-input-hint" className="text-xs text-gray-600 dark:text-[#9AAEBE]">
         💡 Tip: Presiona Enter o coma para agregar. Usa tags existentes para
         mejor organización.
       </p>

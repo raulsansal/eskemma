@@ -43,7 +43,7 @@ export default function CommentsTable({
   if (comments.length === 0) {
     return (
       <section
-        className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-12 text-center"
+        className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-md border border-gray-eske-30 dark:border-white/10 p-12 text-center"
         role="status"
       >
         <svg
@@ -60,10 +60,10 @@ export default function CommentsTable({
             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
           />
         </svg>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-[#EAF2F8] mb-2">
           No hay comentarios
         </h3>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-[#9AAEBE]">
           No se encontraron comentarios con los filtros seleccionados
         </p>
       </section>
@@ -96,7 +96,7 @@ export default function CommentsTable({
   return (
     <>
       <section
-        className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 overflow-hidden"
+        className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-md border border-gray-eske-30 dark:border-white/10 overflow-hidden"
         aria-labelledby="comments-table-title"
       >
         <h2 id="comments-table-title" className="sr-only">
@@ -106,51 +106,51 @@ export default function CommentsTable({
         {/* Desktop Table */}
         <div className="hidden lg:block overflow-x-auto">
           <table className="w-full" role="table">
-            <thead className="bg-gray-eske-20 border-b border-gray-eske-30">
+            <thead className="bg-gray-eske-20 dark:bg-[#112230] border-b border-gray-eske-30 dark:border-white/10">
               <tr role="row">
                 <th
-                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-[#9AAEBE] uppercase tracking-wider"
                   scope="col"
                 >
                   Autor
                 </th>
                 <th
-                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-[#9AAEBE] uppercase tracking-wider"
                   scope="col"
                 >
                   Comentario
                 </th>
                 <th
-                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-[#9AAEBE] uppercase tracking-wider"
                   scope="col"
                 >
                   Post
                 </th>
                 <th
-                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-[#9AAEBE] uppercase tracking-wider"
                   scope="col"
                 >
                   Estado
                 </th>
                 <th
-                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-[#9AAEBE] uppercase tracking-wider"
                   scope="col"
                 >
                   Fecha
                 </th>
                 <th
-                  className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                  className="px-6 py-4 text-right text-xs font-semibold text-gray-700 dark:text-[#9AAEBE] uppercase tracking-wider"
                   scope="col"
                 >
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-eske-30">
+            <tbody className="divide-y divide-gray-eske-30 dark:divide-white/10">
               {comments.map((comment) => (
                 <tr
                   key={comment.id}
-                  className="hover:bg-gray-eske-10 transition-colors"
+                  className="hover:bg-gray-eske-10 dark:hover:bg-white/5 transition-colors"
                   role="row"
                 >
                   <td className="px-6 py-4 whitespace-nowrap" role="cell">
@@ -180,7 +180,7 @@ export default function CommentsTable({
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-gray-800">
+                        <p className="text-sm font-semibold text-gray-800 dark:text-[#EAF2F8]">
                           {comment.author.displayName}
                         </p>
                       </div>
@@ -190,7 +190,7 @@ export default function CommentsTable({
                     {/* Clickeable para abrir modal */}
                     <button
                       onClick={() => setSelectedComment(comment)}
-                      className="text-sm text-gray-700 line-clamp-2 max-w-md text-left hover:text-bluegreen-eske hover:underline transition-colors focus-ring-primary rounded"
+                      className="text-sm text-gray-700 dark:text-[#C7D6E0] line-clamp-2 max-w-md text-left hover:text-bluegreen-eske dark:hover:text-[#6BA4C6] hover:underline transition-colors focus-ring-primary rounded"
                       aria-label={`Ver comentario completo de ${comment.author.displayName}`}
                     >
                       {comment.content}
@@ -215,7 +215,7 @@ export default function CommentsTable({
                     {getStatusBadge(comment.moderationStatus)}
                   </td>
                   <td
-                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-[#9AAEBE]"
                     role="cell"
                   >
                     <time dateTime={new Date(comment.createdAt).toISOString()}>
@@ -287,7 +287,7 @@ export default function CommentsTable({
                       )}
                       <button
                         onClick={() => onDelete(comment.id, comment.postId)}
-                        className="p-2 text-gray-600 hover:bg-red-eske-20 hover:text-red-eske rounded-lg transition-colors focus-ring-primary"
+                        className="p-2 text-gray-600 dark:text-[#9AAEBE] hover:bg-red-eske-20 dark:hover:bg-red-900/30 hover:text-red-eske dark:hover:text-red-400 rounded-lg transition-colors focus-ring-primary"
                         aria-label="Eliminar comentario"
                         title="Eliminar"
                       >
@@ -316,7 +316,7 @@ export default function CommentsTable({
 
         {/* Mobile Cards */}
         <div
-          className="lg:hidden divide-y divide-gray-eske-30"
+          className="lg:hidden divide-y divide-gray-eske-30 dark:divide-white/10"
           role="list"
           aria-label={`${comments.length} comentario${comments.length !== 1 ? "s" : ""} del blog`}
         >
@@ -351,7 +351,7 @@ export default function CommentsTable({
                     <p className="text-sm font-semibold text-gray-800">
                       {comment.author.displayName}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-gray-600 dark:text-[#9AAEBE]">
                       <time
                         dateTime={new Date(comment.createdAt).toISOString()}
                       >
@@ -373,7 +373,7 @@ export default function CommentsTable({
               {/* Content - Clickeable */}
               <button
                 onClick={() => setSelectedComment(comment)}
-                className="text-sm text-gray-700 text-left w-full hover:text-bluegreen-eske transition-colors focus-ring-primary rounded"
+                className="text-sm text-gray-700 dark:text-[#C7D6E0] text-left w-full hover:text-bluegreen-eske dark:hover:text-[#6BA4C6] transition-colors focus-ring-primary rounded"
                 aria-label={`Ver comentario completo de ${comment.author.displayName}`}
               >
                 <p className="line-clamp-3">{comment.content}</p>
@@ -424,7 +424,7 @@ export default function CommentsTable({
                 )}
                 <button
                   onClick={() => onDelete(comment.id, comment.postId)}
-                  className="px-4 py-2 bg-gray-eske-40 text-gray-800 rounded-lg hover:bg-red-eske-20 hover:text-red-eske transition-colors text-sm font-semibold focus-ring-primary"
+                  className="px-4 py-2 bg-gray-eske-40 dark:bg-white/10 text-gray-800 dark:text-[#C7D6E0] rounded-lg hover:bg-red-eske-20 dark:hover:bg-red-900/30 hover:text-red-eske dark:hover:text-red-400 transition-colors text-sm font-semibold focus-ring-primary"
                   aria-label="Eliminar comentario"
                 >
                   🗑️

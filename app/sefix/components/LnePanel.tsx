@@ -99,7 +99,7 @@ export default function LnePanel() {
           {hoveredView && (
             <div
               role="tooltip"
-              className="hidden sm:flex items-center ml-4 whitespace-nowrap rounded px-2.5 py-1 text-xs text-black-eske dark:text-[#C7D6E0] shadow-sm border border-gray-eske-20 dark:border-white/10 pointer-events-none"
+              className="hidden sm:flex items-center ml-4 whitespace-nowrap rounded px-2.5 py-1 text-xs text-black-eske shadow-sm border border-gray-eske-20 dark:border-white/10 pointer-events-none"
               style={{ backgroundColor: TOOLTIP_CONFIG[hoveredView].bg }}
             >
               {TOOLTIP_CONFIG[hoveredView].text}
@@ -112,7 +112,7 @@ export default function LnePanel() {
       {tabHintVisible && (
         <div
           className={[
-            "sm:hidden px-4 py-2 text-xs text-black-eske dark:text-[#C7D6E0] flex items-center justify-between gap-2",
+            "sm:hidden px-4 py-2 text-xs text-black-eske flex items-center justify-between gap-2",
             "transition-opacity duration-500",
             tabHintFading ? "opacity-0" : "opacity-100",
           ].join(" ")}

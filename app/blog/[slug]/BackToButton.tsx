@@ -8,7 +8,7 @@ export default function BackToButton() {
     <div className="mb-8">
       <Link
         href="/blog"
-        className="inline-flex items-center gap-2 text-bluegreen-eske hover:text-bluegreen-eske-70 transition-colors duration-200 font-medium focus-ring-primary rounded"
+        className="inline-flex items-center gap-2 text-bluegreen-eske-40 hover:text-bluegreen-eske transition-colors duration-200 font-medium focus-ring-primary rounded"
         aria-label="Volver a la página principal del blog"
       >
         <svg

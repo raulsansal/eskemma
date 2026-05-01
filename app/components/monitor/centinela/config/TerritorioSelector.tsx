@@ -46,12 +46,12 @@ export default function TerritorioSelector({
   }
 
   return (
-    <div className="bg-white-eske rounded-xl shadow-md p-8 max-w-lg mx-auto">
+    <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-md p-8 max-w-lg mx-auto">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-bluegreen-eske-60 mb-1">
+        <h2 className="text-xl font-semibold text-bluegreen-eske-60 dark:text-[#6BA4C6] mb-1">
           Configurar monitoreo
         </h2>
-        <p className="text-sm text-gray-eske-90">
+        <p className="text-sm text-gray-eske-90 dark:text-[#9AAEBE]">
           Define el territorio y el tipo de análisis que deseas monitorear.
         </p>
       </div>
@@ -60,7 +60,7 @@ export default function TerritorioSelector({
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="territorio"
-            className="text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-gray-700 dark:text-[#C7D6E0]"
           >
             Territorio
           </label>
@@ -70,9 +70,9 @@ export default function TerritorioSelector({
             value={territorioNombre}
             onChange={(e) => setTerritorioNombre(e.target.value)}
             placeholder="ej. Ciudad de México, Jalisco, México"
-            className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
+            className="px-3 py-2 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]
               focus:outline-none focus:ring-2 focus:ring-bluegreen-eske
-              placeholder:text-gray-eske-60"
+              placeholder:text-gray-eske-60 dark:placeholder:text-[#6D8294]"
             required
           />
         </div>
@@ -80,7 +80,7 @@ export default function TerritorioSelector({
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="modo"
-            className="text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-gray-700 dark:text-[#C7D6E0]"
           >
             Tipo de análisis
           </label>
@@ -90,9 +90,9 @@ export default function TerritorioSelector({
             onChange={(e) =>
               setModo(e.target.value as "ciudadano" | "gubernamental")
             }
-            className="px-3 py-2 border border-gray-eske-30 rounded-lg text-sm
+            className="px-3 py-2 border border-gray-eske-30 dark:border-white/10 rounded-lg text-sm
               focus:outline-none focus:ring-2 focus:ring-bluegreen-eske
-              bg-white-eske"
+              bg-white-eske dark:bg-[#112230] text-black-eske dark:text-[#EAF2F8]"
           >
             <option value="ciudadano">Ciudadano</option>
             <option value="gubernamental">Gubernamental</option>
@@ -100,7 +100,7 @@ export default function TerritorioSelector({
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+          <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg">
             {error}
           </p>
         )}

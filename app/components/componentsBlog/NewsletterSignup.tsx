@@ -187,7 +187,7 @@ export default function NewsletterSignup() {
         <button
           type="submit"
           disabled={status === "loading" || status === "success"}
-          className="w-full bg-white dark:bg-[#112230] text-bluegreen-eske font-medium py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-ring-primary"
+          className="w-full bg-bluegreen-eske text-white font-semibold py-2 px-6 rounded-lg hover:bg-bluegreen-eske-70 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-ring-primary"
           aria-label={
             status === "loading"
               ? "Procesando suscripción"

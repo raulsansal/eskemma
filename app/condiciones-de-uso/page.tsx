@@ -53,7 +53,7 @@ export default function CondicionesDeUso() {
                 Al acceder o utilizar nuestro sitio web y nuestros servicios,
                 aceptas cumplir con estas Condiciones de Uso.
               </p>
-              <p className="font-semibold text-bluegreen-eske">
+              <p className="font-semibold text-bluegreen-eske dark:text-blue-eske-40 ">
                 Si no estás de acuerdo con algún término, te pedimos que no
                 utilices la Plataforma.
               </p>
@@ -80,7 +80,7 @@ export default function CondicionesDeUso() {
                   Las asesorías gratuitas se rigen por sus propias{" "}
                   <Link
                     href="/condiciones-asesorias-gratuitas"
-                    className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline focus-ring-primary rounded"
+                    className="text-bluegreen-eske hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline focus-ring-primary rounded"
                   >
                     Condiciones de Uso para Asesorías Gratuitas
                   </Link>
@@ -97,7 +97,7 @@ export default function CondicionesDeUso() {
                   Términos y por nuestra{" "}
                   <Link
                     href="/politica-de-privacidad"
-                    className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline focus-ring-primary rounded"
+                    className="text-bluegreen-eske hover:text-bluegreen-eske-70 dark:text-blue-eske-40  hover:dark:text-blue-eske-10 underline focus-ring-primary rounded"
                   >
                     Política de Privacidad
                   </Link>
@@ -150,7 +150,7 @@ export default function CondicionesDeUso() {
                     Envía un correo a:{" "}
                     <a
                       href="mailto:soporte@eskemma.com"
-                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                      className="text-bluegreen-eske dark:text-blue-eske-40  hover:dark:text-blue-eske-10 underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                     >
                       soporte@eskemma.com
                     </a>{" "}
@@ -266,7 +266,7 @@ export default function CondicionesDeUso() {
                 <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   3.3. Propiedad Intelectual
                 </h4>
-                <p className="mb-4 font-semibold text-bluegreen-eske">
+                <p className="mb-4 font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                   Todo el contenido de Eskemma es propiedad exclusiva de Eskemma
                   o de sus licenciantes, incluyendo:
                 </p>
@@ -357,7 +357,7 @@ export default function CondicionesDeUso() {
                   4.3. Reembolsos y Cancelaciones
                 </h4>
 
-                <div className="bg-blue-eske-10 p-4 rounded-lg mb-4">
+                <div className="bg-blue-eske-10 p-4 rounded-lg mb-4 text-black-eske">
                   <p className="font-semibold mb-2">Política General:</p>
                   <p>
                     NO ofrecemos reembolsos por suscripciones ya iniciadas o
@@ -393,7 +393,7 @@ export default function CondicionesDeUso() {
                       Envía un correo a:{" "}
                       <a
                         href="mailto:reembolsos@eskemma.com"
-                        className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                        className="text-bluegreen-eske dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                       >
                         reembolsos@eskemma.com
                       </a>
@@ -420,13 +420,13 @@ export default function CondicionesDeUso() {
                       O enviando un correo a:{" "}
                       <a
                         href="mailto:cancelaciones@eskemma.com"
-                        className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                        className="text-bluegreen-eske dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                       >
                         cancelaciones@eskemma.com
                       </a>
                     </li>
                   </ul>
-                  <p className="mt-2 font-semibold text-bluegreen-eske">
+                  <p className="mt-2 font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                     Tu acceso continúa hasta el fin del período pagado. No se
                     emitirán reembolsos por el tiempo restante.
                   </p>
@@ -502,7 +502,7 @@ export default function CondicionesDeUso() {
                 <p className="mb-2 text-black-eske dark:text-[#C7D6E0]">
                   Eskemma se reserva el derecho de:
                 </p>
-                <ul className="list-disc list-inside space-y-1 ml-4 text-black-eske">
+                <ul className="list-disc list-inside space-y-1 ml-4 text-black-eske dark:text-[#C7D6E0]">
                   <li>Suspender o eliminar cuentas que violen estas reglas</li>
                   <li>
                     Reportar actividades ilegales a las autoridades competentes
@@ -610,7 +610,7 @@ export default function CondicionesDeUso() {
                 <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
                   6.4. Para Usuarios en la Unión Europea
                 </h4>
-                <p className="mb-2 font-semibold text-bluegreen-eske">
+                <p className="mb-2 font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                   Derechos del consumidor protegidos:
                 </p>
                 <p className="mb-2">
@@ -665,7 +665,7 @@ export default function CondicionesDeUso() {
                     <strong>Ley aplicable:</strong> Reglamento (CE) nº 593/2008
                     (Roma I) y Reglamento (UE) nº 1215/2012 (Bruselas I bis)
                   </p>
-                  <p className="mb-2 font-semibold text-bluegreen-eske">
+                  <p className="mb-2 font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                     Protección del consumidor:
                   </p>
                   <p className="mb-2">
@@ -691,7 +691,7 @@ export default function CondicionesDeUso() {
                     federales ubicados en Wilmington, Delaware
                   </p>
 
-                  <div className="bg-blue-eske-10 p-4 rounded-lg mt-4">
+                  <div className="bg-blue-eske-10 p-4 rounded-lg mt-4 text-black-eske">
                     <p className="font-semibold mb-2">
                       Cláusula de Arbitraje (disputas menores a $10,000 USD):
                     </p>
@@ -752,8 +752,8 @@ export default function CondicionesDeUso() {
                 </ul>
               </div>
 
-              <div className="mt-6 mb-6 bg-blue-eske-10 p-4 rounded-lg">
-                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
+              <div className="mt-6 mb-6 bg-blue-eske-10 p-4 rounded-lg text-black-eske">
+                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
                   8.2. Solicitud de Ajustes Razonables
                 </h4>
                 <p className="mb-2">
@@ -784,7 +784,7 @@ export default function CondicionesDeUso() {
                   <strong>Correo general:</strong>{" "}
                   <a
                     href="mailto:contacto@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                   >
                     contacto@eskemma.com
                   </a>
@@ -792,7 +792,7 @@ export default function CondicionesDeUso() {
                   <strong>Soporte técnico:</strong>{" "}
                   <a
                     href="mailto:soporte@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                   >
                     soporte@eskemma.com
                   </a>
@@ -800,7 +800,7 @@ export default function CondicionesDeUso() {
                   <strong>Asuntos legales:</strong>{" "}
                   <a
                     href="mailto:legal@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                   >
                     legal@eskemma.com
                   </a>
@@ -808,7 +808,7 @@ export default function CondicionesDeUso() {
                   <strong>Cancelaciones:</strong>{" "}
                   <a
                     href="mailto:cancelaciones@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                   >
                     cancelaciones@eskemma.com
                   </a>
@@ -816,12 +816,12 @@ export default function CondicionesDeUso() {
                   <strong>Accesibilidad:</strong>{" "}
                   <a
                     href="mailto:accesibilidad@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske dark:text-blue-eske-40 hover:dark:text-blue-eske-10 underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
                   >
                     accesibilidad@eskemma.com
                   </a>
                 </p>
-                <p className="mt-2 text-black-eske">
+                <p className="mt-2 text-black-eske dark:text-[#C7D6E0]">
                   <strong>Horario de atención:</strong>
                   <br />
                   Lunes a Viernes, 9:00 AM - 6:00 PM (Hora del Centro de México)
@@ -854,9 +854,10 @@ export default function CondicionesDeUso() {
             {/* Nota final */}
             <div className="mt-8 text-center text-[12px] text-black-eske-30 dark:text-[#6D8294]">
               <p>
-                Estas Condiciones son complementarias a nuestra Política de
-                Privacidad. Te recomendamos leer ambos documentos para entender
-                completamente tus derechos y obligaciones al usar Eskemma.
+                Estas Condiciones son complementarias a nuestra Política de Privacidad.
+              </p>
+              <p>
+                Te recomendamos leer ambos documentos para entender completamente tus derechos y obligaciones al usar Eskemma.
               </p>
             </div>
           </div>

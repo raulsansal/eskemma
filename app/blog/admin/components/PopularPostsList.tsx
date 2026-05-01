@@ -50,28 +50,28 @@ export default function PopularPostsList() {
   if (loading) {
     return (
       <section
-        className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+        className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-md border border-gray-eske-30 dark:border-white/10 p-6"
         role="status"
         aria-live="polite"
         aria-label="Cargando posts más populares"
       >
-        <h3 className="text-xl font-bold text-gray-800 mb-4">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-[#EAF2F8] mb-4">
           Posts Más Populares
         </h3>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="animate-pulse flex gap-4">
               <div
-                className="w-16 h-16 bg-gray-eske-20 rounded"
+                className="w-16 h-16 bg-gray-eske-20 dark:bg-white/10 rounded"
                 aria-hidden="true"
               ></div>
               <div className="flex-1 space-y-2">
                 <div
-                  className="h-4 bg-gray-eske-20 rounded w-3/4"
+                  className="h-4 bg-gray-eske-20 dark:bg-white/10 rounded w-3/4"
                   aria-hidden="true"
                 ></div>
                 <div
-                  className="h-3 bg-gray-eske-20 rounded w-1/2"
+                  className="h-3 bg-gray-eske-20 dark:bg-white/10 rounded w-1/2"
                   aria-hidden="true"
                 ></div>
               </div>
@@ -90,7 +90,7 @@ export default function PopularPostsList() {
       <div className="flex items-center justify-between mb-6">
         <h3
           id="popular-posts-title"
-          className="text-xl font-bold text-gray-800"
+          className="text-xl font-bold text-gray-800 dark:text-[#EAF2F8]"
         >
           Posts Más Populares
         </h3>
@@ -104,7 +104,7 @@ export default function PopularPostsList() {
       </div>
 
       {posts.length === 0 ? (
-        <div className="text-center py-8 text-gray-600" role="status">
+        <div className="text-center py-8 text-gray-600 dark:text-[#9AAEBE]" role="status">
           <svg
             className="w-16 h-16 mx-auto mb-4 text-gray-eske-40"
             fill="none"
@@ -134,7 +134,7 @@ export default function PopularPostsList() {
             return (
               <article
                 key={post.id}
-                className="flex items-center gap-4 p-4 rounded-lg border border-gray-eske-30 hover:border-bluegreen-eske hover:shadow-md transition-all duration-300 group"
+                className="flex items-center gap-4 p-4 rounded-lg border border-gray-eske-30 dark:border-white/10 hover:border-bluegreen-eske dark:hover:border-white/20 hover:shadow-md transition-all duration-300 group"
                 role="listitem"
               >
                 {/* Ranking Number */}
@@ -180,7 +180,7 @@ export default function PopularPostsList() {
                   <Link
                     href={`/blog/${post.slug}`}
                     target="_blank"
-                    className="font-semibold text-gray-800 hover:text-bluegreen-eske transition-colors line-clamp-1 focus-ring-primary rounded"
+                    className="font-semibold text-gray-800 dark:text-[#EAF2F8] hover:text-bluegreen-eske dark:hover:text-[#6BA4C6] transition-colors line-clamp-1 focus-ring-primary rounded"
                     aria-label={`${post.title} (abre en nueva pestaña)`}
                   >
                     {post.title}
@@ -194,7 +194,7 @@ export default function PopularPostsList() {
                       {categoryLabel}
                     </span>
                     <span
-                      className="flex items-center gap-1 text-sm text-gray-600"
+                      className="flex items-center gap-1 text-sm text-gray-600 dark:text-[#9AAEBE]"
                       aria-label={`${post.views.toLocaleString()} vistas`}
                     >
                       <svg
@@ -227,7 +227,7 @@ export default function PopularPostsList() {
                 {/* Edit Button */}
                 <Link
                   href={`/blog/admin/blog/edit/${post.id}`}
-                  className="flex-shrink-0 p-2 text-gray-600 hover:text-bluegreen-eske hover:bg-bluegreen-eske-10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus-ring-primary"
+                  className="flex-shrink-0 p-2 text-gray-600 dark:text-[#9AAEBE] hover:text-bluegreen-eske dark:hover:text-[#6BA4C6] hover:bg-bluegreen-eske-10 dark:hover:bg-white/5 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus-ring-primary"
                   aria-label={`Editar post: ${post.title}`}
                 >
                   <svg

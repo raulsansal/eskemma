@@ -29,7 +29,7 @@ interface LegalHeroProps {
  */
 export default function LegalHero({ title, subtitle, lastUpdated }: LegalHeroProps) {
   return (
-    <section 
+    <section
       className="relative min-h-[200px] max-sm:min-h-[160px] w-full flex items-center justify-center bg-bluegreen-eske overflow-hidden"
       aria-labelledby="legal-hero-title"
     >
@@ -45,11 +45,11 @@ export default function LegalHero({ title, subtitle, lastUpdated }: LegalHeroPro
       />
 
       {/* Overlay con transparencia azul mejorada para contraste */}
-      <div className="absolute inset-0 bg-bluegreen-eske opacity-85" aria-hidden="true"></div>
+      <div className="absolute inset-0 bg-bluegreen-eske dark:bg-bluegreen-eske-80 opacity-85" aria-hidden="true"></div>
 
       {/* Contenido del Hero */}
       <div className="relative z-10 text-center text-white-eske px-4 sm:px-6 md:px-8 max-w-screen-xl mx-auto w-full py-8 max-sm:py-6">
-        <h1 
+        <h1
           id="legal-hero-title"
           className="text-[36px] max-sm:text-2xl leading-tight font-bold"
         >

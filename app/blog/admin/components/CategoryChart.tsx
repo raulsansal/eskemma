@@ -45,12 +45,12 @@ export default function CategoryChart() {
   if (loading) {
     return (
       <section 
-        className="bg-white-eske rounded-xl shadow-md border border-gray-eske-30 p-6"
+        className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-md border border-gray-eske-30 dark:border-white/10 p-6"
         role="status"
         aria-live="polite"
         aria-label="Cargando estadísticas de categorías"
       >
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Posts por Categoría</h3>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-[#EAF2F8] mb-4">Posts por Categoría</h3>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-8 bg-gray-eske-20 rounded" aria-hidden="true"></div>
@@ -69,14 +69,14 @@ export default function CategoryChart() {
     >
       <h3 
         id="category-chart-title"
-        className="text-xl font-bold text-gray-800 mb-6"
+        className="text-xl font-bold text-gray-800 dark:text-[#EAF2F8] mb-6"
       >
         Posts por Categoría
       </h3>
 
       {categories.length === 0 ? (
         <div 
-          className="text-center py-8 text-gray-600"
+          className="text-center py-8 text-gray-600 dark:text-[#9AAEBE]"
           role="status"
         >
           <svg
@@ -118,19 +118,19 @@ export default function CategoryChart() {
                       style={{ backgroundColor: color }}
                       aria-hidden="true"
                     ></div>
-                    <span className="text-sm font-semibold text-gray-800">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-[#EAF2F8]">
                       {label}
                     </span>
                   </div>
                   <span 
-                    className="text-sm text-gray-600"
+                    className="text-sm text-gray-600 dark:text-[#9AAEBE]"
                     aria-label={`${cat.count} posts, ${Math.round(percentage)} por ciento del total`}
                   >
                     {cat.count} ({Math.round(percentage)}%)
                   </span>
                 </div>
                 <div 
-                  className="w-full bg-gray-eske-20 rounded-full h-2 overflow-hidden"
+                  className="w-full bg-gray-eske-20 dark:bg-white/10 rounded-full h-2 overflow-hidden"
                   role="progressbar"
                   aria-valuenow={percentage}
                   aria-valuemin={0}
@@ -151,11 +151,11 @@ export default function CategoryChart() {
 
           {/* Total */}
           <div 
-            className="pt-4 border-t border-gray-eske-30"
+            className="pt-4 border-t border-gray-eske-30 dark:border-white/10"
             role="listitem"
           >
             <div className="flex items-center justify-between">
-              <span className="font-bold text-gray-800">Total</span>
+              <span className="font-bold text-gray-800 dark:text-[#EAF2F8]">Total</span>
               <span 
                 className="font-bold text-bluegreen-eske"
                 aria-label={`Total de ${total} posts`}

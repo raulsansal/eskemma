@@ -78,9 +78,9 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
       <div className="absolute inset-0 bg-black-eske/50" aria-hidden="true" onClick={onClose} />
       <div
         ref={modalRef as React.RefObject<HTMLDivElement>}
-        className="relative w-full max-w-md bg-white-eske rounded-xl shadow-xl overflow-hidden"
+        className="relative w-full max-w-md bg-white-eske dark:bg-[#18324A] rounded-xl shadow-xl overflow-hidden"
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-eske-20">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-eske-20 dark:border-white/10">
           <h2
             id="modal-sexo-metodologia-title"
             className="text-base font-semibold text-bluegreen-eske flex items-center gap-2"
@@ -94,14 +94,14 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={onClose}
             aria-label="Cerrar modal de metodología"
-            className="text-black-eske-60 hover:text-black-eske transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+            className="text-black-eske-60 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8] transition-colors p-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div className="px-5 py-4 space-y-4 text-sm text-black-eske leading-relaxed max-h-[70vh] overflow-y-auto">
+        <div className="px-5 py-4 space-y-4 text-sm text-black-eske dark:text-[#C7D6E0] leading-relaxed max-h-[70vh] overflow-y-auto">
           <p>
             La proyección utiliza un{" "}
             <strong>modelo de tasa de crecimiento semanal compuesto</strong>{" "}
@@ -118,7 +118,7 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
           </div>
           <div>
             <p className="font-semibold text-bluegreen-eske mb-2">Fórmula:</p>
-            <div className="bg-gray-eske-10 rounded-lg p-3 border-l-4 border-bluegreen-eske font-mono text-xs space-y-1">
+            <div className="bg-gray-eske-10 dark:bg-[#112230] rounded-lg p-3 border-l-4 border-bluegreen-eske font-mono text-xs space-y-1">
               <p>Tasa = (Valor_final / Valor_inicial)^(1/(n−1)) − 1</p>
               <p>Proyección(i) = Último_valor × (1 + Tasa)^i</p>
             </div>
@@ -137,11 +137,11 @@ function MetodologiaModal({ onClose }: { onClose: () => void }) {
               <li>Los datos oficiales del INE prevalecen sobre la proyección.</li>
             </ul>
           </div>
-          <p className="text-xs text-black-eske-60 text-center border-t border-gray-eske-20 pt-3">
+          <p className="text-xs text-black-eske-60 dark:text-[#6D8294] text-center border-t border-gray-eske-20 dark:border-white/10 pt-3">
             Esta es una herramienta de referencia. Los datos oficiales son los publicados por el INE.
           </p>
         </div>
-        <div className="px-5 py-3 border-t border-gray-eske-20 flex justify-center">
+        <div className="px-5 py-3 border-t border-gray-eske-20 dark:border-white/10 flex justify-center">
           <button
             type="button"
             onClick={onClose}
@@ -210,8 +210,8 @@ export function S1PyramidChart({ data, ambito = "nacional" }: DataAmbitoProps) {
           content={({ active, payload, label }) => {
             if (!active || !payload?.length) return null;
             return (
-              <div className="bg-white-eske rounded-md border border-gray-eske-20 shadow-md px-3 py-2 text-xs pointer-events-none">
-                <p className="font-semibold text-black-eske mb-1.5">{label}</p>
+              <div className="bg-white-eske dark:bg-[#18324A] rounded-md border border-gray-eske-20 dark:border-white/10 shadow-md px-3 py-2 text-xs pointer-events-none">
+                <p className="font-semibold text-black-eske dark:text-[#EAF2F8] mb-1.5">{label}</p>
                 {payload.map((entry) => {
                   const isH = String(entry.name) === "hombres";
                   return (
@@ -221,9 +221,9 @@ export function S1PyramidChart({ data, ambito = "nacional" }: DataAmbitoProps) {
                         style={{ backgroundColor: isH ? colH : colM }}
                         aria-hidden="true"
                       />
-                      <span className="text-black-eske-60">
+                      <span className="text-black-eske-60 dark:text-[#9AAEBE]">
                         {isH ? "LNE Hombres" : "LNE Mujeres"}:{" "}
-                        <strong className="text-black-eske">{FMT.format(Math.abs(Number(entry.value)))}</strong>
+                        <strong className="text-black-eske dark:text-[#EAF2F8]">{FMT.format(Math.abs(Number(entry.value)))}</strong>
                       </span>
                     </div>
                   );
@@ -279,11 +279,11 @@ export function S2AgeSexChart({ data, ambito = "nacional" }: DataAmbitoProps) {
 
   return (
     <div>
-      <div className="mb-4 rounded-lg border border-gray-eske-20 bg-gray-eske-10 p-3">
+      <div className="mb-4 rounded-lg border border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] p-3">
         <div className="flex flex-wrap items-center gap-4">
-          <p className="text-[11px] font-semibold text-black-eske-60">Mostrar:</p>
+          <p className="text-[11px] font-semibold text-black-eske-60 dark:text-[#9AAEBE]">Mostrar:</p>
           {SEXOS_S2.map(({ key, label }) => (
-            <label key={key} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80">
+            <label key={key} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80 dark:text-[#C7D6E0]">
               <input
                 type="checkbox"
                 checked={activos.has(key)}
@@ -296,7 +296,7 @@ export function S2AgeSexChart({ data, ambito = "nacional" }: DataAmbitoProps) {
           <button
             type="button"
             onClick={() => setActivos(new Set(["hombres", "mujeres", "no_binario"]))}
-            className="ml-auto px-2 py-1 text-xs rounded border border-gray-eske-30 bg-white-eske text-black-eske-60 hover:border-blue-eske hover:text-blue-eske whitespace-nowrap"
+            className="ml-auto px-2 py-1 text-xs rounded border border-gray-eske-30 dark:border-white/10 bg-white-eske dark:bg-[#112230] text-black-eske-60 dark:text-[#9AAEBE] hover:border-blue-eske hover:text-blue-eske whitespace-nowrap"
           >
             ↺ Restablecer
           </button>
@@ -379,7 +379,7 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
 
   if (serie.length < 2) {
     return (
-      <p className="text-sm text-black-eske-60 text-center py-6">
+      <p className="text-sm text-black-eske-60 dark:text-[#6D8294] text-center py-6">
         Sin datos de serie temporal suficientes para proyección.
       </p>
     );
@@ -422,11 +422,11 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
   return (
     <div>
       {showModal && <MetodologiaModal onClose={() => setShowModal(false)} />}
-      <div className="mb-4 rounded-lg border border-gray-eske-20 bg-gray-eske-10 p-3">
+      <div className="mb-4 rounded-lg border border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] p-3">
         <div className="flex flex-wrap items-center gap-4">
-          <p className="text-[11px] font-semibold text-black-eske-60">Mostrar:</p>
+          <p className="text-[11px] font-semibold text-black-eske-60 dark:text-[#9AAEBE]">Mostrar:</p>
           {SEXOS_S3.map(({ key, label }) => (
-            <label key={key} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80">
+            <label key={key} className="flex items-center gap-1 cursor-pointer text-xs text-black-eske-80 dark:text-[#C7D6E0]">
               <input
                 type="checkbox"
                 checked={activos.has(key)}
@@ -439,7 +439,7 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
           <button
             type="button"
             onClick={() => setActivos(new Set(["hombres", "mujeres"]))}
-            className="px-2 py-1 text-xs rounded border border-gray-eske-30 bg-white-eske text-black-eske-60 hover:border-blue-eske hover:text-blue-eske whitespace-nowrap"
+            className="px-2 py-1 text-xs rounded border border-gray-eske-30 dark:border-white/10 bg-white-eske dark:bg-[#112230] text-black-eske-60 dark:text-[#9AAEBE] hover:border-blue-eske hover:text-blue-eske whitespace-nowrap"
           >
             ↺ Restablecer
           </button>
@@ -453,7 +453,7 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
             </svg>
             Metodología
           </button>
-          <span className="ml-auto text-xs text-black-eske-60 border-l border-gray-eske-30 pl-3">
+          <span className="ml-auto text-xs text-black-eske-60 dark:text-[#9AAEBE] border-l border-gray-eske-30 dark:border-white/10 pl-3">
             <span className="font-semibold" style={{ color: COL_NB }}>No Binario:</span>{" "}
             Padrón <strong>{FMT_NB.format(nbPadron)}</strong> · LNE <strong>{FMT_NB.format(nbLista)}</strong>
           </span>
@@ -490,12 +490,12 @@ export function S3SexoSerieChart({ serie, ambito, dataSexo }: S3Props) {
           ))}
         </LineChart>
       </ResponsiveContainer>
-      <p className="text-[11px] text-black-eske-60 text-center mt-1">
+      <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] text-center mt-1">
         Líneas punteadas = proyección estimada hasta diciembre.
       </p>
 
       {/* Leyenda colapsable — solo mobile */}
-      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 bg-gray-eske-10 text-[11px]">
+      <details className="sm:hidden mt-2 rounded-lg border border-gray-eske-20 dark:border-white/10 bg-gray-eske-10 dark:bg-[#21425E] text-[11px]">
         <summary className="px-3 py-2 cursor-pointer text-bluegreen-eske font-medium flex items-center gap-1.5 select-none list-none">
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -543,27 +543,27 @@ export function S4ParticipacionChart({ data, ambito = "nacional" }: DataAmbitoPr
           onMouseLeave={() => setNbHovered(false)}
         >
           <div
-            className="bg-white-eske border border-purple-300 rounded-md px-3 py-2 text-xs shadow-sm cursor-default"
+            className="bg-white-eske dark:bg-[#18324A] border border-purple-300 dark:border-purple-800/50 rounded-md px-3 py-2 text-xs shadow-sm cursor-default"
             aria-label="Datos No Binario"
           >
             <p className="font-semibold text-purple-700 mb-0.5">⚧ No Binario</p>
-            <p className="text-black-eske-60">
-              Padrón: <span className="font-medium text-black-eske">{FMT.format(nbPadron)}</span>
+            <p className="text-black-eske-60 dark:text-[#9AAEBE]">
+              Padrón: <span className="font-medium text-black-eske dark:text-[#EAF2F8]">{FMT.format(nbPadron)}</span>
             </p>
-            <p className="text-black-eske-60">
-              LNE: <span className="font-medium text-black-eske">{FMT.format(nbLista)}</span>
+            <p className="text-black-eske-60 dark:text-[#9AAEBE]">
+              LNE: <span className="font-medium text-black-eske dark:text-[#EAF2F8]">{FMT.format(nbLista)}</span>
             </p>
           </div>
           {/* Popover de tasa cuando se hace hover */}
           {nbHovered && (nbPadron > 0 || nbLista > 0) && (
             <div
-              className="absolute top-full left-0 mt-1 w-48 bg-white-eske border border-gray-eske-20 rounded-md shadow-lg p-3 text-xs"
+              className="absolute top-full left-0 mt-1 w-48 bg-white-eske dark:bg-[#18324A] border border-gray-eske-20 dark:border-white/10 rounded-md shadow-lg p-3 text-xs"
               style={{ zIndex: 40 }}
             >
-              <p className="font-semibold text-black-eske mb-1 border-b border-gray-eske-20 pb-1">No Binario — detalle</p>
-              <p className="text-black-eske-60">
+              <p className="font-semibold text-black-eske dark:text-[#EAF2F8] mb-1 border-b border-gray-eske-20 dark:border-white/10 pb-1">No Binario — detalle</p>
+              <p className="text-black-eske-60 dark:text-[#9AAEBE]">
                 Tasa inclusión:{" "}
-                <span className="font-medium text-black-eske">
+                <span className="font-medium text-black-eske dark:text-[#EAF2F8]">
                   {nbPadron > 0 ? `${((nbLista / nbPadron) * 100).toFixed(2)}%` : "—"}
                 </span>
               </p>

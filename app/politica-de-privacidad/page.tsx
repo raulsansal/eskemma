@@ -71,7 +71,7 @@ export default function PoliticaPrivacidad() {
                 <strong>Correo electrónico general:</strong>{" "}
                 <a
                   href="mailto:contacto@eskemma.com"
-                  className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                  className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                 >
                   contacto@eskemma.com
                 </a>
@@ -79,7 +79,7 @@ export default function PoliticaPrivacidad() {
                 <strong>Correo para privacidad:</strong>{" "}
                 <a
                   href="mailto:privacidad@eskemma.com"
-                  className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                  className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                 >
                   privacidad@eskemma.com
                 </a>
@@ -97,7 +97,7 @@ export default function PoliticaPrivacidad() {
                   <strong>Email:</strong>{" "}
                   <a
                     href="mailto:dpo@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                   >
                     dpo@eskemma.com
                   </a>
@@ -173,7 +173,7 @@ export default function PoliticaPrivacidad() {
                   Información que ingreses en herramientas como Sefix o Moddulo
                   (análisis, estrategias, datos demográficos).
                 </p>
-                <p className="font-semibold text-bluegreen-eske">
+                <p className="font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                   Estos datos son estrictamente confidenciales y solo se
                   utilizan para brindarte el servicio.
                 </p>
@@ -327,7 +327,7 @@ export default function PoliticaPrivacidad() {
               id="compartir-datos"
               title="5. ¿Compartimos Tus Datos con Terceros?"
             >
-              <p className="mb-4 font-bold text-bluegreen-eske">
+              <p className="mb-4 font-bold text-bluegreen-eske dark:text-blue-eske-40">
                 No vendemos ni alquilamos tu información personal bajo ninguna
                 circunstancia.
               </p>
@@ -381,7 +381,7 @@ export default function PoliticaPrivacidad() {
                     específicas en:{" "}
                     <a
                       href="mailto:dpo@eskemma.com"
-                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                     >
                       dpo@eskemma.com
                     </a>
@@ -451,7 +451,7 @@ export default function PoliticaPrivacidad() {
                     <strong>Derecho a opt-out:</strong> Optar por que no
                     vendamos tus datos
                     <br />
-                    <span className="font-semibold text-bluegreen-eske">
+                    <span className="font-semibold text-bluegreen-eske dark:text-blue-eske-40">
                       NOTA: Eskemma NO vende datos personales
                     </span>
                   </li>
@@ -487,8 +487,8 @@ export default function PoliticaPrivacidad() {
                 </ul>
               </div>
 
-              <div className="mt-6 mb-6 bg-blue-eske-10 p-4 rounded-lg">
-                <h4 className="text-[16px] font-semibold text-black-eske dark:text-[#EAF2F8] mb-2">
+              <div className="mt-6 mb-6 bg-blue-eske-10 p-4 rounded-lg text-black-eske">
+                <h4 className="text-[16px] font-semibold text-black-eske mb-2">
                   6.4. ¿Cómo Ejercer Estos Derechos?
                 </h4>
                 <p className="mb-2">
@@ -628,7 +628,7 @@ export default function PoliticaPrivacidad() {
                 <p>
                   <Link
                     href="/politica-de-cookies"
-                    className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline font-medium focus-ring-primary rounded"
+                    className="text-bluegreen-eske hover:text-bluegreen-eske-70 underline font-medium dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                   >
                     Ver Política de Cookies completa →
                   </Link>
@@ -657,7 +657,7 @@ export default function PoliticaPrivacidad() {
                     información, contacta:{" "}
                     <a
                       href="mailto:privacidad@eskemma.com"
-                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                      className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                     >
                       privacidad@eskemma.com
                     </a>
@@ -741,7 +741,7 @@ export default function PoliticaPrivacidad() {
                   <strong>Correo general:</strong>{" "}
                   <a
                     href="mailto:contacto@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                   >
                     contacto@eskemma.com
                   </a>
@@ -749,7 +749,7 @@ export default function PoliticaPrivacidad() {
                   <strong>Correo para privacidad:</strong>{" "}
                   <a
                     href="mailto:privacidad@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                   >
                     privacidad@eskemma.com
                   </a>
@@ -757,7 +757,7 @@ export default function PoliticaPrivacidad() {
                   <strong>Delegado de Protección de Datos (UE):</strong>{" "}
                   <a
                     href="mailto:dpo@eskemma.com"
-                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 focus-ring-primary rounded"
+                    className="text-bluegreen-eske underline hover:text-bluegreen-eske-70 dark:text-blue-eske-40 hover:dark:text-blue-eske-10 focus-ring-primary rounded"
                   >
                     dpo@eskemma.com
                   </a>
@@ -831,9 +831,10 @@ export default function PoliticaPrivacidad() {
             {/* Nota final */}
             <div className="mt-8 text-center text-[12px] text-black-eske-30 dark:text-[#6D8294]">
               <p>
-                Esta Política de Privacidad se aplica únicamente a los servicios
-                de Eskemma. Si accedes a enlaces de terceros, te recomendamos
-                revisar sus propias políticas de privacidad.
+                Esta Política de Privacidad se aplica únicamente a los servicios de Eskemma.
+              </p>
+              <p>
+                Si accedes a enlaces de terceros, te recomendamos revisar sus propias políticas de privacidad.
               </p>
             </div>
           </div>

@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { Ambito, G1Data } from "@/lib/sefix/seriesUtils";
+import { useDarkMode } from "@/app/hooks/useDarkMode";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const fmt = (v: number) => FMT.format(v);
@@ -25,13 +26,17 @@ const MESES_ES = [
 
 // Nacional: azul oscuro / rojo oscuro (R Shiny original)
 const COLORS_NACIONAL = {
-  padron: "#00304A", lista: "#8B0000",
-  padronName: "Padrón Nacional", listaNombre: "Lista Nacional",
+  padron:      { light: "#00304A", dark: "#4791B3" },
+  lista:       { light: "#8B0000", dark: "#D16B6B" },
+  padronName:  "Padrón Nacional",
+  listaNombre: "Lista Nacional",
 };
-// Extranjero: dorado / verde (R Shiny original)
+// Extranjero: morado / azul (R Shiny original)
 const COLORS_EXTRANJERO = {
-  padron: "#7206b4ff", lista: "#0163a4ff",
-  padronName: "Padrón Extranjero", listaNombre: "Lista Extranjero",
+  padron:      { light: "#7206b4", dark: "#B05DD6" },
+  lista:       { light: "#0163a4", dark: "#4791B3" },
+  padronName:  "Padrón Extranjero",
+  listaNombre: "Lista Extranjero",
 };
 
 interface Props {
@@ -41,15 +46,20 @@ interface Props {
 
 
 export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
+  const isDark = useDarkMode();
   const { actual, projected } = data;
-  const C = ambito === "extranjero" ? COLORS_EXTRANJERO : COLORS_NACIONAL;
+  const palette = ambito === "extranjero" ? COLORS_EXTRANJERO : COLORS_NACIONAL;
+  const padronColor = isDark ? palette.padron.dark : palette.padron.light;
+  const listaColor  = isDark ? palette.lista.dark  : palette.lista.light;
+
+  const gridStroke = isDark ? "rgba(255,255,255,0.07)" : "var(--color-gray-eske-20)";
+  const tickFill   = isDark ? "#C7D6E0" : "var(--color-black-eske-10)";
 
   // Mes actual para la línea de referencia "Hoy"
   const now = new Date();
   const mesHoyLabel = `${MESES_ES[now.getMonth()]} ${now.getFullYear()}`;
 
   // Dataset: datos reales + proyecciones sin repetir el último punto real.
-  // La línea proyectada empieza en el mes siguiente al último dato real.
   const merged: Record<string, string | number>[] = [];
 
   for (const p of actual) {
@@ -67,14 +77,14 @@ export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
   return (
     <ResponsiveContainer width="100%" height={320}>
       <ComposedChart data={merged} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-gray-eske-20)" />
+        <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
         <XAxis
           dataKey="name"
-          tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 11, fill: tickFill }}
         />
         <YAxis
           tickFormatter={fmtM}
-          tick={{ fontSize: 11, fill: "var(--color-black-eske-10)" }}
+          tick={{ fontSize: 11, fill: tickFill }}
           width={56}
           domain={([dataMin, dataMax]: readonly [number, number]) => {
             const pad = (dataMax - dataMin) * 0.15;
@@ -84,7 +94,6 @@ export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
         <Tooltip
           content={({ payload, label }) => {
             if (!payload?.length) return null;
-            // Filtrar series sin valor en este punto y ordenar mayor → menor
             const items = payload
               .filter((p) => p.value != null && Number(p.value) > 0)
               .sort((a, b) => Number(b.value) - Number(a.value));
@@ -94,7 +103,7 @@ export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
                 fontSize: 12, background: "#fff", border: "1px solid var(--color-gray-eske-20)",
                 borderRadius: 6, padding: "8px 12px",
               }}>
-                <p style={{ fontSize: 11, color: "var(--color-black-eske-60)", marginBottom: 4 }}>
+                <p style={{ fontSize: 11, color: "#2b2b2b", marginBottom: 4 }}>
                   {label}
                 </p>
                 {items.map((p) => (
@@ -106,7 +115,9 @@ export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
             );
           }}
         />
-        <Legend wrapperStyle={{ fontSize: 12 }} />
+        <Legend
+          wrapperStyle={{ fontSize: 12, color: isDark ? "#4791B3" : undefined }}
+        />
 
         {/* Línea vertical: mes actual */}
         <ReferenceLine
@@ -120,20 +131,20 @@ export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
         <Line
           type="linear"
           dataKey="padron"
-          name={C.padronName}
-          stroke={C.padron}
+          name={palette.padronName}
+          stroke={padronColor}
           strokeWidth={2}
-          dot={{ r: 3, fill: C.padron }}
+          dot={{ r: 3, fill: padronColor }}
           activeDot={{ r: 4 }}
           connectNulls
         />
         <Line
           type="linear"
           dataKey="lista"
-          name={C.listaNombre}
-          stroke={C.lista}
+          name={palette.listaNombre}
+          stroke={listaColor}
           strokeWidth={2}
-          dot={{ r: 3, fill: C.lista }}
+          dot={{ r: 3, fill: listaColor }}
           activeDot={{ r: 4 }}
           connectNulls
         />
@@ -143,7 +154,7 @@ export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
           type="linear"
           dataKey="padronProyectado"
           name="Proyección Padrón"
-          stroke={C.padron}
+          stroke={padronColor}
           strokeWidth={2}
           strokeDasharray="5 3"
           dot={false}
@@ -153,7 +164,7 @@ export default function G1TrendChart({ data, ambito = "nacional" }: Props) {
           type="linear"
           dataKey="listaProyectada"
           name="Proyección Lista"
-          stroke={C.lista}
+          stroke={listaColor}
           strokeWidth={2}
           strokeDasharray="5 3"
           dot={false}
