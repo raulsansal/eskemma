@@ -21,6 +21,8 @@ import FeaturedCourse from "../components/componentsCursos/listado/FeaturedCours
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Cursos y Talleres | Eskemma",
   description: "Formación práctica para profesionales de la comunicación política y el análisis electoral.",
@@ -155,12 +157,12 @@ export default async function CursosPage({ searchParams }: CursosPageProps) {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-2">¡Ups! Algo salió mal</h2>
           <p className="text-gray-600 dark:text-[#9AAEBE]">No pudimos cargar los cursos en este momento.</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-4 px-6 py-2 bg-bluegreen-eske text-white rounded-lg"
+          <a
+            href="/cursos"
+            className="mt-4 inline-block px-6 py-2 bg-bluegreen-eske text-white rounded-lg"
           >
             Reintentar
-          </button>
+          </a>
         </div>
       </div>
     );
