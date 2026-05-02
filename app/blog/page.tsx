@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import DOMPurify from "isomorphic-dompurify";
 import {
   getFilteredPosts,
   getPopularPosts,
@@ -156,7 +155,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         .use(remarkHtml)
         .process(post.content.substring(0, 160) + "...");
 
-      const sanitizedExcerpt = DOMPurify.sanitize(excerptHtml.toString());
+      const sanitizedExcerpt = excerptHtml.toString();
 
       const validatedDate =
         post.updatedAt instanceof Date && !isNaN(post.updatedAt.getTime())
