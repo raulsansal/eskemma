@@ -15,8 +15,9 @@ import Pagination from "../components/componentsBlog/Pagination";
 import Sidebar from "../components/componentsBlog/Sidebar";
 import BlogContent from "./BlogContent";
 
-// ✅ Configuración de URLs (cambiar según entorno)
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+export const dynamic = 'force-dynamic';
 
 // ✅ Metadata estática para SEO
 export const metadata: Metadata = {
