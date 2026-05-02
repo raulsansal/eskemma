@@ -53,6 +53,8 @@ export default function MonitoreoPage() {
   const [alerts, setAlerts] = useState<CentinelaAlertV2[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [autoMonitor, setAutoMonitor] = useState(false);
+  const [togglingAuto, setTogglingAuto] = useState(false);
 
   const loadAll = useCallback(async () => {
     try {
@@ -65,6 +67,7 @@ export default function MonitoreoPage() {
       const found = projData.projects.find((p) => p.id === projectId);
       if (!found) throw new Error("Proyecto no encontrado.");
       setProject(found);
+      setAutoMonitor(found.autoMonitorEnabled ?? false);
 
       // 2. Latest analysis
       const latestRes = await fetch(
@@ -114,6 +117,24 @@ export default function MonitoreoPage() {
   useEffect(() => {
     loadAll();
   }, [loadAll]);
+
+  const handleToggleAutoMonitor = async () => {
+    const next = !autoMonitor;
+    setTogglingAuto(true);
+    try {
+      const res = await fetch(
+        `/api/monitor/centinela/project/${projectId}/auto-monitor`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ enabled: next }),
+        }
+      );
+      if (res.ok) setAutoMonitor(next);
+    } finally {
+      setTogglingAuto(false);
+    }
+  };
 
   // ── Loading ────────────────────────────────────────────────────
 
@@ -279,16 +300,56 @@ export default function MonitoreoPage() {
           </section>
         </div>
 
-        {/* ── Next analysis ── */}
+        {/* ── Análisis automático ── */}
+        <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5">
+          <h2 className="font-semibold text-black-eske dark:text-[#EAF2F8] mb-1">
+            Monitoreo automático
+          </h2>
+          <p className="text-xs text-black-eske dark:text-[#9AAEBE] mb-4">
+            Cuando está activo, el sistema ejecuta un análisis automáticamente cada 6 horas.
+            Por defecto está desactivado — solo se ejecuta si tú lo habilitas.
+          </p>
+          <label className="flex items-center gap-3 cursor-pointer w-fit">
+            <div className="relative">
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={autoMonitor}
+                disabled={togglingAuto}
+                onChange={handleToggleAutoMonitor}
+                aria-label="Habilitar análisis automáticos cada 6 horas"
+              />
+              <div
+                className={`w-11 h-6 rounded-full transition-colors duration-200 ${
+                  autoMonitor
+                    ? "bg-bluegreen-eske"
+                    : "bg-gray-eske-30 dark:bg-white/20"
+                } ${togglingAuto ? "opacity-50" : ""}`}
+              />
+              <div
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow
+                  transition-transform duration-200 ${autoMonitor ? "translate-x-5" : ""}`}
+              />
+            </div>
+            <span className="text-sm font-medium text-black-eske dark:text-[#EAF2F8]">
+              {togglingAuto
+                ? "Guardando…"
+                : autoMonitor
+                ? "Análisis automáticos activados"
+                : "Análisis automáticos desactivados"}
+            </span>
+          </label>
+        </section>
+
+        {/* ── Análisis manual ── */}
         <section className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 p-5">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h2 className="font-semibold text-black-eske dark:text-[#EAF2F8]">
-                Ejecutar nuevo análisis
+                Ejecutar análisis manual
               </h2>
               <p className="text-xs text-black-eske dark:text-[#9AAEBE] mt-0.5">
-                El sistema ejecuta análisis automáticos cada 6 horas.
-                También puedes ejecutar uno manualmente en cualquier momento.
+                Ejecuta un análisis en cualquier momento desde la pantalla de Datos.
               </p>
             </div>
             <button

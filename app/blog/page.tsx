@@ -1,4 +1,5 @@
 // app/blog/page.tsx
+import { Suspense } from "react";
 import { Metadata } from "next";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
@@ -227,8 +228,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Columna principal - Posts */}
               <div className="flex-1 lg:w-2/3">
-                {/* Componente cliente con ViewToggle */}
-                <BlogContent posts={resolvedPosts} sortBy={sortBy} />
+                {/* Componente cliente con ViewToggle — Suspense requerido por useSearchParams en BlogToolbar */}
+                <Suspense fallback={null}>
+                  <BlogContent posts={resolvedPosts} sortBy={sortBy} />
+                </Suspense>
 
                 {/* Paginación */}
                 <Pagination

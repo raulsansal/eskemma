@@ -84,6 +84,7 @@ export interface CentinelaProject {
   territorio: Territorio;
   horizonte: number;      // months, e.g. 6
   isActive: boolean;
+  autoMonitorEnabled: boolean; // opt-in; false by default — cron skips if false
   alertas: AlertasConfig;
   currentStage: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   alertRules?: AlertRule[];

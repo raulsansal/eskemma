@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
     territorio,
     horizonte,
     isActive: true,
+    autoMonitorEnabled: false,
     alertas: alertas ?? {
       vectorRiesgoUmbral: 70,
       notificarEmail: false,

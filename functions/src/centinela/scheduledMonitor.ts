@@ -18,15 +18,19 @@ export const scheduledMonitor = onSchedule(
     const snapshot = await db
       .collection("centinela_projects")
       .where("isActive", "==", true)
+      .where("autoMonitorEnabled", "==", true)
       .get();
 
     if (snapshot.empty) {
-      logger.info("[scheduledMonitor] No hay proyectos activos.");
+      logger.info(
+        "[scheduledMonitor] No hay proyectos con monitoreo automático activo."
+      );
       return;
     }
 
     logger.info(
-      `[scheduledMonitor] Procesando ${snapshot.size} proyectos activos.`
+      `[scheduledMonitor] Procesando ${snapshot.size} proyectos con ` +
+      "monitoreo automático habilitado."
     );
 
     const firebaseConfig = process.env.FIREBASE_CONFIG ?

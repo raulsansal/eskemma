@@ -146,7 +146,7 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
         >
           Análisis por dimensión
         </h3>
-        <div className="bg-white-eske rounded-xl shadow-sm border border-gray-eske-20 overflow-hidden">
+        <div className="bg-white-eske dark:bg-[#18324A] rounded-xl shadow-sm border border-gray-eske-20 dark:border-white/10 overflow-hidden">
           {/* Tab list */}
           <div
             className="flex border-b border-gray-eske-20 dark:border-white/10 overflow-x-auto"
@@ -164,7 +164,7 @@ export default function PESTLPanelV2({ analysis, onAcknowledgeBias }: Props) {
                   className={[
                     "px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
                     activeTab === dim.code
-                      ? "border-bluegreen-eske text-bluegreen-eske bg-bluegreen-eske/5"
+                      ? "border-bluegreen-eske text-bluegreen-eske bg-bluegreen-eske/5 dark:bg-bluegreen-eske/10"
                       : "border-transparent text-gray-eske-70 dark:text-[#9AAEBE] hover:text-black-eske dark:hover:text-[#EAF2F8]",
                   ].join(" ")}
                 >
