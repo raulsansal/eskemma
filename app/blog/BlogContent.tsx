@@ -10,7 +10,7 @@ import { ViewMode } from "../components/componentsBlog/ViewToggle";
 interface Post {
   id: string;
   title: string;
-  date: Date;
+  date: string;
   excerpt: string;
   slug: string;
   author: string;
@@ -120,9 +120,9 @@ export default function BlogContent({ posts, sortBy }: BlogContentProps) {
                     <div className="flex justify-between w-full text-sm text-gray-700 dark:text-[#C7D6E0] mb-4 px-2">
                       <time
                         className="text-gray-eske-60 dark:text-[#6D8294] text-sm"
-                        dateTime={date.toISOString()}
+                        dateTime={date}
                       >
-                        {date.toLocaleDateString("es-ES", {
+                        {new Date(date).toLocaleDateString("es-ES", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",

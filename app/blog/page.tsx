@@ -165,7 +165,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       return {
         id: post.id || "",
         title: post.title || "Sin título",
-        date: validatedDate,
+        date: validatedDate.toISOString(),
         excerpt: sanitizedExcerpt,
         slug: post.slug || "",
         author: post.author?.displayName || "Desconocido",

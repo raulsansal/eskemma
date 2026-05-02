@@ -7,7 +7,7 @@ import { getCategoryColor, getCategoryLabel } from "@/lib/constants/categories";
 interface PostCardListProps {
   id: string;
   title: string;
-  date: Date;
+  date: string;
   excerpt: string;
   slug: string;
   author: string;
@@ -95,8 +95,8 @@ export default function PostCardList({
                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <time className="text-gray-eske-70 dark:text-[#9AAEBE]" dateTime={date.toISOString()}>
-                {date.toLocaleDateString("es-ES", {
+              <time className="text-gray-eske-70 dark:text-[#9AAEBE]" dateTime={date}>
+                {new Date(date).toLocaleDateString("es-ES", {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
