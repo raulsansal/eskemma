@@ -1,10 +1,11 @@
 // app/api/sefix/resultados/route.ts
-// Devuelve resultados electorales federales agregados por estado
+// Devuelve resultados electorales federales (agregados o filtrados).
 import { NextRequest, NextResponse } from "next/server";
 import {
   getResultadosByEstado,
   getResultadosAllYears,
   getResultadosAvailableYears,
+  getResultadosFiltered,
 } from "@/lib/sefix/storage";
 
 export const dynamic = "force-dynamic";
@@ -29,8 +30,44 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ resultados });
     }
 
-    // Año específico o el más reciente
+    // Verificar si hay parámetros de filtro extendido
+    const tipoEleccion = searchParams.get("tipo") ?? undefined;
+    const principio = searchParams.get("principio") ?? undefined;
+    const cabecera = searchParams.get("cabecera") ?? undefined;
+    const municipio = searchParams.get("municipio") ?? undefined;
+    const seccionesParam = searchParams.get("secciones") ?? "";
+    const partidosParam = searchParams.get("partidos") ?? "";
+    const hasExtendedFilters = tipoEleccion || principio || cabecera || municipio || seccionesParam || partidosParam;
+
     const anio = anioParam ? parseInt(anioParam) : undefined;
+
+    if (hasExtendedFilters && anio) {
+      const secciones = seccionesParam ? seccionesParam.split(",").filter(Boolean) : [];
+      const partidos = partidosParam ? partidosParam.split(",").filter(Boolean) : [];
+
+      const resultados = await getResultadosFiltered({
+        estadoInput: estado ?? "",
+        cargoInput: cargo,
+        anioInput: anio,
+        tipoEleccion,
+        principio,
+        cabecera,
+        municipio,
+        secciones,
+        partidos: partidos.length > 0 ? partidos : undefined,
+      });
+
+      if (!resultados) {
+        return NextResponse.json(
+          { error: `No se encontraron resultados para ${estado} / ${cargo} / ${anio}` },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({ resultados });
+    }
+
+    // Consulta básica (sin filtros extendidos)
     const resultados = await getResultadosByEstado(estado ?? "", cargo, anio);
 
     if (!resultados) {

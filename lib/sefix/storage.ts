@@ -1795,6 +1795,397 @@ export async function getSemanalTablaRows(params: {
 }
 
 // ==========================================
+// ELECCIONES FEDERALES — FILTRADO EXTENDIDO
+// ==========================================
+
+export interface ParticipacionPorNivel {
+  nacional?: number;
+  estatal?: number;
+  distrital?: number;
+  municipal?: number;
+  seccional?: number;
+}
+
+export interface ResultadosEleccionesFiltered {
+  estado: string;
+  cargo: string;
+  anio: number;
+  totalVotos: number;
+  lne: number;
+  participacion: number;
+  votosNulos: number;
+  partidos: { partido: string; votos: number; porcentaje: number; votosTotal: number }[];
+  fuente: string;
+  participacionPorNivel: ParticipacionPorNivel;
+}
+
+export interface EleccionesMetadata {
+  tipos: string[];
+  principios: string[];
+}
+
+export interface GeoEleccionesOpcion {
+  cve: string;
+  nombre: string;
+}
+
+/** Resuelve el path del CSV electoral para año + cargo */
+async function resolveEleccionesPath(
+  anio: number,
+  cargoKey: string
+): Promise<string | null> {
+  const allFiles = await listStorageFiles("sefix/results/federals/");
+  const match = allFiles.find((f) => f.includes(`/pef_${cargoKey}_${anio}.csv`));
+  return match ?? null;
+}
+
+/** Detecta tipos de elección y principios disponibles para una combinación */
+export async function getEleccionesMetadata(
+  anio: number,
+  cargoKey: string,
+  estadoNombre?: string
+): Promise<EleccionesMetadata> {
+  const cacheKey = `elec:meta:${anio}:${cargoKey}:${estadoNombre ?? "NAC"}`;
+  const cached = getCached<EleccionesMetadata>(cacheKey);
+  if (cached) return cached;
+
+  const path = await resolveEleccionesPath(anio, cargoKey);
+  if (!path) return { tipos: ["ORDINARIA"], principios: ["MAYORIA RELATIVA"] };
+
+  const tipos = new Set<string>();
+  const principios = new Set<string>();
+
+  await streamCsvRows(path, (row) => {
+    if (estadoNombre && row.estado !== estadoNombre) return;
+    if (row.tipo) tipos.add(row.tipo.trim().toUpperCase());
+    if (row.principio) principios.add(row.principio.trim().toUpperCase());
+  });
+
+  const result: EleccionesMetadata = {
+    tipos: Array.from(tipos).sort(),
+    principios: Array.from(principios).sort(),
+  };
+  setCache(cacheKey, result);
+  return result;
+}
+
+/** Devuelve opciones geográficas para la cascada electoral */
+export async function getEleccionesGeo(
+  nivel: "distritos" | "municipios" | "secciones",
+  anio: number,
+  cargoKey: string,
+  estadoNombre: string,
+  cabecera?: string,
+  municipio?: string
+): Promise<GeoEleccionesOpcion[]> {
+  const cacheKey = `elec:geo:${nivel}:${anio}:${cargoKey}:${estadoNombre}:${cabecera ?? ""}:${municipio ?? ""}`;
+  const cached = getCached<GeoEleccionesOpcion[]>(cacheKey);
+  if (cached) return cached;
+
+  const path = await resolveEleccionesPath(anio, cargoKey);
+  if (!path) return [];
+
+  const seen = new Map<string, string>();
+
+  await streamCsvRows(path, (row) => {
+    if (row.estado !== estadoNombre) return;
+    // Skip aggregate rows (seccion=0 or empty)
+    const sec = row.seccion?.trim();
+    if (!sec || sec === "0" || sec === "00") return;
+
+    if (nivel === "distritos") {
+      const cab = row.cabecera?.trim();
+      if (cab && cab.toLowerCase() !== "nacional") {
+        seen.set(cab, cab);
+      }
+    } else if (nivel === "municipios") {
+      if (cabecera && row.cabecera?.trim() !== cabecera) return;
+      const mun = row.municipio?.trim();
+      if (mun) seen.set(mun, mun);
+    } else {
+      if (cabecera && row.cabecera?.trim() !== cabecera) return;
+      if (municipio && row.municipio?.trim() !== municipio) return;
+      if (sec) seen.set(sec, sec);
+    }
+  });
+
+  let result: GeoEleccionesOpcion[];
+  if (nivel === "secciones") {
+    result = Array.from(seen.keys())
+      .sort((a, b) => parseInt(a) - parseInt(b))
+      .map((s) => ({ cve: s, nombre: s }));
+  } else {
+    result = Array.from(seen.keys())
+      .sort((a, b) => a.localeCompare(b))
+      .map((s) => ({ cve: s, nombre: s }));
+  }
+
+  setCache(cacheKey, result);
+  return result;
+}
+
+/** Versión extendida de getResultadosByEstado con todos los filtros */
+export async function getResultadosFiltered(params: {
+  estadoInput: string;
+  cargoInput: string;
+  anioInput: number;
+  tipoEleccion?: string;
+  principio?: string;
+  cabecera?: string;
+  municipio?: string;
+  secciones?: string[];
+  partidos?: string[];
+}): Promise<ResultadosEleccionesFiltered | null> {
+  const {
+    estadoInput, cargoInput, anioInput,
+    tipoEleccion, principio, cabecera, municipio, secciones, partidos,
+  } = params;
+
+  const isNacional = !estadoInput || estadoInput.toLowerCase() === "nacional";
+  const estadoNombre = isNacional ? null : resolveEstadoName(estadoInput);
+  if (!isNacional && !estadoNombre) return null;
+
+  const cargoKey = CARGO_TO_KEY[cargoInput.toLowerCase()] ?? "dip";
+  const path = await resolveEleccionesPath(anioInput, cargoKey);
+  if (!path) return null;
+
+  const secFilter = secciones?.length
+    ? new Set(secciones.map((s) => s.trim()))
+    : null;
+
+  const partidoFilter =
+    partidos && !partidos.includes("Todos")
+      ? new Set(partidos)
+      : null;
+
+  // Accumulators for main filter
+  const totals: Record<string, number> = {};
+  let totalVotos = 0;
+  let lne = 0;
+  let votosNulos = 0;
+  let noReg = 0;
+
+  // Accumulators for participation per level
+  let partNacSum = 0; let partNacCount = 0;
+  let partEstSum = 0; let partEstCount = 0;
+  let partDistSum = 0; let partDistCount = 0;
+  let partMunSum = 0; let partMunCount = 0;
+  let partSecSum = 0; let partSecCount = 0;
+
+  let partidoHeaders: string[] = [];
+
+  const headers = await streamCsvRows(path, (row) => {
+    const rowTipo = row.tipo?.trim().toUpperCase();
+    const rowPrincipio = row.principio?.trim().toUpperCase();
+    const rowEstado = row.estado?.trim();
+    const rowCabecera = row.cabecera?.trim();
+    const rowMunicipio = row.municipio?.trim();
+    const rowSeccion = row.seccion?.trim();
+    const rowPartCiud = parseFloat(row.part_ciud ?? "0");
+    const partCiudValid = !isNaN(rowPartCiud) && rowPartCiud > 0;
+
+    // Skip aggregate rows
+    if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
+
+    // Accumulate national participation (no filters)
+    if (!estadoNombre || rowEstado === estadoNombre) {
+      if (partCiudValid) { partNacSum += rowPartCiud; partNacCount++; }
+    }
+
+    // Apply estado filter
+    if (estadoNombre && rowEstado !== estadoNombre) return;
+
+    // Accumulate state participation
+    if (partCiudValid) { partEstSum += rowPartCiud; partEstCount++; }
+
+    // Apply tipo and principio filters
+    if (tipoEleccion && tipoEleccion !== "AMBAS" && rowTipo !== tipoEleccion) return;
+    if (principio && rowPrincipio !== principio) return;
+
+    // Apply cabecera filter + accumulate district participation
+    if (cabecera) {
+      if (rowCabecera !== cabecera) return;
+      if (partCiudValid) { partDistSum += rowPartCiud; partDistCount++; }
+    }
+
+    // Apply municipio filter + accumulate municipal participation
+    if (municipio) {
+      if (rowMunicipio !== municipio) return;
+      if (partCiudValid) { partMunSum += rowPartCiud; partMunCount++; }
+    }
+
+    // Apply secciones filter + accumulate sectional participation
+    if (secFilter) {
+      if (!secFilter.has(rowSeccion)) return;
+      if (partCiudValid) { partSecSum += rowPartCiud; partSecCount++; }
+    }
+
+    const tv = parseInt(row.total_votos ?? "0");
+    const lneRow = parseInt(row.lne ?? "0");
+    const vn = parseInt(row.vot_nul ?? "0");
+    const nr = parseInt(row.no_reg ?? "0");
+
+    totalVotos += isNaN(tv) ? 0 : tv;
+    lne += isNaN(lneRow) ? 0 : lneRow;
+    votosNulos += isNaN(vn) ? 0 : vn;
+    noReg += isNaN(nr) ? 0 : nr;
+
+    for (const [col, val] of Object.entries(row)) {
+      if (!RESULTS_META_COLS.has(col)) {
+        const v = parseInt(val ?? "0");
+        if (!isNaN(v)) totals[col] = (totals[col] ?? 0) + v;
+      }
+    }
+  });
+
+  // All columns that are partido votes
+  const allPartidoCols = headers.filter((h) => !RESULTS_META_COLS.has(h));
+  partidoHeaders = allPartidoCols;
+
+  // Build partido list, applying filter if present
+  const colsToShow = partidoFilter
+    ? allPartidoCols.filter((h) => partidoFilter.has(h))
+    : allPartidoCols;
+
+  // Denominador: siempre el total de TODOS los partidos (no solo el subtotal filtrado)
+  const totalVotos_todos = allPartidoCols.reduce(
+    (sum, p) => sum + (totals[p] ?? 0), 0
+  );
+  const denominator = totalVotos_todos > 0 ? totalVotos_todos : (totalVotos || 1);
+
+  const partidos_result = colsToShow
+    .map((p) => ({
+      partido: p,
+      votos: totals[p] ?? 0,
+      porcentaje: +((totals[p] ?? 0) / denominator * 100).toFixed(2),
+      votosTotal: denominator,
+    }))
+    .filter((p) => p.votos > 0)
+    .sort((a, b) => b.votos - a.votos);
+
+  void noReg; // tracked in totals, not separately needed
+  void partidoHeaders;
+
+  const cargoLabel =
+    cargoKey === "dip" ? "DIPUTADOS FEDERALES"
+    : cargoKey === "sen" ? "SENADORES"
+    : "PRESIDENTE";
+
+  const result: ResultadosEleccionesFiltered = {
+    estado: estadoNombre ?? "NACIONAL",
+    cargo: cargoLabel,
+    anio: anioInput,
+    totalVotos,
+    lne,
+    participacion: lne > 0 ? +((totalVotos / lne) * 100).toFixed(1) : 0,
+    votosNulos,
+    partidos: partidos_result,
+    fuente: `INE — Resultados Cómputos Distritales ${anioInput}`,
+    participacionPorNivel: {
+      nacional: partNacCount > 0 ? +(partNacSum / partNacCount).toFixed(2) : undefined,
+      estatal: estadoNombre && partEstCount > 0 ? +(partEstSum / partEstCount).toFixed(2) : undefined,
+      distrital: cabecera && partDistCount > 0 ? +(partDistSum / partDistCount).toFixed(2) : undefined,
+      municipal: municipio && partMunCount > 0 ? +(partMunSum / partMunCount).toFixed(2) : undefined,
+      seccional: secFilter && partSecCount > 0 ? +(partSecSum / partSecCount).toFixed(2) : undefined,
+    },
+  };
+
+  return result;
+}
+
+export interface EleccionesTablaRow {
+  anio: number;
+  cargo: string;
+  estado: string;
+  cabecera: string;
+  municipio: string;
+  seccion: string;
+  tipo: string;
+  principio: string;
+  total_votos: number;
+  lne: number;
+  part_ciud: number;
+  [key: string]: string | number;
+}
+
+/** Devuelve filas del DataTable de Elecciones con paginación opcional */
+export async function getEleccionesTablaRows(params: {
+  anio: number;
+  cargoKey: string;
+  estadoNombre?: string | null;
+  tipoEleccion?: string;
+  principio?: string;
+  cabecera?: string;
+  municipio?: string;
+  secciones?: string[];
+  columnas?: string[];
+  page?: number;
+  pageSize?: number;
+}): Promise<{ rows: EleccionesTablaRow[]; total: number }> {
+  const {
+    anio, cargoKey, estadoNombre, tipoEleccion, principio,
+    cabecera, municipio, secciones, columnas, page, pageSize,
+  } = params;
+
+  const path = await resolveEleccionesPath(anio, cargoKey);
+  if (!path) return { rows: [], total: 0 };
+
+  const secFilter = secciones?.length
+    ? new Set(secciones.map((s) => s.trim()))
+    : null;
+
+  const cargoLabel =
+    cargoKey === "dip" ? "DIPUTADOS FEDERALES"
+    : cargoKey === "sen" ? "SENADORES"
+    : "PRESIDENTE";
+
+  const allRows: EleccionesTablaRow[] = [];
+
+  await streamCsvRows(path, (row) => {
+    const rowSeccion = row.seccion?.trim();
+    if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
+    if (estadoNombre && row.estado?.trim() !== estadoNombre) return;
+    if (tipoEleccion && tipoEleccion !== "AMBAS" && row.tipo?.trim().toUpperCase() !== tipoEleccion) return;
+    if (principio && row.principio?.trim().toUpperCase() !== principio) return;
+    if (cabecera && row.cabecera?.trim() !== cabecera) return;
+    if (municipio && row.municipio?.trim() !== municipio) return;
+    if (secFilter && !secFilter.has(rowSeccion)) return;
+
+    const tableRow: EleccionesTablaRow = {
+      anio: parseInt(row.anio ?? String(anio)),
+      cargo: row.cargo?.trim() ?? cargoLabel,
+      estado: row.estado?.trim() ?? estadoNombre ?? "NACIONAL",
+      cabecera: row.cabecera?.trim() ?? "",
+      municipio: row.municipio?.trim() ?? "",
+      seccion: rowSeccion,
+      tipo: row.tipo?.trim() ?? "",
+      principio: row.principio?.trim() ?? "",
+      total_votos: parseInt(row.total_votos ?? "0") || 0,
+      lne: parseInt(row.lne ?? "0") || 0,
+      part_ciud: parseFloat(row.part_ciud ?? "0") || 0,
+    };
+
+    // Add partido columns
+    for (const col of (columnas ?? [])) {
+      if (!RESULTS_META_COLS.has(col)) {
+        tableRow[col] = parseInt(row[col] ?? "0") || 0;
+      }
+    }
+
+    allRows.push(tableRow);
+  });
+
+  const total = allRows.length;
+
+  if (page !== undefined && pageSize !== undefined) {
+    const start = (page - 1) * pageSize;
+    return { rows: allRows.slice(start, start + pageSize), total };
+  }
+
+  return { rows: allRows, total };
+}
+
+// ==========================================
 // NB ANUAL
 // ==========================================
 

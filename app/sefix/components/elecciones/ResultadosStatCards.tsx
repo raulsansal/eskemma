@@ -1,6 +1,6 @@
 "use client";
 
-import type { ResultadosChartData } from "@/types/sefix.types";
+import type { ResultadosEleccionesData } from "@/types/sefix.types";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
@@ -31,7 +31,7 @@ function StatCard({ label, value, sub }: StatCardProps) {
 }
 
 interface ResultadosStatCardsProps {
-  data: ResultadosChartData;
+  data: ResultadosEleccionesData;
 }
 
 export default function ResultadosStatCards({ data }: ResultadosStatCardsProps) {

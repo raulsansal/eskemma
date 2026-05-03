@@ -152,6 +152,48 @@ export interface ResultadosChartData {
 }
 
 // ============================================================
+// FILTROS ELECCIONES FEDERALES
+// ============================================================
+
+export interface EleccionesFilterParams {
+  anio: number;
+  cargo: string;       // "dip" | "sen" | "pdte"
+  estado: string;      // "" = Nacional
+  partidos: string[];  // ["Todos"] o lista específica
+  tipo: string;        // "ORDINARIA" | "EXTRAORDINARIA" | "AMBAS"
+  principio: string;   // "MAYORIA RELATIVA" | "REPRESENTACION PROPORCIONAL"
+  cabecera: string;    // "" = Todos
+  municipio: string;   // "" = Todos
+  secciones: string[]; // [] = Todas
+}
+
+export interface ParticipacionPorNivel {
+  nacional?: number;
+  estatal?: number;
+  distrital?: number;
+  municipal?: number;
+  seccional?: number;
+}
+
+export interface ResultadosEleccionesData {
+  estado: string;
+  cargo: string;
+  anio: number;
+  totalVotos: number;
+  lne: number;
+  participacion: number;
+  votosNulos: number;
+  partidos: { partido: string; votos: number; porcentaje: number; votosTotal: number }[];
+  fuente: string;
+  participacionPorNivel: ParticipacionPorNivel;
+}
+
+export interface GeoEleccionesOpcion {
+  cve: string;
+  nombre: string;
+}
+
+// ============================================================
 // SUB-VIEWS DE LNE
 // ============================================================
 
