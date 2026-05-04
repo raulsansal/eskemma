@@ -182,6 +182,9 @@ interface UseEleccionesFiltersResult {
   cargosDisponibles: string[];
   // Lista de partidos para el año+cargo seleccionados (para el multiselect)
   partidosDisponibles: string[];
+  // Tipos y principios disponibles (desde metadata del CSV)
+  tiposDisponibles: string[];
+  principiosDisponibles: string[];
 }
 
 const DEFAULT = ELECCIONES_DEFAULTS;
@@ -226,6 +229,37 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
 
   const mapKey = `${pendingAnio}_${pendingCargo}`;
   const partidosDisponibles = PARTIDOS_MAPPING[mapKey] ?? [];
+
+  // Metadata: tipos y principios disponibles para año+cargo+estado actual
+  const { tipos: rawTipos, principios: rawPrincipios } = useEleccionesMetadata(
+    pendingAnio,
+    pendingCargo,
+    pendingEstado,
+  );
+
+  // Calcular choices de tipo: si existen ORDINARIA y EXTRAORDINARIA → añadir AMBAS
+  const tieneOrdinaria = rawTipos.includes("ORDINARIA");
+  const tieneExtraordinaria = rawTipos.includes("EXTRAORDINARIA");
+  const tiposDisponibles =
+    tieneOrdinaria && tieneExtraordinaria
+      ? ["ORDINARIA", "EXTRAORDINARIA", "AMBAS"]
+      : rawTipos;
+  const principiosDisponibles = rawPrincipios;
+
+  // Auto-ajustar pendingTipo cuando cambia metadata (replicar lógica R Shiny)
+  useEffect(() => {
+    if (tiposDisponibles.includes(pendingTipo)) return;
+    const newTipo =
+      tieneOrdinaria && tieneExtraordinaria ? "AMBAS" : (tiposDisponibles[0] ?? "ORDINARIA");
+    setPendingTipo(newTipo);
+  }, [tiposDisponibles]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-ajustar pendingPrincipio cuando cambia metadata
+  useEffect(() => {
+    if (principiosDisponibles.length === 0) return;
+    if (principiosDisponibles.includes(pendingPrincipio)) return;
+    setPendingPrincipio(principiosDisponibles[0]);
+  }, [principiosDisponibles]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Ajustar cargo si el año cambia y el cargo ya no es válido
   const setAnio = useCallback((anio: number) => {
@@ -344,6 +378,7 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
     setSecciones: setPendingSecciones,
     handleConsultar, handleRestablecer,
     cargosDisponibles, partidosDisponibles,
+    tiposDisponibles, principiosDisponibles,
   };
 }
 

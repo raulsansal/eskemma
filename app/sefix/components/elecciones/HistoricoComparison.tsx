@@ -14,8 +14,8 @@ import type { ResultadosChartData } from "@/types/sefix.types";
 import { useDarkMode } from "@/app/hooks/useDarkMode";
 
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 });
 
 interface HistoricoComparisonProps {

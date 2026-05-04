@@ -24,12 +24,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ availableYears: years });
     }
 
-    // Todos los años para gráfica histórica
-    if (allYears) {
-      const resultados = await getResultadosAllYears(estado ?? "", cargo);
-      return NextResponse.json({ resultados });
-    }
-
     // Verificar si hay parámetros de filtro extendido
     const tipoEleccion = searchParams.get("tipo") ?? undefined;
     const principio = searchParams.get("principio") ?? undefined;
@@ -38,6 +32,39 @@ export async function GET(request: NextRequest) {
     const seccionesParam = searchParams.get("secciones") ?? "";
     const partidosParam = searchParams.get("partidos") ?? "";
     const hasExtendedFilters = tipoEleccion || principio || cabecera || municipio || seccionesParam || partidosParam;
+
+    // Todos los años para gráfica histórica
+    if (allYears) {
+      if (hasExtendedFilters) {
+        // Con filtros extendidos: usar getResultadosFiltered por año para reflejar el alcance
+        const secciones = seccionesParam ? seccionesParam.split(",").filter(Boolean) : [];
+        const years = await getResultadosAvailableYears(cargo);
+        const settled = await Promise.allSettled(
+          years.map((y) =>
+            getResultadosFiltered({
+              estadoInput: estado ?? "",
+              cargoInput: cargo,
+              anioInput: y,
+              tipoEleccion,
+              principio,
+              cabecera,
+              municipio,
+              secciones,
+            })
+          )
+        );
+        const resultados = settled
+          .filter(
+            (r): r is PromiseFulfilledResult<NonNullable<Awaited<ReturnType<typeof getResultadosFiltered>>>> =>
+              r.status === "fulfilled" && r.value !== null
+          )
+          .map((r) => r.value)
+          .sort((a, b) => a.anio - b.anio);
+        return NextResponse.json({ resultados });
+      }
+      const resultados = await getResultadosAllYears(estado ?? "", cargo);
+      return NextResponse.json({ resultados });
+    }
 
     const anio = anioParam ? parseInt(anioParam) : undefined;
 

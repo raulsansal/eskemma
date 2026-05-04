@@ -245,6 +245,18 @@ export const TABLA_COLUMN_LABELS: Record<string, string> = {
 };
 
 // ============================================================
+// HELPER: etiqueta dinámica de partido/candidatura
+// ============================================================
+
+export function getPartidoLabel(col: string): string {
+  if (PARTIDO_LABELS[col]) return PARTIDO_LABELS[col];
+  if (col === "CAND_IND") return "Cand. Ind.";
+  const m = col.match(/^CAND_IND(\d+)$/);
+  if (m) return `Cand. Ind. ${m[1]}`;
+  return col;
+}
+
+// ============================================================
 // DEFAULTS DE CONSULTA
 // ============================================================
 

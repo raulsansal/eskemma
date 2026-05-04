@@ -11,7 +11,7 @@ export interface MultiSelectOption {
 
 interface Props {
   id?: string;
-  label: string;
+  label: React.ReactNode;
   options: MultiSelectOption[];
   selected: string[];
   onChange: (values: string[]) => void;
@@ -121,7 +121,7 @@ export default function PartidosMultiSelect({
             return (
               <span
                 key={val}
-                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-blue-eske-10 dark:bg-blue-eske/20 text-blue-eske dark:text-[#7B8FD4]"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-blue-eske text-white-eske"
               >
                 {opt?.color && (
                   <span
@@ -167,7 +167,7 @@ export default function PartidosMultiSelect({
                      bg-white-eske dark:bg-[#18324A]
                      border border-gray-eske-20 dark:border-white/10"
           role="listbox"
-          aria-label={label}
+          aria-label={typeof label === "string" ? label : "opciones"}
           style={{ position: "relative" }}
         >
           {/* Opción "Todos" siempre primera */}

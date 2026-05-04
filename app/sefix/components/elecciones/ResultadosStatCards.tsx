@@ -4,8 +4,8 @@ import type { ResultadosEleccionesData } from "@/types/sefix.types";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 });
 
 interface StatCardProps {

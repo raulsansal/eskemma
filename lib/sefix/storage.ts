@@ -185,7 +185,7 @@ const RESULTS_META_COLS = new Set([
   "cve_principio", "principio", "cve_tipo", "tipo",
   "cve_circunscripcion", "circunscripcion", "cve_estado", "estado",
   "cve_def", "cabecera", "cve_mun", "municipio", "seccion",
-  "no_reg", "vot_nul", "total_votos", "lne", "part_ciud",
+  "total_votos", "lne", "part_ciud",
 ]);
 
 // Clave de cargo → prefijo de archivo
@@ -254,10 +254,21 @@ export async function getResultadosByEstado(
   let totalVotos = 0;
   let lne = 0;
   let votosNulos = 0;
+  let partCiudSum = 0;
+  let partCiudCount = 0;
   let partidoHeaders: string[] = [];
 
   const headers = await streamCsvRows(targetFile, (row) => {
     if (estadoNombre && row.estado !== estadoNombre) return;
+
+    // Skip aggregate rows (same as R Shiny: dt[!is.na(part_ciud)])
+    const rowSeccion = row.seccion?.trim();
+    if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
+
+    const rawPartCiud = row.part_ciud;
+    const rowPartCiud = (rawPartCiud != null && rawPartCiud !== "")
+      ? parseFloat(rawPartCiud)
+      : NaN;
 
     const tv = parseInt(row.total_votos ?? "0");
     const lneRow = parseInt(row.lne ?? "0");
@@ -267,6 +278,8 @@ export async function getResultadosByEstado(
     lne += isNaN(lneRow) ? 0 : lneRow;
     votosNulos += isNaN(vn) ? 0 : vn;
 
+    if (!isNaN(rowPartCiud)) { partCiudSum += rowPartCiud; partCiudCount++; }
+
     for (const [col, val] of Object.entries(row)) {
       if (!RESULTS_META_COLS.has(col)) {
         const v = parseInt(val ?? "0");
@@ -275,20 +288,18 @@ export async function getResultadosByEstado(
     }
   });
 
-  // Identificar columnas de partido (simples, no coaliciones: sin _)
-  partidoHeaders = headers.filter(
-    (h) => !RESULTS_META_COLS.has(h) && !h.includes("_")
-  );
+  // Todas las columnas de partido/coalición/candidatura
+  partidoHeaders = headers.filter((h) => !RESULTS_META_COLS.has(h));
   const coaliconesIncluidas = headers.filter(
     (h) => !RESULTS_META_COLS.has(h) && h.includes("_")
   );
 
-  // Construir ranking de partidos (solo partidos simples)
+  // Construir ranking completo (partidos, coaliciones, candidaturas, nulos)
   const partidos = partidoHeaders
     .map((p) => ({
       partido: p,
       votos: totals[p] ?? 0,
-      porcentaje: totalVotos > 0 ? +((totals[p] ?? 0) / totalVotos * 100).toFixed(1) : 0,
+      porcentaje: totalVotos > 0 ? +((totals[p] ?? 0) / totalVotos * 100).toFixed(2) : 0,
     }))
     .filter((p) => p.votos > 0)
     .sort((a, b) => b.votos - a.votos);
@@ -299,11 +310,11 @@ export async function getResultadosByEstado(
     anio,
     totalVotos,
     lne,
-    participacion: lne > 0 ? +((totalVotos / lne) * 100).toFixed(1) : 0,
+    participacion: partCiudCount > 0 ? +(partCiudSum / partCiudCount).toFixed(2) : 0,
     votosNulos,
     partidos,
     coaliconesIncluidas,
-    fuente: `INE — Resultados Cómputos Distritales ${anio}`,
+    fuente: `INE — Sistema de Consulta de la Estadística de las Elecciones Federales ${anio}`,
   };
 
   setCache(cacheKey, result);
@@ -1963,7 +1974,9 @@ export async function getResultadosFiltered(params: {
   let totalVotos = 0;
   let lne = 0;
   let votosNulos = 0;
-  let noReg = 0;
+
+  // Accumulator for main filtered participation (average of part_ciud, like R Shiny)
+  let partCiudSum = 0; let partCiudCount = 0;
 
   // Accumulators for participation per level
   let partNacSum = 0; let partNacCount = 0;
@@ -1981,8 +1994,12 @@ export async function getResultadosFiltered(params: {
     const rowCabecera = row.cabecera?.trim();
     const rowMunicipio = row.municipio?.trim();
     const rowSeccion = row.seccion?.trim();
-    const rowPartCiud = parseFloat(row.part_ciud ?? "0");
-    const partCiudValid = !isNaN(rowPartCiud) && rowPartCiud > 0;
+    // Excluir NAs (null/vacío) pero incluir 0s — igual que R Shiny: dt[!is.na(part_ciud)]
+    const rawPartCiud = row.part_ciud;
+    const rowPartCiud = (rawPartCiud != null && rawPartCiud !== "")
+      ? parseFloat(rawPartCiud)
+      : NaN;
+    const partCiudValid = !isNaN(rowPartCiud);
 
     // Skip aggregate rows
     if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
@@ -2023,12 +2040,13 @@ export async function getResultadosFiltered(params: {
     const tv = parseInt(row.total_votos ?? "0");
     const lneRow = parseInt(row.lne ?? "0");
     const vn = parseInt(row.vot_nul ?? "0");
-    const nr = parseInt(row.no_reg ?? "0");
 
     totalVotos += isNaN(tv) ? 0 : tv;
     lne += isNaN(lneRow) ? 0 : lneRow;
     votosNulos += isNaN(vn) ? 0 : vn;
-    noReg += isNaN(nr) ? 0 : nr;
+
+    // Accumulate filtered participation average (consistent with R Shiny mean(part_ciud))
+    if (partCiudValid) { partCiudSum += rowPartCiud; partCiudCount++; }
 
     for (const [col, val] of Object.entries(row)) {
       if (!RESULTS_META_COLS.has(col)) {
@@ -2047,11 +2065,8 @@ export async function getResultadosFiltered(params: {
     ? allPartidoCols.filter((h) => partidoFilter.has(h))
     : allPartidoCols;
 
-  // Denominador: siempre el total de TODOS los partidos (no solo el subtotal filtrado)
-  const totalVotos_todos = allPartidoCols.reduce(
-    (sum, p) => sum + (totals[p] ?? 0), 0
-  );
-  const denominator = totalVotos_todos > 0 ? totalVotos_todos : (totalVotos || 1);
+  // Denominador: suma de total_votos (igual que R Shiny: sum(total_votos))
+  const denominator = totalVotos > 0 ? totalVotos : 1;
 
   const partidos_result = colsToShow
     .map((p) => ({
@@ -2063,7 +2078,6 @@ export async function getResultadosFiltered(params: {
     .filter((p) => p.votos > 0)
     .sort((a, b) => b.votos - a.votos);
 
-  void noReg; // tracked in totals, not separately needed
   void partidoHeaders;
 
   const cargoLabel =
@@ -2077,10 +2091,10 @@ export async function getResultadosFiltered(params: {
     anio: anioInput,
     totalVotos,
     lne,
-    participacion: lne > 0 ? +((totalVotos / lne) * 100).toFixed(1) : 0,
+    participacion: partCiudCount > 0 ? +(partCiudSum / partCiudCount).toFixed(2) : 0,
     votosNulos,
     partidos: partidos_result,
-    fuente: `INE — Resultados Cómputos Distritales ${anioInput}`,
+    fuente: `INE — Sistema de Consulta de la Estadística de las Elecciones Federales ${anioInput}`,
     participacionPorNivel: {
       nacional: partNacCount > 0 ? +(partNacSum / partNacCount).toFixed(2) : undefined,
       estatal: estadoNombre && partEstCount > 0 ? +(partEstSum / partEstCount).toFixed(2) : undefined,

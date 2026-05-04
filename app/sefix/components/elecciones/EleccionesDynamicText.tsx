@@ -69,6 +69,11 @@ export default function EleccionesDynamicText({ data, committed, isLoading, onCl
 
   return (
     <div className="space-y-3">
+      {/* Encabezado de sección */}
+      <p className="text-xs font-bold text-bluegreen-eske dark:text-[#6BA4C6] uppercase tracking-widest text-center">
+        Análisis Dinámico
+      </p>
+
       {/* Header con botón cerrar (móvil) */}
       {onClose && (
         <div className="flex items-center justify-between sm:hidden">
