@@ -117,31 +117,31 @@ export function generateParticipacion(
 
   if (pnivel.nacional !== undefined) {
     lines.push(
-      `La participación electoral promedio, a nivel nacional, fue de <strong>${fmtPct(pnivel.nacional)}</strong>.`
+      `La tasa global de participación, a nivel nacional, fue de <strong>${fmtPct(pnivel.nacional)}</strong>.`
     );
   }
 
   if (estado && pnivel.estatal !== undefined) {
     lines.push(
-      `La participación electoral promedio en <strong>${estado}</strong> fue de <strong>${fmtPct(pnivel.estatal)}</strong>.`
+      `La tasa global de participación en <strong>${estado}</strong> fue de <strong>${fmtPct(pnivel.estatal)}</strong>.`
     );
   }
 
   if (cabecera && pnivel.distrital !== undefined) {
     lines.push(
-      `La participación electoral promedio en el distrito <strong>${cabecera}</strong> fue de <strong>${fmtPct(pnivel.distrital)}</strong>.`
+      `La tasa global de participación en el distrito <strong>${cabecera}</strong> fue de <strong>${fmtPct(pnivel.distrital)}</strong>.`
     );
   }
 
   if (municipio && pnivel.municipal !== undefined) {
     lines.push(
-      `En tanto que la participación electoral promedio en <strong>${municipio}</strong> fue de <strong>${fmtPct(pnivel.municipal)}</strong>.`
+      `La tasa global de participación en <strong>${municipio}</strong> fue de <strong>${fmtPct(pnivel.municipal)}</strong>.`
     );
   }
 
   if (secciones.length > 0 && pnivel.seccional !== undefined) {
     lines.push(
-      `Y la participación electoral promedio en las secciones seleccionadas fue de <strong>${fmtPct(pnivel.seccional)}</strong>.`
+      `La tasa global de participación en las secciones seleccionadas fue de <strong>${fmtPct(pnivel.seccional)}</strong>.`
     );
   }
 

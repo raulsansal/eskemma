@@ -254,21 +254,14 @@ export async function getResultadosByEstado(
   let totalVotos = 0;
   let lne = 0;
   let votosNulos = 0;
-  let partCiudSum = 0;
-  let partCiudCount = 0;
   let partidoHeaders: string[] = [];
 
   const headers = await streamCsvRows(targetFile, (row) => {
     if (estadoNombre && row.estado !== estadoNombre) return;
 
-    // Skip aggregate rows (same as R Shiny: dt[!is.na(part_ciud)])
+    // Skip aggregate rows
     const rowSeccion = row.seccion?.trim();
     if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
-
-    const rawPartCiud = row.part_ciud;
-    const rowPartCiud = (rawPartCiud != null && rawPartCiud !== "")
-      ? parseFloat(rawPartCiud)
-      : NaN;
 
     const tv = parseInt(row.total_votos ?? "0");
     const lneRow = parseInt(row.lne ?? "0");
@@ -278,20 +271,18 @@ export async function getResultadosByEstado(
     lne += isNaN(lneRow) ? 0 : lneRow;
     votosNulos += isNaN(vn) ? 0 : vn;
 
-    if (!isNaN(rowPartCiud)) { partCiudSum += rowPartCiud; partCiudCount++; }
-
     for (const [col, val] of Object.entries(row)) {
-      if (!RESULTS_META_COLS.has(col)) {
+      if (!RESULTS_META_COLS.has(col.toLowerCase())) {
         const v = parseInt(val ?? "0");
         if (!isNaN(v)) totals[col] = (totals[col] ?? 0) + v;
       }
     }
   });
 
-  // Todas las columnas de partido/coalición/candidatura
-  partidoHeaders = headers.filter((h) => !RESULTS_META_COLS.has(h));
+  // Todas las columnas de partido/coalición/candidatura (case-insensitive meta exclusion)
+  partidoHeaders = headers.filter((h) => !RESULTS_META_COLS.has(h.toLowerCase()));
   const coaliconesIncluidas = headers.filter(
-    (h) => !RESULTS_META_COLS.has(h) && h.includes("_")
+    (h) => !RESULTS_META_COLS.has(h.toLowerCase()) && h.includes("_")
   );
 
   // Construir ranking completo (partidos, coaliciones, candidaturas, nulos)
@@ -310,7 +301,7 @@ export async function getResultadosByEstado(
     anio,
     totalVotos,
     lne,
-    participacion: partCiudCount > 0 ? +(partCiudSum / partCiudCount).toFixed(2) : 0,
+    participacion: lne > 0 ? +((totalVotos / lne) * 100).toFixed(2) : 0,
     votosNulos,
     partidos,
     coaliconesIncluidas,
@@ -1975,15 +1966,12 @@ export async function getResultadosFiltered(params: {
   let lne = 0;
   let votosNulos = 0;
 
-  // Accumulator for main filtered participation (average of part_ciud, like R Shiny)
-  let partCiudSum = 0; let partCiudCount = 0;
-
-  // Accumulators for participation per level
-  let partNacSum = 0; let partNacCount = 0;
-  let partEstSum = 0; let partEstCount = 0;
-  let partDistSum = 0; let partDistCount = 0;
-  let partMunSum = 0; let partMunCount = 0;
-  let partSecSum = 0; let partSecCount = 0;
+  // Accumulators for tasa global (totalVotos/lne) per geographic level
+  let votosNac = 0; let lneNac = 0;
+  let votosEst = 0; let lneEst = 0;
+  let votosDist = 0; let lneDist = 0;
+  let votosMun = 0; let lneMun = 0;
+  let votosSec = 0; let lneSec = 0;
 
   let partidoHeaders: string[] = [];
 
@@ -1994,70 +1982,65 @@ export async function getResultadosFiltered(params: {
     const rowCabecera = row.cabecera?.trim();
     const rowMunicipio = row.municipio?.trim();
     const rowSeccion = row.seccion?.trim();
-    // Excluir NAs (null/vacío) pero incluir 0s — igual que R Shiny: dt[!is.na(part_ciud)]
-    const rawPartCiud = row.part_ciud;
-    const rowPartCiud = (rawPartCiud != null && rawPartCiud !== "")
-      ? parseFloat(rawPartCiud)
-      : NaN;
-    const partCiudValid = !isNaN(rowPartCiud);
 
     // Skip aggregate rows
     if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
 
-    // Accumulate national participation (no filters)
+    // Parse votes and LNE early — needed at multiple accumulation points
+    const tv = parseInt(row.total_votos ?? "0");
+    const lneRow = parseInt(row.lne ?? "0");
+    const tvSafe = isNaN(tv) ? 0 : tv;
+    const lneSafe = isNaN(lneRow) ? 0 : lneRow;
+
+    // Accumulate national-level totals (conditional on estado if selected)
     if (!estadoNombre || rowEstado === estadoNombre) {
-      if (partCiudValid) { partNacSum += rowPartCiud; partNacCount++; }
+      votosNac += tvSafe; lneNac += lneSafe;
     }
 
     // Apply estado filter
     if (estadoNombre && rowEstado !== estadoNombre) return;
 
-    // Accumulate state participation
-    if (partCiudValid) { partEstSum += rowPartCiud; partEstCount++; }
+    // Accumulate state-level totals (after estado filter, before tipo/principio/geo)
+    votosEst += tvSafe; lneEst += lneSafe;
 
     // Apply tipo and principio filters
     if (tipoEleccion && tipoEleccion !== "AMBAS" && rowTipo !== tipoEleccion) return;
     if (principio && rowPrincipio !== principio) return;
 
-    // Apply cabecera filter + accumulate district participation
+    // Apply cabecera filter + accumulate district totals
     if (cabecera) {
       if (rowCabecera !== cabecera) return;
-      if (partCiudValid) { partDistSum += rowPartCiud; partDistCount++; }
+      votosDist += tvSafe; lneDist += lneSafe;
     }
 
-    // Apply municipio filter + accumulate municipal participation
+    // Apply municipio filter + accumulate municipal totals
     if (municipio) {
       if (rowMunicipio !== municipio) return;
-      if (partCiudValid) { partMunSum += rowPartCiud; partMunCount++; }
+      votosMun += tvSafe; lneMun += lneSafe;
     }
 
-    // Apply secciones filter + accumulate sectional participation
+    // Apply secciones filter + accumulate sectional totals
     if (secFilter) {
       if (!secFilter.has(rowSeccion)) return;
-      if (partCiudValid) { partSecSum += rowPartCiud; partSecCount++; }
+      votosSec += tvSafe; lneSec += lneSafe;
     }
 
-    const tv = parseInt(row.total_votos ?? "0");
-    const lneRow = parseInt(row.lne ?? "0");
     const vn = parseInt(row.vot_nul ?? "0");
 
-    totalVotos += isNaN(tv) ? 0 : tv;
-    lne += isNaN(lneRow) ? 0 : lneRow;
+    totalVotos += tvSafe;
+    lne += lneSafe;
     votosNulos += isNaN(vn) ? 0 : vn;
 
-    // Accumulate filtered participation average (consistent with R Shiny mean(part_ciud))
-    if (partCiudValid) { partCiudSum += rowPartCiud; partCiudCount++; }
-
     for (const [col, val] of Object.entries(row)) {
-      if (!RESULTS_META_COLS.has(col)) {
+      if (!RESULTS_META_COLS.has(col.toLowerCase())) {
         const v = parseInt(val ?? "0");
         if (!isNaN(v)) totals[col] = (totals[col] ?? 0) + v;
       }
     }
   });
 
-  // All columns that are partido votes
-  const allPartidoCols = headers.filter((h) => !RESULTS_META_COLS.has(h));
+  // All columns that are partido votes (case-insensitive meta exclusion)
+  const allPartidoCols = headers.filter((h) => !RESULTS_META_COLS.has(h.toLowerCase()));
   partidoHeaders = allPartidoCols;
 
   // Build partido list, applying filter if present
@@ -2091,16 +2074,16 @@ export async function getResultadosFiltered(params: {
     anio: anioInput,
     totalVotos,
     lne,
-    participacion: partCiudCount > 0 ? +(partCiudSum / partCiudCount).toFixed(2) : 0,
+    participacion: lne > 0 ? +((totalVotos / lne) * 100).toFixed(2) : 0,
     votosNulos,
     partidos: partidos_result,
     fuente: `INE — Sistema de Consulta de la Estadística de las Elecciones Federales ${anioInput}`,
     participacionPorNivel: {
-      nacional: partNacCount > 0 ? +(partNacSum / partNacCount).toFixed(2) : undefined,
-      estatal: estadoNombre && partEstCount > 0 ? +(partEstSum / partEstCount).toFixed(2) : undefined,
-      distrital: cabecera && partDistCount > 0 ? +(partDistSum / partDistCount).toFixed(2) : undefined,
-      municipal: municipio && partMunCount > 0 ? +(partMunSum / partMunCount).toFixed(2) : undefined,
-      seccional: secFilter && partSecCount > 0 ? +(partSecSum / partSecCount).toFixed(2) : undefined,
+      nacional: lneNac > 0 ? +((votosNac / lneNac) * 100).toFixed(2) : undefined,
+      estatal: estadoNombre && lneEst > 0 ? +((votosEst / lneEst) * 100).toFixed(2) : undefined,
+      distrital: cabecera && lneDist > 0 ? +((votosDist / lneDist) * 100).toFixed(2) : undefined,
+      municipal: municipio && lneMun > 0 ? +((votosMun / lneMun) * 100).toFixed(2) : undefined,
+      seccional: secFilter && lneSec > 0 ? +((votosSec / lneSec) * 100).toFixed(2) : undefined,
     },
   };
 
