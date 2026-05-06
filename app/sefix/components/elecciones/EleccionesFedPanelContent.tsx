@@ -33,12 +33,15 @@ function ChartSkeleton({ height = 280 }: { height?: number }) {
   );
 }
 
-function SectionHeader({ title, scope }: { title: string; scope?: string }) {
+function SectionHeader({ title, scope, scope2 }: { title: string; scope?: string; scope2?: string }) {
   return (
     <div className="mb-3 text-center">
       <h3 className="text-base font-semibold text-black-eske dark:text-[#EAF2F8]">{title}</h3>
       {scope && (
         <p className="text-xs text-black-eske-60 dark:text-[#9AAEBE] mt-0.5">{scope}</p>
+      )}
+      {scope2 && (
+        <p className="text-xs text-black-eske-60 dark:text-[#9AAEBE] mt-0.5">{scope2}</p>
       )}
     </div>
   );
@@ -52,12 +55,14 @@ export default function EleccionesFedPanelContent() {
   const {
     pendingAnio, pendingCargo, pendingEstado, pendingPartidos,
     pendingTipo, pendingPrincipio, pendingCabecera, pendingMunicipio, pendingSecciones,
+    pendingIncluirExtranjero,
     committed, queryVersion, hasPending,
     setAnio, setCargo, setEstado, setPartidos, setTipo, setPrincipio,
-    setCabecera, setMunicipio, setSecciones,
+    setCabecera, setMunicipio, setSecciones, setIncluirExtranjero,
     handleConsultar, handleRestablecer,
     cargosDisponibles, partidosDisponibles,
     tiposDisponibles, principiosDisponibles,
+    hasExtranjero,
   } = useEleccionesFilters();
 
   const { data, isLoading, error } = useResultadosElecciones(committed, queryVersion);
@@ -70,13 +75,18 @@ export default function EleccionesFedPanelContent() {
   const cargoLabel = CARGO_DISPLAY_LABELS[committed.cargo] ?? committed.cargo;
 
   // Scope completo: cargo — geo (año), incluyendo distrito/municipio/sección si aplica
-  const geoPartes: string[] = [];
-  if (committed.estado) geoPartes.push(committed.estado);
-  if (committed.cabecera) geoPartes.push(`Dist. ${committed.cabecera}`);
-  if (committed.municipio) geoPartes.push(committed.municipio);
-  if (committed.secciones.length === 1) geoPartes.push(`Secc. ${committed.secciones[0]}`);
-  else if (committed.secciones.length > 1) geoPartes.push(`${committed.secciones.length} secciones`);
-  const geoLabel = geoPartes.length ? geoPartes.join(" — ") : "Nacional";
+  let geoLabel: string;
+  if (committed.estado === "VOTO EN EL EXTRANJERO") {
+    geoLabel = "VOTO EN EL EXTRANJERO";
+  } else {
+    const geoPartes: string[] = [];
+    if (committed.estado) geoPartes.push(committed.estado);
+    if (committed.cabecera) geoPartes.push(`Dist. ${committed.cabecera}`);
+    if (committed.municipio) geoPartes.push(committed.municipio);
+    if (committed.secciones.length === 1) geoPartes.push(`Secc. ${committed.secciones[0]}`);
+    else if (committed.secciones.length > 1) geoPartes.push(`${committed.secciones.length} secciones`);
+    geoLabel = geoPartes.length ? geoPartes.join(" — ") : "Nacional";
+  }
   const chartScope = `${cargoLabel} — ${geoLabel} (${committed.anio})`;
 
   // Year range for historical chart title
@@ -108,6 +118,7 @@ export default function EleccionesFedPanelContent() {
         pendingCabecera={pendingCabecera}
         pendingMunicipio={pendingMunicipio}
         pendingSecciones={pendingSecciones}
+        pendingIncluirExtranjero={pendingIncluirExtranjero}
         setAnio={setAnio}
         setCargo={setCargo}
         setEstado={setEstado}
@@ -117,6 +128,7 @@ export default function EleccionesFedPanelContent() {
         setCabecera={setCabecera}
         setMunicipio={setMunicipio}
         setSecciones={setSecciones}
+        setIncluirExtranjero={setIncluirExtranjero}
         hasPending={hasPending}
         onConsultar={handleConsultar}
         onRestablecer={handleRestablecer}
@@ -124,6 +136,7 @@ export default function EleccionesFedPanelContent() {
         partidosDisponibles={partidosDisponibles}
         tiposDisponibles={tiposDisponibles}
         principiosDisponibles={principiosDisponibles}
+        hasExtranjero={hasExtranjero}
       />
 
       {/* ── Layout 2 columnas: visualizaciones | análisis ── */}
@@ -170,7 +183,8 @@ export default function EleccionesFedPanelContent() {
               <div>
                 <SectionHeader
                   title={historicoScope}
-                  scope={`${cargoLabel} — todos los años disponibles`}
+                  scope={`${cargoLabel} — ${geoLabel}`}
+                  scope2="todos los años disponibles"
                 />
                 {loadingHistorico || allYearsData.length === 0 ? (
                   <ChartSkeleton height={220} />

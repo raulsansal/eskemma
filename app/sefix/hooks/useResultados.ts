@@ -104,6 +104,7 @@ export function useResultadosAllYears({
     if (committed.cabecera) sp.set("cabecera", committed.cabecera);
     if (committed.municipio) sp.set("municipio", committed.municipio);
     if (committed.secciones.length) sp.set("secciones", committed.secciones.join(","));
+    if (!committed.incluirExtranjero) sp.set("incluirExtranjero", "false");
 
     fetch(`/api/sefix/resultados?${sp}`)
       .then((r) => r.json())

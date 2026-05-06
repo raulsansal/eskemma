@@ -34,6 +34,7 @@ interface Props {
   pendingCabecera: string;
   pendingMunicipio: string;
   pendingSecciones: string[];
+  pendingIncluirExtranjero: boolean;
   setAnio: (v: number) => void;
   setCargo: (v: string) => void;
   setEstado: (v: string) => void;
@@ -43,6 +44,7 @@ interface Props {
   setCabecera: (v: string) => void;
   setMunicipio: (v: string) => void;
   setSecciones: (v: string[]) => void;
+  setIncluirExtranjero: (v: boolean) => void;
   hasPending: boolean;
   onConsultar: () => void;
   onRestablecer: () => void;
@@ -50,16 +52,19 @@ interface Props {
   partidosDisponibles: string[];
   tiposDisponibles: string[];
   principiosDisponibles: string[];
+  hasExtranjero: boolean;
 }
 
 export default function EleccionesFilters({
   pendingAnio, pendingCargo, pendingEstado, pendingPartidos,
   pendingTipo, pendingPrincipio, pendingCabecera, pendingMunicipio, pendingSecciones,
+  pendingIncluirExtranjero,
   setAnio, setCargo, setEstado, setPartidos, setTipo, setPrincipio,
-  setCabecera, setMunicipio, setSecciones,
+  setCabecera, setMunicipio, setSecciones, setIncluirExtranjero,
   hasPending, onConsultar, onRestablecer,
   cargosDisponibles, partidosDisponibles,
   tiposDisponibles, principiosDisponibles,
+  hasExtranjero,
 }: Props) {
   const { opciones: distritos, isLoading: loadingDist } = useEleccionesDistritos(
     pendingAnio, pendingCargo, pendingEstado,
@@ -90,6 +95,9 @@ export default function EleccionesFilters({
   const tieneExtraordinaria = tiposDisponibles.includes("EXTRAORDINARIA");
   const showTipoRadios = tieneOrdinaria && tieneExtraordinaria;
   const showPrincipioRadios = principiosDisponibles.length > 1;
+
+  // Bloqueo de Entidad y Tipo para elecciones extraordinarias de estado único
+  const isLockedEstado = (pendingAnio === 2021 && pendingCargo === "sen") || pendingAnio === 2023;
 
   const geoScope = pendingEstado || "Nacional";
   const cargoScope = CARGO_DISPLAY_LABELS[pendingCargo] ?? pendingCargo.toUpperCase();
@@ -144,19 +152,39 @@ export default function EleccionesFilters({
         </div>
 
         <div className="flex flex-col gap-1 flex-1 sm:flex-none">
-          <label htmlFor="ef-estado" className={LABEL_CLS}>Entidad federativa</label>
+          <label htmlFor="ef-estado" className={isLockedEstado ? LABEL_DISABLED_CLS : LABEL_CLS}>Entidad federativa</label>
           <select
             id="ef-estado"
             value={pendingEstado}
             onChange={(e) => setEstado(e.target.value)}
+            disabled={isLockedEstado}
             className={SELECT_CLS}
           >
             <option value="">— Nacional —</option>
             {ESTADOS_LIST.map((e) => (
               <option key={e.key} value={e.nombre}>{e.nombre}</option>
             ))}
+            {isNacional && hasExtranjero && (
+              <option value="VOTO EN EL EXTRANJERO">— VOTO EN EL EXTRANJERO —</option>
+            )}
           </select>
         </div>
+
+        {/* Checkbox: incluir/excluir VOTO EN EL EXTRANJERO */}
+        {hasExtranjero && pendingEstado !== "VOTO EN EL EXTRANJERO" && (
+          <div className="flex items-end flex-shrink-0 pb-1.5 gap-1.5">
+            <input
+              type="checkbox"
+              id="ef-extranjero"
+              checked={pendingIncluirExtranjero}
+              onChange={(e) => setIncluirExtranjero(e.target.checked)}
+              className="accent-blue-eske"
+            />
+            <label htmlFor="ef-extranjero" className={LABEL_CLS + " cursor-pointer"}>
+              Voto extranjero
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Fila 2: Distrito, Municipio, Sección + radios (condicional) + Partidos + Consultar */}
@@ -239,6 +267,24 @@ export default function EleccionesFilters({
                 </label>
               ))}
             </div>
+          </fieldset>
+        )}
+
+        {/* Tipo informacional bloqueado (casos 2021/SEN y 2023/SEN) */}
+        {isLockedEstado && !showTipoRadios && (
+          <fieldset className="flex-shrink-0 opacity-70">
+            <legend className={`${LABEL_CLS} mb-1`}>Tipo</legend>
+            <label className={RADIO_CLS + " cursor-default"}>
+              <input
+                type="radio"
+                name="ef-tipo-locked"
+                disabled
+                defaultChecked
+                aria-label="Tipo de elección: Extraordinaria (bloqueado)"
+                className="accent-blue-eske"
+              />
+              Extraordinaria
+            </label>
           </fieldset>
         )}
 

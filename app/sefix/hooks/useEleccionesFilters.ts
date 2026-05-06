@@ -114,10 +114,12 @@ export function useEleccionesSecciones(
 export function useEleccionesMetadata(
   anio: number,
   cargo: string,
-  estado: string
-): { tipos: string[]; principios: string[]; isLoading: boolean } {
+  estado: string,
+  cabecera?: string
+): { tipos: string[]; principios: string[]; hasExtranjero: boolean; isLoading: boolean } {
   const [tipos, setTipos] = useState<string[]>(["ORDINARIA"]);
   const [principios, setPrincipios] = useState<string[]>(["MAYORIA RELATIVA"]);
+  const [hasExtranjero, setHasExtranjero] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const cancelRef = useRef(false);
 
@@ -126,25 +128,28 @@ export function useEleccionesMetadata(
     setIsLoading(true);
     const params = new URLSearchParams({ nivel: "metadata", anio: String(anio), cargo });
     if (estado) params.set("estado", estado);
+    if (cabecera) params.set("cabecera", cabecera);
     fetch(`/api/sefix/elecciones-geo?${params}`)
       .then((r) => r.json())
       .then((d) => {
         if (!cancelRef.current && d.metadata) {
           setTipos(d.metadata.tipos?.length ? d.metadata.tipos : ["ORDINARIA"]);
           setPrincipios(d.metadata.principios?.length ? d.metadata.principios : ["MAYORIA RELATIVA"]);
+          setHasExtranjero(d.metadata.hasExtranjero ?? false);
         }
       })
       .catch(() => {
         if (!cancelRef.current) {
           setTipos(["ORDINARIA"]);
           setPrincipios(["MAYORIA RELATIVA"]);
+          setHasExtranjero(false);
         }
       })
       .finally(() => { if (!cancelRef.current) setIsLoading(false); });
     return () => { cancelRef.current = true; };
-  }, [anio, cargo, estado]);
+  }, [anio, cargo, estado, cabecera]);
 
-  return { tipos, principios, isLoading };
+  return { tipos, principios, hasExtranjero, isLoading };
 }
 
 // ============================================================
@@ -162,6 +167,7 @@ interface UseEleccionesFiltersResult {
   pendingCabecera: string;
   pendingMunicipio: string;
   pendingSecciones: string[];
+  pendingIncluirExtranjero: boolean;
   // Estado committed (última consulta ejecutada)
   committed: EleccionesFilterParams;
   queryVersion: number;
@@ -176,6 +182,7 @@ interface UseEleccionesFiltersResult {
   setCabecera: (v: string) => void;
   setMunicipio: (v: string) => void;
   setSecciones: (v: string[]) => void;
+  setIncluirExtranjero: (v: boolean) => void;
   handleConsultar: () => void;
   handleRestablecer: () => void;
   // Cargos disponibles para el año seleccionado
@@ -185,6 +192,8 @@ interface UseEleccionesFiltersResult {
   // Tipos y principios disponibles (desde metadata del CSV)
   tiposDisponibles: string[];
   principiosDisponibles: string[];
+  // Extranjero
+  hasExtranjero: boolean;
 }
 
 const DEFAULT = ELECCIONES_DEFAULTS;
@@ -199,6 +208,7 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
   const [pendingCabecera, setPendingCabecera] = useState(DEFAULT.cabecera);
   const [pendingMunicipio, setPendingMunicipio] = useState(DEFAULT.municipio);
   const [pendingSecciones, setPendingSecciones] = useState<string[]>(DEFAULT.secciones);
+  const [pendingIncluirExtranjero, setPendingIncluirExtranjero] = useState(DEFAULT.incluirExtranjero);
   const [queryVersion, setQueryVersion] = useState(0);
 
   const committedRef = useRef<EleccionesFilterParams>({
@@ -211,6 +221,7 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
     cabecera: DEFAULT.cabecera,
     municipio: DEFAULT.municipio,
     secciones: [...DEFAULT.secciones],
+    incluirExtranjero: DEFAULT.incluirExtranjero,
   });
   const [committed, setCommitted] = useState<EleccionesFilterParams>(committedRef.current);
 
@@ -223,18 +234,20 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
     pendingPrincipio !== committed.principio ||
     pendingCabecera !== committed.cabecera ||
     pendingMunicipio !== committed.municipio ||
-    JSON.stringify(pendingSecciones) !== JSON.stringify(committed.secciones);
+    JSON.stringify(pendingSecciones) !== JSON.stringify(committed.secciones) ||
+    pendingIncluirExtranjero !== committed.incluirExtranjero;
 
   const cargosDisponibles = VALID_COMBINATIONS[String(pendingAnio)] ?? [];
 
   const mapKey = `${pendingAnio}_${pendingCargo}`;
   const partidosDisponibles = PARTIDOS_MAPPING[mapKey] ?? [];
 
-  // Metadata: tipos y principios disponibles para año+cargo+estado actual
-  const { tipos: rawTipos, principios: rawPrincipios } = useEleccionesMetadata(
+  // Metadata: tipos, principios y hasExtranjero para año+cargo+estado+distrito actual
+  const { tipos: rawTipos, principios: rawPrincipios, hasExtranjero } = useEleccionesMetadata(
     pendingAnio,
     pendingCargo,
     pendingEstado,
+    pendingCabecera || undefined,
   );
 
   // Calcular choices de tipo: si existen ORDINARIA y EXTRAORDINARIA → añadir AMBAS
@@ -324,6 +337,7 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
       cabecera: pendingCabecera,
       municipio: pendingMunicipio,
       secciones: [...pendingSecciones],
+      incluirExtranjero: pendingIncluirExtranjero,
     };
     committedRef.current = next;
     setCommitted(next);
@@ -331,6 +345,7 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
   }, [
     pendingAnio, pendingCargo, pendingEstado, pendingPartidos,
     pendingTipo, pendingPrincipio, pendingCabecera, pendingMunicipio, pendingSecciones,
+    pendingIncluirExtranjero,
   ]);
 
   const handleRestablecer = useCallback(() => {
@@ -344,6 +359,7 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
       cabecera: DEFAULT.cabecera,
       municipio: DEFAULT.municipio,
       secciones: [...DEFAULT.secciones],
+      incluirExtranjero: DEFAULT.incluirExtranjero,
     };
     setPendingAnio(DEFAULT.anio);
     setPendingCargo(DEFAULT.cargo);
@@ -354,6 +370,7 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
     setPendingCabecera(DEFAULT.cabecera);
     setPendingMunicipio(DEFAULT.municipio);
     setPendingSecciones([...DEFAULT.secciones]);
+    setPendingIncluirExtranjero(DEFAULT.incluirExtranjero);
     committedRef.current = next;
     setCommitted(next);
     setQueryVersion((v) => v + 1);
@@ -369,6 +386,7 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
   return {
     pendingAnio, pendingCargo, pendingEstado, pendingPartidos,
     pendingTipo, pendingPrincipio, pendingCabecera, pendingMunicipio, pendingSecciones,
+    pendingIncluirExtranjero,
     committed, queryVersion, hasPending,
     setAnio, setCargo, setEstado,
     setPartidos: setPendingPartidos,
@@ -376,9 +394,11 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
     setPrincipio: setPendingPrincipio,
     setCabecera, setMunicipio,
     setSecciones: setPendingSecciones,
+    setIncluirExtranjero: setPendingIncluirExtranjero,
     handleConsultar, handleRestablecer,
     cargosDisponibles, partidosDisponibles,
     tiposDisponibles, principiosDisponibles,
+    hasExtranjero,
   };
 }
 
@@ -423,6 +443,7 @@ export function useResultadosElecciones(
     if (!params.partidos.includes("Todos") && params.partidos.length) {
       sp.set("partidos", params.partidos.join(","));
     }
+    if (!params.incluirExtranjero) sp.set("incluirExtranjero", "false");
 
     fetch(`/api/sefix/resultados?${sp}`)
       .then((r) => r.json())

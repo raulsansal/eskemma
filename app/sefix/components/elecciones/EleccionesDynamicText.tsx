@@ -65,7 +65,10 @@ export default function EleccionesDynamicText({ data, committed, isLoading, onCl
   const alcance = generateAlcance(committed);
   const resumen = generateResumenGeneral(data, committed);
   const fuerza = generateFuerzaPartidista(data);
-  const participacionLines = generateParticipacion(data, committed);
+  const isSingleStateElection =
+    (committed.anio === 2021 && committed.cargo === "sen") ||
+    (committed.anio === 2023 && committed.cargo === "sen");
+  const participacionLines = generateParticipacion(data, committed, isSingleStateElection);
 
   return (
     <div className="space-y-3">

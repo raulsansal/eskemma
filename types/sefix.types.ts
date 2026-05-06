@@ -165,6 +165,7 @@ export interface EleccionesFilterParams {
   cabecera: string;    // "" = Todos
   municipio: string;   // "" = Todos
   secciones: string[]; // [] = Todas
+  incluirExtranjero: boolean;
 }
 
 export interface ParticipacionPorNivel {

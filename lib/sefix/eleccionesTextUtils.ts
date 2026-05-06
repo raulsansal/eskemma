@@ -37,6 +37,7 @@ export function generateAlcance(params: EleccionesFilterParams): string {
   const { estado, cabecera, municipio, secciones } = params;
 
   if (!estado) return "Nivel nacional";
+  if (estado === "VOTO EN EL EXTRANJERO") return "VOTO EN EL EXTRANJERO";
 
   const parts: string[] = [`Estado: ${estado}`];
   if (cabecera) parts.push(`Distrito: ${cabecera}`);
@@ -72,7 +73,7 @@ export function generateResumenGeneral(
     }
   }
 
-  return `Los resultados para la elección de ${cargoLabel}s del año ${anio} ${geo} muestran un total de <strong>${fmtNum(data.totalVotos)}</strong> votos.`;
+  return `Los resultados para la elección de ${cargoLabel} del año ${anio} ${geo} muestran un total de <strong>${fmtNum(data.totalVotos)}</strong> votos.`;
 }
 
 // ============================================================
@@ -109,13 +110,14 @@ export function generateFuerzaPartidista(
 
 export function generateParticipacion(
   data: ResultadosEleccionesData,
-  params: EleccionesFilterParams
+  params: EleccionesFilterParams,
+  isSingleStateElection?: boolean
 ): string[] {
   const { estado, cabecera, municipio, secciones } = params;
   const pnivel = data.participacionPorNivel;
   const lines: string[] = [];
 
-  if (pnivel.nacional !== undefined) {
+  if (!isSingleStateElection && pnivel.nacional !== undefined) {
     lines.push(
       `La tasa global de participación, a nivel nacional, fue de <strong>${fmtPct(pnivel.nacional)}</strong>.`
     );

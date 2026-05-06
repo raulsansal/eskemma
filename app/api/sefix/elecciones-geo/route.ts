@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (nivel === "metadata") {
-      const metadata = await getEleccionesMetadata(anio, cargo, estado || undefined);
+      const cabecera = searchParams.get("cabecera") ?? undefined;
+      const metadata = await getEleccionesMetadata(anio, cargo, estado || undefined, cabecera);
       return NextResponse.json({ metadata });
     }
 

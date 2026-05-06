@@ -270,4 +270,5 @@ export const ELECCIONES_DEFAULTS = {
   cabecera: "",
   municipio: "",
   secciones: [] as string[],
+  incluirExtranjero: true,
 };

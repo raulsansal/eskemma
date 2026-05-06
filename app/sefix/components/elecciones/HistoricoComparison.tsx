@@ -35,8 +35,11 @@ export default function HistoricoComparison({ data }: HistoricoComparisonProps) 
     totalVotos: d.totalVotos,
   }));
 
+  const validData = chartData.filter((d) => d.participacion > 0);
   const avg =
-    chartData.reduce((s, d) => s + d.participacion, 0) / chartData.length;
+    validData.length > 0
+      ? validData.reduce((s, d) => s + d.participacion, 0) / validData.length
+      : 0;
 
   return (
     <ResponsiveContainer width="100%" height={220}>

@@ -259,9 +259,11 @@ export async function getResultadosByEstado(
   const headers = await streamCsvRows(targetFile, (row) => {
     if (estadoNombre && row.estado !== estadoNombre) return;
 
-    // Skip aggregate rows
+    // Skip aggregate rows, but keep "VOTO EN EL EXTRANJERO" rows (seccion=0, municipio especial)
     const rowSeccion = row.seccion?.trim();
-    if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
+    const rowMun = row.municipio?.trim().toUpperCase();
+    const isExtranjero = rowMun === "VOTO EN EL EXTRANJERO";
+    if (!isExtranjero && (!rowSeccion || rowSeccion === "0" || rowSeccion === "00")) return;
 
     const tv = parseInt(row.total_votos ?? "0");
     const lneRow = parseInt(row.lne ?? "0");
@@ -1824,6 +1826,7 @@ export interface ResultadosEleccionesFiltered {
 export interface EleccionesMetadata {
   tipos: string[];
   principios: string[];
+  hasExtranjero: boolean;
 }
 
 export interface GeoEleccionesOpcion {
@@ -1845,20 +1848,26 @@ async function resolveEleccionesPath(
 export async function getEleccionesMetadata(
   anio: number,
   cargoKey: string,
-  estadoNombre?: string
+  estadoNombre?: string,
+  cabecera?: string
 ): Promise<EleccionesMetadata> {
-  const cacheKey = `elec:meta:${anio}:${cargoKey}:${estadoNombre ?? "NAC"}`;
+  const cacheKey = `elec:meta:${anio}:${cargoKey}:${estadoNombre ?? "NAC"}:${cabecera ?? ""}`;
   const cached = getCached<EleccionesMetadata>(cacheKey);
   if (cached) return cached;
 
   const path = await resolveEleccionesPath(anio, cargoKey);
-  if (!path) return { tipos: ["ORDINARIA"], principios: ["MAYORIA RELATIVA"] };
+  if (!path) return { tipos: ["ORDINARIA"], principios: ["MAYORIA RELATIVA"], hasExtranjero: false };
 
   const tipos = new Set<string>();
   const principios = new Set<string>();
+  let hasExtranjero = false;
 
   await streamCsvRows(path, (row) => {
+    const rowMun = row.municipio?.trim().toUpperCase();
+    const isExtranjero = rowMun === "VOTO EN EL EXTRANJERO";
+    if (isExtranjero) { hasExtranjero = true; return; }
     if (estadoNombre && row.estado !== estadoNombre) return;
+    if (cabecera && row.cabecera?.trim() !== cabecera) return;
     if (row.tipo) tipos.add(row.tipo.trim().toUpperCase());
     if (row.principio) principios.add(row.principio.trim().toUpperCase());
   });
@@ -1866,6 +1875,7 @@ export async function getEleccionesMetadata(
   const result: EleccionesMetadata = {
     tipos: Array.from(tipos).sort(),
     principios: Array.from(principios).sort(),
+    hasExtranjero,
   };
   setCache(cacheKey, result);
   return result;
@@ -1891,6 +1901,18 @@ export async function getEleccionesGeo(
 
   await streamCsvRows(path, (row) => {
     if (row.estado !== estadoNombre) return;
+
+    // For distritos: also include the extranjero cabecera for this state
+    if (nivel === "distritos") {
+      const rowMun = row.municipio?.trim().toUpperCase();
+      const isExtranjero = rowMun === "VOTO EN EL EXTRANJERO";
+      if (isExtranjero) {
+        const cab = row.cabecera?.trim();
+        if (cab) seen.set(cab, cab);
+        return;
+      }
+    }
+
     // Skip aggregate rows (seccion=0 or empty)
     const sec = row.seccion?.trim();
     if (!sec || sec === "0" || sec === "00") return;
@@ -1937,15 +1959,19 @@ export async function getResultadosFiltered(params: {
   municipio?: string;
   secciones?: string[];
   partidos?: string[];
+  incluirExtranjero?: boolean;
 }): Promise<ResultadosEleccionesFiltered | null> {
   const {
     estadoInput, cargoInput, anioInput,
     tipoEleccion, principio, cabecera, municipio, secciones, partidos,
+    incluirExtranjero = true,
   } = params;
 
-  const isNacional = !estadoInput || estadoInput.toLowerCase() === "nacional";
-  const estadoNombre = isNacional ? null : resolveEstadoName(estadoInput);
-  if (!isNacional && !estadoNombre) return null;
+  const isVotoExtranjeroFiltro = estadoInput?.toUpperCase() === "VOTO EN EL EXTRANJERO";
+  const isNacional = !estadoInput || estadoInput.toLowerCase() === "nacional" || isVotoExtranjeroFiltro;
+  const estadoNombre = isVotoExtranjeroFiltro ? null
+    : (isNacional ? null : resolveEstadoName(estadoInput));
+  if (!isVotoExtranjeroFiltro && !isNacional && !estadoNombre) return null;
 
   const cargoKey = CARGO_TO_KEY[cargoInput.toLowerCase()] ?? "dip";
   const path = await resolveEleccionesPath(anioInput, cargoKey);
@@ -1983,8 +2009,13 @@ export async function getResultadosFiltered(params: {
     const rowMunicipio = row.municipio?.trim();
     const rowSeccion = row.seccion?.trim();
 
-    // Skip aggregate rows
-    if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
+    // Skip aggregate rows, but keep "VOTO EN EL EXTRANJERO" rows (seccion=0, municipio especial)
+    const isExtranjero = rowMunicipio?.toUpperCase() === "VOTO EN EL EXTRANJERO";
+
+    // Exclude extranjero rows if the user explicitly unchecked them (and we're not filtering to extranjero only)
+    if (isExtranjero && !incluirExtranjero && !isVotoExtranjeroFiltro) return;
+
+    if (!isExtranjero && (!rowSeccion || rowSeccion === "0" || rowSeccion === "00")) return;
 
     // Parse votes and LNE early — needed at multiple accumulation points
     const tv = parseInt(row.total_votos ?? "0");
@@ -1992,13 +2023,14 @@ export async function getResultadosFiltered(params: {
     const tvSafe = isNaN(tv) ? 0 : tv;
     const lneSafe = isNaN(lneRow) ? 0 : lneRow;
 
-    // Accumulate national-level totals (conditional on estado if selected)
-    if (!estadoNombre || rowEstado === estadoNombre) {
-      votosNac += tvSafe; lneNac += lneSafe;
-    }
+    // Nacional: always accumulate ALL rows — true national rate, never limited by estado filter
+    votosNac += tvSafe; lneNac += lneSafe;
 
     // Apply estado filter
-    if (estadoNombre && rowEstado !== estadoNombre) return;
+    if (isVotoExtranjeroFiltro) {
+      // Only keep extranjero rows when filtering to VOTO EN EL EXTRANJERO
+      if (!isExtranjero) return;
+    } else if (estadoNombre && rowEstado !== estadoNombre) return;
 
     // Accumulate state-level totals (after estado filter, before tipo/principio/geo)
     votosEst += tvSafe; lneEst += lneSafe;

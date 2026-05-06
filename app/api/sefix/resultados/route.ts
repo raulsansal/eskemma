@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
     const municipio = searchParams.get("municipio") ?? undefined;
     const seccionesParam = searchParams.get("secciones") ?? "";
     const partidosParam = searchParams.get("partidos") ?? "";
-    const hasExtendedFilters = tipoEleccion || principio || cabecera || municipio || seccionesParam || partidosParam;
+    const incluirExtranjero = searchParams.get("incluirExtranjero") !== "false";
+    const hasExtendedFilters = tipoEleccion || principio || cabecera || municipio || seccionesParam || partidosParam || !incluirExtranjero;
 
     // Todos los años para gráfica histórica
     if (allYears) {
@@ -50,6 +51,7 @@ export async function GET(request: NextRequest) {
               cabecera,
               municipio,
               secciones,
+              incluirExtranjero,
             })
           )
         );
@@ -82,6 +84,7 @@ export async function GET(request: NextRequest) {
         municipio,
         secciones,
         partidos: partidos.length > 0 ? partidos : undefined,
+        incluirExtranjero,
       });
 
       if (!resultados) {

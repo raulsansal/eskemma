@@ -228,9 +228,9 @@ export default function EleccionesDataTable({ committed, queryVersion }: Props) 
         </div>
       </div>
 
-      {/* Botón descarga + fuente */}
-      <div className="flex items-center justify-between pt-1">
-        <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294]">
+      {/* Fuente + botón descarga — centrados */}
+      <div className="flex flex-col items-center gap-2 pt-1">
+        <p className="text-[11px] text-black-eske-60 dark:text-[#6D8294] text-center">
           Fuente: INE — Sistema de Consulta de la Estadística de las Elecciones Federales
         </p>
         <button
