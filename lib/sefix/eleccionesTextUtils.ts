@@ -59,6 +59,11 @@ export function generateResumenGeneral(
   const { anio, cargo, estado, cabecera, municipio, secciones } = params;
   const cargoLabel = (CARGO_DISPLAY_LABELS[cargo] ?? cargo).toLowerCase();
 
+  if (estado === "VOTO EN EL EXTRANJERO") {
+    const distStr = cabecera ? ` (${cabecera})` : "";
+    return `Los resultados para la elección de ${cargoLabel} del año ${anio} muestran un total de <strong>${fmtNum(data.totalVotos)}</strong> votos en el extranjero${distStr}.`;
+  }
+
   let geo = "a nivel nacional";
   if (estado) {
     if (secciones.length > 0) {
@@ -117,22 +122,26 @@ export function generateParticipacion(
   const pnivel = data.participacionPorNivel;
   const lines: string[] = [];
 
+  const esExtranjero = estado === "VOTO EN EL EXTRANJERO";
+
   if (!isSingleStateElection && pnivel.nacional !== undefined) {
-    lines.push(
-      `La tasa global de participación, a nivel nacional, fue de <strong>${fmtPct(pnivel.nacional)}</strong>.`
-    );
+    const txt = esExtranjero
+      ? `La tasa global de participación del voto en el extranjero, a nivel nacional, fue de <strong>${fmtPct(pnivel.nacional)}</strong>.`
+      : `La tasa global de participación, a nivel nacional, fue de <strong>${fmtPct(pnivel.nacional)}</strong>.`;
+    lines.push(txt);
   }
 
-  if (estado && pnivel.estatal !== undefined) {
+  if (estado && !esExtranjero && pnivel.estatal !== undefined) {
     lines.push(
       `La tasa global de participación en <strong>${estado}</strong> fue de <strong>${fmtPct(pnivel.estatal)}</strong>.`
     );
   }
 
   if (cabecera && pnivel.distrital !== undefined) {
-    lines.push(
-      `La tasa global de participación en el distrito <strong>${cabecera}</strong> fue de <strong>${fmtPct(pnivel.distrital)}</strong>.`
-    );
+    const distTxt = esExtranjero
+      ? `La tasa global de participación del voto en el extranjero en el distrito <strong>${cabecera}</strong> fue de <strong>${fmtPct(pnivel.distrital)}</strong>.`
+      : `La tasa global de participación en el distrito <strong>${cabecera}</strong> fue de <strong>${fmtPct(pnivel.distrital)}</strong>.`;
+    lines.push(distTxt);
   }
 
   if (municipio && pnivel.municipal !== undefined) {

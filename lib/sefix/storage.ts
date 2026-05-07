@@ -209,6 +209,7 @@ export interface ResultadosEstado {
   lne: number;
   participacion: number;
   votosNulos: number;
+  votosExtranjero?: number;
   partidos: { partido: string; votos: number; porcentaje: number }[];
   coaliconesIncluidas: string[];
   fuente: string;
@@ -254,6 +255,7 @@ export async function getResultadosByEstado(
   let totalVotos = 0;
   let lne = 0;
   let votosNulos = 0;
+  let votosExtranjero = 0;
   let partidoHeaders: string[] = [];
 
   const headers = await streamCsvRows(targetFile, (row) => {
@@ -268,8 +270,11 @@ export async function getResultadosByEstado(
     const tv = parseInt(row.total_votos ?? "0");
     const lneRow = parseInt(row.lne ?? "0");
     const vn = parseInt(row.vot_nul ?? "0");
+    const tvSafe = isNaN(tv) ? 0 : tv;
 
-    totalVotos += isNaN(tv) ? 0 : tv;
+    if (isExtranjero) votosExtranjero += tvSafe;
+
+    totalVotos += tvSafe;
     lne += isNaN(lneRow) ? 0 : lneRow;
     votosNulos += isNaN(vn) ? 0 : vn;
 
@@ -305,6 +310,7 @@ export async function getResultadosByEstado(
     lne,
     participacion: lne > 0 ? +((totalVotos / lne) * 100).toFixed(2) : 0,
     votosNulos,
+    votosExtranjero: votosExtranjero > 0 ? votosExtranjero : undefined,
     partidos,
     coaliconesIncluidas,
     fuente: `INE — Sistema de Consulta de la Estadística de las Elecciones Federales ${anio}`,
@@ -1818,6 +1824,7 @@ export interface ResultadosEleccionesFiltered {
   lne: number;
   participacion: number;
   votosNulos: number;
+  votosExtranjero?: number;
   partidos: { partido: string; votos: number; porcentaje: number; votosTotal: number }[];
   fuente: string;
   participacionPorNivel: ParticipacionPorNivel;
@@ -1899,18 +1906,38 @@ export async function getEleccionesGeo(
 
   const seen = new Map<string, string>();
 
-  await streamCsvRows(path, (row) => {
-    if (row.estado !== estadoNombre) return;
+  const isExtranjeroEstado = estadoNombre === "VOTO EN EL EXTRANJERO";
 
-    // For distritos: also include the extranjero cabecera for this state
-    if (nivel === "distritos") {
-      const rowMun = row.municipio?.trim().toUpperCase();
-      const isExtranjero = rowMun === "VOTO EN EL EXTRANJERO";
-      if (isExtranjero) {
+  await streamCsvRows(path, (row) => {
+    const rowMun = row.municipio?.trim();
+    const rowMunUpper = rowMun?.toUpperCase();
+    const isExtranjero = rowMunUpper === "VOTO EN EL EXTRANJERO";
+
+    // Special case: when filtering to "VOTO EN EL EXTRANJERO" as the estado,
+    // collect all extranjero cabeceras (nivel=distritos) across all states
+    if (isExtranjeroEstado) {
+      if (!isExtranjero) return;
+      if (nivel === "distritos") {
         const cab = row.cabecera?.trim();
         if (cab) seen.set(cab, cab);
-        return;
       }
+      return;
+    }
+
+    if (row.estado !== estadoNombre) return;
+
+    // For distritos: include extranjero cabecera for this state
+    if (nivel === "distritos" && isExtranjero) {
+      const cab = row.cabecera?.trim();
+      if (cab) seen.set(cab, cab);
+      return;
+    }
+
+    // For municipios: include extranjero municipio value for this state (e.g. 2021/DIP LNERE)
+    if (nivel === "municipios" && isExtranjero) {
+      if (cabecera && row.cabecera?.trim() !== cabecera) return;
+      if (rowMun) seen.set(rowMun, rowMun);
+      return;
     }
 
     // Skip aggregate rows (seccion=0 or empty)
@@ -1924,8 +1951,7 @@ export async function getEleccionesGeo(
       }
     } else if (nivel === "municipios") {
       if (cabecera && row.cabecera?.trim() !== cabecera) return;
-      const mun = row.municipio?.trim();
-      if (mun) seen.set(mun, mun);
+      if (rowMun) seen.set(rowMun, rowMun);
     } else {
       if (cabecera && row.cabecera?.trim() !== cabecera) return;
       if (municipio && row.municipio?.trim() !== municipio) return;
@@ -1991,6 +2017,7 @@ export async function getResultadosFiltered(params: {
   let totalVotos = 0;
   let lne = 0;
   let votosNulos = 0;
+  let votosExtranjero = 0;
 
   // Accumulators for tasa global (totalVotos/lne) per geographic level
   let votosNac = 0; let lneNac = 0;
@@ -2017,20 +2044,21 @@ export async function getResultadosFiltered(params: {
 
     if (!isExtranjero && (!rowSeccion || rowSeccion === "0" || rowSeccion === "00")) return;
 
+    // When filtering to VOTO EN EL EXTRANJERO, skip non-extranjero rows entirely
+    // so that the national accumulation only counts extranjero votes
+    if (isVotoExtranjeroFiltro && !isExtranjero) return;
+
     // Parse votes and LNE early — needed at multiple accumulation points
     const tv = parseInt(row.total_votos ?? "0");
     const lneRow = parseInt(row.lne ?? "0");
     const tvSafe = isNaN(tv) ? 0 : tv;
     const lneSafe = isNaN(lneRow) ? 0 : lneRow;
 
-    // Nacional: always accumulate ALL rows — true national rate, never limited by estado filter
+    // Nacional: accumulate all rows that passed the isVotoExtranjeroFiltro guard above
     votosNac += tvSafe; lneNac += lneSafe;
 
-    // Apply estado filter
-    if (isVotoExtranjeroFiltro) {
-      // Only keep extranjero rows when filtering to VOTO EN EL EXTRANJERO
-      if (!isExtranjero) return;
-    } else if (estadoNombre && rowEstado !== estadoNombre) return;
+    // Apply estado filter (isVotoExtranjeroFiltro already handled above)
+    if (estadoNombre && rowEstado !== estadoNombre) return;
 
     // Accumulate state-level totals (after estado filter, before tipo/principio/geo)
     votosEst += tvSafe; lneEst += lneSafe;
@@ -2038,6 +2066,9 @@ export async function getResultadosFiltered(params: {
     // Apply tipo and principio filters
     if (tipoEleccion && tipoEleccion !== "AMBAS" && rowTipo !== tipoEleccion) return;
     if (principio && rowPrincipio !== principio) return;
+
+    // Track extranjero subtotal at current scope (after estado+tipo+principio, before geo)
+    if (isExtranjero) votosExtranjero += tvSafe;
 
     // Apply cabecera filter + accumulate district totals
     if (cabecera) {
@@ -2108,6 +2139,7 @@ export async function getResultadosFiltered(params: {
     lne,
     participacion: lne > 0 ? +((totalVotos / lne) * 100).toFixed(2) : 0,
     votosNulos,
+    votosExtranjero: votosExtranjero > 0 ? votosExtranjero : undefined,
     partidos: partidos_result,
     fuente: `INE — Sistema de Consulta de la Estadística de las Elecciones Federales ${anioInput}`,
     participacionPorNivel: {

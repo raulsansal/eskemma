@@ -184,6 +184,7 @@ export interface ResultadosEleccionesData {
   lne: number;
   participacion: number;
   votosNulos: number;
+  votosExtranjero?: number;
   partidos: { partido: string; votos: number; porcentaje: number; votosTotal: number }[];
   fuente: string;
   participacionPorNivel: ParticipacionPorNivel;

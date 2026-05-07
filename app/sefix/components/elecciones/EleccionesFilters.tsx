@@ -90,6 +90,7 @@ export default function EleccionesFilters({
   const isNacional = !pendingEstado;
   const hasCabecera = !!pendingCabecera;
   const hasMunicipio = !!pendingMunicipio;
+  const isExtranjeroDistrito = pendingCabecera.toUpperCase().includes("VOTO EN EL EXTRANJERO");
 
   const tieneOrdinaria = tiposDisponibles.includes("ORDINARIA");
   const tieneExtraordinaria = tiposDisponibles.includes("EXTRAORDINARIA");
@@ -164,14 +165,14 @@ export default function EleccionesFilters({
             {ESTADOS_LIST.map((e) => (
               <option key={e.key} value={e.nombre}>{e.nombre}</option>
             ))}
-            {isNacional && hasExtranjero && (
+            {(isNacional || pendingEstado === "VOTO EN EL EXTRANJERO") && hasExtranjero && (
               <option value="VOTO EN EL EXTRANJERO">— VOTO EN EL EXTRANJERO —</option>
             )}
           </select>
         </div>
 
-        {/* Checkbox: incluir/excluir VOTO EN EL EXTRANJERO */}
-        {hasExtranjero && pendingEstado !== "VOTO EN EL EXTRANJERO" && (
+        {/* Checkbox: incluir/excluir VOTO EN EL EXTRANJERO (solo para SENADURIA y PRESIDENCIA) */}
+        {hasExtranjero && pendingCargo !== "dip" && pendingEstado !== "VOTO EN EL EXTRANJERO" && (
           <div className="flex items-end flex-shrink-0 pb-1.5 gap-1.5">
             <input
               type="checkbox"
@@ -242,7 +243,7 @@ export default function EleccionesFilters({
             options={seccionOptions}
             selected={pendingSecciones.length > 0 ? pendingSecciones : ["Todas"]}
             onChange={(v) => setSecciones(v.filter((x) => x !== "Todas"))}
-            disabled={!hasMunicipio || loadingSec}
+            disabled={!hasMunicipio || loadingSec || isExtranjeroDistrito}
             placeholder="Buscar sección..."
             todosLabel="Todas"
           />

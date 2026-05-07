@@ -152,8 +152,8 @@ export default function EleccionesFedPanelContent() {
             <>
               {/* KPIs */}
               {isLoading || !data ? (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[...Array(4)].map((_, i) => (
+                <div className={`grid gap-3 ${committed.cargo !== "dip" && hasExtranjero ? "grid-cols-2 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-4"}`}>
+                  {[...Array(committed.cargo !== "dip" && hasExtranjero ? 5 : 4)].map((_, i) => (
                     <div
                       key={i}
                       className="h-24 rounded-lg bg-gray-eske-10 dark:bg-white/10 animate-pulse"
@@ -162,7 +162,7 @@ export default function EleccionesFedPanelContent() {
                   ))}
                 </div>
               ) : (
-                <ResultadosStatCards data={data} />
+                <ResultadosStatCards data={data} committed={committed} />
               )}
 
               {/* Distribución por partido */}
