@@ -86,7 +86,7 @@ export default function HomeClient({ blogPosts }: HomeClientProps) {
             Consultoría política
           </h1>
           <p className="mt-8 max-sm:mt-4 text-[32px] max-sm:text-xl leading-tight font-light">
-            <span>Un ecosistema digital</span>
+            <span>El ecosistema digital</span>
             <br />
             <span>para tu proyecto político</span>
           </p>

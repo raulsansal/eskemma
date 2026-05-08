@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { ResultadosChartData } from "@/types/sefix.types";
+import type { ResultadosChartData, EleccionesFilterParams } from "@/types/sefix.types";
 
 interface UseResultadosOptions {
   estado: string;
@@ -72,49 +72,48 @@ export function useResultados({
   return { data, isLoading, error };
 }
 
-/** Hook para obtener resultados de todos los años disponibles (serie histórica) */
+/** Hook para obtener resultados de todos los años disponibles (serie histórica).
+ *  Cuando el committed incluye filtros geográficos extendidos (cabecera/municipio/secciones),
+ *  la API aplica esos filtros año por año para que la gráfica refleje el mismo alcance. */
 export function useResultadosAllYears({
-  estado,
-  cargo,
-}: Omit<UseResultadosOptions, "anio">): UseResultadosAllYearsReturn {
+  committed,
+  queryVersion,
+}: {
+  committed: EleccionesFilterParams;
+  queryVersion: number;
+}): UseResultadosAllYearsReturn {
   const [data, setData] = useState<ResultadosChartData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelRef = useRef(false);
+  const lastVersion = useRef(-1);
 
   useEffect(() => {
-    if (!cargo) {
-      setData([]);
-      return;
-    }
+    if (queryVersion === 0) return;
+    if (queryVersion === lastVersion.current) return;
+    lastVersion.current = queryVersion;
+    cancelRef.current = false;
 
-    if (timerRef.current) clearTimeout(timerRef.current);
+    setIsLoading(true);
+    setError(null);
 
-    timerRef.current = setTimeout(async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const params = new URLSearchParams({ cargo, all_years: "true" });
-        if (estado) params.set("estado", estado);
-        const res = await fetch(`/api/sefix/resultados?${params}`);
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.error ?? `Error ${res.status}`);
-        }
-        const json = await res.json();
-        setData(json.resultados ?? []);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Error al cargar historial");
-        setData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }, DEBOUNCE_MS);
+    const sp = new URLSearchParams({ cargo: committed.cargo, all_years: "true" });
+    if (committed.estado) sp.set("estado", committed.estado);
+    if (committed.tipo && committed.tipo !== "AMBAS") sp.set("tipo", committed.tipo);
+    if (committed.principio) sp.set("principio", committed.principio);
+    if (committed.cabecera) sp.set("cabecera", committed.cabecera);
+    if (committed.municipio) sp.set("municipio", committed.municipio);
+    if (committed.secciones.length) sp.set("secciones", committed.secciones.join(","));
+    if (!committed.incluirExtranjero) sp.set("incluirExtranjero", "false");
 
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [estado, cargo]);
+    fetch(`/api/sefix/resultados?${sp}`)
+      .then((r) => r.json())
+      .then((json) => { if (!cancelRef.current) setData(json.resultados ?? []); })
+      .catch(() => { if (!cancelRef.current) setData([]); })
+      .finally(() => { if (!cancelRef.current) setIsLoading(false); });
+
+    return () => { cancelRef.current = true; };
+  }, [queryVersion]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { data, isLoading, error };
 }

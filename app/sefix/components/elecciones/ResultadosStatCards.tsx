@@ -1,20 +1,21 @@
 "use client";
 
-import type { ResultadosChartData } from "@/types/sefix.types";
+import type { ResultadosEleccionesData, EleccionesFilterParams } from "@/types/sefix.types";
 
 const FMT = new Intl.NumberFormat("es-MX");
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 });
 
 interface StatCardProps {
   label: string;
   value: string;
   sub?: string;
+  note?: string;
 }
 
-function StatCard({ label, value, sub }: StatCardProps) {
+function StatCard({ label, value, sub, note }: StatCardProps) {
   return (
     <div className="bg-white-eske dark:bg-[#18324A] border border-gray-eske-20 dark:border-white/10 rounded-lg p-4 flex flex-col gap-1">
       <span className="text-xs font-medium text-black-eske-60 dark:text-[#9AAEBE] uppercase tracking-wide">
@@ -26,23 +27,39 @@ function StatCard({ label, value, sub }: StatCardProps) {
       {sub && (
         <span className="text-xs text-black-eske-60 dark:text-[#6D8294]">{sub}</span>
       )}
+      {note && (
+        <span className="text-[10px] text-black-eske-60/70 dark:text-[#6D8294]/70 italic mt-0.5">{note}</span>
+      )}
     </div>
   );
 }
 
 interface ResultadosStatCardsProps {
-  data: ResultadosChartData;
+  data: ResultadosEleccionesData;
+  committed: EleccionesFilterParams;
 }
 
-export default function ResultadosStatCards({ data }: ResultadosStatCardsProps) {
+export default function ResultadosStatCards({ data, committed }: ResultadosStatCardsProps) {
   const ganador = data.partidos[0];
   const pctNulos =
     data.totalVotos > 0
       ? FMT_PCT.format((data.votosNulos / data.totalVotos) * 100)
       : "—";
 
+  // Card VOTO EXTRANJERO: solo para SEN/PDTE cuando incluirExtranjero=true y no se está filtrando ya a extranjero
+  const showExtranjeroCard =
+    committed.cargo !== "dip" &&
+    committed.incluirExtranjero &&
+    committed.estado !== "VOTO EN EL EXTRANJERO" &&
+    (data.votosExtranjero ?? 0) > 0;
+
+  const pctExtranjero =
+    showExtranjeroCard && data.totalVotos > 0
+      ? FMT_PCT.format(((data.votosExtranjero ?? 0) / data.totalVotos) * 100)
+      : "—";
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className={`grid gap-3 ${showExtranjeroCard ? "grid-cols-2 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-4"}`}>
       <StatCard
         label="Total de Votos"
         value={FMT.format(data.totalVotos)}
@@ -63,6 +80,14 @@ export default function ResultadosStatCards({ data }: ResultadosStatCardsProps) 
         value={FMT.format(data.votosNulos)}
         sub={`${pctNulos}% del total`}
       />
+      {showExtranjeroCard && (
+        <StatCard
+          label="Voto Extranjero"
+          value={FMT.format(data.votosExtranjero ?? 0)}
+          sub={`${pctExtranjero}% del total`}
+          note="Sólo a nivel estatal"
+        />
+      )}
     </div>
   );
 }

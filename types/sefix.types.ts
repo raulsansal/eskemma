@@ -20,7 +20,7 @@ export interface SefixTab {
 }
 
 export const SEFIX_TABS: SefixTab[] = [
-  { id: "lne", label: "Lista Nominal", available: true },
+  { id: "lne", label: "Padrón y Lista Nominal", available: true },
   { id: "elecciones_fed", label: "Elecciones Federales", available: true },
   { id: "elecciones_loc", label: "Elecciones Locales", available: false },
   { id: "geo", label: "Visualización Geográfica", available: false },
@@ -149,6 +149,50 @@ export interface ResultadosChartData {
   partidos: { partido: string; votos: number; porcentaje: number }[];
   coaliconesIncluidas: string[];
   fuente: string;
+}
+
+// ============================================================
+// FILTROS ELECCIONES FEDERALES
+// ============================================================
+
+export interface EleccionesFilterParams {
+  anio: number;
+  cargo: string;       // "dip" | "sen" | "pdte"
+  estado: string;      // "" = Nacional
+  partidos: string[];  // ["Todos"] o lista específica
+  tipo: string;        // "ORDINARIA" | "EXTRAORDINARIA" | "AMBAS"
+  principio: string;   // "MAYORIA RELATIVA" | "REPRESENTACION PROPORCIONAL"
+  cabecera: string;    // "" = Todos
+  municipio: string;   // "" = Todos
+  secciones: string[]; // [] = Todas
+  incluirExtranjero: boolean;
+}
+
+export interface ParticipacionPorNivel {
+  nacional?: number;
+  estatal?: number;
+  distrital?: number;
+  municipal?: number;
+  seccional?: number;
+}
+
+export interface ResultadosEleccionesData {
+  estado: string;
+  cargo: string;
+  anio: number;
+  totalVotos: number;
+  lne: number;
+  participacion: number;
+  votosNulos: number;
+  votosExtranjero?: number;
+  partidos: { partido: string; votos: number; porcentaje: number; votosTotal: number }[];
+  fuente: string;
+  participacionPorNivel: ParticipacionPorNivel;
+}
+
+export interface GeoEleccionesOpcion {
+  cve: string;
+  nombre: string;
 }
 
 // ============================================================
