@@ -97,8 +97,9 @@ export default function EleccionesFilters({
   const showTipoRadios = tieneOrdinaria && tieneExtraordinaria;
   const showPrincipioRadios = principiosDisponibles.length > 1;
 
-  // Bloqueo de Entidad y Tipo para elecciones extraordinarias de estado único
+  // Casos especiales con Entidad restringida (2021/SEN y 2023/SEN)
   const isLockedEstado = (pendingAnio === 2021 && pendingCargo === "sen") || pendingAnio === 2023;
+  const lockedEstadoLabel = pendingAnio === 2023 ? "TAMAULIPAS" : "NAYARIT";
 
   const geoScope = pendingEstado || "Nacional";
   const cargoScope = CARGO_DISPLAY_LABELS[pendingCargo] ?? pendingCargo.toUpperCase();
@@ -153,20 +154,30 @@ export default function EleccionesFilters({
         </div>
 
         <div className="flex flex-col gap-1 flex-1 sm:flex-none">
-          <label htmlFor="ef-estado" className={isLockedEstado ? LABEL_DISABLED_CLS : LABEL_CLS}>Entidad federativa</label>
+          <label htmlFor="ef-estado" className={LABEL_CLS}>Entidad federativa</label>
           <select
             id="ef-estado"
             value={pendingEstado}
             onChange={(e) => setEstado(e.target.value)}
-            disabled={isLockedEstado}
             className={SELECT_CLS}
           >
-            <option value="">— Nacional —</option>
-            {ESTADOS_LIST.map((e) => (
-              <option key={e.key} value={e.nombre}>{e.nombre}</option>
-            ))}
-            {(isNacional || pendingEstado === "VOTO EN EL EXTRANJERO") && hasExtranjero && (
-              <option value="VOTO EN EL EXTRANJERO">— VOTO EN EL EXTRANJERO —</option>
+            {isLockedEstado ? (
+              <>
+                <option value={lockedEstadoLabel}>{lockedEstadoLabel}</option>
+                {hasExtranjero && (
+                  <option value="VOTO EN EL EXTRANJERO">— VOTO EN EL EXTRANJERO —</option>
+                )}
+              </>
+            ) : (
+              <>
+                <option value="">— Nacional —</option>
+                {ESTADOS_LIST.map((e) => (
+                  <option key={e.key} value={e.nombre}>{e.nombre}</option>
+                ))}
+                {(isNacional || pendingEstado === "VOTO EN EL EXTRANJERO") && hasExtranjero && (
+                  <option value="VOTO EN EL EXTRANJERO">— VOTO EN EL EXTRANJERO —</option>
+                )}
+              </>
             )}
           </select>
         </div>

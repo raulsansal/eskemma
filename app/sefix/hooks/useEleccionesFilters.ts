@@ -259,12 +259,16 @@ export function useEleccionesFilters(): UseEleccionesFiltersResult {
       : rawTipos;
   const principiosDisponibles = rawPrincipios;
 
-  // Auto-ajustar pendingTipo cuando cambia metadata (replicar lógica R Shiny)
+  // Auto-ajustar pendingTipo cuando cambia metadata
+  // Cuando existen ambos tipos, forzar "AMBAS" — es el default correcto
+  // Cuando solo existe uno, ajustar al disponible si el actual ya no es válido
   useEffect(() => {
+    if (tieneOrdinaria && tieneExtraordinaria) {
+      setPendingTipo("AMBAS");
+      return;
+    }
     if (tiposDisponibles.includes(pendingTipo)) return;
-    const newTipo =
-      tieneOrdinaria && tieneExtraordinaria ? "AMBAS" : (tiposDisponibles[0] ?? "ORDINARIA");
-    setPendingTipo(newTipo);
+    setPendingTipo(tiposDisponibles[0] ?? "ORDINARIA");
   }, [tiposDisponibles]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-ajustar pendingPrincipio cuando cambia metadata

@@ -12,9 +12,10 @@ interface StatCardProps {
   label: string;
   value: string;
   sub?: string;
+  note?: string;
 }
 
-function StatCard({ label, value, sub }: StatCardProps) {
+function StatCard({ label, value, sub, note }: StatCardProps) {
   return (
     <div className="bg-white-eske dark:bg-[#18324A] border border-gray-eske-20 dark:border-white/10 rounded-lg p-4 flex flex-col gap-1">
       <span className="text-xs font-medium text-black-eske-60 dark:text-[#9AAEBE] uppercase tracking-wide">
@@ -25,6 +26,9 @@ function StatCard({ label, value, sub }: StatCardProps) {
       </span>
       {sub && (
         <span className="text-xs text-black-eske-60 dark:text-[#6D8294]">{sub}</span>
+      )}
+      {note && (
+        <span className="text-[10px] text-black-eske-60/70 dark:text-[#6D8294]/70 italic mt-0.5">{note}</span>
       )}
     </div>
   );
@@ -81,6 +85,7 @@ export default function ResultadosStatCards({ data, committed }: ResultadosStatC
           label="Voto Extranjero"
           value={FMT.format(data.votosExtranjero ?? 0)}
           sub={`${pctExtranjero}% del total`}
+          note="Sólo a nivel estatal"
         />
       )}
     </div>

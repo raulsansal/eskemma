@@ -1869,10 +1869,25 @@ export async function getEleccionesMetadata(
   const principios = new Set<string>();
   let hasExtranjero = false;
 
+  const isVotoExtranjeroEstado = estadoNombre?.toUpperCase() === "VOTO EN EL EXTRANJERO";
+  const isVotoExtrajeroCabecera = cabecera?.toUpperCase().includes("VOTO EN EL EXTRANJERO") ?? false;
+
   await streamCsvRows(path, (row) => {
     const rowMun = row.municipio?.trim().toUpperCase();
     const isExtranjero = rowMun === "VOTO EN EL EXTRANJERO";
-    if (isExtranjero) { hasExtranjero = true; return; }
+    if (isExtranjero) {
+      hasExtranjero = true;
+      // Collect tipos from extranjero rows when the query targets extranjero data
+      if (isVotoExtranjeroEstado || isVotoExtrajeroCabecera) {
+        if (estadoNombre && !isVotoExtranjeroEstado && row.estado !== estadoNombre) return;
+        if (isVotoExtrajeroCabecera && row.cabecera?.trim() !== cabecera) return;
+        if (row.tipo) tipos.add(row.tipo.trim().toUpperCase());
+        if (row.principio) principios.add(row.principio.trim().toUpperCase());
+      }
+      return;
+    }
+    // Skip regular rows when the query is purely for extranjero scope
+    if (isVotoExtranjeroEstado || isVotoExtrajeroCabecera) return;
     if (estadoNombre && row.estado !== estadoNombre) return;
     if (cabecera && row.cabecera?.trim() !== cabecera) return;
     if (row.tipo) tipos.add(row.tipo.trim().toUpperCase());
