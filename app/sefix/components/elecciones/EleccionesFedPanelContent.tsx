@@ -12,6 +12,7 @@ import EleccionesFilters from "./EleccionesFilters";
 import ResultadosStatCards from "./ResultadosStatCards";
 import PartidosBarChart from "./PartidosBarChart";
 import HistoricoComparison from "./HistoricoComparison";
+import HistoricoPartidos from "./HistoricoPartidos";
 import EleccionesDataTable from "./EleccionesDataTable";
 import EleccionesDynamicText from "./EleccionesDynamicText";
 import { CARGO_DISPLAY_LABELS } from "@/lib/sefix/eleccionesConstants";
@@ -198,6 +199,11 @@ export default function EleccionesFedPanelContent() {
               <div>
                 <SectionHeader title="Tabla de Datos" scope={data ? chartScope : undefined} />
                 <EleccionesDataTable committed={committed} queryVersion={queryVersion} />
+              </div>
+
+              {/* Histórico por partido */}
+              <div>
+                <HistoricoPartidos committed={committed} queryVersion={queryVersion} />
               </div>
             </>
           )}
