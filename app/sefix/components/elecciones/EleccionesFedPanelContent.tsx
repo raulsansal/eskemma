@@ -202,7 +202,8 @@ export default function EleccionesFedPanelContent() {
               </div>
 
               {/* Histórico por partido */}
-              <div>
+              <div className="pt-6">
+                <hr className="border-gray-eske-20 dark:border-white/10 mb-8" />
                 <HistoricoPartidos committed={committed} queryVersion={queryVersion} />
               </div>
             </>

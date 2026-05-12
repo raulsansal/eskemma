@@ -124,6 +124,17 @@ function toDerfeNombre(nombre: string): string {
   return DERFE_NOMBRE_MAP[nombre] ?? nombre;
 }
 
+/**
+ * Maps UI state name to the estado value used in electoral result CSVs (pef_dip/sen/pdte).
+ * Only ESTADO DE MEXICO needs remapping (CSV stores "MEXICO").
+ * Coahuila/Michoacán/Veracruz are stored with their short UI names in electoral CSVs,
+ * unlike the NB/LNE weekly CSVs which use full constitutional names (handled by toDerfeNombre).
+ */
+function toElectoralEstado(nombre: string): string {
+  if (nombre === "ESTADO DE MEXICO") return "MEXICO";
+  return nombre;
+}
+
 const ESTADO_MAP: Record<string, string> = {
   aguascalientes: "AGUASCALIENTES",
   baja_california: "BAJA CALIFORNIA",
@@ -1858,7 +1869,12 @@ export async function getEleccionesMetadata(
   estadoNombre?: string,
   cabecera?: string
 ): Promise<EleccionesMetadata> {
-  const cacheKey = `elec:meta:${anio}:${cargoKey}:${estadoNombre ?? "NAC"}:${cabecera ?? ""}`;
+  const isVotoExtranjeroEstado = estadoNombre?.toUpperCase() === "VOTO EN EL EXTRANJERO";
+  const isVotoExtrajeroCabecera = cabecera?.toUpperCase().includes("VOTO EN EL EXTRANJERO") ?? false;
+  // Normalize to electoral CSV name (only ESTADO DE MEXICO → "MEXICO"; others unchanged)
+  const csvEstado = estadoNombre && !isVotoExtranjeroEstado ? toElectoralEstado(estadoNombre) : estadoNombre;
+  // Cache key uses normalized name so stale entries from pre-fix code don't mask results
+  const cacheKey = `elec:meta:${anio}:${cargoKey}:${csvEstado ?? "NAC"}:${cabecera ?? ""}`;
   const cached = getCached<EleccionesMetadata>(cacheKey);
   if (cached) return cached;
 
@@ -1869,9 +1885,6 @@ export async function getEleccionesMetadata(
   const principios = new Set<string>();
   let hasExtranjero = false;
 
-  const isVotoExtranjeroEstado = estadoNombre?.toUpperCase() === "VOTO EN EL EXTRANJERO";
-  const isVotoExtrajeroCabecera = cabecera?.toUpperCase().includes("VOTO EN EL EXTRANJERO") ?? false;
-
   await streamCsvRows(path, (row) => {
     const rowMun = row.municipio?.trim().toUpperCase();
     const isExtranjero = rowMun === "VOTO EN EL EXTRANJERO";
@@ -1879,7 +1892,7 @@ export async function getEleccionesMetadata(
       hasExtranjero = true;
       // Collect tipos from extranjero rows when the query targets extranjero data
       if (isVotoExtranjeroEstado || isVotoExtrajeroCabecera) {
-        if (estadoNombre && !isVotoExtranjeroEstado && row.estado !== estadoNombre) return;
+        if (estadoNombre && !isVotoExtranjeroEstado && row.estado !== csvEstado) return;
         if (isVotoExtrajeroCabecera && row.cabecera?.trim() !== cabecera) return;
         if (row.tipo) tipos.add(row.tipo.trim().toUpperCase());
         if (row.principio) principios.add(row.principio.trim().toUpperCase());
@@ -1888,7 +1901,7 @@ export async function getEleccionesMetadata(
     }
     // Skip regular rows when the query is purely for extranjero scope
     if (isVotoExtranjeroEstado || isVotoExtrajeroCabecera) return;
-    if (estadoNombre && row.estado !== estadoNombre) return;
+    if (estadoNombre && row.estado !== csvEstado) return;
     if (cabecera && row.cabecera?.trim() !== cabecera) return;
     if (row.tipo) tipos.add(row.tipo.trim().toUpperCase());
     if (row.principio) principios.add(row.principio.trim().toUpperCase());
@@ -1912,7 +1925,12 @@ export async function getEleccionesGeo(
   cabecera?: string,
   municipio?: string
 ): Promise<GeoEleccionesOpcion[]> {
-  const cacheKey = `elec:geo:${nivel}:${anio}:${cargoKey}:${estadoNombre}:${cabecera ?? ""}:${municipio ?? ""}`;
+  const isExtranjeroEstado = estadoNombre === "VOTO EN EL EXTRANJERO";
+  // Normalize to CSV name (e.g. "ESTADO DE MEXICO" → "MEXICO", "COAHUILA" → "COAHUILA DE ZARAGOZA")
+  // Normalize to electoral CSV name (only ESTADO DE MEXICO → "MEXICO"; others unchanged)
+  const csvEstado = isExtranjeroEstado ? estadoNombre : toElectoralEstado(estadoNombre);
+  // Cache key uses the normalized name so stale entries from pre-fix code don't mask results
+  const cacheKey = `elec:geo:${nivel}:${anio}:${cargoKey}:${csvEstado}:${cabecera ?? ""}:${municipio ?? ""}`;
   const cached = getCached<GeoEleccionesOpcion[]>(cacheKey);
   if (cached) return cached;
 
@@ -1920,8 +1938,6 @@ export async function getEleccionesGeo(
   if (!path) return [];
 
   const seen = new Map<string, string>();
-
-  const isExtranjeroEstado = estadoNombre === "VOTO EN EL EXTRANJERO";
 
   await streamCsvRows(path, (row) => {
     const rowMun = row.municipio?.trim();
@@ -1939,7 +1955,7 @@ export async function getEleccionesGeo(
       return;
     }
 
-    if (row.estado !== estadoNombre) return;
+    if (row.estado !== csvEstado) return;
 
     // For distritos: include extranjero cabecera for this state
     if (nivel === "distritos" && isExtranjero) {
@@ -2010,8 +2026,10 @@ export async function getResultadosFiltered(params: {
 
   const isVotoExtranjeroFiltro = estadoInput?.toUpperCase() === "VOTO EN EL EXTRANJERO";
   const isNacional = !estadoInput || estadoInput.toLowerCase() === "nacional" || isVotoExtranjeroFiltro;
-  const estadoNombre = isVotoExtranjeroFiltro ? null
+  const estadoNombreResolved = isVotoExtranjeroFiltro ? null
     : (isNacional ? null : resolveEstadoName(estadoInput));
+  // Normalize to electoral CSV name (only ESTADO DE MEXICO → "MEXICO"; others unchanged)
+  const estadoNombre = estadoNombreResolved ? toElectoralEstado(estadoNombreResolved) : null;
   if (!isVotoExtranjeroFiltro && !isNacional && !estadoNombre) return null;
 
   const cargoKey = CARGO_TO_KEY[cargoInput.toLowerCase()] ?? "dip";
@@ -2086,8 +2104,14 @@ export async function getResultadosFiltered(params: {
     if (isExtranjero) votosExtranjero += tvSafe;
 
     // Apply cabecera filter + accumulate district totals
+    // Use numeric-prefix matching so districts that changed name between elections
+    // (e.g. "0402 CARMEN" vs "0402 CIUDAD DEL CARMEN") still match correctly.
+    // Fall back to exact match when either side lacks a numeric prefix (e.g. extranjero).
     if (cabecera) {
-      if (rowCabecera !== cabecera) return;
+      const reqCode = cabecera.match(/^(\d+)/)?.[1];
+      const rowCode = rowCabecera?.match(/^(\d+)/)?.[1];
+      const matches = reqCode && rowCode ? rowCode === reqCode : rowCabecera === cabecera;
+      if (!matches) return;
       votosDist += tvSafe; lneDist += lneSafe;
     }
 
@@ -2215,12 +2239,15 @@ export async function getEleccionesTablaRows(params: {
     : cargoKey === "sen" ? "SENADORES"
     : "PRESIDENTE";
 
+  // Normalize to electoral CSV name (only ESTADO DE MEXICO → "MEXICO"; others unchanged)
+  const csvEstadoNombre = estadoNombre ? toElectoralEstado(estadoNombre) : estadoNombre;
+
   const allRows: EleccionesTablaRow[] = [];
 
   await streamCsvRows(path, (row) => {
     const rowSeccion = row.seccion?.trim();
     if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
-    if (estadoNombre && row.estado?.trim() !== estadoNombre) return;
+    if (csvEstadoNombre && row.estado?.trim() !== csvEstadoNombre) return;
     if (tipoEleccion && tipoEleccion !== "AMBAS" && row.tipo?.trim().toUpperCase() !== tipoEleccion) return;
     if (principio && row.principio?.trim().toUpperCase() !== principio) return;
     if (cabecera && row.cabecera?.trim() !== cabecera) return;

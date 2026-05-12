@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Fragment, useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   LineChart,
   Line,
@@ -40,6 +40,41 @@ const SELECT_CLS =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske " +
   "w-full sm:w-auto";
 
+// "Seleccionar todos" / "Borrar todos": neutral black/white
+const BTN_NEUTRAL_CLS =
+  "text-xs text-black-eske dark:text-[#EAF2F8] hover:text-black-eske-60 dark:hover:text-white/70 " +
+  "underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black-eske rounded";
+
+// "Restablecer": orange/red
+const BTN_RESET_CLS =
+  "text-xs text-orange-eske hover:text-orange-eske-60 underline " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-eske rounded";
+
+// "Voto Extranjero" toggle — active (filled blue) / inactive (outlined blue in light, dim in dark)
+const BTN_EXTRANJERO_ACTIVE =
+  "text-xs rounded px-2 py-0.5 border transition-colors " +
+  "bg-blue-eske text-white-eske border-blue-eske " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske";
+// Light mode inactive: blue border + text (not filled); hover: fill blue.
+// Dark mode inactive: dim text + subtle border; hover: blue border + text (no fill).
+const BTN_EXTRANJERO_INACTIVE =
+  "text-xs rounded px-2 py-0.5 border transition-colors " +
+  "bg-transparent text-blue-eske border-blue-eske " +
+  "hover:bg-blue-eske hover:text-white-eske hover:border-blue-eske " +
+  "dark:bg-transparent dark:text-[#9AAEBE] dark:border-white/20 " +
+  "dark:hover:bg-transparent dark:hover:border-blue-eske dark:hover:text-blue-eske " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske";
+
+// Years that have ordinary elections (2023 only had extraordinary SEN)
+const ORDINARIA_YEARS = AVAILABLE_YEARS.filter((y) => y !== 2023);
+
+// Valid cargos for ordinary elections per year
+// 2021/SEN was extraordinary only (Nayarit), so only DIP counts for ordinaria
+const ORDINARIA_CARGOS: Record<string, string[]> = {
+  ...VALID_COMBINATIONS,
+  "2021": ["dip"],
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface LocalConfig {
@@ -62,9 +97,13 @@ function getPLabel(pid: string): string {
 function buildDefault(committed: EleccionesFilterParams): LocalConfig {
   const available = PARTIDOS_MAPPING[`${committed.anio}_${committed.cargo}`] ?? [];
   const partidos = DEFAULT_PARTIDOS.filter((p) => available.includes(p));
+  // Use ordinary-safe cargo (e.g. if committed is 2021/sen, fallback to dip)
+  const validCargo = (ORDINARIA_CARGOS[String(committed.anio)] ?? []).includes(committed.cargo)
+    ? committed.cargo
+    : (ORDINARIA_CARGOS[String(committed.anio)] ?? [])[0] ?? committed.cargo;
   return {
     anio: committed.anio,
-    cargo: committed.cargo,
+    cargo: validCargo,
     partidos: partidos.length ? partidos : DEFAULT_PARTIDOS,
   };
 }
@@ -86,7 +125,8 @@ function useHistoricoPartidosData(
   committed: EleccionesFilterParams,
   localCargo: string,
   localMaxAnio: number,
-  version: number
+  version: number,
+  showExtranjero: boolean
 ): { data: ResultadosChartData[]; isLoading: boolean } {
   const [data, setData] = useState<ResultadosChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -96,12 +136,16 @@ function useHistoricoPartidosData(
     cancelRef.current = false;
     setIsLoading(true);
 
-    const sp = new URLSearchParams({ cargo: localCargo, all_years: "true" });
-    if (committed.estado) sp.set("estado", committed.estado);
-    if (committed.cabecera) sp.set("cabecera", committed.cabecera);
-    if (committed.municipio) sp.set("municipio", committed.municipio);
-    if (committed.secciones.length) sp.set("secciones", committed.secciones.join(","));
-    if (!committed.incluirExtranjero) sp.set("incluirExtranjero", "false");
+    const sp = new URLSearchParams({ cargo: localCargo, all_years: "true", tipo: "ORDINARIA" });
+    if (showExtranjero) {
+      sp.set("estado", "VOTO EN EL EXTRANJERO");
+    } else {
+      if (committed.estado) sp.set("estado", committed.estado);
+      if (committed.cabecera) sp.set("cabecera", committed.cabecera);
+      if (committed.municipio) sp.set("municipio", committed.municipio);
+      if (committed.secciones.length) sp.set("secciones", committed.secciones.join(","));
+      if (!committed.incluirExtranjero) sp.set("incluirExtranjero", "false");
+    }
 
     fetch(`/api/sefix/resultados?${sp}`)
       .then((r) => r.json())
@@ -143,6 +187,7 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
   const [pending, setPending] = useState<LocalConfig>(() => buildDefault(committed));
   const [local, setLocal] = useState<LocalConfig>(() => buildDefault(committed));
   const [version, setVersion] = useState(1);
+  const [showExtranjero, setShowExtranjero] = useState(false);
 
   // Re-initialize when the parent committed state changes
   useEffect(() => {
@@ -150,16 +195,22 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
     const next = buildDefault(committed);
     setPending(next);
     setLocal(next);
+    setShowExtranjero(false);
     setVersion((v) => v + 1);
   }, [queryVersion]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-adjust cargo when year changes and current cargo is no longer valid
+  // Auto-adjust cargo when year changes and current cargo has no ordinary election
   useEffect(() => {
-    const validCargos = VALID_COMBINATIONS[String(pending.anio)] ?? [];
+    const validCargos = ORDINARIA_CARGOS[String(pending.anio)] ?? [];
     if (!validCargos.includes(pending.cargo) && validCargos.length > 0) {
       setPending((prev) => ({ ...prev, cargo: validCargos[0] }));
     }
   }, [pending.anio]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reset extranjero toggle when cargo changes to "dip" (extranjero not applicable for DIP)
+  useEffect(() => {
+    if (pending.cargo === "dip") setShowExtranjero(false);
+  }, [pending.cargo]);
 
   // Available parties for the pending year + cargo
   const availablePartidos = useMemo(
@@ -202,13 +253,40 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
     }));
   }, []);
 
+  const handleSelectAll = useCallback(() => {
+    setPending((prev) => ({ ...prev, partidos: [...availablePartidos] }));
+  }, [availablePartidos]);
+
+  const handleClearAll = useCallback(() => {
+    setPending((prev) => ({ ...prev, partidos: [] }));
+  }, []);
+
   // Fetch all-years data for the local (committed) config
   const { data: allData, isLoading } = useHistoricoPartidosData(
     committed,
     local.cargo,
     local.anio,
-    version
+    version,
+    showExtranjero
   );
+
+  // Collapsible table: expanded years set; default = only most recent year open
+  const [expandedYears, setExpandedYears] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (allData.length > 0) {
+      setExpandedYears(new Set([allData[allData.length - 1].anio]));
+    }
+  }, [allData]);
+
+  const toggleYear = useCallback((anio: number) => {
+    setExpandedYears((prev) => {
+      const next = new Set(prev);
+      if (next.has(anio)) next.delete(anio);
+      else next.add(anio);
+      return next;
+    });
+  }, []);
 
   // Build chart points: one row per year, one key per selected partido (null = no data that year)
   const chartData = useMemo(() => {
@@ -235,29 +313,27 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
 
   const scopeSubtitle = useMemo(() => {
     const cargoLabel = CARGO_DISPLAY_LABELS[local.cargo] ?? local.cargo;
-    const geo = buildGeoLabel(committed);
+    const geo = showExtranjero ? "VOTO EN EL EXTRANJERO" : buildGeoLabel(committed);
     return `${cargoLabel} — ${geo}${scopeAnios ? ` (${scopeAnios})` : ""}`;
-  }, [committed, local.cargo, scopeAnios]);
+  }, [committed, local.cargo, scopeAnios, showExtranjero]);
 
-  // Valid cargos for the pending year
+  // Valid cargos for ordinary elections in the pending year
   const validCargos = useMemo(
-    () => VALID_COMBINATIONS[String(pending.anio)] ?? [],
+    () => ORDINARIA_CARGOS[String(pending.anio)] ?? [],
     [pending.anio]
   );
 
-  // CSV download for the inline table
+  // CSV download — all data regardless of collapsed state
   const handleDownloadCsv = useCallback(() => {
-    const years = allData.map((d) => d.anio);
-    const header = ["Partido", "Nombre", ...years.map(String)].join(",");
-    const dataRows = local.partidos.map((pid) => {
-      const cells = years.map((yr) => {
-        const yearData = allData.find((d) => d.anio === yr);
-        const match = yearData?.partidos.find((p) => p.partido === pid);
-        return match != null ? FMT_PCT.format(match.porcentaje) : "";
-      });
-      return [pid, `"${getPLabel(pid)}"`, ...cells].join(",");
+    const rows: string[] = ["Año,Clave,Partido / Candidatura,% Votos"];
+    [...allData].reverse().forEach((d) => {
+      [...d.partidos]
+        .sort((a, b) => b.porcentaje - a.porcentaje)
+        .forEach((p) => {
+          rows.push(`${d.anio},${p.partido},"${getPLabel(p.partido)}",${FMT_PCT.format(p.porcentaje)}`);
+        });
     });
-    const csv = [header, ...dataRows].join("\n");
+    const csv = rows.join("\n");
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -265,16 +341,23 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
     a.download = "historico-partidos.csv";
     a.click();
     URL.revokeObjectURL(url);
-  }, [allData, local.partidos]);
+  }, [allData]);
 
   return (
     <div className="space-y-4">
 
+      {/* ── Section heading ── */}
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-center text-black-eske-60 dark:text-[#9AAEBE]">
+        Histórico de votación
+      </h2>
+
       {/* ── Controls ── */}
       <div className="p-3 bg-gray-eske-10 dark:bg-[#0D1E2C] rounded-lg border border-gray-eske-20 dark:border-white/10 space-y-3">
 
-        {/* Row 1: Year + Cargo selectors + Buttons */}
+        {/* Row 1: Selectors + Consultar (left) — Seleccionar/Borrar/Restablecer (right) */}
         <div className="flex flex-wrap gap-3 items-end justify-between">
+
+          {/* Left: Hasta el año + Cargo + Consultar */}
           <div className="flex flex-wrap gap-3 items-end">
             <div className="flex flex-col gap-1">
               <label htmlFor="hp-anio" className={LABEL_CLS}>Hasta el año</label>
@@ -284,7 +367,7 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
                 onChange={(e) => setPending((prev) => ({ ...prev, anio: parseInt(e.target.value) }))}
                 className={SELECT_CLS}
               >
-                {AVAILABLE_YEARS.map((y) => (
+                {ORDINARIA_YEARS.map((y) => (
                   <option key={y} value={y}>{y}</option>
                 ))}
               </select>
@@ -305,27 +388,56 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
                   ))}
               </select>
             </div>
-          </div>
 
-          <div className="flex gap-2 items-end">
             {hasPending && (
               <button
                 type="button"
                 onClick={handleConsultar}
-                className="px-3 py-1.5 rounded-md text-xs font-medium bg-blue-eske text-white-eske hover:bg-blue-eske-60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske"
+                className="px-3 py-1.5 rounded-md text-xs font-medium bg-blue-eske text-white-eske hover:bg-blue-eske-60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-eske self-end"
                 aria-label="Aplicar configuración de la gráfica"
               >
                 Consultar
               </button>
             )}
+          </div>
+
+          {/* Right: Seleccionar todos + Borrar todos + Restablecer + Voto Extranjero */}
+          <div className="flex gap-3 items-end flex-wrap">
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              className={BTN_NEUTRAL_CLS}
+              aria-label="Seleccionar todos los partidos"
+            >
+              Seleccionar todos
+            </button>
+            <button
+              type="button"
+              onClick={handleClearAll}
+              className={BTN_NEUTRAL_CLS}
+              aria-label="Deseleccionar todos los partidos"
+            >
+              Borrar todos
+            </button>
             <button
               type="button"
               onClick={handleRestablecer}
-              className="text-xs text-orange-eske hover:text-orange-eske-60 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-eske rounded"
+              className={BTN_RESET_CLS}
               aria-label="Restablecer configuración por defecto"
             >
               Restablecer
             </button>
+            {pending.cargo !== "dip" && (
+              <button
+                type="button"
+                onClick={() => { setShowExtranjero((v) => !v); setVersion((v) => v + 1); }}
+                aria-pressed={showExtranjero}
+                aria-label="Ver histórico de Voto en el Extranjero"
+                className={showExtranjero ? BTN_EXTRANJERO_ACTIVE : BTN_EXTRANJERO_INACTIVE}
+              >
+                Voto Extranjero
+              </button>
+            )}
           </div>
         </div>
 
@@ -481,8 +593,8 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
         </p>
       </div>
 
-      {/* ── Inline data table ── */}
-      {!isLoading && allData.length > 0 && local.partidos.length > 0 && (
+      {/* ── Inline data table — collapsible year sections ── */}
+      {!isLoading && allData.length > 0 && (
         <div className="space-y-3 pt-2">
           <div className="text-center">
             <h3 className="text-base font-semibold text-black-eske dark:text-[#EAF2F8]">
@@ -497,46 +609,63 @@ export default function HistoricoPartidos({ committed, queryVersion }: Props) {
             <table className="w-full text-xs min-w-max">
               <thead className="bg-bluegreen-eske text-white-eske">
                 <tr>
-                  <th className="px-3 py-2 text-left font-semibold whitespace-nowrap sticky left-0 bg-bluegreen-eske z-10">
-                    Partido / Candidatura
-                  </th>
-                  {allData.map((d) => (
-                    <th key={d.anio} className="px-3 py-2 text-right font-semibold whitespace-nowrap">
-                      {d.anio}
-                    </th>
-                  ))}
+                  <th className="px-3 py-2 text-left font-semibold whitespace-nowrap">Clave</th>
+                  <th className="px-3 py-2 text-left font-semibold whitespace-nowrap">Partido / Candidatura</th>
+                  <th className="px-3 py-2 text-right font-semibold whitespace-nowrap">% Votos</th>
                 </tr>
               </thead>
               <tbody>
-                {local.partidos.map((pid, i) => {
-                  const rowBg = i % 2 === 0
-                    ? "bg-white-eske dark:bg-[#18324A]"
-                    : "bg-gray-eske-10 dark:bg-[#21425E]";
+                {[...allData].reverse().map((yearData) => {
+                  const isExpanded = expandedYears.has(yearData.anio);
                   return (
-                    <tr
-                      key={pid}
-                      className={`border-t border-gray-eske-10 dark:border-white/5 ${rowBg} hover:bg-blue-eske-10 dark:hover:bg-white/5`}
-                    >
-                      <td className={`px-3 py-1.5 whitespace-nowrap font-medium text-black-eske dark:text-[#C7D6E0] sticky left-0 z-10 ${rowBg}`}>
-                        <span
-                          className="inline-block w-2 h-2 rounded-sm mr-1.5 border border-black/10 dark:border-white/10 shrink-0 align-middle"
-                          style={{ backgroundColor: getColor(pid, isDark) }}
-                          aria-hidden="true"
-                        />
-                        {getPLabel(pid)}
-                      </td>
-                      {allData.map((d) => {
-                        const match = d.partidos.find((p) => p.partido === pid);
-                        return (
-                          <td
-                            key={d.anio}
-                            className="px-3 py-1.5 whitespace-nowrap text-right text-black-eske dark:text-[#C7D6E0]"
-                          >
-                            {match != null ? `${FMT_PCT.format(match.porcentaje)}%` : "—"}
-                          </td>
-                        );
-                      })}
-                    </tr>
+                    <Fragment key={yearData.anio}>
+                      {/* Year section header — clickable */}
+                      <tr
+                        onClick={() => toggleYear(yearData.anio)}
+                        className="cursor-pointer select-none"
+                        aria-expanded={isExpanded}
+                      >
+                        <td
+                          colSpan={3}
+                          className="px-3 py-2 font-semibold text-white-eske bg-bluegreen-eske/70 dark:bg-bluegreen-eske/50 hover:bg-bluegreen-eske/90 dark:hover:bg-bluegreen-eske/70 transition-colors"
+                        >
+                          <span aria-hidden="true" className="mr-2 text-[10px]">
+                            {isExpanded ? "▾" : "▸"}
+                          </span>
+                          {yearData.anio}
+                        </td>
+                      </tr>
+                      {/* Party rows — only shown when expanded */}
+                      {isExpanded &&
+                        [...yearData.partidos]
+                          .sort((a, b) => b.porcentaje - a.porcentaje)
+                          .map((p, i) => {
+                            const rowBg = i % 2 === 0
+                              ? "bg-white-eske dark:bg-[#18324A]"
+                              : "bg-gray-eske-10 dark:bg-[#21425E]";
+                            return (
+                              <tr
+                                key={`${yearData.anio}-${p.partido}`}
+                                className={`border-t border-gray-eske-10 dark:border-white/5 ${rowBg} hover:bg-blue-eske-10 dark:hover:bg-white/5`}
+                              >
+                                <td className="px-3 py-1.5 whitespace-nowrap font-mono text-black-eske-60 dark:text-[#9AAEBE]">
+                                  {p.partido}
+                                </td>
+                                <td className="px-3 py-1.5 whitespace-nowrap text-black-eske dark:text-[#C7D6E0]">
+                                  <span
+                                    className="inline-block w-2 h-2 rounded-sm mr-1.5 border border-black/10 dark:border-white/10 shrink-0 align-middle"
+                                    style={{ backgroundColor: getColor(p.partido, isDark) }}
+                                    aria-hidden="true"
+                                  />
+                                  {getPLabel(p.partido)}
+                                </td>
+                                <td className="px-3 py-1.5 whitespace-nowrap text-right text-black-eske dark:text-[#C7D6E0]">
+                                  {FMT_PCT.format(p.porcentaje)}%
+                                </td>
+                              </tr>
+                            );
+                          })}
+                    </Fragment>
                   );
                 })}
               </tbody>
