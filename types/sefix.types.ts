@@ -149,6 +149,10 @@ export interface ResultadosChartData {
   partidos: { partido: string; votos: number; porcentaje: number }[];
   coaliconesIncluidas: string[];
   fuente: string;
+  /** Set when the target geo scope was found in a different district this year (redistricting). */
+  distritoRedistritado?: string;
+  /** Indicates whether the redistricting affected a municipio or selected secciones. */
+  redistritadoScope?: "municipio" | "secciones";
 }
 
 // ============================================================

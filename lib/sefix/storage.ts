@@ -1839,6 +1839,10 @@ export interface ResultadosEleccionesFiltered {
   partidos: { partido: string; votos: number; porcentaje: number; votosTotal: number }[];
   fuente: string;
   participacionPorNivel: ParticipacionPorNivel;
+  /** Set when the target geo scope was found in a different district this year (redistricting). */
+  distritoRedistritado?: string;
+  /** Indicates whether the redistricting affected a municipio or selected secciones. */
+  redistritadoScope?: "municipio" | "secciones";
 }
 
 export interface EleccionesMetadata {
@@ -2059,6 +2063,11 @@ export async function getResultadosFiltered(params: {
   let votosMun = 0; let lneMun = 0;
   let votosSec = 0; let lneSec = 0;
 
+  // Redistricting detection: only flagged when ZERO rows for the municipio matched the
+  // requested district AND all non-matching rows are in exactly one other district.
+  const redistritacionCabeceras = new Set<string>();
+  let districtMatchFound = false;
+
   let partidoHeaders: string[] = [];
 
   const headers = await streamCsvRows(path, (row) => {
@@ -2111,8 +2120,23 @@ export async function getResultadosFiltered(params: {
       const reqCode = cabecera.match(/^(\d+)/)?.[1];
       const rowCode = rowCabecera?.match(/^(\d+)/)?.[1];
       const matches = reqCode && rowCode ? rowCode === reqCode : rowCabecera === cabecera;
-      if (!matches) return;
-      votosDist += tvSafe; lneDist += lneSafe;
+      if (!matches) {
+        // Strict skip when neither municipio nor secciones scopes the query.
+        if (!municipio && !secFilter) return;
+        // Skip rows outside the target section selection (secciones take precedence over municipio).
+        if (secFilter && !secFilter.has(rowSeccion)) return;
+        // Track redistricting ONLY for the target geo rows (secciones > municipio in precedence).
+        // Rows from other municipios/sections in the same district must NOT influence these flags.
+        const isTarget = secFilter ? secFilter.has(rowSeccion) : rowMunicipio === municipio;
+        if (rowCabecera && isTarget) redistritacionCabeceras.add(rowCabecera);
+      } else {
+        votosDist += tvSafe; lneDist += lneSafe;
+        // Mark district match only for the target geo rows so that other municipios/sections
+        // in the same district do not mask a redistricted target municipio or section.
+        if (municipio) { if (rowMunicipio === municipio) districtMatchFound = true; }
+        else if (secFilter) { if (secFilter.has(rowSeccion)) districtMatchFound = true; }
+        else { districtMatchFound = true; }
+      }
     }
 
     // Apply municipio filter + accumulate municipal totals
@@ -2170,6 +2194,15 @@ export async function getResultadosFiltered(params: {
     : cargoKey === "sen" ? "SENADORES"
     : "PRESIDENTE";
 
+  // Only report redistricting when: (1) none of the target geo rows matched the requested
+  // district, and (2) all non-matching rows landed in exactly one other district (unambiguous).
+  const distritoRedistritado =
+    !districtMatchFound && redistritacionCabeceras.size === 1
+      ? (redistritacionCabeceras.values().next().value as string)
+      : undefined;
+  const redistritadoScope: "municipio" | "secciones" | undefined =
+    distritoRedistritado ? (secFilter ? "secciones" : "municipio") : undefined;
+
   const result: ResultadosEleccionesFiltered = {
     estado: estadoNombre ?? "NACIONAL",
     cargo: cargoLabel,
@@ -2188,6 +2221,8 @@ export async function getResultadosFiltered(params: {
       municipal: municipio && lneMun > 0 ? +((votosMun / lneMun) * 100).toFixed(2) : undefined,
       seccional: secFilter && lneSec > 0 ? +((votosSec / lneSec) * 100).toFixed(2) : undefined,
     },
+    distritoRedistritado,
+    redistritadoScope,
   };
 
   return result;
