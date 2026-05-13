@@ -7,6 +7,7 @@ import SefixHeroSection from "./SefixHeroSection";
 import TabNav from "./components/TabNav";
 import LnePanel from "./components/LnePanel";
 import EleccionesFedPanel from "./components/EleccionesFedPanel";
+import EleccionesLocalesPanel from "./components/EleccionesLocalesPanel";
 import UnderConstructionPage from "@/app/components/UnderConstructionPage";
 
 interface SefixDashboardProps {
@@ -24,15 +25,7 @@ export default function SefixDashboard({ role: _role }: SefixDashboardProps) {
       {/* Paneles de contenido */}
       {activeTab === "lne" && <LnePanel />}
       {activeTab === "elecciones_fed" && <EleccionesFedPanel />}
-      {activeTab === "elecciones_loc" && (
-        <section
-          id="sefix-panel-elecciones_loc"
-          role="tabpanel"
-          aria-labelledby="sefix-tab-elecciones_loc"
-        >
-          <UnderConstructionPage title="Elecciones Locales" />
-        </section>
-      )}
+      {activeTab === "elecciones_loc" && <EleccionesLocalesPanel />}
       {activeTab === "geo" && (
         <section
           id="sefix-panel-geo"

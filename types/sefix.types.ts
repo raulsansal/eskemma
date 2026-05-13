@@ -22,7 +22,7 @@ export interface SefixTab {
 export const SEFIX_TABS: SefixTab[] = [
   { id: "lne", label: "Padrón y Lista Nominal", available: true },
   { id: "elecciones_fed", label: "Elecciones Federales", available: true },
-  { id: "elecciones_loc", label: "Elecciones Locales", available: false },
+  { id: "elecciones_loc", label: "Elecciones Locales", available: true },
   { id: "geo", label: "Visualización Geográfica", available: false },
   { id: "geoestadisticos", label: "Estadísticos Geoelectorales", available: false },
   { id: "otros", label: "Otros Estadísticos", available: false },
@@ -170,6 +170,18 @@ export interface EleccionesFilterParams {
   municipio: string;   // "" = Todos
   secciones: string[]; // [] = Todas
   incluirExtranjero: boolean;
+}
+
+export interface EleccionesLocalesFilterParams {
+  estado: string;      // Llave primaria de la cascada — obligatorio, sin vista "Nacional"
+  anio: number;        // Se filtra por años disponibles para el estado seleccionado
+  cargo: string;       // Se filtra por cargos disponibles para el estado+año seleccionado
+  partidos: string[];  // ["Todos"] o lista específica
+  tipo: string;        // "ORDINARIA" | "EXTRAORDINARIA" | "AMBAS"
+  principio: string;   // "MAYORIA RELATIVA" | "REPRESENTACION PROPORCIONAL"
+  cabecera: string;    // "" = Todos los distritos del estado
+  municipio: string;   // "" = Todos los municipios del distrito
+  secciones: string[]; // [] = Todas las secciones
 }
 
 export interface ParticipacionPorNivel {

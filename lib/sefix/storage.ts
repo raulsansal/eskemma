@@ -46,7 +46,10 @@ async function streamCsvRows(
   for await (const line of rl) {
     if (!line.trim()) continue;
     if (isFirst) {
-      headers = line.split(",").map((h) => h.trim());
+      headers = line.split(",").map((h) => {
+        const t = h.trim();
+        return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
+      });
       isFirst = false;
       continue;
     }
@@ -2370,4 +2373,448 @@ export async function getNBAnual(ambito: "nacional" | "extranjero"): Promise<NBA
 
   if (result.length > 0) setCache(cacheKey, result);
   return result;
+}
+
+// ==========================================
+// ELECCIONES LOCALES — FILTRADO EXTENDIDO
+// ==========================================
+
+const RESULTS_META_COLS_LOC = new Set([
+  "id", "anio", "cve_ambito", "ambito", "cve_cargo", "cargo",
+  "cve_principio", "principio", "cve_tipo", "tipo",
+  "cve_estado", "estado", "cve_del", "cabecera",
+  "cve_mun", "municipio", "seccion",
+  "total_votos", "lne", "part_ciud",
+]);
+
+/**
+ * Maps canonical CSV estado name to the file prefix key used in PEL CSVs.
+ * Keys must match the estado column value in the CSV (e.g. "MEXICO" for EdoMex,
+ * "DISTRITO FEDERAL" for CDMX in 2015 data).
+ */
+const ESTADO_TO_LOC_KEY: Record<string, string> = {
+  "AGUASCALIENTES":        "ags",
+  "BAJA CALIFORNIA":       "bc",
+  "BAJA CALIFORNIA SUR":   "bcs",
+  "CAMPECHE":              "camp",
+  "CHIAPAS":               "chis",
+  "CHIHUAHUA":             "chih",
+  "COAHUILA":              "coah",
+  "COLIMA":                "col",
+  "CIUDAD DE MEXICO":      "df",
+  "DISTRITO FEDERAL":      "df",
+  "DURANGO":               "dgo",
+  "GUANAJUATO":            "gto",
+  "GUERRERO":              "gro",
+  "HIDALGO":               "hgo",
+  "JALISCO":               "jal",
+  "MEXICO":                "mex",
+  "ESTADO DE MEXICO":      "mex",
+  "MICHOACAN":             "mich",
+  "MORELOS":               "mor",
+  "NAYARIT":               "nay",
+  "NUEVO LEON":            "nl",
+  "OAXACA":                "oax",
+  "PUEBLA":                "pue",
+  "QUERETARO":             "qro",
+  "QUINTANA ROO":          "qroo",
+  "SAN LUIS POTOSI":       "slp",
+  "SINALOA":               "sin",
+  "SONORA":                "son",
+  "TABASCO":               "tab",
+  "TAMAULIPAS":            "tams",
+  "TLAXCALA":              "tlax",
+  "VERACRUZ":              "ver",
+  "YUCATAN":               "yuc",
+  "ZACATECAS":             "zac",
+};
+
+// Maps UI estado names to the exact value stored in the CSV `estado` column.
+// Needed because 2015 CDMX data uses the pre-2016 constitutional name,
+// and INE CSVs use "MEXICO" (not "ESTADO DE MEXICO") for Estado de México.
+const CSV_ESTADO_NAMES: Record<string, string> = {
+  "CIUDAD DE MEXICO": "DISTRITO FEDERAL",
+  "ESTADO DE MEXICO": "MEXICO",
+};
+function toCsvEstado(uiName: string): string {
+  const upper = uiName.toUpperCase().trim();
+  return CSV_ESTADO_NAMES[upper] ?? upper;
+}
+
+/** Resolves the Storage path for a local election CSV */
+async function resolveEleccionesLocalesPath(
+  anio: number,
+  cargoKey: string,
+  locKey: string
+): Promise<string | null> {
+  const allFiles = await listStorageFiles("sefix/results/locals/");
+  const pattern = `/${locKey}_pel_${cargoKey}_${anio}.csv`;
+  const match = allFiles.find((f) => f.endsWith(pattern));
+  return match ?? null;
+}
+
+/** Detects available election types and principios for a local combination */
+export async function getEleccionesLocalesMetadata(
+  anio: number,
+  cargoKey: string,
+  estadoNombre: string,
+  cabecera?: string
+): Promise<EleccionesMetadata> {
+  const locKey = ESTADO_TO_LOC_KEY[estadoNombre.toUpperCase().trim()];
+  if (!locKey) return { tipos: ["ORDINARIA"], principios: ["MAYORIA RELATIVA"], hasExtranjero: false };
+
+  const cacheKey = `elec_loc:meta:${anio}:${cargoKey}:${estadoNombre}:${cabecera ?? ""}`;
+  const cached = getCached<EleccionesMetadata>(cacheKey);
+  if (cached) return cached;
+
+  const path = await resolveEleccionesLocalesPath(anio, cargoKey, locKey);
+  if (!path) return { tipos: ["ORDINARIA"], principios: ["MAYORIA RELATIVA"], hasExtranjero: false };
+
+  const tipos = new Set<string>();
+  const principios = new Set<string>();
+
+  const csvEstadoLoc = toCsvEstado(estadoNombre);
+  await streamCsvRows(path, (row) => {
+    if (row.estado?.trim() !== csvEstadoLoc) return;
+    if (cabecera && row.cabecera?.trim() !== cabecera) return;
+    if (row.tipo) tipos.add(row.tipo.trim().toUpperCase());
+    if (row.principio) principios.add(row.principio.trim().toUpperCase());
+  });
+
+  const result: EleccionesMetadata = {
+    tipos: Array.from(tipos).sort(),
+    principios: Array.from(principios).sort(),
+    hasExtranjero: false,
+  };
+  setCache(cacheKey, result);
+  return result;
+}
+
+/** Returns geographic cascade options for local elections */
+export async function getEleccionesLocalesGeo(
+  nivel: "distritos" | "municipios" | "secciones",
+  anio: number,
+  cargoKey: string,
+  estadoNombre: string,
+  cabecera?: string,
+  municipio?: string
+): Promise<GeoEleccionesOpcion[]> {
+  const locKey = ESTADO_TO_LOC_KEY[estadoNombre.toUpperCase().trim()];
+  if (!locKey) return [];
+
+  const cacheKey = `elec_loc:geo:${nivel}:${anio}:${cargoKey}:${estadoNombre}:${cabecera ?? ""}:${municipio ?? ""}`;
+  const cached = getCached<GeoEleccionesOpcion[]>(cacheKey);
+  if (cached) return cached;
+
+  const path = await resolveEleccionesLocalesPath(anio, cargoKey, locKey);
+  if (!path) return [];
+
+  const seen = new Map<string, string>();
+  const csvEstadoGeo = toCsvEstado(estadoNombre);
+
+  await streamCsvRows(path, (row) => {
+    if (row.estado?.trim() !== csvEstadoGeo) return;
+
+    const sec = row.seccion?.trim();
+    if (!sec || sec === "0" || sec === "00") return;
+
+    if (nivel === "distritos") {
+      const cab = row.cabecera?.trim();
+      if (cab) seen.set(cab, cab);
+    } else if (nivel === "municipios") {
+      if (cabecera && row.cabecera?.trim() !== cabecera) return;
+      const mun = row.municipio?.trim();
+      if (mun) seen.set(mun, mun);
+    } else {
+      if (cabecera && row.cabecera?.trim() !== cabecera) return;
+      if (municipio && row.municipio?.trim() !== municipio) return;
+      if (sec) seen.set(sec, sec);
+    }
+  });
+
+  let result: GeoEleccionesOpcion[];
+  if (nivel === "secciones") {
+    result = Array.from(seen.keys())
+      .sort((a, b) => parseInt(a) - parseInt(b))
+      .map((s) => ({ cve: s, nombre: s }));
+  } else {
+    result = Array.from(seen.keys())
+      .sort((a, b) => a.localeCompare(b))
+      .map((s) => ({ cve: s, nombre: s }));
+  }
+
+  setCache(cacheKey, result);
+  return result;
+}
+
+/** Extended filter for local election results */
+export async function getResultadosLocalesFiltered(params: {
+  estadoNombre: string;
+  cargoKey: string;
+  anioInput: number;
+  tipoEleccion?: string;
+  principio?: string;
+  cabecera?: string;
+  municipio?: string;
+  secciones?: string[];
+  partidos?: string[];
+}): Promise<ResultadosEleccionesFiltered | null> {
+  const {
+    estadoNombre, cargoKey, anioInput,
+    tipoEleccion, principio, cabecera, municipio, secciones, partidos,
+  } = params;
+
+  const locKey = ESTADO_TO_LOC_KEY[estadoNombre.toUpperCase().trim()];
+  if (!locKey) return null;
+
+  const path = await resolveEleccionesLocalesPath(anioInput, cargoKey, locKey);
+  if (!path) return null;
+
+  const secFilter = secciones?.length
+    ? new Set(secciones.map((s) => s.trim()))
+    : null;
+
+  const partidoFilter =
+    partidos && !partidos.includes("Todos") ? new Set(partidos) : null;
+
+  const totals: Record<string, number> = {};
+  let totalVotos = 0;
+  let lne = 0;
+  let votosNulos = 0;
+  let votosEst = 0; let lneEst = 0;
+  let votosDist = 0; let lneDist = 0;
+  let votosMun = 0; let lneMun = 0;
+  let votosSec = 0; let lneSec = 0;
+
+  const redistritacionCabeceras = new Set<string>();
+  let districtMatchFound = false;
+
+  const csvEstadoFilt = toCsvEstado(estadoNombre);
+  const headers = await streamCsvRows(path, (row) => {
+    const rowSeccion = row.seccion?.trim();
+    if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
+    if (row.estado?.trim() !== csvEstadoFilt) return;
+
+    const tv = parseInt(row.total_votos ?? "0");
+    const lneRow = parseInt(row.lne ?? "0");
+    const tvSafe = isNaN(tv) ? 0 : tv;
+    const lneSafe = isNaN(lneRow) ? 0 : lneRow;
+
+    votosEst += tvSafe; lneEst += lneSafe;
+
+    const rowTipo = row.tipo?.trim().toUpperCase();
+    const rowPrincipio = row.principio?.trim().toUpperCase();
+    if (tipoEleccion && tipoEleccion !== "AMBAS" && rowTipo !== tipoEleccion) return;
+    if (principio && rowPrincipio !== principio) return;
+
+    const rowCabecera = row.cabecera?.trim();
+    const rowMunicipio = row.municipio?.trim();
+
+    if (cabecera) {
+      const reqCode = cabecera.match(/^(\d+)/)?.[1];
+      const rowCode = rowCabecera?.match(/^(\d+)/)?.[1];
+      const matches = reqCode && rowCode ? rowCode === reqCode : rowCabecera === cabecera;
+      if (!matches) {
+        if (!municipio && !secFilter) return;
+        if (secFilter && !secFilter.has(rowSeccion)) return;
+        const isTarget = secFilter ? secFilter.has(rowSeccion) : rowMunicipio === municipio;
+        if (rowCabecera && isTarget) redistritacionCabeceras.add(rowCabecera);
+      } else {
+        votosDist += tvSafe; lneDist += lneSafe;
+        if (municipio) { if (rowMunicipio === municipio) districtMatchFound = true; }
+        else if (secFilter) { if (secFilter.has(rowSeccion)) districtMatchFound = true; }
+        else { districtMatchFound = true; }
+      }
+    }
+
+    if (municipio) {
+      if (rowMunicipio !== municipio) return;
+      votosMun += tvSafe; lneMun += lneSafe;
+    }
+
+    if (secFilter) {
+      if (!secFilter.has(rowSeccion)) return;
+      votosSec += tvSafe; lneSec += lneSafe;
+    }
+
+    const vn = parseInt(row.vot_nul ?? "0");
+    totalVotos += tvSafe;
+    lne += lneSafe;
+    votosNulos += isNaN(vn) ? 0 : vn;
+
+    for (const [col, val] of Object.entries(row)) {
+      if (!RESULTS_META_COLS_LOC.has(col.toLowerCase())) {
+        const v = parseInt(val ?? "0");
+        if (!isNaN(v)) totals[col] = (totals[col] ?? 0) + v;
+      }
+    }
+  });
+
+  const allPartidoCols = headers.filter((h) => !RESULTS_META_COLS_LOC.has(h.toLowerCase()));
+  const colsToShow = partidoFilter
+    ? allPartidoCols.filter((h) => partidoFilter.has(h))
+    : allPartidoCols;
+
+  const denominator = totalVotos > 0 ? totalVotos : 1;
+  const partidos_result = colsToShow
+    .map((p) => ({
+      partido: p,
+      votos: totals[p] ?? 0,
+      porcentaje: +((totals[p] ?? 0) / denominator * 100).toFixed(2),
+      votosTotal: denominator,
+    }))
+    .filter((p) => p.votos > 0)
+    .sort((a, b) => b.votos - a.votos);
+
+  const distritoRedistritado =
+    !districtMatchFound && redistritacionCabeceras.size === 1
+      ? (redistritacionCabeceras.values().next().value as string)
+      : undefined;
+  const redistritadoScope: "municipio" | "secciones" | undefined =
+    distritoRedistritado ? (secFilter ? "secciones" : "municipio") : undefined;
+
+  return {
+    estado: estadoNombre,
+    cargo: cargoKey.toUpperCase(),
+    anio: anioInput,
+    totalVotos,
+    lne,
+    participacion: lne > 0 ? +((totalVotos / lne) * 100).toFixed(2) : 0,
+    votosNulos,
+    partidos: partidos_result,
+    fuente: `INE — Sistema de Consulta de la Estadística de las Elecciones Locales ${anioInput}`,
+    participacionPorNivel: {
+      estatal: lneEst > 0 ? +((votosEst / lneEst) * 100).toFixed(2) : undefined,
+      distrital: cabecera && lneDist > 0 ? +((votosDist / lneDist) * 100).toFixed(2) : undefined,
+      municipal: municipio && lneMun > 0 ? +((votosMun / lneMun) * 100).toFixed(2) : undefined,
+      seccional: secFilter && lneSec > 0 ? +((votosSec / lneSec) * 100).toFixed(2) : undefined,
+    },
+    distritoRedistritado,
+    redistritadoScope,
+  };
+}
+
+/**
+ * Returns available election years for a given estado.
+ * Used for the estado→año step of the local elections cascade.
+ */
+export async function getResultadosLocalesAvailableYears(
+  estadoNombre: string
+): Promise<number[]> {
+  const locKey = ESTADO_TO_LOC_KEY[estadoNombre.toUpperCase().trim()];
+  if (!locKey) return [];
+  const allFiles = await listStorageFiles("sefix/results/locals/");
+  const years = allFiles
+    .filter((f) => {
+      const name = f.split("/").pop() ?? "";
+      return name.startsWith(`${locKey}_pel_`);
+    })
+    .map((f) => parseInt(f.match(/_(\d{4})\.csv$/)?.[1] ?? "0"))
+    .filter((y) => y > 0);
+  return [...new Set(years)].sort();
+}
+
+/**
+ * Returns available cargo keys for a given estado + año combination.
+ * Used for the año→cargo step of the local elections cascade.
+ */
+export async function getResultadosLocalesAvailableCargos(
+  estadoNombre: string,
+  anio: number
+): Promise<string[]> {
+  const locKey = ESTADO_TO_LOC_KEY[estadoNombre.toUpperCase().trim()];
+  if (!locKey) return [];
+  const allFiles = await listStorageFiles("sefix/results/locals/");
+  const prefix = `${locKey}_pel_`;
+  const suffix = `_${anio}.csv`;
+  return allFiles
+    .map((f) => f.split("/").pop() ?? "")
+    .filter((name) => name.startsWith(prefix) && name.endsWith(suffix))
+    .map((name) => name.slice(prefix.length, name.length - suffix.length))
+    .sort();
+}
+
+/** Returns available years for a local cargo across all states (used for historico G3). */
+export async function getResultadosLocalesYearsForCargo(
+  cargoKey: string
+): Promise<number[]> {
+  const allFiles = await listStorageFiles("sefix/results/locals/");
+  const years = allFiles
+    .filter((f) => f.includes(`_pel_${cargoKey}_`))
+    .map((f) => parseInt(f.match(/_(\d{4})\.csv$/)?.[1] ?? "0"))
+    .filter((y) => y > 0);
+  return [...new Set(years)].sort();
+}
+
+/** Returns DataTable rows for local elections with optional pagination */
+export async function getEleccionesLocalesTablaRows(params: {
+  anio: number;
+  cargoKey: string;
+  estadoNombre: string;
+  tipoEleccion?: string;
+  principio?: string;
+  cabecera?: string;
+  municipio?: string;
+  secciones?: string[];
+  columnas?: string[];
+  page?: number;
+  pageSize?: number;
+}): Promise<{ rows: EleccionesTablaRow[]; total: number }> {
+  const {
+    anio, cargoKey, estadoNombre, tipoEleccion, principio,
+    cabecera, municipio, secciones, columnas, page, pageSize,
+  } = params;
+
+  const locKey = ESTADO_TO_LOC_KEY[estadoNombre.toUpperCase().trim()];
+  if (!locKey) return { rows: [], total: 0 };
+
+  const path = await resolveEleccionesLocalesPath(anio, cargoKey, locKey);
+  if (!path) return { rows: [], total: 0 };
+
+  const secFilter = secciones?.length
+    ? new Set(secciones.map((s) => s.trim()))
+    : null;
+
+  const allRows: EleccionesTablaRow[] = [];
+
+  const csvEstadoTabla = toCsvEstado(estadoNombre);
+  await streamCsvRows(path, (row) => {
+    const rowSeccion = row.seccion?.trim();
+    if (!rowSeccion || rowSeccion === "0" || rowSeccion === "00") return;
+    if (row.estado?.trim() !== csvEstadoTabla) return;
+    if (tipoEleccion && tipoEleccion !== "AMBAS" && row.tipo?.trim().toUpperCase() !== tipoEleccion) return;
+    if (principio && row.principio?.trim().toUpperCase() !== principio) return;
+    if (cabecera && row.cabecera?.trim() !== cabecera) return;
+    if (municipio && row.municipio?.trim() !== municipio) return;
+    if (secFilter && !secFilter.has(rowSeccion)) return;
+
+    const tableRow: EleccionesTablaRow = {
+      anio: parseInt(row.anio ?? String(anio)),
+      cargo: row.cargo?.trim() ?? cargoKey,
+      estado: row.estado?.trim() ?? estadoNombre,
+      cabecera: row.cabecera?.trim() ?? "",
+      municipio: row.municipio?.trim() ?? "",
+      seccion: rowSeccion,
+      tipo: row.tipo?.trim() ?? "",
+      principio: row.principio?.trim() ?? "",
+      total_votos: parseInt(row.total_votos ?? "0") || 0,
+      lne: parseInt(row.lne ?? "0") || 0,
+      part_ciud: parseFloat(row.part_ciud ?? "0") || 0,
+    };
+
+    for (const col of (columnas ?? [])) {
+      if (!RESULTS_META_COLS_LOC.has(col)) {
+        tableRow[col] = parseInt(row[col] ?? "0") || 0;
+      }
+    }
+
+    allRows.push(tableRow);
+  });
+
+  const total = allRows.length;
+  if (page !== undefined && pageSize !== undefined) {
+    const start = (page - 1) * pageSize;
+    return { rows: allRows.slice(start, start + pageSize), total };
+  }
+  return { rows: allRows, total };
 }
