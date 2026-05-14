@@ -2490,6 +2490,11 @@ export async function getEleccionesLocalesMetadata(
   return result;
 }
 
+/** Strips literal '?' characters introduced by encoding issues in INE source files */
+function cleanGeoName(s: string): string {
+  return s.replace(/\?/g, "").replace(/\s{2,}/g, " ").trim();
+}
+
 /** Returns geographic cascade options for local elections */
 export async function getEleccionesLocalesGeo(
   nivel: "distritos" | "municipios" | "secciones",
@@ -2519,11 +2524,11 @@ export async function getEleccionesLocalesGeo(
     if (!sec || sec === "0" || sec === "00") return;
 
     if (nivel === "distritos") {
-      const cab = row.cabecera?.trim();
+      const cab = cleanGeoName(row.cabecera?.trim() ?? "");
       if (cab) seen.set(cab, cab);
     } else if (nivel === "municipios") {
       if (cabecera && row.cabecera?.trim() !== cabecera) return;
-      const mun = row.municipio?.trim();
+      const mun = cleanGeoName(row.municipio?.trim() ?? "");
       if (mun) seen.set(mun, mun);
     } else {
       if (cabecera && row.cabecera?.trim() !== cabecera) return;
@@ -2542,6 +2547,52 @@ export async function getEleccionesLocalesGeo(
       .sort((a, b) => a.localeCompare(b))
       .map((s) => ({ cve: s, nombre: s }));
   }
+
+  setCache(cacheKey, result);
+  return result;
+}
+
+const LOC_FIXED_COLS = new Set([
+  "id",
+  "anio", "cve_ambito", "ambito",
+  "cve_tipo", "tipo",
+  "cve_principio", "principio",
+  "cve_cargo", "cargo",
+  "cve_estado", "estado",
+  "cve_del", "cabecera",
+  "cve_mun", "municipio",
+  "seccion",
+  "total_votos", "lne", "part_ciud",
+]);
+
+/** Returns only the party column names from the CSV header for a local election */
+export async function getEleccionesLocalesPartidos(
+  anio: number, cargoKey: string, estadoNombre: string
+): Promise<string[]> {
+  const locKey = ESTADO_TO_LOC_KEY[estadoNombre.toUpperCase().trim()];
+  if (!locKey) return [];
+  const path = await resolveEleccionesLocalesPath(anio, cargoKey, locKey);
+  if (!path) return [];
+
+  const cacheKey = `elec_loc:partidos:${anio}:${cargoKey}:${estadoNombre}`;
+  const cached = getCached<string[]>(cacheKey);
+  if (cached) return cached;
+
+  const fileStream = getBucket().file(path).createReadStream();
+  const rl = createInterface({ input: fileStream, crlfDelay: Infinity });
+
+  let result: string[] = [];
+  for await (const line of rl) {
+    if (!line.trim()) continue;
+    const headers = line.split(",").map((h) => {
+      const t = h.trim();
+      return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
+    });
+    result = headers.filter((h) => !LOC_FIXED_COLS.has(h.toLowerCase()));
+    break;
+  }
+  rl.close();
+  fileStream.destroy();
 
   setCache(cacheKey, result);
   return result;

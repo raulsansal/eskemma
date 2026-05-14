@@ -7,7 +7,6 @@ import {
   ELECCIONES_LOCALES_DEFAULTS,
   CARGO_DISPLAY_LABELS_LOC,
   CDMX_ONLY_CARGOS,
-  PARTIDOS_MAPPING_LOC,
 } from "@/lib/sefix/eleccionesLocalesConstants";
 import { EleccionesLocalesFilterParams, GeoEleccionesOpcion } from "@/types/sefix.types";
 
@@ -151,6 +150,35 @@ export function useLocalesSecciones(
 }
 
 // ============================================================
+// HOOK DE PARTIDOS DISPONIBLES (dinámico por estado+año+cargo)
+// ============================================================
+
+export function useLocalesAvailablePartidos(
+  anio: number,
+  cargo: string,
+  estado: string
+): { partidos: string[]; isLoading: boolean } {
+  const [partidos, setPartidos] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const cancelRef = useRef(false);
+
+  useEffect(() => {
+    if (!cargo || !estado) { setPartidos([]); return; }
+    cancelRef.current = false;
+    setIsLoading(true);
+    const p = new URLSearchParams({ nivel: "partidos", anio: String(anio), cargo, estado });
+    fetch(`${BASE}?${p}`)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelRef.current) setPartidos(d.partidos ?? []); })
+      .catch(() => { if (!cancelRef.current) setPartidos([]); })
+      .finally(() => { if (!cancelRef.current) setIsLoading(false); });
+    return () => { cancelRef.current = true; };
+  }, [anio, cargo, estado]);
+
+  return { partidos, isLoading };
+}
+
+// ============================================================
 // HOOK DE METADATA
 // ============================================================
 
@@ -225,6 +253,7 @@ interface UseEleccionesLocalesFiltersResult {
   cargosDisponibles: string[];
   loadingCargos: boolean;
   partidosDisponibles: string[];
+  loadingPartidos: boolean;
   tiposDisponibles: string[];
   principiosDisponibles: string[];
 }
@@ -279,9 +308,9 @@ export function useEleccionesLocalesFilters(): UseEleccionesLocalesFiltersResult
     (c) => !CDMX_ONLY_CARGOS.has(c) || isCdmx
   );
 
-  // Partidos disponibles para el año+cargo seleccionados
-  const mapKey = `${pendingAnio}_${pendingCargo}`;
-  const partidosDisponibles = PARTIDOS_MAPPING_LOC[mapKey] ?? [];
+  // Partidos disponibles para el estado+año+cargo seleccionados (dinámico desde CSV)
+  const { partidos: partidosDisponibles, isLoading: loadingPartidos } =
+    useLocalesAvailablePartidos(pendingAnio, pendingCargo, pendingEstado);
 
   // Metadata
   const { tipos: rawTipos, principios: rawPrincipios } = useLocalesMetadata(
@@ -425,6 +454,6 @@ export function useEleccionesLocalesFilters(): UseEleccionesLocalesFiltersResult
     handleConsultar, handleRestablecer,
     availableYears, loadingYears,
     cargosDisponibles, loadingCargos,
-    partidosDisponibles, tiposDisponibles, principiosDisponibles,
+    partidosDisponibles, loadingPartidos, tiposDisponibles, principiosDisponibles,
   };
 }

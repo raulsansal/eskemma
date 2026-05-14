@@ -53,6 +53,7 @@ interface Props {
   cargosDisponibles: string[];
   loadingCargos: boolean;
   partidosDisponibles: string[];
+  loadingPartidos: boolean;
   tiposDisponibles: string[];
   principiosDisponibles: string[];
 }
@@ -65,7 +66,7 @@ export default function EleccionesLocalesFilters({
   hasPending, onConsultar, onRestablecer,
   availableYears, loadingYears,
   cargosDisponibles, loadingCargos,
-  partidosDisponibles, tiposDisponibles, principiosDisponibles,
+  partidosDisponibles, loadingPartidos, tiposDisponibles, principiosDisponibles,
 }: Props) {
   const { opciones: distritos, isLoading: loadingDist } = useLocalesDistritos(
     pendingAnio, pendingCargo, pendingEstado,
@@ -284,7 +285,7 @@ export default function EleccionesLocalesFilters({
         <div className="flex-1 sm:flex-none sm:min-w-[200px]">
           <PartidosMultiSelect
             id="loc-partidos"
-            label="Partidos / coaliciones"
+            label={<>Partidos{loadingPartidos && <span className="ml-1 text-red-eske">(Cargando…)</span>}</>}
             options={partidoOptions}
             selected={pendingPartidos}
             onChange={setPartidos}

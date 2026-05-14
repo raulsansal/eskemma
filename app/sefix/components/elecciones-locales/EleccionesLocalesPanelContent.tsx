@@ -59,7 +59,7 @@ export default function EleccionesLocalesPanelContent() {
     handleConsultar, handleRestablecer,
     availableYears, loadingYears,
     cargosDisponibles, loadingCargos,
-    partidosDisponibles, tiposDisponibles, principiosDisponibles,
+    partidosDisponibles, loadingPartidos, tiposDisponibles, principiosDisponibles,
   } = useEleccionesLocalesFilters();
 
   const { data, isLoading, error } = useResultadosLocales(committed, queryVersion);
@@ -124,6 +124,7 @@ export default function EleccionesLocalesPanelContent() {
         cargosDisponibles={cargosDisponibles}
         loadingCargos={loadingCargos}
         partidosDisponibles={partidosDisponibles}
+        loadingPartidos={loadingPartidos}
         tiposDisponibles={tiposDisponibles}
         principiosDisponibles={principiosDisponibles}
       />

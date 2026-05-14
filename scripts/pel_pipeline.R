@@ -138,7 +138,16 @@ leer_csv <- function(ruta) {
     message("  AVISO: ", n_bom, " BOM(s) eliminado(s) en ", basename(ruta))
   }
 
-  texto <- rawToChar(raw_clean)
+  # Convert raw bytes to text. INE source files are Windows-1252/Latin-1;
+  # rawToChar() with a UTF-8 locale silently replaces non-ASCII bytes with '?'.
+  # Re-encode from latin1 to UTF-8 so that norm_texto() can strip accents correctly.
+  texto_tmp <- rawToChar(raw_clean)
+  texto <- tryCatch(
+    iconv(paste(rawToChar(raw_clean, multiple = TRUE), collapse = ""),
+          from = "latin1", to = "UTF-8", sub = ""),
+    error = function(e) texto_tmp
+  )
+  if (is.na(texto) || nchar(texto, type = "bytes") == 0L) texto <- texto_tmp
 
   df <- tryCatch(
     suppressWarnings(
@@ -163,6 +172,50 @@ leer_csv <- function(ruta) {
     df <- df[, !duplicated(names(df))]
   }
   df
+}
+
+# Corrige nombres de municipios/distritos con '?' producidos por archivos INE
+# cuya codificación original (Windows-1252) fue corrompida antes de llegar al
+# pipeline. Los reemplazos están verificados contra el catálogo INEGI.
+# Formato: patrón (regex) → corrección definitiva (ya normalizada, sin acentos).
+CORRECCIONES_NOMBRES <- c(
+  # --- Estado de México --------------------------------------------------
+  "ACAMBAY DE RUIZ CASTA\\?EDA"       = "ACAMBAY DE RUIZ CASTANEDA",
+  "ALMOLOYA DE JU\\?REZ"              = "ALMOLOYA DE JUAREZ",
+  "ALMOLOYA DEL R\\?O"                = "ALMOLOYA DEL RIO",
+  "ATIZAP\\?N DE ZARAGOZA"            = "ATIZAPAN DE ZARAGOZA",
+  "ATIZAP\\?N"                        = "ATIZAPAN",
+  "CHIMALHUAC\\?N"                    = "CHIMALHUACAN",
+  "COACALCO DE BERRIOZ\\?BAL"         = "COACALCO DE BERRIOZABAL",
+  "COCOTITL\\?N"                      = "COCOTITLAN",
+  "CUAUTITL\\?N IZCALLI"              = "CUAUTITLAN IZCALLI",
+  "CUAUTITL\\?N"                      = "CUAUTITLAN",
+  "JOCOTITL\\?N"                      = "JOCOTITLAN",
+  "NAUCALPAN DE JU\\?REZ"             = "NAUCALPAN DE JUAREZ",
+  "NEZAHUALC\\?YOTL"                  = "NEZAHUALCOYOTL",
+  "NICOL\\?S ROMERO"                  = "NICOLAS ROMERO",
+  "POLOTITL\\?N"                      = "POLOTITLAN",
+  "RAY\\?N"                           = "RAYON",
+  "SAN JOS\\? DEL RINC\\?N"           = "SAN JOSE DEL RINCON",
+  "SAN MART\\?N DE LAS PIR\\?MIDES"   = "SAN MARTIN DE LAS PIRAMIDES",
+  "SAN SIM\\?N DE GUERRERO"           = "SAN SIMON DE GUERRERO",
+  "SANTO TOM\\?S"                     = "SANTO TOMAS",
+  "SOYANIQUILPAN DE JU\\?REZ"         = "SOYANIQUILPAN DE JUAREZ",
+  "TEC\\?MAC"                         = "TECAMAC",
+  "TEOTIHUAC\\?N"                     = "TEOTIHUACAN",
+  "TEPOTZOTL\\?N"                     = "TEPOTZOTLAN",
+  "TEXCALTITL\\?N"                    = "TEXCALTITLAN",
+  "TULTITL\\?N"                       = "TULTITLAN",
+  "VILLA DEL CARB\\?N"                = "VILLA DEL CARBON",
+  "XONACATL\\?N"                      = "XONACATLAN",
+  "ZUMPAHUAC\\?N"                     = "ZUMPAHUACAN"
+)
+
+patch_nombres_corruptos <- function(x) {
+  for (patron in names(CORRECCIONES_NOMBRES)) {
+    x <- gsub(patron, CORRECCIONES_NOMBRES[[patron]], x, perl = TRUE)
+  }
+  x
 }
 
 # ------------------------------------------------------------------------------
@@ -214,17 +267,17 @@ procesar_archivo <- function(ruta_archivo, es_ext) {
       cve_estado    = suppressWarnings(as.integer(.data[["ID_ESTADO"]])),
       estado        = norm_texto(toupper(trimws(.data[["NOMBRE_ESTADO"]]))),
       cve_del       = suppressWarnings(as.integer(.data[["ID_DISTRITO"]])),
-      cabecera      = if (!is.na(col_cab)) paste0(
+      cabecera      = if (!is.na(col_cab)) patch_nombres_corruptos(paste0(
         sprintf("%02d", suppressWarnings(as.integer(.data[["ID_ESTADO"]]))),
         sprintf("%02d", suppressWarnings(as.integer(.data[["ID_DISTRITO"]]))),
         " ",
         norm_texto(toupper(trimws(.data[[col_cab]])))
-      ) else paste0(
+      )) else paste0(
         sprintf("%02d", suppressWarnings(as.integer(.data[["ID_ESTADO"]]))),
         sprintf("%02d", suppressWarnings(as.integer(.data[["ID_DISTRITO"]])))
       ),
       cve_mun       = suppressWarnings(as.integer(.data[["ID_MUNICIPIO"]])),
-      municipio     = norm_texto(toupper(trimws(.data[["MUNICIPIO"]]))),
+      municipio     = patch_nombres_corruptos(norm_texto(toupper(trimws(.data[["MUNICIPIO"]])))),
       seccion       = .seccion_int,
       no_reg        = suppressWarnings(as.integer(.data[["NUM_VOTOS_CAN_NREG"]])),
       vot_nul       = suppressWarnings(as.integer(.data[["NUM_VOTOS_NULOS"]])),

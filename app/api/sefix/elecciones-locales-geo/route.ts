@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getEleccionesLocalesGeo,
   getEleccionesLocalesMetadata,
+  getEleccionesLocalesPartidos,
   getResultadosLocalesAvailableYears,
   getResultadosLocalesAvailableCargos,
 } from "@/lib/sefix/storage";
@@ -21,6 +22,7 @@ export async function GET(request: NextRequest) {
       | "distritos"
       | "municipios"
       | "secciones"
+      | "partidos"
       | null;
     const estado = searchParams.get("estado") ?? "";
     const anioParam = searchParams.get("anio");
@@ -75,9 +77,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ metadata });
     }
 
+    // Partidos: columnas de partido presentes en el CSV del estado+año+cargo
+    if (nivel === "partidos") {
+      const partidos = await getEleccionesLocalesPartidos(anio, cargo, estado);
+      return NextResponse.json({ partidos });
+    }
+
     if (!nivel || !["distritos", "municipios", "secciones"].includes(nivel)) {
       return NextResponse.json(
-        { error: "Parámetro 'nivel' inválido. Valores: available_years, available_cargos, metadata, distritos, municipios, secciones" },
+        { error: "Parámetro 'nivel' inválido. Valores: available_years, available_cargos, metadata, distritos, municipios, secciones, partidos" },
         { status: 400 }
       );
     }
