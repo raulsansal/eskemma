@@ -6,6 +6,7 @@ import {
   getResultadosLocalesAvailableYears,
   getResultadosLocalesYearsForCargo,
 } from "@/lib/sefix/storage";
+import { CDMX_EQUIV_GROUP } from "@/lib/sefix/eleccionesLocalesConstants";
 
 export const dynamic = "force-dynamic";
 
@@ -47,28 +48,41 @@ export async function GET(request: NextRequest) {
 
     // Todos los años disponibles para el estado+cargo (gráfica histórica)
     if (allYears) {
+      // CDMX: jef_del (2015) = ayun (2021) = alc (futuro) — mismo nivel de gobierno
+      const isCdmxLike = ["CIUDAD DE MEXICO", "DISTRITO FEDERAL"].includes(
+        estado.toUpperCase().trim()
+      );
+      const cargoEquivs =
+        isCdmxLike && (CDMX_EQUIV_GROUP as readonly string[]).includes(cargo)
+          ? [...CDMX_EQUIV_GROUP]
+          : [cargo];
+
       const years = await getResultadosLocalesAvailableYears(estado);
-      const settled = await Promise.allSettled(
-        years.map((y) =>
-          getResultadosLocalesFiltered({
-            estadoNombre: estado,
-            cargoKey: cargo,
-            anioInput: y,
-            tipoEleccion,
-            principio,
-            cabecera,
-            municipio,
-            secciones,
-            partidos: partidos.length > 0 ? partidos : undefined,
+      const resultados = (
+        await Promise.all(
+          years.map(async (y) => {
+            for (const c of cargoEquivs) {
+              const result = await getResultadosLocalesFiltered({
+                estadoNombre: estado,
+                cargoKey: c,
+                anioInput: y,
+                tipoEleccion,
+                principio,
+                cabecera,
+                municipio,
+                secciones,
+                partidos: partidos.length > 0 ? partidos : undefined,
+              });
+              if (result) return result;
+            }
+            return null;
           })
         )
-      );
-      const resultados = settled
+      )
         .filter(
-          (r): r is PromiseFulfilledResult<NonNullable<Awaited<ReturnType<typeof getResultadosLocalesFiltered>>>> =>
-            r.status === "fulfilled" && r.value !== null
+          (r): r is NonNullable<Awaited<ReturnType<typeof getResultadosLocalesFiltered>>> =>
+            r !== null
         )
-        .map((r) => r.value)
         .sort((a, b) => a.anio - b.anio);
       return NextResponse.json({ resultados });
     }

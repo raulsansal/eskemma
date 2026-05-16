@@ -35,10 +35,11 @@ export const CARGO_DISPLAY_LABELS_LOC: Record<string, string> = {
 export const VALID_COMBINATIONS_LOC: Record<string, string[]> = {
   "2015": ["ayun", "dip_loc", "gob", "junta", "jef_del"],
   // 2016 (CDMX): asm disponible — descomentar al procesar ese año
-  // "2016": ["ayun", "dip_loc", "gob", "junta", "asm"],
+  // "2016": ["asm"],
+  "2021": ["ayun", "dip_loc", "gob", "junta", "pres_com", "reg", "sind"],
 };
 
-export const AVAILABLE_YEARS_LOC = [2015];
+export const AVAILABLE_YEARS_LOC = [2015, 2021];
 
 // ============================================================
 // CARGOS EXCLUSIVOS DE CDMX/DF
@@ -47,6 +48,14 @@ export const AVAILABLE_YEARS_LOC = [2015];
 // ============================================================
 
 export const CDMX_ONLY_CARGOS = new Set(["jef_gob", "jef_del", "alc", "asm"]);
+
+// ============================================================
+// EQUIVALENCIA DE CARGOS PARA CDMX (trazabilidad histórica)
+// jef_del (2015) = ayun (2021) = alc (futuro): mismo nivel de gobierno,
+// distinta denominación legal. Solo se aplica en vistas históricas (all_years).
+// asm (2016) queda fuera: fue una asamblea constituyente única, sin par histórico.
+// ============================================================
+export const CDMX_EQUIV_GROUP = ["jef_del", "ayun", "alc"] as const;
 
 // ============================================================
 // MAPEO PARTIDOS/COALICIONES POR AÑO + CARGO
@@ -398,11 +407,10 @@ export function getPartidoLabelLoc(col: string): string {
 // estado es obligatorio — no existe vista "nacional" en elecciones locales
 // ============================================================
 
-// Default: first state alphabetically with 2015 data; dip_loc most common cargo
 export const ELECCIONES_LOCALES_DEFAULTS = {
-  anio:      2015,
+  anio:      2021,
   cargo:     "dip_loc" as string,
-  estado:    "BAJA CALIFORNIA SUR" as string,
+  estado:    "AGUASCALIENTES" as string,
   partidos:  ["Todos"] as string[],
   tipo:      "ORDINARIA" as const,
   principio: "MAYORIA RELATIVA" as const,

@@ -67,7 +67,6 @@ export function useResultadosLocalesAllYears(params: {
   const lastVersion = useRef(-1);
 
   useEffect(() => {
-    if (queryVersion === 0) return;
     if (queryVersion === lastVersion.current) return;
     lastVersion.current = queryVersion;
     cancelRef.current = false;

@@ -5,12 +5,12 @@ import {
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import {
-  PARTIDOS_MAPPING_LOC,
   PARTY_COLORS_LOC,
   PARTY_COLORS_DARK_LOC,
   CARGO_DISPLAY_LABELS_LOC,
   getPartidoLabelLoc,
 } from "@/lib/sefix/eleccionesLocalesConstants";
+import { useLocalesAvailablePartidos } from "@/app/sefix/hooks/useEleccionesLocalesFilters";
 import { useDarkMode } from "@/app/hooks/useDarkMode";
 import type { EleccionesLocalesFilterParams, ResultadosEleccionesData } from "@/types/sefix.types";
 
@@ -38,12 +38,10 @@ function getColor(pid: string, dark: boolean): string {
 interface LocalConfig { anio: number; cargo: string; partidos: string[] }
 
 function buildDefault(committed: EleccionesLocalesFilterParams): LocalConfig {
-  const available = PARTIDOS_MAPPING_LOC[`${committed.anio}_${committed.cargo}`] ?? [];
-  const partidos = DEFAULT_PARTIDOS.filter((p) => available.includes(p));
   return {
     anio: committed.anio,
     cargo: committed.cargo,
-    partidos: partidos.length ? partidos : DEFAULT_PARTIDOS.slice(0, 5),
+    partidos: DEFAULT_PARTIDOS.slice(0, 5),
   };
 }
 
@@ -120,21 +118,31 @@ export default function HistoricoPartidosLoc({
     setVersion((v) => v + 1);
   }, [queryVersion]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Sync "Hasta el año" to max available when availableYears grows
+  useEffect(() => {
+    if (availableYears.length === 0) return;
+    const maxYear = availableYears[availableYears.length - 1];
+    setLocal((prev) => {
+      if (maxYear <= prev.anio) return prev;
+      return { ...prev, anio: maxYear };
+    });
+    setPending((prev) => {
+      if (maxYear <= prev.anio) return prev;
+      return { ...prev, anio: maxYear };
+    });
+    setVersion((v) => v + 1);
+  }, [availableYears]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const { data: allData, isLoading } = useHistoricoLocData(committed, local.cargo, local.anio, version);
 
-  // Derive available parties from actual data returned for this state+cargo combination.
-  // Falls back to empty list while loading — checkboxes are hidden until data arrives.
-  const availablePartidos = useMemo(() => {
-    if (allData.length === 0) return [];
-    const seen = new Set<string>();
-    allData.forEach((d) =>
-      d.partidos.forEach((p) => { if (p.votos > 0) seen.add(p.partido); })
-    );
-    return [
-      ...DEFAULT_PARTIDOS.filter((p) => seen.has(p)),
-      ...[...seen].filter((p) => !DEFAULT_PARTIDOS.includes(p)).sort(),
-    ];
-  }, [allData]);
+  // Available parties keyed by pending year+cargo — updates immediately when user changes config.
+  const { partidos: rawPartidos } = useLocalesAvailablePartidos(
+    pending.anio, pending.cargo, committed.estado
+  );
+  const availablePartidos = useMemo(() => [
+    ...DEFAULT_PARTIDOS.filter((p) => rawPartidos.includes(p)),
+    ...rawPartidos.filter((p) => !DEFAULT_PARTIDOS.includes(p)),
+  ], [rawPartidos]);
 
   // When available parties change, keep valid selections or reset to defaults.
   useEffect(() => {

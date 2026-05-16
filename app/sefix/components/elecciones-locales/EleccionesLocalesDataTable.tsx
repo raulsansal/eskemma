@@ -110,7 +110,10 @@ export default function EleccionesLocalesDataTable({
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-gray-eske-20 dark:border-white/10">
+      <div
+        className="overflow-x-auto rounded-lg border border-gray-eske-20 dark:border-white/10"
+        style={{ minHeight: `${pageSize * 37 + 44}px` }}
+      >
         <table className="min-w-full divide-y divide-gray-eske-20 dark:divide-white/10">
           <thead className="bg-gray-eske-10 dark:bg-[#0D1E2C]">
             <tr>

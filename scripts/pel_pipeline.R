@@ -28,7 +28,7 @@ RUTA_PREP   <- "/Users/raul/Documents/development/eskemma/data/results/locals/pr
 RUTA_SALIDA <- "/Users/raul/Documents/development/eskemma/data/results/locals/procesados"
 
 # Año a procesar (solo un año por ejecución)
-ANIO <- 2015
+ANIO <- 2021
 
 # Entidades a procesar — NULL = todas; usar clave de carpeta, e.g. c("CHIS")
 ENTIDADES_FILTRO <- NULL
@@ -50,7 +50,7 @@ CARGO_FOLDERS <- tribble(
   "SINDICATURA",              "sind",      11L,        "SINDICATURA",
   "REGIDURIA",                "reg",       12L,        "REGIDURIA",
   "ASAMBLEISTA",              "asm",       13L,        "ASAMBLEISTA",
-  "PRESIDENCIA_COMUNITARIA",  "pres_com",  14L,        "PRESIDENCIA COMUNITARIA"
+  "PRESIDENCIA_COMUNIDAD",    "pres_com",  14L,        "PRESIDENCIA COMUNITARIA"
 )
 
 # ------------------------------------------------------------------------------
@@ -98,11 +98,12 @@ es_fila_agregado <- function(seccion_val) {
   is.na(seccion_val) || seccion_val == 0 || seccion_val == ""
 }
 
-# Columnas de partido: entre CASILLAS/CASILLA y NUM_VOTOS_CAN_NREG (exclusivos)
+# Columnas de partido: entre CASILLAS/CASILLA y la columna de no-registrados
+# (acepta NUM_VOTOS_CAN_NREG o NO_REGISTRADOS como marcador derecho)
 columnas_partido <- function(cols) {
   cols_up   <- toupper(cols)
   idx_cas   <- which(cols_up %in% c("CASILLAS", "CASILLA"))
-  idx_nreg  <- which(cols_up == "NUM_VOTOS_CAN_NREG")
+  idx_nreg  <- which(cols_up %in% c("NUM_VOTOS_CAN_NREG", "NO_REGISTRADOS"))
   if (length(idx_cas) == 0 || length(idx_nreg) == 0) return(character(0))
   cols[(idx_cas[1] + 1):(idx_nreg[1] - 1)]
 }
@@ -138,16 +139,22 @@ leer_csv <- function(ruta) {
     message("  AVISO: ", n_bom, " BOM(s) eliminado(s) en ", basename(ruta))
   }
 
-  # Convert raw bytes to text. INE source files are Windows-1252/Latin-1;
-  # rawToChar() with a UTF-8 locale silently replaces non-ASCII bytes with '?'.
-  # Re-encode from latin1 to UTF-8 so that norm_texto() can strip accents correctly.
+  # Convert raw bytes to text.
+  # Files WITH a UTF-8 BOM are already UTF-8 — use rawToChar directly.
+  # Files WITHOUT a BOM are assumed Latin-1/Windows-1252 (older INE sources);
+  # re-encode them from latin1 to UTF-8 so norm_texto() can strip accents.
+  had_bom <- length(raw_clean) < length(raw)
   texto_tmp <- rawToChar(raw_clean)
-  texto <- tryCatch(
-    iconv(paste(rawToChar(raw_clean, multiple = TRUE), collapse = ""),
-          from = "latin1", to = "UTF-8", sub = ""),
-    error = function(e) texto_tmp
-  )
-  if (is.na(texto) || nchar(texto, type = "bytes") == 0L) texto <- texto_tmp
+  if (had_bom) {
+    texto <- texto_tmp
+  } else {
+    texto <- tryCatch(
+      iconv(paste(rawToChar(raw_clean, multiple = TRUE), collapse = ""),
+            from = "latin1", to = "UTF-8", sub = ""),
+      error = function(e) texto_tmp
+    )
+    if (is.na(texto) || nchar(texto, type = "bytes") == 0L) texto <- texto_tmp
+  }
 
   df <- tryCatch(
     suppressWarnings(
@@ -236,17 +243,38 @@ procesar_archivo <- function(ruta_archivo, es_ext) {
     return(NULL)
   }
 
+  # Normalize column names: strip accented vowels and uppercase.
+  # Some INE files use SECCIÓN (with accent) instead of SECCION.
+  col_nms <- toupper(trimws(names(df_raw)))
+  col_nms <- gsub("Á", "A", col_nms, fixed = TRUE)  # Á
+  col_nms <- gsub("É", "E", col_nms, fixed = TRUE)  # É
+  col_nms <- gsub("Í", "I", col_nms, fixed = TRUE)  # Í
+  col_nms <- gsub("Ó", "O", col_nms, fixed = TRUE)  # Ó
+  col_nms <- gsub("Ú", "U", col_nms, fixed = TRUE)  # Ú
+  names(df_raw) <- col_nms
+
   cols_partido <- columnas_partido(names(df_raw))
   cve_tipo_val <- if (es_ext) 2L else 1L
   tipo_val     <- if (es_ext) "EXTRAORDINARIA" else "ORDINARIA"
 
-  # Normalizar nombre de columna de cabecera (acepta espacio o guión bajo)
+  # Normalizar nombre de columna de cabecera (acepta espacio, guión bajo, o sufijo _LOCAL)
   col_cab <- names(df_raw)[toupper(trimws(names(df_raw))) %in%
-               c("CABECERA_DISTRITAL", "CABECERA DISTRITAL")][1]
+               c("CABECERA_DISTRITAL", "CABECERA DISTRITAL",
+                 "CABECERA_DISTRITAL_LOCAL")][1]
   if (is.na(col_cab)) {
     message("  AVISO: Columna CABECERA_DISTRITAL no encontrada en ", basename(ruta_archivo))
     col_cab <- NA_character_
   }
+
+  # Detectar columna de ID de distrito (2015: ID_DISTRITO, 2021: ID_DISTRITO_LOCAL)
+  col_dist_id <- names(df_raw)[toupper(trimws(names(df_raw))) %in%
+                   c("ID_DISTRITO", "ID_DISTRITO_LOCAL")][1]
+  if (is.na(col_dist_id)) col_dist_id <- "ID_DISTRITO"
+
+  # Detectar columna de votos no registrados (varía por fuente INE)
+  col_no_reg <- names(df_raw)[toupper(trimws(names(df_raw))) %in%
+                   c("NUM_VOTOS_CAN_NREG", "NO_REGISTRADOS")][1]
+  if (is.na(col_no_reg)) col_no_reg <- "NUM_VOTOS_CAN_NREG"
 
   # Construir df de salida fila por fila (mutate)
   df_out <- df_raw %>%
@@ -266,20 +294,20 @@ procesar_archivo <- function(ruta_archivo, es_ext) {
       cargo         = info_cargo$cargo_label,
       cve_estado    = suppressWarnings(as.integer(.data[["ID_ESTADO"]])),
       estado        = norm_texto(toupper(trimws(.data[["NOMBRE_ESTADO"]]))),
-      cve_del       = suppressWarnings(as.integer(.data[["ID_DISTRITO"]])),
+      cve_del       = suppressWarnings(as.integer(.data[[col_dist_id]])),
       cabecera      = if (!is.na(col_cab)) patch_nombres_corruptos(paste0(
         sprintf("%02d", suppressWarnings(as.integer(.data[["ID_ESTADO"]]))),
-        sprintf("%02d", suppressWarnings(as.integer(.data[["ID_DISTRITO"]]))),
+        sprintf("%02d", suppressWarnings(as.integer(.data[[col_dist_id]]))),
         " ",
         norm_texto(toupper(trimws(.data[[col_cab]])))
       )) else paste0(
         sprintf("%02d", suppressWarnings(as.integer(.data[["ID_ESTADO"]]))),
-        sprintf("%02d", suppressWarnings(as.integer(.data[["ID_DISTRITO"]])))
+        sprintf("%02d", suppressWarnings(as.integer(.data[[col_dist_id]])))
       ),
       cve_mun       = suppressWarnings(as.integer(.data[["ID_MUNICIPIO"]])),
       municipio     = patch_nombres_corruptos(norm_texto(toupper(trimws(.data[["MUNICIPIO"]])))),
       seccion       = .seccion_int,
-      no_reg        = suppressWarnings(as.integer(.data[["NUM_VOTOS_CAN_NREG"]])),
+      no_reg        = suppressWarnings(as.integer(.data[[col_no_reg]])),
       vot_nul       = suppressWarnings(as.integer(.data[["NUM_VOTOS_NULOS"]])),
       total_votos   = suppressWarnings(as.integer(.data[["TOTAL_VOTOS"]])),
       lne           = suppressWarnings(as.integer(.data[["LISTA_NOMINAL"]])),
